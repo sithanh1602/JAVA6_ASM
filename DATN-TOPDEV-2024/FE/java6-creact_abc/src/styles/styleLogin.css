@@ -1,0 +1,18 @@
+/* styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .bg-galaxy {
+        background: linear-gradient(135deg, #020024, #090979, #00d4ff);
+        background-size: 200% 200%;
+        animation: galaxy 10s ease infinite;
+    }
+
+    @keyframes galaxy {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+}
