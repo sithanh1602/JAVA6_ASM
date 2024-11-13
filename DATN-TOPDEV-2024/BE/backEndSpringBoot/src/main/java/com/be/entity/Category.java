@@ -12,6 +12,7 @@ public class Category {
     private int id;
 
     private String name;
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
     private String image;
 
