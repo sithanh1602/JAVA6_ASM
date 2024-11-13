@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import UserService from '../.././servies/UserService';
+import UserService from '../../services/UserService';
 import UserTable from '../../components/admin/TableForm/Users/UserTable';
 import UserInput from '../../components/admin/TableForm/Users/UserInput';
 

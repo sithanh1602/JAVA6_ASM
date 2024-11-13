@@ -28,8 +28,10 @@ public class Product {
     private int stock;
     private String imageUrl;
     private Date createdAt;
+    private int price;
     @Column(columnDefinition = "NVARCHAR(255)")
     private String status;
+
 
     // getters and setters
 }

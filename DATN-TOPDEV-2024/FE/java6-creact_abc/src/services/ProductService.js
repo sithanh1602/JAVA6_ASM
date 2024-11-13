@@ -69,29 +69,6 @@ class ProductService {
         }
     }
 
-    // Fetch product variants by product ID
-    async getProductVariants(productId) {
-        try {
-            const response = await axios.get(`${BASE_URL}/${productId}/variants`);
-            return response.data; // Returns the list of variants
-        } catch (error) {
-            console.error(`Error fetching variants for product ID ${productId}:`, error);
-            throw error; // Propagate error
-        }
-    }
-
-    // Fetch attributes by variant ID
-    async getAttributesByVariantId(productId, variantId) {
-        try {
-            const response = await axios.get(`${BASE_URL}/${productId}/variants/${variantId}/attributes`);
-            return response.data; // Returns the list of attributes
-        } catch (error) {
-            console.error(`Error fetching attributes for variant ID ${variantId}:`, error);
-            throw error; // Propagate error
-        }
-    }
-
-
     // Fetch products by category
     async getProductsByCategory(category) {
         try {
@@ -102,6 +79,27 @@ class ProductService {
             throw error;
         }
     }
+
+    // Fetch products by category, brand, price range, and search query
+    async getFilteredProducts(filters) {
+        try {
+            const response = await axios.get(BASE_URL, {
+                params: {
+                    category: filters.category || '',
+                    brand: filters.brand || '',
+                    minPrice: filters.minPrice || 0,
+                    maxPrice: filters.maxPrice || 10000,
+                    searchQuery: filters.searchQuery || ''
+                }
+            });
+            return response.data; // Return filtered products
+        } catch (error) {
+            console.error('Error fetching filtered products:', error);
+            throw error;
+        }
+    }
+
+
 }
 
 export default new ProductService();

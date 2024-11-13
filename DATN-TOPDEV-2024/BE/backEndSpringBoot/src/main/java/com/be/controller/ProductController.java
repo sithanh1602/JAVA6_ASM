@@ -63,18 +63,4 @@ public class ProductController {
     public Brand getBrandByProductId(@PathVariable Long productId) {
         return productService.getBrandByProductId(productId); // Trả về thương hiệu
     }
-
-    @GetMapping("/{id}/variants")
-    public List<ProductVariant> getVariantsByProductId(@PathVariable int id) {
-        return productService.getVariantsByProductId(id);
-    }
-
-
-    @GetMapping("/{productId}/variants/{variantId}/attributes")
-    public ResponseEntity<List<Attribute>> getAttributesByVariantId(
-            @PathVariable int productId,
-            @PathVariable int variantId) {
-        List<Attribute> attributes = productService.getAttributesByVariantId(variantId);
-        return ResponseEntity.ok(attributes);
-    }
 }

@@ -9,11 +9,11 @@ import lombok.Data;
 public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int brandsId;
+    private Long brandsId;
 
     private String name;
     private String contactInfo;
     private String image;
 
-    // getters and setters
+
 }
