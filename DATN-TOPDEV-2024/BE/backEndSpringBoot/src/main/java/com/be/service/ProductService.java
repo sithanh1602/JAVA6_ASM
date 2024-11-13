@@ -1,10 +1,8 @@
 package com.be.service;
 
 import com.be.entity.*;
-import com.be.rep.AttributesProductVariantRepository;
 import com.be.rep.BrandRepository;
 import com.be.rep.ProductRepository; // Import your Product repository
-import com.be.rep.ProductVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +14,6 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    @Autowired
-    private ProductVariantRepository productVariantRepository;
 
     @Autowired
     public ProductService(ProductRepository productRepository) {
@@ -70,18 +66,4 @@ public class ProductService {
         return product.getBrand(); // Giả sử Product có mối quan hệ với Brand
     }
 
-    public List<ProductVariant> getVariantsByProductId(int productId) {
-        return productVariantRepository.findByProductId(productId);
-    }
-
-
-    @Autowired
-    private AttributesProductVariantRepository attributesProductVariantRepository;
-
-    public List<Attribute> getAttributesByVariantId(int variantId) {
-        return attributesProductVariantRepository.findByProductVariantId(variantId)
-                .stream()
-                .map(AttributesProductVariant::getAttribute)
-                .collect(Collectors.toList());
-    }
 }

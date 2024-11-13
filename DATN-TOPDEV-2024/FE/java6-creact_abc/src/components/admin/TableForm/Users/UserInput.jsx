@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import UserService from '../../../../servies/UserService';
+import UserService from '../../../../services/UserService';
 
 const UserInput = ({ user, onSave }) => {
     const [formData, setFormData] = useState({
