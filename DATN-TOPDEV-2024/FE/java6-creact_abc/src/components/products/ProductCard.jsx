@@ -1,66 +1,38 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
+import { addProductToCart } from '../../services/CartService';
 // Helper function to format price in VND without the currency symbol
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
 };
 
-const ProductCard = ({ product, index, userId }) => {
-    // State để quản lý giỏ hàng trong session
-    const [cart, setCart] = useState(() => {
-        const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
-        return savedCart;
-    });
+const ProductCard = ({ product, index }) => {
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
-    // Hàm thêm sản phẩm vào giỏ hàng
-    const handleAddToCart = () => {
-        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-        const existingProduct = cart.find(item => item.id === product.id);
+    const handleAddToCart = async () => {
+        const userId = JSON.parse(localStorage.getItem('UserId')); // Lấy userId từ localStorage
 
-        if (existingProduct) {
-            // Nếu có, cập nhật số lượng sản phẩm
-            setCart(cart.map(item =>
-                item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-            ));
-        } else {
-            // Nếu chưa, thêm sản phẩm mới vào giỏ hàng
-            setCart([...cart, { ...product, quantity: 1 }]);
+        if (!userId) {
+            setMessage('Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng');
+            setTimeout(() => navigate('/login'), 1500); // Chuyển hướng đến trang đăng nhập sau 1.5 giây
+            return;
         }
 
-        // Lưu giỏ hàng vào localStorage
-        localStorage.setItem('cart', JSON.stringify(cart));
-
-        // Gửi request đến BE để cập nhật giỏ hàng trong cơ sở dữ liệu
-        addToCartBackend(userId, product.id);
-    };
-
-    // Gửi request thêm sản phẩm vào giỏ hàng của người dùng
-    const addToCartBackend = (userId, productId) => {
-        fetch('http://localhost:8080/api/cartdetail', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                user_id: userId,
-                product_id: productId,
-                quantity: 1, // mặc định mỗi lần thêm 1 sản phẩm
-            }),
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Sản phẩm đã được thêm vào giỏ hàng:', data);
-            })
-            .catch(error => {
-                console.error('Lỗi khi thêm sản phẩm vào giỏ hàng:', error);
-            });
+        try {
+            await addProductToCart(userId, product.id, 1); // Truyền userId trước, sau đó là productId và quantity
+            setMessage('Thêm vào giỏ hàng thành công!');
+        } catch (error) {
+            setMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
+        }
     };
 
     // Check if the product is out of stock
     const isOutOfStock = product.stock === 0;
 
     return (
+// <<<<<<< Updated upstream
         <div className={`bg-white p-4 rounded shadow-md hover:scale-105 transform transition duration-300 w-full ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}>
             <Link to={`/product/${product.id}`}>
                 <div className="flex justify-center items-center">
@@ -76,6 +48,19 @@ const ProductCard = ({ product, index, userId }) => {
             <div className={`text-sm font-bold mb-2 ${isOutOfStock ? 'text-red-500' : 'text-orange-500'}`}>
                 {isOutOfStock ? 'Hết hàng' : `Còn lại: ${product.stock}`}
             </div>
+{/*=======*/}
+{/*        <div className="bg-white p-4 rounded shadow w-full">*/}
+{/*            <div className="flex justify-center items-center">*/}
+{/*                <img*/}
+{/*                    src={product.imageUrl || `https://placehold.co/200x200?text=Product+Image+${index + 1}`}*/}
+{/*                    alt={product.name || `Product Image ${index + 1}`}*/}
+{/*                    className="h-48 object-cover mb-4"*/}
+{/*                />*/}
+{/*            </div>*/}
+{/*            <h3 className="text-sm font-bold mb-2">{product.name}</h3>*/}
+{/*            <div className="text-sm text-gray-600 mb-2">{product.price} VND</div>*/}
+{/*            <div className="text-sm text-orange-500 font-bold mb-2">Còn lại: {product.stock}</div>*/}
+{/*>>>>>>> Stashed changes*/}
             <div className="flex items-center justify-center mt-4">
                 <button
                     onClick={handleAddToCart}
@@ -85,6 +70,7 @@ const ProductCard = ({ product, index, userId }) => {
                     {isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
                 </button>
             </div>
+            {message && <div className={`mt-2 ${message.includes('Lỗi') ? 'text-red-500' : 'text-green-500'}`}>{message}</div>}
         </div>
     );
 };

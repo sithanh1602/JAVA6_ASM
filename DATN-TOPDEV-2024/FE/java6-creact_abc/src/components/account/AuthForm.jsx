@@ -13,6 +13,7 @@ import { FaUser, FaLock, FaEnvelope, FaGoogle, FaFacebook ,FaUserCircle,FaKey,Fa
 
 const AuthForm = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const [userId, setUserId] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -65,7 +66,7 @@ const AuthForm = () => {
                 localStorage.setItem('roles', JSON.stringify(decodedToken.roles));
                 const userRole = decodedToken.roles[0];
                 localStorage.setItem('role', userRole);
-
+                localStorage.setItem('UserId', JSON.stringify(decodedToken.userId));
                 if (rememberMe) {
                     localStorage.setItem('savedUsername', username);
                     localStorage.setItem('savedPassword', password);
