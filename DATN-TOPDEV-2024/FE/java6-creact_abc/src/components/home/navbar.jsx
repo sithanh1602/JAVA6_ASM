@@ -40,6 +40,7 @@ const Navbar = () => {
         sessionStorage.removeItem('token');    // Clear token in sessionStorage
         localStorage.removeItem('token');      // Clear token in localStorage
         localStorage.removeItem('roles');
+        localStorage.removeItem('UserId');
         setIsLoggedIn(false);                  // Update login status
         setUserDropdownOpen(false);
         // Show success message using SweetAlert2

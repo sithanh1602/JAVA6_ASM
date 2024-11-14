@@ -17,10 +17,11 @@ public class JwtUtil {
     private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long expirationTime = 1000 * 60 * 60; // 1 giờ
 
-    public String generateToken(String username, List<String> roles) {
+    public String generateToken(String username, List<String> roles, long userId) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles) // Thêm roles vào token
+                .claim("userId", userId)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(secretKey)

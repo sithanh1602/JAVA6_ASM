@@ -12,4 +12,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Additional custom query methods can be defined here
     List<Product> findByName(String name);
 
+
 }

@@ -25,13 +25,13 @@ public class Product {
     private String name;
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
-    private int stock;
+    private Integer stock;
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String imageUrl;
     private Date createdAt;
-    private int price;
+    private Integer price;  // Thay 'int' thành 'Integer' để hỗ trợ giá trị null
     @Column(columnDefinition = "NVARCHAR(255)")
     private String status;
-
 
     // getters and setters
 }

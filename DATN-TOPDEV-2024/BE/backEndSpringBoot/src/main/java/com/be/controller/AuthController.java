@@ -75,12 +75,11 @@ public class AuthController {
             // Lấy người dùng từ cơ sở dữ liệu
             User storedUser = existingUser.get();
             String rawPassword = new String(Base64.getDecoder().decode(user.getPassword()));
+
             // So sánh mật khẩu đã mã hóa trong cơ sở dữ liệu với mật khẩu gốc
             if (!passwordEncoder.matches(rawPassword, storedUser.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
             }
-
-
 
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUserName(), rawPassword)
@@ -94,9 +93,9 @@ public class AuthController {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
-            // Tạo token với username và roles
-            final String jwt = jwtUtil.generateToken(userDetails.getUsername(), roles);
-            return ResponseEntity.ok(new AuthResponse(jwt));
+            // Tạo token với username, roles, và userId
+            final String jwt = jwtUtil.generateToken(userDetails.getUsername(), roles, storedUser.getUserId());
+            return ResponseEntity.ok(new AuthResponse(jwt, storedUser.getUserId()));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
         }
