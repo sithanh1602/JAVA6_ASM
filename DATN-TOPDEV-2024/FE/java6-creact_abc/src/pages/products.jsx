@@ -6,7 +6,7 @@ import Pagination from '../components/products/Pagination';
 
 const App = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [productsPerPage] = useState(8);
+    const [productsPerPage] = useState(10); // Changed to 12 products per page
     const [view, setView] = useState('grid');
     const [sortOption, setSortOption] = useState('default');
     const totalProducts = 20; // Replace with the actual total number of products
