@@ -8,6 +8,8 @@ import Users from "../../pages/admin/Users";
 import ProductTable from "./TableForm/Products/ProductTable";
 import Dashboard from "./TableForm/DashB/mainDash";
 import ProductInput  from "./TableForm/Products/ProductInput";
+import CategoryTable from "./TableForm/Categories/CategoryTable";
+import CategoryInput from "./TableForm/Categories/CategoryInput";
 
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true); // Mở menu dọc mặc định
@@ -33,7 +35,7 @@ const AdminLayout = () => {
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="w-full flex h-full">
             <VerticalMenu isOpen={isOpen} toggleMenu={toggleMenu} />
             <div className="flex-grow p-4 bg-gray-100">
                 <HorizontalMenu toggleMenu={toggleMenu} />
@@ -48,8 +50,13 @@ const AdminLayout = () => {
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/dash" element={<Dashboard />} />
                         <Route path="/user" element={<Users />} />
+                        {/*ProductAdmin*/}
                         <Route path="/prd" element={<ProductTable />} />
                         <Route path="/prdInput" element={<ProductInput />} />
+
+                        {/*categoryAdmin*/}
+                        <Route path="/cateTable" element={<CategoryTable />} />
+                        <Route path="/cateInput" element={<CategoryInput />} />
                     </Routes>
                 </motion.div>
             </div>

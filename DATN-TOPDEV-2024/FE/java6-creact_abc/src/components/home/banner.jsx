@@ -5,6 +5,8 @@ import imgBanner3 from '../../assets/images/banner3.jpg';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import AOS from 'aos'; // Import AOS library
+import 'aos/dist/aos.css'; // Import AOS styles
 
 const BannerContent = () => {
     const settings = {
@@ -18,7 +20,7 @@ const BannerContent = () => {
     };
 
     return (
-        <div className=" items-center justify-center">
+        <div className=" items-center justify-center" data-aos="fade-up">
             <div className=" w-full max-w-7xl mx-auto">
                 <main className="container mx-auto py-8">
                     <div className="flex gap-8 items-center">

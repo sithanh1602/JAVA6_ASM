@@ -1,60 +1,91 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import CategoryService from '../../../../services/CategoryService';
 
-const CategoryInput = () => {
+const CategoryInput = ({ category, onSave = () => {} }) => {
+    const [formData, setFormData] = useState({
+        name: '',
+        description: '',
+    });
+
+    // Khi component nhận được category từ prop, nó sẽ set lại formData
+    useEffect(() => {
+        if (category) {
+            setFormData(category);  // Tải dữ liệu của category khi chỉnh sửa
+        }
+    }, [category]);
+
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setFormData((prevData) => ({ ...prevData, [id]: value }));
+    };
+
+    const handleSubmit = async () => {
+        try {
+            if (category) {
+                await CategoryService.updateCategory(category.id, formData);  // Cập nhật category
+            } else {
+                await CategoryService.createCategory(formData);  // Tạo mới category
+            }
+            onSave(); // Gọi lại hàm onSave sau khi lưu thành công
+        } catch (error) {
+            console.error('Lỗi khi thêm hoặc sửa danh mục:', error);
+        }
+    };
+
+    const handleClear = () => {
+        setFormData({
+            name: '',
+            description: '',
+        }); // Xóa form
+    };
+
     return (
         <div className="container mx-auto p-6">
-            <div className="max-w-lg mx-auto">
-                <div className="bg-white shadow-lg rounded-lg p-8">
-                    <h2 className="text-2xl font-semibold text-center mb-6">Category Information</h2>
-                    <div className="space-y-4">
-                        {/* Name */}
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                Name
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="Enter category name"
-                            />
-                        </div>
-
-                        {/* Description */}
-                        <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                                Description
-                            </label>
-                            <textarea
-                                id="description"
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="Enter category description"
-                            />
-                        </div>
-
-                        {/* Image URL */}
-                        <div>
-                            <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                                Image
-                            </label>
-                            <input
-                                type="text"
-                                id="image"
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="Enter image"
-                            />
-                        </div>
-
-                        {/* Submit Button */}
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full mt-4 bg-indigo-600 text-white font-bold py-2 px-4 rounded-md shadow hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500"
-                            >
-                                Save
-                            </button>
-                        </div>
+            <div className="max-w-full mx-auto bg-whiterounded-lg p-8">
+                <h2 className="text-2xl font-semibold text-center mb-6">
+                    {category ? 'Chỉnh Sửa Danh Mục' : 'Thêm Danh Mục'}
+                </h2>
+                <div className="flex flex-wrap gap-4">
+                    {/* Tên danh mục */}
+                    <div className="flex-1 min-w-[200px]">
+                        <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-1">Tên Danh Mục</label>
+                        <input
+                            id="name"
+                            placeholder="Nhập Tên Danh Mục"
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
                     </div>
+
+                    {/* Mô tả */}
+                    <div className="flex-1 min-w-[200px]">
+                        <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-1">Mô Tả</label>
+                        <input
+                            id="description"
+                            placeholder="Nhập Mô Tả"
+                            value={formData.description}
+                            onChange={handleChange}
+                            className="w-full p-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Nút */}
+                <div className="flex space-x-2 mt-6 justify-start">
+                    <button
+                        onClick={handleSubmit}
+                        className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        {category ? 'Lưu Thay Đổi' : 'Thêm Danh Mục'}
+                    </button>
+
+                    <button
+                        onClick={handleClear} // Xóa form
+                        className="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    >
+                        Làm mới
+                    </button>
                 </div>
             </div>
         </div>

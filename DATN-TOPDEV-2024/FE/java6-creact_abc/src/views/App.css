@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+
+/* styles.css */
+.sticky-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Đảm bảo navbar luôn ở trên cùng */
+  background-color: white; /* Đảm bảo navbar có nền trắng */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Tạo bóng cho navbar */
+  padding: 10px 0; /* Khoảng cách padding cho navbar */
+}
+

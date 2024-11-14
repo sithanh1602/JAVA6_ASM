@@ -1,6 +1,25 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaEnvelope, FaEdit, FaCalendarAlt, FaComments, FaChartBar, FaPencilAlt, FaPuzzlePiece, FaTable, FaMap, FaFileAlt, FaLayerGroup, FaChevronRight, FaBars } from 'react-icons/fa';
+import {
+    FaHome,
+    FaEnvelope,
+    FaEdit,
+    FaCalendarAlt,
+    FaComments,
+    FaChartBar,
+    FaPencilAlt,
+    FaPuzzlePiece,
+    FaTable,
+    FaMap,
+    FaFileAlt,
+    FaLayerGroup,
+    FaChevronRight,
+    FaBars
+    ,
+    FaProductHunt,
+    FaUser,
+} from 'react-icons/fa';
+import { MdCategory } from 'react-icons/md';
 
 const VerticalMenu = ({ isOpen, toggleMenu }) => {
     // State để lưu các mục menu có cấp 2 đang mở
@@ -8,9 +27,9 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
 
     const menuItems = [
         { icon: <FaHome className="text-blue-500" />, label: 'Dashboard', link: '/admin/dash' },
-        { icon: <FaEnvelope className="text-red-500" />, label: 'Email', link: '/email' },
-        { icon: <FaEdit className="text-orange-500" />, label: 'Compose', link: '/compose' },
-        { icon: <FaCalendarAlt className="text-pink-500" />, label: 'Calendar', link: '/calendar' },
+        { icon: <MdCategory className="text-red-500" />, label: 'Category', link: '/admin/cateTable' },
+        { icon: <FaProductHunt className="text-orange-500" />, label: 'Product', link: '/admin/prd' },
+        { icon: <FaUser className="text-pink-500" />, label: 'User', link: '/admin/user' },
         { icon: <FaComments className="text-purple-500" />, label: 'Chat', link: '/chat' },
         { icon: <FaChartBar className="text-blue-500" />, label: 'Charts', link: '/charts' },
         { icon: <FaPencilAlt className="text-blue-500" />, label: 'Forms', link: '/forms' },

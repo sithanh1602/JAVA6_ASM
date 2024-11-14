@@ -3,6 +3,7 @@ package com.be.controller;
 import com.be.entity.Category;
 import com.be.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,34 +19,36 @@ public class CategoryController {
 
     // Get all categories
     @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
+    public ResponseEntity<List<Category>> getAllCategories() {
+        List<Category> categories = categoryService.getAllCategories();
+        return categories.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(categories);
     }
 
     // Get category by ID
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable int id) {
         Optional<Category> category = categoryService.getCategoryById(id);
-        return category.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return category.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // Create a new category
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
-        return categoryService.createCategory(category);
+    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+        Category createdCategory = categoryService.createCategory(category);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
 
     // Update an existing category
     @PutMapping("/{id}")
     public ResponseEntity<Category> updateCategory(@PathVariable int id, @RequestBody Category category) {
-        Category updatedCategory = categoryService.updateCategory(id, category);
-        return updatedCategory != null ? ResponseEntity.ok(updatedCategory) : ResponseEntity.notFound().build();
+        Optional<Category> updatedCategory = categoryService.updateCategory(id, category);
+        return updatedCategory.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // Delete a category
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable int id) {
-        categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
+        boolean isDeleted = categoryService.deleteCategory(id);
+        return isDeleted ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

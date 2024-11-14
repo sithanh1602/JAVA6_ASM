@@ -34,55 +34,19 @@ const ProductFilter = () => {
     }, []);
 
     return (
-        <div className="col-lg-3 pr-5">
-            <div className="left_sidebar_area">
-                {/* Product Search and Price Range */}
-                <div className="mb-6">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm sản phẩm..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                    />
-                    {/* Price Range Filter */}
-                    <div className="flex justify-between items-center text-sm mb-4">
-                        <span>From: {priceRange[0]}</span>
-                        <span>To: {priceRange[1]}</span>
-                    </div>
-                    <div className="mb-4">
-                        <input
-                            type="range"
-                            min="0"
-                            max="1000"
-                            step="10"
-                            value={priceRange[0]}
-                            onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                            className="w-full h-2 bg-gray-200 rounded-md"
-                        />
-                        <input
-                            type="range"
-                            min="0"
-                            max="1000"
-                            step="10"
-                            value={priceRange[1]}
-                            onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                            className="w-full h-2 bg-gray-200 rounded-md mt-2"
-                        />
-                    </div>
-                </div>
-
+        <div className="col-lg-3 pr-5" data-aos="fade-down">
+            <div className="left_sidebar_area p-4 border bg-white shadow-md">
                 {/* Brand Filter */}
                 <aside className="left_widgets p_filter_widgets mb-6">
                     <div className="l_w_title">
                         <h3 className="text-lg font-semibold">Thương Hiệu</h3>
                     </div>
                     <div className="widgets_inner">
-                        <ul className="list">
+                        <ul className="list ">
                             {brands.length > 0 ? (
                                 brands.map((brand) => (
-                                    <li key={brand.id} className="py-2">
-                                        <a href="#" className="text-gray-700 hover:text-blue-500">
+                                    <li key={brand.id} className="py-2 hover:scale-105 transform transition duration-300">
+                                        <a href="#" className="text-gray-700 hover:text-blue-500 ">
                                             {brand.name}
                                         </a>
                                     </li>
@@ -103,7 +67,7 @@ const ProductFilter = () => {
                         <ul className="list">
                             {categories.length > 0 ? (
                                 categories.map((category) => (
-                                    <li key={category.id} className="py-2">
+                                    <li key={category.id} className="py-2 hover:scale-105 transform transition duration-300">
                                         <a href="#" className="text-gray-700 hover:text-blue-500">
                                             {category.name}
                                         </a>

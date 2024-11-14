@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "CartDetail") // Specify the table name in the database
+@Table(name = "cart_detail") // Specify the table name in the database
 public class CartDetail {
 
     @Id

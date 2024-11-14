@@ -34,15 +34,16 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login","/api/products","/api/auth/register","/api/auth/verify-otp","/api/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/auth/login","/api/products","/api/auth/register","/api/auth/verify-otp","/api/categories/**","/api/**").permitAll()
+                .requestMatchers("/admin/**","/api/categories/**").hasRole("ADMIN")
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
-            ).oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/authorization/google") // Make sure this is set correctly
-                        .defaultSuccessUrl("/api/auth/google-success", true)
-                        .failureUrl("/api/auth/google-failure")
-                )
+            )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .loginPage("/oauth2/authorization/google") // Make sure this is set correctly
+//                        .defaultSuccessUrl("/api/auth/google-success", true)
+//                        .failureUrl("/api/auth/google-failure")
+//                )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );

@@ -89,10 +89,15 @@ const ProductDetails = () => {
 
                     {/* Thông tin tồn kho */}
                     <p className="mt-4 text-sm">Còn lại: {product.stock}</p>
+
+                    {/* Thêm vào giỏ hàng */}
                     <div className="flex items-center justify-center mt-4">
                         <button
-                            className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition duration-200 ease-in-out">
-                            Thêm vào giỏ hàng
+                            disabled={product.stock === 0} // Vô hiệu hóa nút khi hết hàng
+                            className={`${
+                                product.stock === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'
+                            } text-white px-4 py-2 rounded transition duration-200 ease-in-out`}>
+                            {product.stock === 0 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
                         </button>
                     </div>
                 </div>
