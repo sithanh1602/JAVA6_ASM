@@ -1,4 +1,4 @@
-import React from 'react';
+import React,  { useState } from 'react';
 import {
     BrowserRouter as Router,
     Routes,
@@ -11,6 +11,8 @@ import Products from "./products";
 import Cart from "./Cart";
 import Footer from '../components/home/footer';
 import ProductPage from "../components/products/productDetails/ProductPageDetail";
+import CartButton from "../components/home/CartButton";
+import MessageIcon from "../components/home/MessageIcon";
 
 const HomePage = () => {
     return (
@@ -26,6 +28,14 @@ const HomePage = () => {
                     </Routes>
                 </div>
                 <Footer/>
+                {/* Container for the buttons */}
+                <div className="fixed bottom-4 left-4 z-50 flex space-x-4">
+                    {/* Cart Button */}
+                    <div>
+                        <CartButton />
+                    </div>
+                </div>
+
             </div>
     );
 };

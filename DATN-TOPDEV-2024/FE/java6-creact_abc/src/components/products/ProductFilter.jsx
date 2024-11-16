@@ -5,25 +5,23 @@ import CategoryService from "../../services/CategoryService";
 const ProductFilter = () => {
     const [brands, setBrands] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [priceRange, setPriceRange] = useState([0, 1000]); // Default price range from 0 to 1000
 
     useEffect(() => {
-        // Fetch brands from the API
         const fetchBrands = async () => {
             try {
                 const fetchedBrands = await BrandService.getAllBrands();
                 setBrands(fetchedBrands);
+                console.log("Brands:", fetchedBrands);
             } catch (error) {
                 console.error('Error fetching brands:', error);
             }
         };
 
-        // Fetch categories from the API
         const fetchCategories = async () => {
             try {
                 const fetchedCategories = await CategoryService.getAllCategories();
                 setCategories(fetchedCategories);
+                console.log("Categories:", fetchedCategories);
             } catch (error) {
                 console.error('Error fetching categories:', error);
             }
@@ -42,11 +40,11 @@ const ProductFilter = () => {
                         <h3 className="text-lg font-semibold">Thương Hiệu</h3>
                     </div>
                     <div className="widgets_inner">
-                        <ul className="list ">
+                        <ul className="list">
                             {brands.length > 0 ? (
                                 brands.map((brand) => (
-                                    <li key={brand.id} className="py-2 hover:scale-105 transform transition duration-300">
-                                        <a href="#" className="text-gray-700 hover:text-blue-500 ">
+                                    <li key={brand.id || brand.name} className="py-2 hover:scale-105 transform transition duration-300">
+                                        <a href="#" className="text-gray-700 hover:text-blue-500">
                                             {brand.name}
                                         </a>
                                     </li>
@@ -67,7 +65,7 @@ const ProductFilter = () => {
                         <ul className="list">
                             {categories.length > 0 ? (
                                 categories.map((category) => (
-                                    <li key={category.id} className="py-2 hover:scale-105 transform transition duration-300">
+                                    <li key={category.id || category.name} className="py-2 hover:scale-105 transform transition duration-300">
                                         <a href="#" className="text-gray-700 hover:text-blue-500">
                                             {category.name}
                                         </a>

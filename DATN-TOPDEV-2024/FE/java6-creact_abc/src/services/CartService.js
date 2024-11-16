@@ -36,3 +36,26 @@ export const getAllCartItemsForUser = async (userId) => {
         throw new Error('Không thể tải giỏ hàng');
     }
 };
+
+export const removeProductFromCart = async (userId, productId) => {
+    try {
+        // Kiểm tra lại productId và userId có phải là các giá trị hợp lệ không
+        console.log('userId:', userId, 'productId:', productId);  // Debug thông tin
+
+        // Gửi request DELETE đến API để xóa sản phẩm khỏi giỏ hàng
+        const response = await axios.delete(`${API_URL}/remove`, {
+            params: {
+                userId: userId,
+                productId: productId
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Lỗi khi xóa sản phẩm khỏi giỏ hàng:', error);
+        throw new Error('Không thể xóa sản phẩm khỏi giỏ hàng');
+    }
+};
+
+
+

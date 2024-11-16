@@ -4,6 +4,7 @@ import com.be.entity.CartDetail;
 import com.be.seurity.CartDetailResponseDTO;
 import com.be.service.CartDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,4 +42,16 @@ public class CartDetailControllerBE {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<?> removeProduct(@RequestParam Long userId, @RequestParam Long productId) {
+        try {
+            // Gọi service để xóa sản phẩm khỏi giỏ hàng
+            cartDetailService.removeProduct(userId, productId);
+            return ResponseEntity.ok().body("Sản phẩm đã được xóa khỏi giỏ hàng");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Không thể xóa sản phẩm khỏi giỏ hàng");
+        }
+    }
+
 }

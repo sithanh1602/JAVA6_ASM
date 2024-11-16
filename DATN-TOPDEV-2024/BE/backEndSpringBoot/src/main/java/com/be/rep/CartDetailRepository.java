@@ -1,7 +1,9 @@
 package com.be.rep;
 
 import com.be.entity.CartDetail;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,5 +20,10 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
 
     @Query("SELECT cd FROM CartDetail cd WHERE cd.userId.userId = :userId AND cd.product.id = :productId")
     Optional<CartDetail> findByUserIdAndProductId(@Param("userId") Long userId, @Param("productId") Long productId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM CartDetail c WHERE c.userId.userId = :userId AND c.product.id = :productId")
+    void deleteByUserIdAndProductId(@Param("userId") Long userId, @Param("productId") Long productId);
 
 }

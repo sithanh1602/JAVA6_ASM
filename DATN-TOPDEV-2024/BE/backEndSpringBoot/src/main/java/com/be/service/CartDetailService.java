@@ -90,4 +90,10 @@ public class CartDetailService {
 
         return cartDetailRepository.save(cartDetail);
     }
+
+    public void removeProduct(Long userId, Long productId) {
+        // Xóa sản phẩm khỏi giỏ hàng của người dùng
+        cartDetailRepository.deleteByUserIdAndProductId(userId, productId);
+    }
+
 }

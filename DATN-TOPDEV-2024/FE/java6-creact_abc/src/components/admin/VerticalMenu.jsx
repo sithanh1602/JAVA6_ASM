@@ -30,6 +30,7 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         { icon: <MdCategory className="text-red-500" />, label: 'Category', link: '/admin/cateTable' },
         { icon: <FaProductHunt className="text-orange-500" />, label: 'Product', link: '/admin/prd' },
         { icon: <FaUser className="text-pink-500" />, label: 'User', link: '/admin/user' },
+        { icon: <FaEnvelope className="text-purple-500" />, label: 'Email', link: '/chat' },
         { icon: <FaComments className="text-purple-500" />, label: 'Chat', link: '/chat' },
         { icon: <FaChartBar className="text-blue-500" />, label: 'Charts', link: '/charts' },
         { icon: <FaPencilAlt className="text-blue-500" />, label: 'Forms', link: '/forms' },
