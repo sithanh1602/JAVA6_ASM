@@ -11,8 +11,8 @@ const HomePage = () => {
         <div className="bg-white">
             <div className="container mx-auto p-4">
                 <BannerContent/>
-                <CategoryTabs/>
-                <PopularProducts/>
+                {/*<CategoryTabs/>*/}
+                {/*<PopularProducts/>*/}
                 <BannerPhu/>
                 <BrandLogo/>
             </div>

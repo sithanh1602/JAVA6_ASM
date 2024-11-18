@@ -16,27 +16,7 @@ const data = {
         { name: 'Handbag', price: '$90', image: 'handbag.jpg' },
         { name: 'Sunglasses', price: '$50', image: 'sunglasses.jpg' },
     ],
-    Motherboard: [
-        { name: 'T-shirt', price: '$30', image: 'tshirt.jpg' },
-        { name: 'Backpack', price: '$50', image: 'backpack.jpg' },
-        { name: 'Sweater', price: '$40', image: 'sweater.jpg' },
-        { name: 'Jeans', price: '$60', image: 'jeans.jpg' },
-        { name: 'Scarf', price: '$20', image: 'scarf.jpg' },
-    ],
-    GraphicsCard: [
-        { name: 'Coat', price: '$100', image: 'coat.jpg' },
-        { name: 'Boots', price: '$150', image: 'boots.jpg' },
-        { name: 'Skirt', price: '$45', image: 'skirt.jpg' },
-        { name: 'Gloves', price: '$25', image: 'gloves.jpg' },
-        { name: 'Belt', price: '$35', image: 'belt.jpg' },
-    ],
-    Electronics: [
-        { name: 'Watch', price: '$250', image: 'watch.jpg' },
-        { name: 'Pants', price: '$50', image: 'pants.jpg' },
-        { name: 'Earrings', price: '$30', image: 'earrings.jpg' },
-        { name: 'Socks', price: '$10', image: 'socks.jpg' },
-        { name: 'Tie', price: '$20', image: 'tie.jpg' },
-    ],
+
 };
 
 const CategoryTabs = () => {

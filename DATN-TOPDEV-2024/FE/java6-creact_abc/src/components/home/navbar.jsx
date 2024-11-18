@@ -61,17 +61,32 @@ const Navbar = () => {
                         <span className="text-orange-300 text-sm">TECHNOLOGY</span>
                     </div>
                 </div>
-
-                <div className="hidden md:flex justify-center flex-1">
-                    <ul className="flex space-x-8">
-                        <li><Link to="/" className="text-gray-700 hover:text-orange-500">Trang chủ</Link></li>
-                        <li><Link to="/about" className="text-gray-700 hover:text-orange-500">Giới thiệu</Link></li>
-                        <li><Link to="/products" className="text-gray-700 hover:text-orange-500">Sản phẩm</Link></li>
-                        <li><Link to="" className="text-gray-700 hover:text-orange-500">Tin tức</Link></li>
-                        <li><Link to="" className="text-gray-700 hover:text-orange-500">Liên hệ</Link></li>
-                    </ul>
-                </div>
-
+                    <div className="hidden md:flex justify-center flex-1">
+                        <ul className="flex space-x-8">
+                            <li>
+                                <Link to="/" className="text-gray-700 hover:text-orange-500 transition duration-300">Trang
+                                    chủ</Link>
+                            </li>
+                            <li>
+                                <Link to="/aboutUs"
+                                      className="text-gray-700 hover:text-orange-500 transition duration-300">Giới
+                                    thiệu</Link>
+                            </li>
+                            <li>
+                                <Link to="/products"
+                                      className="text-gray-700 hover:text-orange-500 transition duration-300">Sản
+                                    phẩm</Link>
+                            </li>
+                            <li>
+                                <Link to="/news"
+                                      className="text-gray-700 hover:text-orange-500 transition duration-300">Tin tức</Link>
+                            </li>
+                            <li>
+                                <Link to="/contact"
+                                      className="text-gray-700 hover:text-orange-500 transition duration-300">Liên hệ</Link>
+                            </li>
+                        </ul>
+                    </div>
                 <div className="flex items-center space-x-4 p-3">
                     <Link to="" className="text-gray-700 hover:text-orange-500"><i className="fas fa-heart"></i></Link>
 
