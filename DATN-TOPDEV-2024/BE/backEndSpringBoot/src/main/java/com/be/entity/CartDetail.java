@@ -22,5 +22,5 @@ public class CartDetail {
 
     private Integer quantity; // Quantity of the product in the cart
 
-    // No need for explicit getters and setters due to @Data annotation from Lombok
+
 }

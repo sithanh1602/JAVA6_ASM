@@ -5,12 +5,10 @@ import VerticalMenu from './VerticalMenu';
 import Swal from 'sweetalert2';
 import { motion } from 'framer-motion';
 import Users from "../../pages/admin/Users";
-import ProductTable from "./TableForm/Products/ProductTable";
+import Products from "../../pages/admin/Products";
 import Dashboard from "./TableForm/DashB/mainDash";
-import ProductInput  from "./TableForm/Products/ProductInput";
 import CategoryTable from "./TableForm/Categories/CategoryTable";
 import CategoryInput from "./TableForm/Categories/CategoryInput";
-
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true); // Mở menu dọc mặc định
     const navigate = useNavigate();
@@ -50,13 +48,11 @@ const AdminLayout = () => {
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/dash" element={<Dashboard />} />
                         <Route path="/user" element={<Users />} />
-                        {/*ProductAdmin*/}
-                        <Route path="/prd" element={<ProductTable />} />
-                        <Route path="/prdInput" element={<ProductInput />} />
-
                         {/*categoryAdmin*/}
                         <Route path="/cateTable" element={<CategoryTable />} />
                         <Route path="/cateInput" element={<CategoryInput />} />
+
+                        <Route path="/product" element={<Products />} />
                     </Routes>
                 </motion.div>
             </div>
