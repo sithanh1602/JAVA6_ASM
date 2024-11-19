@@ -1,57 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import {getAllCartItemsForUser, removeProductFromCart} from '../services/CartService'; // Đảm bảo đường dẫn đúng
+import { getAllCartItemsForUser, removeProductFromCart } from '../services/CartService';
 import Breadcrumb from '../components/cart/Breadcrumb';
 import CartItem from '../components/cart/CartItem';
 import CouponForm from '../components/cart/CouponForm';
 import CartSummary from '../components/cart/CartSummary';
 import Swal from 'sweetalert2';
-import { ToastContainer, toast } from 'react-toastify'; // Import Toastify
-import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
-import { Link } from 'react-router-dom';
-import 'aos/dist/aos.css'; // Import AOS styles
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Link, useNavigate } from 'react-router-dom';
+import 'aos/dist/aos.css';
 
 const CartPage = () => {
-    const [cartItems, setCartItems] = useState([]);  // State lưu trữ dữ liệu giỏ hàng
-    const [loading, setLoading] = useState(true);     // State lưu trữ trạng thái loading
-    const [error, setError] = useState(null);         // State lưu trữ lỗi nếu có
-    const [userId, setUserId] = useState(null);       // State lưu trữ userId
+    const [cartItems, setCartItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [userId, setUserId] = useState(null);
+
+    const navigate = useNavigate(); // Hook for navigation
 
     useEffect(() => {
-        // Lấy userId từ localStorage
         const storedUserId = JSON.parse(localStorage.getItem('UserId'));
-
-        // Nếu không có userId trong localStorage, bạn có thể xử lý theo ý muốn
         if (!storedUserId) {
             setError('Không tìm thấy userId trong localStorage.');
             setLoading(false);
             return;
         }
-
-        setUserId(storedUserId); // Lưu userId vào state
+        setUserId(storedUserId);
 
         const fetchCartItems = async () => {
             try {
-                const items = await getAllCartItemsForUser(storedUserId); // Gọi API để lấy giỏ hàng
+                const items = await getAllCartItemsForUser(storedUserId);
                 if (items.length === 0) {
                     toast.error('Giỏ hàng của bạn hiện tại trống.');
                 } else {
-                    setCartItems(items);  // Lưu trữ dữ liệu vào state
+                    setCartItems(items);
                 }
             } catch (err) {
                 toast.error('Không thể tải giỏ hàng.');
             } finally {
-                setLoading(false); // Đặt trạng thái loading là false sau khi có dữ liệu hoặc lỗi
+                setLoading(false);
             }
         };
 
         fetchCartItems();
-        // Tự động reload giỏ hàng mỗi 5 giây
         const interval = setInterval(fetchCartItems, 2000);
-
-        // Cleanup interval khi component unmount
         return () => clearInterval(interval);
-    }, []); // Chỉ chạy 1 lần khi component render lần đầu tiên
+    }, []);
 
     const handleDeleteItemFromCart = async (productId) => {
         try {
@@ -63,17 +57,13 @@ const CartPage = () => {
                 text: 'Sản phẩm đã được xóa khỏi giỏ hàng.',
                 confirmButtonText: 'OK !'
             });
-            // Close the modal automatically after 1.5 seconds
             setTimeout(() => {
-                Swal.close(); // Close the SweetAlert popup
+                Swal.close();
             }, 1000);
         } catch (error) {
             console.error('Lỗi khi xóa sản phẩm:', error);
         }
     };
-
-
-
 
     const handleIncreaseQuantity = (productId) => {
         setCartItems(prevItems =>
@@ -95,7 +85,6 @@ const CartPage = () => {
         );
     };
 
-
     const handleDecreaseQuantity = (productId) => {
         setCartItems(prevItems =>
             prevItems.map(item => {
@@ -107,7 +96,9 @@ const CartPage = () => {
         );
     };
 
-
+    const handleProceedToCheckout = () => {
+        navigate('/orders', { state: { cartItems } });
+    };
 
     return (
         <div className="flex justify-center" data-aos="fade-up">
@@ -121,13 +112,12 @@ const CartPage = () => {
                         <div className="font-bold">TẠM TÍNH</div>
                         <div className="font-bold">HÀNH ĐỘNG</div>
                     </div>
-
                     {loading ? (
-                        <div>Đang tải...</div>  // Hiển thị trạng thái loading
+                        <div>Đang tải...</div>
                     ) : error ? (
                         <ToastContainer
-                            position="top-center" // Position the toast
-                            autoClose={5000}      // Auto-close after 5 seconds
+                            position="top-center"
+                            autoClose={5000}
                             hideProgressBar={false}
                             newestOnTop={false}
                             closeOnClick
@@ -136,13 +126,12 @@ const CartPage = () => {
                             draggable
                             pauseOnHover
                         />
-
                     ) : (
                         cartItems.length > 0 ? (
                             cartItems.map(item => (
                                 <CartItem key={item.id} userId={userId} item={item}
                                           onDelete={handleDeleteItemFromCart}
-                                /> // Hiển thị các mục giỏ hàng
+                                />
                             ))
                         ) : (
                             <div className="flex justify-center items-center h-48 bg-gray-100 rounded-lg shadow-lg">
@@ -150,15 +139,11 @@ const CartPage = () => {
                             </div>
                         )
                     )}
-
-                    <CouponForm/>
+                    <CouponForm />
                 </div>
-                <CartSummary/>
+                <CartSummary />
                 <div className="flex justify-end mt-4">
-                    <Link to="/orders">
-                        <button className="bg-orange-500 text-white px-6 py-2">TIẾN HÀNH THANH TOÁN</button>
-                    </Link>
-
+                    <button onClick={handleProceedToCheckout} className="bg-orange-500 text-white px-6 py-2">TIẾN HÀNH THANH TOÁN</button>
                 </div>
             </div>
         </div>

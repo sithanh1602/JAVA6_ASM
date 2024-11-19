@@ -3,7 +3,7 @@ import {FaTrash} from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import 'aos/dist/aos.css'; // Import AOS styles
 
-const CartItem = ({ item, onUpdateQuantity,onDelete,userId }) => {
+const CartItem = ({ item, onUpdateQuantity,onDelete}) => {
     const [quantity, setQuantity] = useState(item.quantity);
 
     // Xử lý khi số lượng thay đổi
