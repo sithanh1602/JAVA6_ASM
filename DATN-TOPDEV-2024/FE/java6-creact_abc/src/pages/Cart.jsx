@@ -8,14 +8,20 @@ import CartSummary from '../components/cart/CartSummary';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from 'react-router-dom';
+import 'aos/dist/aos.css';
+
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userId, setUserId] = useState(null);
+
     const [selectedItems, setSelectedItems] = useState({});
+
+
+    const navigate = useNavigate(); // Hook for navigation
 
     useEffect(() => {
         const storedUserId = JSON.parse(localStorage.getItem('UserId'));
@@ -24,7 +30,6 @@ const CartPage = () => {
             setLoading(false);
             return;
         }
-
         setUserId(storedUserId);
 
         const fetchCartItems = async () => {
@@ -42,6 +47,7 @@ const CartPage = () => {
                         ...item,
                         quantity: item.quantity || 1
                     })));
+
                 }
             } catch (err) {
                 toast.error('Không thể tải giỏ hàng.');
@@ -51,6 +57,8 @@ const CartPage = () => {
         };
 
         fetchCartItems();
+        const interval = setInterval(fetchCartItems, 2000);
+        return () => clearInterval(interval);
     }, []);
 
     const handleDeleteItemFromCart = async (productId) => {
@@ -67,10 +75,15 @@ const CartPage = () => {
                 text: 'Sản phẩm đã được xóa khỏi giỏ hàng.',
                 confirmButtonText: 'OK!'
             });
+
+            setTimeout(() => {
+                Swal.close();
+            }, 1000);
         } catch (error) {
             console.error('Lỗi khi xóa sản phẩm:', error);
         }
     };
+
 
     const calculateTotalPrice = () => {
         return cartItems.reduce((total, item) => {
@@ -95,7 +108,14 @@ const CartPage = () => {
     };
 
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);}
+
+ 
+
+  
+
+    const handleProceedToCheckout = () => {
+        navigate('/orders', { state: { cartItems } });
     };
 
     return (
@@ -111,10 +131,10 @@ const CartPage = () => {
                         <div className="font-bold">TẠM TÍNH</div>
                         <div className="font-bold">HÀNH ĐỘNG</div>
                     </div>
-
                     {loading ? (
                         <div>Đang tải...</div>
                     ) : error ? (
+
                         <div>Không thể tải giỏ hàng</div>
                     ) : (
                         cartItems.length > 0 ? (
@@ -126,6 +146,22 @@ const CartPage = () => {
                                     onUpdateQuantity={handleUpdateQuantity}
                                     onSelectChange={handleSelectChange}
                                     isSelected={selectedItems[item.productId]}
+                        <ToastContainer
+                            position="top-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+                    ) : (
+                        cartItems.length > 0 ? (
+                            cartItems.map(item => (
+                                <CartItem key={item.id} userId={userId} item={item}
+                                          onDelete={handleDeleteItemFromCart}
                                 />
                             ))
                         ) : (
@@ -134,12 +170,17 @@ const CartPage = () => {
                             </div>
                         )
                     )}
-
                     <div className="mt-4 text-right pr-12">
                         <p className="font-bold">Tổng tiền: {formatCurrency(calculateTotalPrice())}</p>
                     </div>
 
                     <CouponForm />
+                    <CouponForm />
+                </div>
+                <CartSummary />
+                <div className="flex justify-end mt-4">
+                    <button onClick={handleProceedToCheckout} className="bg-orange-500 text-white px-6 py-2">TIẾN HÀNH THANH TOÁN</button>
+
                 </div>
                 <Link to="/products">
                     <button className="bg-orange-200 text-orange-700 px-4 py-2">Tiếp tục mua hàng</button>

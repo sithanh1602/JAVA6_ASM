@@ -4,7 +4,9 @@ import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
+
 const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected }) => {
+
     const [quantity, setQuantity] = useState(item.quantity);
     const [productStock, setProductStock] = useState(null);
 

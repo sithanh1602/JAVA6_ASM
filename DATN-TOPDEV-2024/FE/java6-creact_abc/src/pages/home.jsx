@@ -15,7 +15,7 @@ import CartButton from "../components/home/CartButton";
 import AboutUs from "./mainAbout";
 import Contact from "./mainContact";
 import News from "./mainNews";
-import MessageIcon from "../components/home/MessageIcon";
+import GroupOrder from "../components/Oder/GroupOrder";
 
 const HomePage = () => {
     return (
@@ -32,8 +32,7 @@ const HomePage = () => {
                     <Route path="/contact" element={< Contact/>}/>
                     <Route path="/news" element={< News/>}/>
                     <Route path="/product/:productId" element={<ProductPage/>}/>
-
-
+                    <Route path="/orders" element={< GroupOrder/>}/>
                 </Routes>
             </div>
             <Footer/>
