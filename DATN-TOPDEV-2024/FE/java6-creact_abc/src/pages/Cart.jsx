@@ -1,4 +1,3 @@
-// CartPage.jsx
 import React, { useEffect, useState } from 'react';
 import { getAllCartItemsForUser, removeProductFromCart } from '../services/CartService';
 import Breadcrumb from '../components/cart/Breadcrumb';
@@ -11,15 +10,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
 import 'aos/dist/aos.css';
 
-
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userId, setUserId] = useState(null);
-
     const [selectedItems, setSelectedItems] = useState({});
-
 
     const navigate = useNavigate(); // Hook for navigation
 
@@ -47,7 +43,6 @@ const CartPage = () => {
                         ...item,
                         quantity: item.quantity || 1
                     })));
-
                 }
             } catch (err) {
                 toast.error('Không thể tải giỏ hàng.');
@@ -57,8 +52,8 @@ const CartPage = () => {
         };
 
         fetchCartItems();
-        const interval = setInterval(fetchCartItems, 2000);
-        return () => clearInterval(interval);
+        // const interval = setInterval(fetchCartItems, 2000);
+        // return () => clearInterval(interval);
     }, []);
 
     const handleDeleteItemFromCart = async (productId) => {
@@ -84,7 +79,6 @@ const CartPage = () => {
         }
     };
 
-
     const calculateTotalPrice = () => {
         return cartItems.reduce((total, item) => {
             if (selectedItems[item.productId]) {
@@ -108,11 +102,8 @@ const CartPage = () => {
     };
 
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);}
-
- 
-
-  
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    };
 
     const handleProceedToCheckout = () => {
         navigate('/orders', { state: { cartItems } });
@@ -134,57 +125,39 @@ const CartPage = () => {
                     {loading ? (
                         <div>Đang tải...</div>
                     ) : error ? (
-
                         <div>Không thể tải giỏ hàng</div>
+                    ) : cartItems.length > 0 ? (
+                        cartItems.map(item => (
+                            <CartItem
+                                key={item.productId}
+                                item={item}
+                                onDelete={handleDeleteItemFromCart}
+                                onUpdateQuantity={handleUpdateQuantity}
+                                onSelectChange={handleSelectChange}
+                                isSelected={selectedItems[item.productId]}
+                            />
+                        ))
                     ) : (
-                        cartItems.length > 0 ? (
-                            cartItems.map(item => (
-                                <CartItem
-                                    key={item.productId}
-                                    item={item}
-                                    onDelete={handleDeleteItemFromCart}
-                                    onUpdateQuantity={handleUpdateQuantity}
-                                    onSelectChange={handleSelectChange}
-                                    isSelected={selectedItems[item.productId]}
-                        <ToastContainer
-                            position="top-center"
-                            autoClose={5000}
-                            hideProgressBar={false}
-                            newestOnTop={false}
-                            closeOnClick
-                            rtl={false}
-                            pauseOnFocusLoss
-                            draggable
-                            pauseOnHover
-                        />
-                    ) : (
-                        cartItems.length > 0 ? (
-                            cartItems.map(item => (
-                                <CartItem key={item.id} userId={userId} item={item}
-                                          onDelete={handleDeleteItemFromCart}
-                                />
-                            ))
-                        ) : (
-                            <div className="flex justify-center items-center h-48 bg-gray-100 rounded-lg shadow-lg">
-                                <p className="text-xl font-semibold text-gray-600">Giỏ hàng của bạn trống</p>
-                            </div>
-                        )
+                        <div className="flex justify-center items-center h-48 bg-gray-100 rounded-lg shadow-lg">
+                            <p className="text-xl font-semibold text-gray-600">Giỏ hàng của bạn trống</p>
+                        </div>
                     )}
                     <div className="mt-4 text-right pr-12">
                         <p className="font-bold">Tổng tiền: {formatCurrency(calculateTotalPrice())}</p>
                     </div>
 
                     <CouponForm />
-                    <CouponForm />
                 </div>
-                <CartSummary />
                 <div className="flex justify-end mt-4">
-                    <button onClick={handleProceedToCheckout} className="bg-orange-500 text-white px-6 py-2">TIẾN HÀNH THANH TOÁN</button>
+                    <Link to="/products">
+                        <button className="bg-orange-200 text-orange-700 px-4 py-2 ml-3 mr-2">Tiếp tục mua hàng</button>
+                    </Link>
+                    <button onClick={handleProceedToCheckout} className="bg-orange-500 text-white px-6 py-2">
+                        TIẾN HÀNH THANH TOÁN
+                    </button>
 
                 </div>
-                <Link to="/products">
-                    <button className="bg-orange-200 text-orange-700 px-4 py-2">Tiếp tục mua hàng</button>
-                </Link>
+
 
                 <ToastContainer />
             </div>
