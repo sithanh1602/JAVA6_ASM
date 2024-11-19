@@ -16,6 +16,8 @@ import AboutUs from "./mainAbout";
 import Contact from "./mainContact";
 import News from "./mainNews";
 import GroupOrder from "../components/Oder/GroupOrder";
+import MessageIcon from "../components/home/MessageIcon";
+import ProfilePage from "../components/account/profile";
 
 const HomePage = () => {
     return (
@@ -33,6 +35,7 @@ const HomePage = () => {
                     <Route path="/news" element={< News/>}/>
                     <Route path="/product/:productId" element={<ProductPage/>}/>
                     <Route path="/orders" element={< GroupOrder/>}/>
+                    <Route path="/profile" element={<ProfilePage />} />
                 </Routes>
             </div>
             <Footer/>

@@ -12,20 +12,20 @@ import * as yup from 'yup';
 const schema = yup.object().shape({
     name: yup
         .string()
-        .required('Bắt buộc nhập tên sản phẩm')
-        .test('unique-name', 'Tên sản phẩm đã tồn tại', async function(value) {
-            if (!value) return true;
-            try {
-                const products = await ProductService.getAllProducts();
-                const existingProduct = products.find(
-                    p => p.name.toLowerCase() === value.toLowerCase() &&
-                        (!this.parent.id || p.id !== this.parent.id)
-                );
-                return !existingProduct;
-            } catch (error) {
-                return true;
-            }
-        }),
+        .required('Bắt buộc nhập tên sản phẩm'),
+        // .test('unique-name', 'Tên sản phẩm đã tồn tại', async function(value) {
+        //     if (!value) return true;
+        //     try {
+        //         const products = await ProductService.getAllProducts();
+        //         const existingProduct = products.find(
+        //             p => p.name.toLowerCase() === value.toLowerCase() &&
+        //                 (!this.parent.id || p.id !== this.parent.id)
+        //         );
+        //         return !existingProduct;
+        //     } catch (error) {
+        //         return true;
+        //     }
+        // }),
     description: yup.string().required('Bắt buộc nhập mô tả sản phẩm'),
     stock: yup
         .number()

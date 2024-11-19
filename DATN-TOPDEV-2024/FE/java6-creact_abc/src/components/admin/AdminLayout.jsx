@@ -7,8 +7,7 @@ import { motion } from 'framer-motion';
 import Users from "../../pages/admin/Users";
 import Products from "../../pages/admin/Products";
 import Dashboard from "./TableForm/DashB/mainDash";
-import CategoryTable from "./TableForm/Categories/CategoryTable";
-import CategoryInput from "./TableForm/Categories/CategoryInput";
+import Categorys from "../../pages/admin/Categorys";
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true); // Mở menu dọc mặc định
     const navigate = useNavigate();
@@ -48,11 +47,9 @@ const AdminLayout = () => {
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/dash" element={<Dashboard />} />
                         <Route path="/user" element={<Users />} />
-                        {/*categoryAdmin*/}
-                        <Route path="/cateTable" element={<CategoryTable />} />
-                        <Route path="/cateInput" element={<CategoryInput />} />
-
+                        <Route path="/category" element={<Categorys />} />
                         <Route path="/product" element={<Products />} />
+
                     </Routes>
                 </motion.div>
             </div>
