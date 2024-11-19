@@ -47,6 +47,7 @@ class UserService {
         }
     }
 
+
     // Delete a user
     async deleteUser(id) {
         try {
