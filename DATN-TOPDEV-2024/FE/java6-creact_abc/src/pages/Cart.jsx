@@ -7,7 +7,7 @@ import CartSummary from '../components/cart/CartSummary';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast } from 'react-toastify'; // Import Toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
-
+import { Link } from 'react-router-dom';
 import 'aos/dist/aos.css'; // Import AOS styles
 
 
@@ -155,7 +155,10 @@ const CartPage = () => {
                 </div>
                 <CartSummary/>
                 <div className="flex justify-end mt-4">
-                    <button className="bg-orange-500 text-white px-6 py-2">TIẾN HÀNH THANH TOÁN</button>
+                    <Link to="/orders">
+                        <button className="bg-orange-500 text-white px-6 py-2">TIẾN HÀNH THANH TOÁN</button>
+                    </Link>
+
                 </div>
             </div>
         </div>
