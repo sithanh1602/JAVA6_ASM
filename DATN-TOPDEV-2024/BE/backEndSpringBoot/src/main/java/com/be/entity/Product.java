@@ -43,10 +43,7 @@ public class Product {
     @Min(value = 0, message = "Price must be greater than or equal to 0")
     private Integer price;
 
-
-
-
-    @Column(columnDefinition = "NVARCHAR(255)")
+    @Column(columnDefinition = "NVARCHAR(50)")
     @NotBlank(message = "Status must not be blank")
     private String status;
 

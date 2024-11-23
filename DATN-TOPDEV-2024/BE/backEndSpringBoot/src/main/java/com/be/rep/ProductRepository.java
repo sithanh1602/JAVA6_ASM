@@ -15,6 +15,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Kiểm tra xem sản phẩm có tên trùng không
     boolean existsByName(String name);
 
-    // Kiểm tra xem có sản phẩm nào có trạng thái 'Available' không
-    boolean existsByStatus(String status);
+    boolean existsByNameAndIdNot(String name, Long id);
+
 }

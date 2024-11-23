@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -51,7 +50,7 @@ public class ProductService {
         }
     }
 
-    private void validateProductUpdate(Product product) {
+    private void validateProductUpdate(Product product, Long id) {
         // Kiểm tra các trường không được để trống
         if (product.getName() == null) {
             throw new ValidationException("Name must not be empty");
@@ -65,7 +64,10 @@ public class ProductService {
         if (product.getPrice() <= 0) {
             throw new ValidationException("Price must be a positive number");
         }
-
+        // Kiểm tra trùng tên sản phẩm (bỏ qua sản phẩm hiện tại)
+        if (productRepository.existsByNameAndIdNot(product.getName(), (long) product.getId())) {
+            throw new ValidationException("Product name must be unique");
+        }
     }
     
     // Method to retrieve all products
@@ -113,7 +115,7 @@ public class ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        validateProductUpdate(product);  // Validate cho việc cập nhật sản phẩm
+        validateProductUpdate(product,id);  // Validate cho việc cập nhật sản phẩm
 
         // Cập nhật thông tin sản phẩm
         existingProduct.setName(product.getName());

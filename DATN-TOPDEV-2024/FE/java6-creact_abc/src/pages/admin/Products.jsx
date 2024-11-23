@@ -6,9 +6,9 @@ const AdminProductsPage = () => {
 
 
     return (
-        <div className="p-6">
+        <div className="p-4 bg-white rounded-lg shadow-md">
             <h1 className="text-2xl font-bold mb-4">Quản lý sản phẩm</h1>
-            <ProductTable ref={productTableRef} />
+            <ProductTable ref={productTableRef}/>
         </div>
     );
 };

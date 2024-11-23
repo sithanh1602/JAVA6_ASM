@@ -40,6 +40,11 @@ public class User {
     @Column(name = "otp_sms", nullable = true)
     private String otpSms;
 
+    @Column(columnDefinition = "NVARCHAR(50)")
+    private String status;
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String image;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "User_Role", // Bảng liên kết giữa user và roles
