@@ -9,14 +9,15 @@ import lombok.Data;
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idAddress;
+    @Column(name = "id_address")
+    private long idAddress;
 
     @ManyToOne
     @JoinColumn(name = "id_user") // Khóa ngoại đến bảng User
     private User user;
 
-    @Column(name = "street") // Tên cột đổi từ 'address' thành 'street'
-    private String street;
+    @Column(name = "streetaddress")
+    private String streetaddress;
 
     @Column(name = "ward") // Tên cột đổi từ 'wardCode' thành 'ward'
     private String ward;
