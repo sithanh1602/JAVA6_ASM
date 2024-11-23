@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { addProductToCart } from '../../services/CartService';
 import Swal from 'sweetalert2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCartPlus, faHeart, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
@@ -41,17 +43,32 @@ const ProductCard = ({ product, index }) => {
                 }
             });
         } catch (error) {
-            Swal.fire('Lỗi',
-                'Lỗi khi thêm sản phẩm vào giỏ hàng',
-                'error');
+            Swal.fire('Lỗi', 'Lỗi khi thêm sản phẩm vào giỏ hàng', 'error');
         }
+    };
+
+    const handleFavorite = () => {
+        // Implement the logic for adding the product to favorites
+        Swal.fire({
+            title: 'Thông báo',
+            text: 'Sản phẩm đã được thêm vào danh sách yêu thích',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    };
+
+    const handleShowProductDetails = () => {
+        // Logic for viewing product details can go here
+        navigate(`/product/${product.id}`);
     };
 
     // Check if the product is out of stock
     const isOutOfStock = product.stock === 0;
 
     return (
-        <div className={`bg-white p-4 rounded shadow-md hover:scale-105 transform transition duration-300 w-full ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}>
+        <div
+            className={`bg-white p-4 rounded shadow-md w-full relative overflow-hidden ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
             <Link to={`/product/${product.id}`}>
                 <div className="flex justify-center items-center">
                     <img
@@ -66,14 +83,27 @@ const ProductCard = ({ product, index }) => {
             <div className={`text-sm font-bold mb-2 ${isOutOfStock ? 'text-red-500' : 'text-orange-500'}`}>
                 {isOutOfStock ? 'Hết hàng' : `Còn lại: ${product.stock}`}
             </div>
-            <div className="flex items-center justify-center mt-4">
-                <button
+
+            {/* Hover Effect for Icons */}
+            <div
+                className={`absolute top-0 left-0 right-0 bottom-0 bg-gray-800 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4 ${isOutOfStock ? 'pointer-events-none' : ''}`}
+            >
+                <FontAwesomeIcon
+                    icon={faCartPlus}
+                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-800"
                     onClick={handleAddToCart}
-                    className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition duration-200 ease-in-out"
-                    disabled={isOutOfStock} // Disable button if out of stock
-                >
-                    {isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
-                </button>
+                />
+                <FontAwesomeIcon
+                    icon={faHeart}
+                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-800"
+                    onClick={handleFavorite}
+                />
+                {/* Exclamation Icon */}
+                <FontAwesomeIcon
+                    icon={faExclamationCircle}
+                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-800"
+                    onClick={handleShowProductDetails}
+                />
             </div>
         </div>
     );

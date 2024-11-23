@@ -57,5 +57,9 @@ export const removeProductFromCart = async (userId, productId) => {
     }
 };
 
+export const updateCartItemQuantity = async (userId, productId, quantity) => {
+    await axios.put(`${API_URL}/user/${userId}/product/${productId}`, { quantity });
+};
+
 
 

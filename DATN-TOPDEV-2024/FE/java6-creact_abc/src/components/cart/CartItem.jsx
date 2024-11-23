@@ -1,12 +1,9 @@
-// CartItem.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
-
 const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected }) => {
-
     const [quantity, setQuantity] = useState(item.quantity);
     const [productStock, setProductStock] = useState(null);
 
@@ -63,7 +60,14 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
 
     const price = item.productPrice || 0;
     const imageUrl = item.productImageUrl || 'https://placehold.co/50x50';
-    const formatCurrency = (value) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(value).replace(/\s?₫/g, ' VND');
+    };
 
     return (
         <div className="grid grid-cols-7 gap-4 items-center mt-4">
@@ -81,22 +85,28 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
             </div>
             <div>{formatCurrency(price)}</div>
             <div className="flex items-center">
-                <button className="px-2 py-1 border" onClick={() => handleQuantityChange(quantity - 1)}>
+                <button
+                    className="px-3 py-1 bg-gray-300 text-gray-800 rounded-l-lg hover:bg-gray-400 focus:outline-none"
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                >
                     -
                 </button>
                 <input
-                    type="text"
+                    type="number"
+                    className="mx-2 w-16 text-center border border-gray-300 rounded-none"
                     value={quantity}
-                    className="w-12 text-center border mx-2"
-                    onChange={(e) => handleQuantityChange(parseInt(e.target.value, 10))}
+                    onChange={(e) => handleQuantityChange(Number(e.target.value))}
                 />
-                <button className="px-2 py-1 border" onClick={() => handleQuantityChange(quantity + 1)}>
+                <button
+                    className="px-3 py-1 bg-gray-300 text-gray-800 rounded-r-lg hover:bg-gray-400 focus:outline-none"
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                >
                     +
                 </button>
             </div>
-            <div>{formatCurrency(price * quantity)}</div>
+            <div className="pl-10 text-sm">{formatCurrency(price * quantity)}</div>
             <div>
-                <button className="bg-red-500 text-white items-center px-5 py-1 rounded" onClick={() => onDelete(item.productId)}>
+                <button onClick={() => onDelete(item.productId)} className="text-red-600 hover:text-red-800 pl-10">
                     <FaTrash />
                 </button>
             </div>

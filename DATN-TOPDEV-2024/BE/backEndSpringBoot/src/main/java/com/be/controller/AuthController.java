@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -53,6 +55,11 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JavaMailSender mailSender;
+
+
+
     // Thêm các thông tin API của Vonage
     @Value("${vonage.api_key}")
     private String vonageApiKey;
@@ -62,6 +69,9 @@ public class AuthController {
 
     // Tạm thời lưu trữ người dùng trước khi xác minh OTP
     private Map<String, User> temporaryUsers = new HashMap<>();
+    // Khai báo Map lưu trữ OTP tạm thời
+    private Map<String, String> temporaryOtpMap = new HashMap<>();
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
@@ -174,6 +184,78 @@ public class AuthController {
             return ResponseEntity.ok("Xác minh thành công! Tài khoản đã được tạo.");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mã OTP không chính xác");
+        }
+    }
+
+    // Phương thức gửi email OTP khi người dùng quên mật khẩu
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        try {
+            // Kiểm tra email có tồn tại trong hệ thống hay không
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (!userOptional.isPresent()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email không tồn tại");
+            }
+
+            // Tạo mã OTP ngẫu nhiên
+            String otpCode = String.format("%06d", new Random().nextInt(999999));
+
+            // Lưu mã OTP tạm thời cho email này
+            // Lưu mã OTP vào temporaryOtpMap với userName là khóa
+            // Lưu mã OTP tạm thời cho email này
+            temporaryOtpMap.put(email, otpCode);
+
+
+            // Gửi email chứa OTP
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Mã OTP lấy lại mật khẩu");
+            message.setText("Mã OTP của bạn là: " + otpCode);
+            mailSender.send(message);
+
+            return ResponseEntity.ok("Mã OTP đã được gửi đến email của bạn.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đã xảy ra lỗi: " + e.getMessage());
+        }
+    }
+
+    // Phương thức xác minh OTP
+    @PostMapping("/verify-otp-for-password")
+    public ResponseEntity<String> verifyOtpForPassword(@RequestParam String email, @RequestParam String otpCode) {
+        // Kiểm tra mã OTP có hợp lệ không
+        String storedOtp = temporaryOtpMap.get(email);
+        if (storedOtp == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mã OTP đã hết hạn hoặc không hợp lệ.");
+        }
+
+        if (storedOtp.equals(otpCode)) {
+            // Xóa mã OTP sau khi xác minh thành công
+            temporaryOtpMap.remove(email);
+
+            return ResponseEntity.ok("Mã OTP chính xác! Bạn có thể đặt lại mật khẩu mới.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mã OTP không chính xác.");
+        }
+    }
+
+    // Phương thức cập nhật mật khẩu mới sau khi xác minh OTP
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+        try {
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (!userOptional.isPresent()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email không tồn tại.");
+            }
+
+            User user = userOptional.get();
+            user.setPassword(passwordEncoder.encode(newPassword)); // Mã hóa mật khẩu mới
+            userRepository.save(user); // Lưu mật khẩu mới vào cơ sở dữ liệu
+
+            return ResponseEntity.ok("Mật khẩu đã được thay đổi thành công.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đã xảy ra lỗi: " + e.getMessage());
         }
     }
 

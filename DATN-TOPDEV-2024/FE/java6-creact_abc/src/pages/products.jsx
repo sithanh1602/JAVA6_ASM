@@ -9,7 +9,7 @@ const App = () => {
     const [productsPerPage] = useState(10); // Changed to 12 products per page
     const [view, setView] = useState('grid');
     const [sortOption, setSortOption] = useState('default');
-    const totalProducts = 100; // Replace with the actual total number of products
+    const totalProducts = 30; // Replace with the actual total number of products
 
     // Calculate the display range
     const indexOfLastProduct = currentPage * productsPerPage;
