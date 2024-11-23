@@ -15,7 +15,7 @@ import java.util.List;
 public class JwtUtil {
     // Tạo khóa bảo mật đủ mạnh
     private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long expirationTime = 1000 * 60 * 60; // 1 giờ
+    private final long expirationTime = 1000 * 60 * 60 * 60; // 1 giờ
 
     public String generateToken(String username, List<String> roles, long userId) {
         return Jwts.builder()

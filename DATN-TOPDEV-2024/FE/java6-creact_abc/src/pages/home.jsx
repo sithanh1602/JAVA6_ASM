@@ -18,6 +18,9 @@ import News from "./mainNews";
 import GroupOrder from "../components/Oder/GroupOrder";
 import MessageIcon from "../components/home/MessageIcon";
 import ProfilePage from "../components/account/profile";
+import ProvinceSelect from "../components/account/ProvinceSelect";
+import Address from "../components/account/AdderssList";
+import EditAddress from "../components/account/EditAddress";
 
 const HomePage = () => {
     return (
@@ -36,6 +39,9 @@ const HomePage = () => {
                     <Route path="/product/:productId" element={<ProductPage/>}/>
                     <Route path="/orders" element={< GroupOrder/>}/>
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/ProvinceSelect" element={<ProvinceSelect />} />
+                    <Route path="/Address" element={<Address />} />
+                    <Route path="/Editadderss" element={<EditAddress />} />
                 </Routes>
             </div>
             <Footer/>
