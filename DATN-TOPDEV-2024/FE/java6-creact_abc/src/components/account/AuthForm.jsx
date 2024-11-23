@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 import { FaUser, FaLock, FaEnvelope, FaGoogle, FaFacebook ,FaUserCircle,FaKey,FaPhone} from 'react-icons/fa';
+import Modal from 'react-modal'; // Import react-modal
 
 
 
@@ -25,6 +26,7 @@ const AuthForm = () => {
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const navigate = useNavigate(); // Sử dụng useNavigate thay vì useHistory
+    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 
     useEffect(() => {
         // Tải tên đăng nhập và mật khẩu từ localStorage khi component được tải
@@ -36,6 +38,10 @@ const AuthForm = () => {
             setRememberMe(true);
         }
     }, []);
+
+
+    const handleModalOpen = () => setIsModalOpen(true); // Open modal
+    const handleModalClose = () => setIsModalOpen(false); // Close modal
 
     const handleToggle = () => setIsLogin(!isLogin);
 
@@ -149,6 +155,16 @@ const AuthForm = () => {
         }
     };
 
+    const handleForgotPassword = async () => {
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/forgot-password', { email });
+            toast.success(response.data);
+            setIsModalOpen(false); // Close the modal after successful request
+        } catch (error) {
+            toast.error('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.');
+        }
+    };
+
     return (
         <>
             <div className="min-h-screen flex items-center justify-center bg-gray-100 bg-galaxy">
@@ -201,7 +217,8 @@ const AuthForm = () => {
                                         </label>
                                         <button
                                             type="button"
-                                            className="text-orange-400 hover:underline "
+                                            className="text-orange-400 hover:underline"
+                                            onClick={handleModalOpen} // Open the modal
                                         >
                                             Quên mật khẩu?
                                         </button>
@@ -373,6 +390,44 @@ const AuthForm = () => {
                 </div>
                 <ToastContainer/>
             </div>
+
+            {/* Modal for Forgot Password */}
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={handleModalClose}
+                contentLabel="Forgot Password Modal"
+                className="bg-gray-800 text-white p-6 rounded-lg w-full max-w-md mx-auto"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+            >
+                <h2 className="text-2xl font-semibold text-center mb-6">Quên Mật Khẩu</h2>
+                <div className="mb-4">
+                    <input
+                        type="email"
+                        className="p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500"
+                        placeholder="Nhập email của bạn"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <FaEnvelope className="absolute right-2 top-2" />
+                </div>
+                <div className="flex justify-center">
+                    <button
+                        className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                        onClick={handleForgotPassword}
+                    >
+                        Gửi yêu cầu
+                    </button>
+                </div>
+                <div className="mt-4 text-center">
+                    <button
+                        onClick={handleModalClose}
+                        className="text-red-400 hover:underline"
+                    >
+                        Đóng
+                    </button>
+                </div>
+            </Modal>
             <style>
                 {`
                   .bg-galaxy {

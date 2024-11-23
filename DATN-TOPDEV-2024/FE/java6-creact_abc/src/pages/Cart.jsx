@@ -3,7 +3,6 @@ import { getAllCartItemsForUser, removeProductFromCart } from '../services/CartS
 import Breadcrumb from '../components/cart/Breadcrumb';
 import CartItem from '../components/cart/CartItem';
 import CouponForm from '../components/cart/CouponForm';
-import CartSummary from '../components/cart/CartSummary';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,7 +16,7 @@ const CartPage = () => {
     const [userId, setUserId] = useState(null);
     const [selectedItems, setSelectedItems] = useState({});
 
-    const navigate = useNavigate(); // Hook for navigation
+    const navigate = useNavigate();
 
     useEffect(() => {
         const storedUserId = JSON.parse(localStorage.getItem('UserId'));
@@ -52,9 +51,13 @@ const CartPage = () => {
         };
 
         fetchCartItems();
-        // const interval = setInterval(fetchCartItems, 2000);
-        // return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        // Đồng bộ hóa giỏ hàng với localStorage
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+    }, [cartItems, selectedItems]);
 
     const handleDeleteItemFromCart = async (productId) => {
         try {
@@ -89,24 +92,41 @@ const CartPage = () => {
     };
 
     const handleUpdateQuantity = (productId, newQuantity) => {
-        setCartItems(cartItems.map(item =>
+        const updatedCartItems = cartItems.map(item =>
             item.productId === productId ? { ...item, quantity: newQuantity } : item
-        ));
+        );
+        setCartItems(updatedCartItems);
     };
 
     const handleSelectChange = (productId, isSelected) => {
-        setSelectedItems(prev => ({
-            ...prev,
+        const updatedSelectedItems = {
+            ...selectedItems,
             [productId]: isSelected
-        }));
+        };
+        setSelectedItems(updatedSelectedItems);
     };
 
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(value).replace(/\s?₫/g, ' VND');
     };
 
     const handleProceedToCheckout = () => {
-        navigate('/orders', { state: { cartItems } });
+        const selectedCartItems = cartItems.filter(item => selectedItems[item.productId]);
+        if (selectedCartItems.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa chọn sản phẩm',
+                text: 'Vui lòng chọn ít nhất một sản phẩm để tiến hành thanh toán.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        navigate('/orders', { state: { cartItems: selectedCartItems } });
     };
 
     return (
@@ -118,9 +138,9 @@ const CartPage = () => {
                         <div className="font-bold">Chọn</div>
                         <div className="col-span-2 font-bold">SẢN PHẨM</div>
                         <div className="font-bold">GIÁ</div>
-                        <div className="font-bold">SỐ LƯỢNG</div>
-                        <div className="font-bold">TẠM TÍNH</div>
-                        <div className="font-bold">HÀNH ĐỘNG</div>
+                        <div className="font-bold pl-5">SỐ LƯỢNG</div>
+                        <div className="font-bold pl-7">TẠM TÍNH</div>
+                        <div className="font-bold"></div>
                     </div>
                     {loading ? (
                         <div>Đang tải...</div>
@@ -157,7 +177,6 @@ const CartPage = () => {
                     </button>
 
                 </div>
-
 
                 <ToastContainer />
             </div>
