@@ -1,142 +1,155 @@
-import React, { useState, useEffect } from 'react';
-import UserService from '../../../../services/UserService';
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from '../../../../firebase.config';
+import UserService from '../../../../services/UserService'
 
 const UserInput = ({ user, onSave }) => {
     const [formData, setFormData] = useState({
-        userName: '',
-        email: '',
-        fullName: '',
-        phone: '',
-        totalSpent: '',
-        registrationDate: '',
+        userName: "",
+        email: "",
+        fullName: "",
+        phone: "",
+        status: "Active",
+        image: "",
     });
+
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         if (user) {
-            setFormData(user);  // Load user data if editing
+            setFormData(user); // Load user data vào form khi edit
         }
     }, [user]);
 
-    const handleChange = (e) => {
-        const { id, value } = e.target;
-        setFormData((prevData) => ({ ...prevData, [id]: value }));
+    // Xử lý thay đổi input
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = async () => {
-        if (user) {
-            await UserService.updateUser(user.userId, formData);  // Update user data
-        } else {
-            await UserService.createUser(formData);  // Create new user
+    // Upload ảnh lên Firebase
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            try {
+                setUploading(true); // Hiển thị trạng thái đang upload
+                const storageRef = ref(storage, `users/${file.name}`);
+                const uploadTask = uploadBytesResumable(storageRef, file);
+
+                uploadTask.on(
+                    "state_changed",
+                    null,
+                    (error) => {
+                        setUploading(false);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Upload Failed",
+                            text: "Could not upload the image. Please try again.",
+                        });
+                    },
+                    async () => {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        setUploading(false);
+                        setFormData({ ...formData, image: downloadURL });
+                        Swal.fire({
+                            icon: "success",
+                            title: "Image Uploaded",
+                            text: "The image has been uploaded successfully!",
+                        });
+                    }
+                );
+            } catch (error) {
+                setUploading(false);
+            }
         }
-        onSave(); // Refresh user list
     };
 
-    const handleClear = () => {
-        setFormData({
-            userName: '',
-            email: '',
-            fullName: '',
-            phone: '',
-            totalSpent: '',
-            registrationDate: '',
-        }); // Reset the form
+    // Submit form
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            if (user) {
+                await UserService.updateUser(user.userId, formData); // Update user
+                Swal.fire("Success", "User updated successfully", "success");
+            } else {
+                await UserService.createUser(formData); // Create user
+                Swal.fire("Success", "User created successfully", "success");
+            }
+            onSave();
+        } catch (error) {
+            Swal.fire("Error", error.response?.data?.message || "An error occurred", "error");
+        }
     };
 
     return (
-        <div className="container mx-auto p-6">
-            <div className="max-w-full mx-auto bg-white shadow-lg rounded-lg p-8">
-                <h2 className="text-2xl font-semibold text-center mb-6">
-                    {user ? 'Edit User' : 'Add User'}
-                </h2>
-                <div className="flex flex-wrap gap-4">
-                    <div className="space-y-6">
-                        {/* User Name */}
-                        <div>
-                            <label htmlFor="userName" className="block text-sm font-semibold text-gray-700 mb-1">User
-                                Name</label>
-                            <input
-                                id="userName"
-                                placeholder="Enter User Name"
-                                value={formData.userName}
-                                onChange={handleChange}
-                                className="w-full p-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-                    </div>
-                        {/* Email */}
-                        <div className="flex-1 min-w-[200px]">
-                            <label htmlFor="email"
-                                   className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-                            <input
-                                id="email"
-                                type="email"
-                                placeholder="Enter Email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="w-full p-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-
-                        {/* Full Name */}
-                        <div className="flex-1 min-w-[200px]">
-                            <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-1">Full
-                                Name</label>
-                            <input
-                                id="fullName"
-                                placeholder="Enter Full Name"
-                                value={formData.fullName}
-                                onChange={handleChange}
-                                className="w-full p-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-
-                        {/* Phone */}
-                        <div className="flex-1 min-w-[200px]">
-                            <label htmlFor="phone"
-                                   className="block text-sm font-semibold text-gray-700 mb-1">Phone</label>
-                            <input
-                                id="phone"
-                                type="tel"
-                                placeholder="Enter Phone Number"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                className="w-full p-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-
-                        {/* Registration Date */}
-                        <div className="flex-1 min-w-[200px]">
-                            <label htmlFor="registrationDate"
-                                   className="block text-sm font-semibold text-gray-700 mb-1">Registration Date</label>
-                            <input
-                                id="registrationDate"
-                                type="date"
-                                value={formData.registrationDate}
-                                onChange={handleChange}
-                                className="w-full p-2 border rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="flex space-x-2 mt-6 justify-start">
-                        <button
-                            onClick={handleSubmit}
-                            className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                            {user ? 'Save Changes' : 'Add User'}
-                        </button>
-
-                        <button
-                            onClick={handleClear} // Clear form
-                            className="bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Input fields */}
+            <div>
+                <label className="block text-sm font-semibold">User Name</label>
+                <input
+                    type="text"
+                    name="userName"
+                    value={formData.userName}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded-md"
+                />
             </div>
-            );
-            };
+            <div>
+                <label className="block text-sm font-semibold">Email</label>
+                <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded-md"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-semibold">Full Name</label>
+                <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded-md"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-semibold">Phone</label>
+                <input
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full border p-2 rounded-md"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-semibold">Upload image</label>
+                <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className="w-full border p-2 rounded-md"
+                />
+                {uploading && <p className="text-blue-500 text-sm">Uploading...</p>}
+                {formData.image && (
+                    <img
+                        src={formData.image}
+                        alt="image Preview"
+                        className="h-20 w-20 rounded-full object-cover mt-2"
+                    />
+                )}
+            </div>
+            <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                disabled={uploading}
+            >
+                {user ? "Update User" : "Create User"}
+            </button>
+        </form>
+    );
+};
 
-            export default UserInput;
+export default UserInput;

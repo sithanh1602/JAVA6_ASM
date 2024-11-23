@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import Modal from 'react-modal';
 import UserService from '../../services/UserService';
 import UserTable from '../../components/admin/TableForm/Users/UserTable';
 import UserInput from '../../components/admin/TableForm/Users/UserInput';
+import Swal from "sweetalert2";
 
 const AdminUsersPage = () => {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
-    const [selectedUser, setSelectedUser] = useState(null);  // Track selected user for editing
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -15,7 +18,8 @@ const AdminUsersPage = () => {
     const fetchUsers = async () => {
         try {
             const data = await UserService.getAllUsers();
-            setUsers(data.filter(user => !user.deleted));  // Filter out soft-deleted users
+            const activeUsers = data.filter(user => !user.deleted);
+            setUsers(activeUsers);
         } catch (error) {
             setError('Failed to fetch users');
             console.error(error);
@@ -23,36 +27,108 @@ const AdminUsersPage = () => {
     };
 
     const handleAddUser = () => {
-        setSelectedUser(null);  // Clear selected user for adding new user
+        setSelectedUser(null);
+        setIsModalOpen(true);
     };
 
     const handleEditUser = (user) => {
-        setSelectedUser(user);  // Set selected user for editing
+        setSelectedUser(user);
+        setIsModalOpen(true);
     };
 
-    return (
-        <div className="bg-gray-50 p-6 rounded-lg shadow-lg space-y-6">
-            <div className="space-y-6">
-                {/* User Input Form (below the table) */}
-                <UserInput
-                    user={selectedUser}  // Pass selected user or null to UserInput
-                    onSave={fetchUsers}  // Refresh user list after save
-                />
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        fetchUsers(); // Refresh the user list after closing the modal
+    };
 
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">User Management</h2>
-                    <button
-                        onClick={handleAddUser}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition"
-                    >
-                        Add User
-                    </button>
+    const handleDelete = async (userId, user) => {
+        console.log("User ID:", userId);
+        console.log("User Object:", user);
+        try {
+            const updatedUserDetails = { ...user, status: 'Inactive' };
+            await UserService.updateUser(userId, updatedUserDetails);
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã cập nhật trạng thái',
+                text: 'Người dùng đã chuyển sang trạng thái "Hết Hoạt Động".',
+            });
+            await fetchUsers();
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không thể cập nhật trạng thái người dùng.',
+            });
+            console.error('Lỗi khi cập nhật trạng thái người dùng:', error);
+        }
+    };
+
+
+
+    return (
+        <div className="p-6 bg-gray-50">
+            {/* Modal for User Input */}
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={handleModalClose}
+                ariaHideApp={false}
+                className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                style={{
+                    content: {
+                        maxWidth: '60vw',
+                        width: '100%',
+                        height: '70vh',
+                        padding: '0',
+                        border: 'none',
+                        background: 'transparent',
+                        overflow: 'visible'
+                    }
+                }}
+            >
+                <div className="h-full bg-white p-6 rounded-lg flex flex-col">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold">
+                            {selectedUser ? 'Cập nhật người dùng' : 'Thêm người dùng mới'}
+                        </h2>
+                        <button
+                            onClick={handleModalClose}
+                            className="text-gray-500 hover:text-gray-700"
+                            aria-label="Close modal"
+                        >
+                            <span className="text-xl">×</span>
+                        </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-grow">
+                        <UserInput
+                            user={selectedUser}
+                            onSave={handleModalClose}
+                        />
+                    </div>
                 </div>
-                {/* User Table (top part of the page) */}
-                <div>
-                    {error && <p className="text-red-600 font-semibold">{error}</p>}
-                    <UserTable users={users} onEditUser={handleEditUser}/>
-                </div>
+            </Modal>
+
+            {/* Page Title and Add User Button */}
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Quản lý người dùng</h1>
+                <button
+                    className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                    onClick={handleAddUser}
+                >
+                    + Thêm người dùng
+                </button>
+            </div>
+
+            {/* User Table */}
+            <div className="bg-white rounded-lg shadow-md">
+                <UserTable
+                    users={users}
+                    onEditUser={handleEditUser}
+                    onDeleteUser={handleDelete}
+                />
             </div>
         </div>
     );

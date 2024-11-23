@@ -21,32 +21,17 @@ const AdminCategoriesPage = () => {
         }
     };
 
-    const handleAddCategory = () => {
-        setSelectedCategory(null);  // Clear selected category for adding new category
-    };
-
     const handleEditCategory = (category) => {
         setSelectedCategory(category);  // Set selected category for editing
     };
 
     return (
         <div className="bg-gray-50 p-6 rounded-lg shadow-lg space-y-6">
+            <h1 className="text-2xl font-bold mb-4">Quản lý loại sản phẩm</h1>
             <div className="space-y-6">
-                {/* Category Input Form (below the table) */}
-
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">Category Management</h2>
-                    <button
-                        onClick={handleAddCategory}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition"
-                    >
-                        Add Category
-                    </button>
-                </div>
-                {/* Category Table (top part of the page) */}
                 <div>
                     {error && <p className="text-red-600 font-semibold">{error}</p>}
-                    <CategoryTable categories={categories} onEditCategory={handleEditCategory} />
+                    <CategoryTable categories={categories} onEditCategory={handleEditCategory}/>
                 </div>
             </div>
         </div>

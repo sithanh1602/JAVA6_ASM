@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -67,16 +68,22 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Gán role mặc định là USER
-        Role userRole = roleRepository.findByRoleName("USER")  // Tìm role USER từ RoleRepository
+        Role userRole = roleRepository.findByRoleName("USER")
                 .orElseThrow(() -> new RuntimeException("Role USER not found"));
 
-        // Thêm role vào người dùng
-        user.setRoles(Set.of(userRole)); // Giả sử roles là Set<Role>
+        user.setRoles(Set.of(userRole));
 
-        // Lưu người dùng vào cơ sở dữ liệu
+        // Gán ngày tạo là ngày hiện tại nếu chưa có
+        if (user.getRegistrationDate() == null) {
+            user.setRegistrationDate(new Date());
+        }
+
+        if (user.getStatus() == null) {
+            user.setStatus("Active");
+        }
+
         return userRepository.save(user);
     }
-
 
     // Phương thức cập nhật người dùng
     public User updateUser(Long id, User userDetails) {
@@ -87,6 +94,8 @@ public class UserService {
         user.setEmail(userDetails.getEmail());
         user.setFullName(userDetails.getFullName());
         user.setPhone(userDetails.getPhone());
+        user.setStatus(userDetails.getStatus());
+        user.setImage(userDetails.getImage());
         // Cập nhật các trường khác nếu cần
 
         return userRepository.save(user);
