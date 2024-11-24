@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartPlus, faHeart, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
+
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
 };
@@ -86,22 +87,22 @@ const ProductCard = ({ product, index }) => {
 
             {/* Hover Effect for Icons */}
             <div
-                className={`absolute top-0 left-0 right-0 bottom-0 bg-gray-800 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4 ${isOutOfStock ? 'pointer-events-none' : ''}`}
+                className={`absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4 ${isOutOfStock ? 'pointer-events-none' : ''}`}
             >
                 <FontAwesomeIcon
                     icon={faCartPlus}
-                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-800"
+                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-900"
                     onClick={handleAddToCart}
                 />
                 <FontAwesomeIcon
                     icon={faHeart}
-                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-800"
+                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-900"
                     onClick={handleFavorite}
                 />
                 {/* Exclamation Icon */}
                 <FontAwesomeIcon
                     icon={faExclamationCircle}
-                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-800"
+                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-900"
                     onClick={handleShowProductDetails}
                 />
             </div>

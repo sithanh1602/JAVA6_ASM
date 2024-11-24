@@ -44,7 +44,7 @@ const HomePage = () => {
                     <Route path="/Editadderss" element={<EditAddress />} />
                 </Routes>
             </div>
-            <Footer/>
+            <Footer className="mt-auto"/> {/* Ensure footer sticks to the bottom */}
             {/* Container for the buttons */}
             <div className="fixed bottom-4 left-4 z-50 flex space-x-4">
                 {/* Cart Button */}

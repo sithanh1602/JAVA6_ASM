@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import HorizontalMenu from './HorizontalMenu';
 import VerticalMenu from './VerticalMenu';
 import Swal from 'sweetalert2';
 import { motion } from 'framer-motion';
@@ -36,7 +35,7 @@ const AdminLayout = () => {
         <div className="w-full flex h-full">
             <VerticalMenu isOpen={isOpen} toggleMenu={toggleMenu} />
             <div className="flex-grow p-4 bg-gray-100">
-                <HorizontalMenu toggleMenu={toggleMenu} />
+                {/*<HorizontalMenu toggleMenu={toggleMenu} />*/}
                 <motion.div
                     className="mt-4"
                     initial={{ opacity: 0, y: -20 }}
@@ -50,7 +49,6 @@ const AdminLayout = () => {
                         <Route path="/user" element={<Users />} />
                         <Route path="/category" element={<Categorys />} />
                         <Route path="/product" element={<Products />} />
-
                     </Routes>
                 </motion.div>
             </div>

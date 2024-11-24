@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import UserAddressService from '../../services/UserAddressService';  // Import service
+import { FaCogs } from 'react-icons/fa';
+import DataTable from 'react-data-table-component';  // Import the DataTable
+import { Link } from 'react-router-dom';
 
 const BillingInfo = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -7,6 +10,7 @@ const BillingInfo = () => {
         fullName: 'Chưa cập nhật',
         phone: 'Chưa cập nhật',
         fullAddress: 'Chưa có địa chỉ mặc định',
+        email: 'Chưa cập nhập',
     });
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState(null);  // Thêm state để lưu địa chỉ đã chọn
@@ -34,6 +38,7 @@ const BillingInfo = () => {
                         fullName: data.fullName || 'Chưa cập nhật',
                         phone: data.phone || 'Chưa cập nhật',
                         fullAddress: data.fullAddress || 'Chưa có địa chỉ mặc định',
+                        email: data.email || 'Chưa cập nhập',
                     });
                 }
             })
@@ -45,63 +50,114 @@ const BillingInfo = () => {
             .catch((error) => console.error('Lỗi khi lấy danh sách địa chỉ:', error));
     }, []);
 
+    // Cấu hình cột cho DataTable
+    const columns = [
+        {
+            name: 'Địa chỉ',
+            selector: row => row.fullAddress,
+            sortable: true,
+        },
+        {
+            name: 'Số điện thoại',
+            selector: row => row.phone,
+            sortable: true,
+        },
+        {
+            name: 'Chọn',
+            button: true,
+            cell: (row) => (
+                <button
+                    onClick={() => handleSelectAddress(row)}
+                    className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
+                >
+                    Chọn
+                </button>
+            ),
+        },
+    ];
+
     return (
-        <div>
-            <h2 className="text-2xl font-bold mb-4">Thông tin thanh toán</h2>
-            <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="max-w-4xl ">
+            <h2 className="text-2xl font-bold mb-6">Thông tin thanh toán</h2>
+            <div className="space-y-6">
+                <div className="space-y-6">
                     {/* Họ tên */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Họ tên</label>
-                        <p className="mt-1 text-gray-700">{userInfo.fullName}</p>
+                        <input
+                            type="text"
+                            className="mt-2 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            value={userInfo.fullName}
+                            readOnly
+                        />
                     </div>
 
                     {/* Số điện thoại */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
-                        <p className="mt-1 text-gray-700">{userInfo.phone}</p>
+                        <input
+                            type="text"
+                            className="mt-2 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            value={userInfo.phone}
+                            readOnly
+                        />
+                    </div>
+
+                    {/* Số điện thoại */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                        <input
+                            type="text"
+                            className="mt-2 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            value={userInfo.email}
+                            readOnly
+                        />
                     </div>
 
                     {/* Địa chỉ */}
                     <div className="flex items-center">
                         <div className="flex-grow">
                             <label className="block text-sm font-medium text-gray-700">Địa chỉ</label>
-                            <p className="mt-1 text-gray-700">{userInfo.fullAddress}</p>
+                            <input
+                                type="text"
+                                className="mt-2 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                value={userInfo.fullAddress}
+                                readOnly
+                            />
                         </div>
                         <button
                             type="button"
-                            className="ml-2 p-2 border-none rounded-md shadow-sm text-gray-500"
+                            className="ml-2 p-1 text-gray-500 rounded-md hover:text-gray-600"
                             onClick={handleModalToggle}
                         >
-                            Thay đổi địa chỉ
+                            <FaCogs/>
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Modal hiển thị tất cả địa chỉ */}
+            {/* DataTable hiển thị tất cả địa chỉ */}
+            {/* DataTable hiển thị tất cả địa chỉ */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-md shadow-lg w-96">
+                    <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-4xl">
                         <h3 className="text-xl font-semibold mb-4">Tất cả Địa Chỉ</h3>
-                        {/* Hiển thị danh sách địa chỉ */}
-                        <div className="space-y-4">
-                            {addresses.length > 0 ? (
-                                addresses.map((address) => (
-                                    <div
-                                        key={address.id}
-                                        className="border p-4 rounded-md cursor-pointer hover:bg-gray-100"
-                                        onClick={() => handleSelectAddress(address)}  // Xử lý khi chọn địa chỉ
-                                    >
-                                        <p className="text-gray-700">Địa chỉ: {address.fullAddress}</p>
-                                        <p className="text-gray-700">Số điện thoại: {address.phone}</p>
-                                    </div>
-                                ))
-                            ) : (
-                                <p>Chưa có địa chỉ nào.</p>
-                            )}
-                        </div>
-                        <div className="mt-4 flex justify-end">
+                        <Link to="/ProvinceSelect">
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                            >
+                                Thêm Địa Chỉ
+                            </button>
+                        </Link>
+                        <DataTable
+                            columns={columns}
+                            data={addresses}
+                            pagination
+                            highlightOnHover
+                            responsive
+                        />
+                        <div className="mt-4 flex justify-between">
                             <button
                                 type="button"
                                 onClick={handleModalToggle}

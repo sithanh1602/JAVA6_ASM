@@ -26,7 +26,7 @@ const AdminCategoriesPage = () => {
     };
 
     return (
-        <div className="bg-gray-50 p-6 rounded-lg shadow-lg space-y-6">
+        <div className="p-4 bg-white rounded-lg shadow-md">
             <h1 className="text-2xl font-bold mb-4">Quản lý loại sản phẩm</h1>
             <div className="space-y-6">
                 <div>
