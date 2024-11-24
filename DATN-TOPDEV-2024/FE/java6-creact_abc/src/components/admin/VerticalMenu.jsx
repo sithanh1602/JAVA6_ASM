@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     FaHome,
     FaEnvelope,
-    FaEdit,
-    FaCalendarAlt,
     FaComments,
     FaChartBar,
     FaPencilAlt,
@@ -14,20 +12,26 @@ import {
     FaFileAlt,
     FaLayerGroup,
     FaChevronRight,
-    FaBars
-    ,
+    FaBars,
     FaProductHunt,
     FaUser,
 } from 'react-icons/fa';
 import { MdCategory } from 'react-icons/md';
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
+import UserService from "../../services/UserService";
 
 const VerticalMenu = ({ isOpen, toggleMenu }) => {
-    // State để lưu các mục menu có cấp 2 đang mở
     const [openSubMenus, setOpenSubMenus] = useState({});
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate(); // Initialize the navigate function
 
     const menuItems = [
         { icon: <FaHome className="text-blue-500" />, label: 'Dashboard', link: '/admin/dash' },
-        { icon: <MdCategory className="text-red-500" />, label: 'Category', link: '/admin/cateTable' },
+        { icon: <MdCategory className="text-red-500" />, label: 'Category', link: '/admin/category' },
         { icon: <FaProductHunt className="text-orange-500" />, label: 'Product', link: '/admin/product' },
         { icon: <FaUser className="text-pink-500" />, label: 'User', link: '/admin/user' },
         { icon: <FaEnvelope className="text-purple-500" />, label: 'Email', link: '/chat' },
@@ -52,8 +56,32 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         { icon: <FaLayerGroup className="text-green-500" />, label: 'Multiple Levels', hasArrow: true, subItems: [
                 { label: 'Level 1', link: '/levels/level1' },
                 { label: 'Level 2', link: '/levels/level2' }
-            ]}
+            ]},
+        { icon: <FaUser className="text-red-500" />, label: 'Logout', action: 'logout' } // Add the logout menu item
     ];
+
+    useEffect(() => {
+        const userId = JSON.parse(localStorage.getItem("UserId"));
+        if (userId) {
+            UserService.getUserById(userId)
+                .then((data) => {
+                    if (data) {
+                        setUser(data);
+                    } else {
+                        setError("Không tìm thấy thông tin người dùng.");
+                    }
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error("Error fetching user:", err);
+                    setError("Không thể tải thông tin người dùng.");
+                    setLoading(false);
+                });
+        } else {
+            setError("UserId không tồn tại trong localStorage.");
+            setLoading(false);
+        }
+    }, []);
 
     const toggleSubMenu = (index) => {
         setOpenSubMenus((prev) => ({
@@ -62,19 +90,63 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         }));
     };
 
+    const handleLogout = () => {
+        Swal.fire({
+            title: 'Xác nhận đăng xuất',
+            text: "Bạn có chắc chắn muốn đăng xuất không?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Đăng xuất',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('UserId');
+                localStorage.removeItem('roles');
+                sessionStorage.removeItem('token');
+                Cookies.remove('token');
+
+                toast.success('Đăng xuất thành công!', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                });
+                navigate('/login');
+            }
+        });
+    };
+
+    const handleMenuClick = (action) => {
+        if (action === 'logout') {
+            handleLogout();
+        }
+    };
+
     return (
         <div className={`h-screen bg-white shadow-md transition-width duration-300 ${isOpen ? 'w-64' : 'w-20'}`}>
             <div className="flex items-center justify-between h-16 border-b px-4">
-                <img src="https://placehold.co/40x40" alt="Adminator Logo" className={`h-10 w-10 ${isOpen ? '' : 'hidden'}`} />
-                {isOpen && <span className="ml-2 text-xl font-bold">Adminator</span>}
-                <FaBars className="cursor-pointer text-gray-600" onClick={toggleMenu} />
+                {user && user.image && (
+                    <img src={user.image} alt="Adminator Logo" className={`h-10 w-10 ${isOpen ? '' : 'hidden'}`}/>
+                )}
+                {isOpen && user && user.fullName && (
+                    <span className="ml-2 text-xl font-bold">{user.fullName}</span>
+                )}
+                <FaBars className="cursor-pointer text-gray-600" onClick={toggleMenu}/>
             </div>
+
             <ul className="mt-4">
                 {menuItems.map((item, index) => (
                     <li key={index} className="flex flex-col">
                         <div
                             className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => item.hasArrow && toggleSubMenu(index)}
+                            onClick={() => {
+                                if (item.hasArrow) {
+                                    toggleSubMenu(index);
+                                } else if (item.action) {
+                                    handleMenuClick(item.action);
+                                }
+                            }}
                         >
                             {item.icon}
                             {isOpen && (
@@ -88,7 +160,6 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
                                 />
                             )}
                         </div>
-                        {/* Menu cấp 2 */}
                         {item.subItems && openSubMenus[index] && (
                             <ul className="ml-8 mt-2 space-y-2">
                                 {item.subItems.map((subItem, subIndex) => (
