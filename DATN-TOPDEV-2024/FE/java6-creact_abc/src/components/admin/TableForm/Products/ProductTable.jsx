@@ -156,7 +156,7 @@ const ProductTable = forwardRef((_, ref) => {
             cell: (row) => (
                 <div className="flex space-x-2">
                     <button
-                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                         onClick={() => handleEditProduct(row)}
                     >
                         <FaEdit />

@@ -197,42 +197,48 @@ const ProductInput = ({ product, onSave }) => {
         }
     };
 
-    return(
+    return (
         <div className="h-full bg-white">
             <form onSubmit={handleSubmit(onSubmit)} className="h-full grid grid-cols-2 gap-8">
                 {/* Left Column - Image Upload */}
-                <div className="flex flex-col">
+                <div className="w-full flex justify-center">
                     <div className="relative w-full h-[400px]">
-                        {imagePreview ? (
-                            <img
-                                src={imagePreview}
-                                alt="Preview"
-                                className="w-full h-[500px] object-cover rounded-lg shadow-md"
-                            />
-                        ) : (
-                            <div
-                                className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                                <span className="text-gray-400">Chưa có ảnh được chọn</span>
-                            </div>
-                        )}
                         <input
                             type="file"
+                            accept="image/*"
                             onChange={handleImageChange}
                             className="hidden"
-                            id="file-upload"
-                            accept="image/*"
+                            id="image-upload"
                         />
                         <label
-                            htmlFor="file-upload"
-                            className="absolute bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full cursor-pointer hover:bg-blue-600 transition-colors"
+                            htmlFor="image-upload"
+                            className="cursor-pointer block w-full h-auto rounded-lg border-2 border-dashed border-gray-300 hover:border-indigo-500 transition-colors duration-300"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
+                            <div className="w-full h-auto rounded-lg overflow-hidden relative">
+                                {imagePreview ? (
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="w-full h-auto object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-96 flex items-center justify-center bg-gray-100">
+                                        <svg
+                                            className="w-12 h-12 text-gray-400"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                            />
+                                        </svg>
+                                    </div>
+                                )}
+                            </div>
                         </label>
                     </div>
                 </div>
@@ -243,11 +249,13 @@ const ProductInput = ({ product, onSave }) => {
                     <div className="space-y-2">
                         <label className="block text-sm font-medium text-gray-700">Tên sản phẩm</label>
                         <input
-                            {...register('name', {required: true})}
+                            {...register("name", { required: true })}
                             placeholder="Nhập Tên Sản Phẩm"
                             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                         />
-                        {errors.name && <span className="text-red-500 text-sm">{errors.name.message}</span>}
+                        {errors.name && (
+                            <span className="text-red-500 text-sm">{errors.name.message}</span>
+                        )}
                     </div>
 
                     {/* Price and Stock */}
@@ -257,24 +265,28 @@ const ProductInput = ({ product, onSave }) => {
                             <div className="relative">
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                                 <input
-                                    {...register('price', {required: true, min: 0})}
+                                    {...register("price", { required: true, min: 0 })}
                                     type="number"
                                     placeholder="0.00"
                                     className="w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 />
                             </div>
-                            {errors.price && <span className="text-red-500 text-sm">{errors.price.message}</span>}
+                            {errors.price && (
+                                <span className="text-red-500 text-sm">{errors.price.message}</span>
+                            )}
                         </div>
 
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">Tồn Kho</label>
                             <input
-                                {...register('stock', {required: true, min: 0})}
+                                {...register("stock", { required: true, min: 0 })}
                                 type="number"
                                 placeholder="Nhập Số Lượng"
                                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                             />
-                            {errors.stock && <span className="text-red-500 text-sm">{errors.stock.message}</span>}
+                            {errors.stock && (
+                                <span className="text-red-500 text-sm">{errors.stock.message}</span>
+                            )}
                         </div>
                     </div>
 
@@ -284,45 +296,49 @@ const ProductInput = ({ product, onSave }) => {
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">Loại Sản Phẩm</label>
                             <select
-                                {...register('categoryId')}
+                                {...register("categoryId")}
                                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                                    errors.categoryId ? 'border-red-500' : 'border-gray-300'
+                                    errors.categoryId ? "border-red-500" : "border-gray-300"
                                 }`}
                             >
                                 <option value="">Chọn Loại Sản Phẩm</option>
-                                {categories.map(category => (
+                                {categories.map((category) => (
                                     <option key={category.id} value={category.id}>
                                         {category.name}
                                     </option>
                                 ))}
                             </select>
-                            {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
+                            {errors.categoryId && (
+                                <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
+                            )}
                         </div>
 
                         {/* Brand - Right side */}
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">Thương Hiệu Sản Phẩm</label>
                             <select
-                                {...register('brandId')}
+                                {...register("brandId")}
                                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                                    errors.brandId ? 'border-red-500' : 'border-gray-300'
+                                    errors.brandId ? "border-red-500" : "border-gray-300"
                                 }`}
                             >
                                 <option value="">Chọn Thương Hiệu</option>
-                                {brands.map(brand => (
+                                {brands.map((brand) => (
                                     <option key={brand.brandsId} value={brand.brandsId}>
                                         {brand.name}
                                     </option>
                                 ))}
                             </select>
-                            {errors.brandId && <p className="text-red-500 text-sm">{errors.brandId.message}</p>}
+                            {errors.brandId && (
+                                <p className="text-red-500 text-sm">{errors.brandId.message}</p>
+                            )}
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <label className="block text-sm font-medium text-gray-700">Trạng Thái</label>
                         <select
-                            {...register('status')}
+                            {...register("status")}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                         >
                             <option value="Available">Còn Hàng</option>
@@ -334,7 +350,7 @@ const ProductInput = ({ product, onSave }) => {
                     <div className="space-y-2">
                         <label className="block text-sm font-medium text-gray-700">Mô Tả</label>
                         <textarea
-                            {...register('description')}
+                            {...register("description")}
                             placeholder="Nhập Mô Tả Sản Phẩm"
                             rows={3}
                             className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
@@ -347,14 +363,14 @@ const ProductInput = ({ product, onSave }) => {
                             type="submit"
                             className="w-full px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                         >
-                            {product ? 'Cập Nhật Sản Phẩm' : 'Tạo Sản Phẩm'}
+                            {product ? "Cập Nhật Sản Phẩm" : "Tạo Sản Phẩm"}
                         </button>
                     </div>
                 </div>
             </form>
         </div>
-    )
-        ;
+    );
+
 };
 
 export default ProductInput;
