@@ -2,6 +2,7 @@ package com.be.controller;
 
 import com.be.entity.User;
 import com.be.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,14 +39,14 @@ public class UserController {
 
     // Endpoint to create a new user
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         User createdUser = userService.createUser(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     // Endpoint to update an existing user
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    public ResponseEntity<User> updateUser(@Valid @PathVariable Long id, @RequestBody User userDetails) {
         try {
             User updatedUser = userService.updateUser(id, userDetails);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);

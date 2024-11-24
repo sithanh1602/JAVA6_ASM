@@ -30,9 +30,13 @@ const UserTable = ({ users, onEditUser, onDeleteUser }) => {
             cell: (row) => (
                 <div className="w-10 h-10">
                     <img
-                        src={row.image || 'https://via.placeholder.com/150'} // Fallback URL if image is missing
-                        alt={`${row.fullName} image`}
+                        src={row.image || 'https://via.placeholder.com/150'}
+                        alt={`${row.fullName || 'User'} image`}
                         className="w-full h-full object-cover rounded-full"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://via.placeholder.com/150';
+                        }}
                     />
                 </div>
             ),
