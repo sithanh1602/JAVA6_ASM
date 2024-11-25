@@ -1,62 +1,107 @@
 import axios from 'axios';
 
-const BRAND_BASE_URL = 'http://localhost:8080/api/brands';
+// Đường dẫn cơ bản tới API Brand
+const BASE_URL = 'http://localhost:8080/api/brands';
 
-class BrandService {
-    // Fetch all brands
-    async getAllBrands() {
+const BrandService = {
+    /**
+     * Lấy danh sách tất cả các Brand
+     * @returns {Promise<Array>} Danh sách các brand
+     */
+    getAllBrands: async () => {
         try {
-            const response = await axios.get(BRAND_BASE_URL);
-            return response.data; // Returns the list of brands
+            const response = await axios.get(BASE_URL);
+            return response.data;
         } catch (error) {
-            console.error('Error fetching brands:', error);
-            throw error; // Propagate error for handling in the calling code
+            if (error.response) {
+                console.error('Failed to fetch brands:', error.response.data);
+            } else {
+                console.error('Error fetching all brands:', error.message);
+            }
+            throw error;
         }
-    }
+    },
 
-    // Fetch a brand by ID
-    async getBrandById(id) {
+    /**
+     * Lấy thông tin Brand theo ID
+     * @param {number} id - ID của brand
+     * @returns {Promise<Object>} Brand chi tiết
+     */
+    getBrandById: async (id) => {
         try {
-            const response = await axios.get(`${BRAND_BASE_URL}/${id}`);
-            return response.data; // Returns the brand
+            const response = await axios.get(`${BASE_URL}/${id}`);
+            return response.data;
         } catch (error) {
-            console.error(`Error fetching brand with ID ${id}:`, error);
-            throw error; // Propagate error
+            if (error.response && error.response.status === 404) {
+                console.error(`Brand with ID ${id} not found.`);
+            } else {
+                console.error(`Error fetching brand with ID ${id}:`, error.message);
+            }
+            throw error;
         }
-    }
+    },
 
-    // Create a new brand
-    async createBrand(brand) {
+    /**
+     * Tạo mới một Brand
+     * @param {Object} brandData - Dữ liệu brand (ví dụ: { name: 'Brand Name' })
+     * @returns {Promise<Object>} Brand đã được tạo
+     */
+    createBrand: async (brandData) => {
         try {
-            const response = await axios.post(BRAND_BASE_URL, brand);
-            return response.data; // Returns the created brand
+            const response = await axios.post(BASE_URL, brandData);
+            return response.data;
         } catch (error) {
-            console.error('Error creating brand:', error);
-            throw error; // Propagate error
+            if (error.response) {
+                console.error('Failed to create brand:', error.response.data);
+            } else {
+                console.error('Error creating brand:', error.message);
+            }
+            throw error;
         }
-    }
+    },
 
-    // Update an existing brand
-    async updateBrand(id, brand) {
+    /**
+     * Cập nhật thông tin Brand theo ID
+     * @param {number} id - ID của brand
+     * @param {Object} brandData - Dữ liệu cập nhật (ví dụ: { name: 'Updated Brand Name' })
+     * @returns {Promise<Object>} Brand sau khi cập nhật
+     */
+    // Sửa lỗi trong method updateBrand
+    updateBrand: async (id, brandData) => {
         try {
-            const response = await axios.put(`${BRAND_BASE_URL}/${id}`, brand);
-            return response.data; // Returns the updated brand
+            // Sửa lỗi: thay 'data' bằng 'brandData'
+            const response = await axios.put(`${BASE_URL}/${id}`, brandData);
+            console.log('Update request:', {
+                url: `${BASE_URL}/${id}`,
+                data: brandData
+            });
+            return response.data;
         } catch (error) {
-            console.error(`Error updating brand with ID ${id}:`, error);
-            throw error; // Propagate error
+            console.error('Update error:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+            }
+            throw error;
         }
-    }
+    },
 
-    // Delete a brand
-    async deleteBrand(id) {
+    /**
+     * Xóa một Brand theo ID
+     * @param {number} id - ID của brand
+     * @returns {Promise<void>}
+     */
+    deleteBrand: async (id) => {
         try {
-            await axios.delete(`${BRAND_BASE_URL}/${id}`);
-            return; // No content returned on successful deletion
+            await axios.delete(`${BASE_URL}/${id}`);
         } catch (error) {
-            console.error(`Error deleting brand with ID ${id}:`, error);
-            throw error; // Propagate error
+            if (error.response && error.response.status === 404) {
+                console.error(`Brand with ID ${id} not found.`);
+            } else {
+                console.error(`Error deleting brand with ID ${id}:`, error.message);
+            }
+            throw error;
         }
-    }
-}
+    },
+};
 
-export default new BrandService();
+export default BrandService;
