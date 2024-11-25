@@ -66,7 +66,7 @@ const AdminUsersPage = () => {
 
 
     return (
-        <div className="p-6 bg-gray-50">
+        <div className="p-6 bg-white rounded-lg shadow-md">
             {/* Modal for User Input */}
             <Modal
                 isOpen={isModalOpen}
@@ -111,19 +111,19 @@ const AdminUsersPage = () => {
                 </div>
             </Modal>
 
-            {/* Page Title and Add User Button */}
-            <div className="flex justify-between items-center mb-4">
+            {/* Page Title */}
+            <div className="mb-4">
                 <h1 className="text-2xl font-bold">Quản lý người dùng</h1>
+            </div>
+
+            {/* User Table and Add User Button  */}
+            <div className="bg-white rounded-lg">
                 <button
-                    className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                    className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 ml-4"
                     onClick={handleAddUser}
                 >
                     + Thêm người dùng
                 </button>
-            </div>
-
-            {/* User Table */}
-            <div className="bg-white rounded-lg shadow-md">
                 <UserTable
                     users={users}
                     onEditUser={handleEditUser}

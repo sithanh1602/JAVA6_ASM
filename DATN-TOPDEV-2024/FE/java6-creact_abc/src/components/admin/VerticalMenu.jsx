@@ -124,10 +124,10 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
     };
 
     return (
-        <div className={`h-screen bg-white shadow-md transition-width duration-300 ${isOpen ? 'w-64' : 'w-20'}`}>
+        <div className={`h-screen bg-white transition-width duration-300 ${isOpen ? 'w-64' : 'w-34'}`}>
             <div className="flex items-center justify-between h-16 border-b px-4">
                 {user && user.image && (
-                    <img src={user.image} alt="Adminator Logo" className={`h-10 w-10 ${isOpen ? '' : 'hidden'}`}/>
+                    <img src={user.image} alt="Adminator Logo" className={`rounded-full h-10 w-10 ${isOpen ? '' : 'hidden'}`}/>
                 )}
                 {isOpen && user && user.fullName && (
                     <span className="ml-2 text-xl font-bold">{user.fullName}</span>
