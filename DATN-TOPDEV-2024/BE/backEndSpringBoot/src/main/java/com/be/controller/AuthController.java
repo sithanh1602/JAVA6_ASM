@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -189,22 +190,25 @@ public class AuthController {
 
     // Phương thức gửi email OTP khi người dùng quên mật khẩu
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email"); // Lấy email từ body
+
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email không được để trống.");
+        }
+
         try {
-            // Kiểm tra email có tồn tại trong hệ thống hay không
+            // Kiểm tra email có tồn tại trong hệ thống
             Optional<User> userOptional = userRepository.findByEmail(email);
             if (!userOptional.isPresent()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email không tồn tại");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email không tồn tại.");
             }
 
             // Tạo mã OTP ngẫu nhiên
             String otpCode = String.format("%06d", new Random().nextInt(999999));
 
             // Lưu mã OTP tạm thời cho email này
-            // Lưu mã OTP vào temporaryOtpMap với userName là khóa
-            // Lưu mã OTP tạm thời cho email này
             temporaryOtpMap.put(email, otpCode);
-
 
             // Gửi email chứa OTP
             SimpleMailMessage message = new SimpleMailMessage();
@@ -219,6 +223,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đã xảy ra lỗi: " + e.getMessage());
         }
     }
+
+
 
     // Phương thức xác minh OTP
     @PostMapping("/verify-otp-for-password")

@@ -157,13 +157,16 @@ const AuthForm = () => {
 
     const handleForgotPassword = async () => {
         try {
+            console.log("Sending request with email:", email);
             const response = await axios.post('http://localhost:8080/api/auth/forgot-password', { email });
             toast.success(response.data);
-            setIsModalOpen(false); // Close the modal after successful request
+            setIsModalOpen(false);
         } catch (error) {
+            console.error("Error:", error.response.data);
             toast.error('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.');
         }
     };
+
 
     return (
         <>
