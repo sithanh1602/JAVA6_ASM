@@ -1,151 +1,143 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import imagess from '../../assets/images/imageProducts/NVIDIARTX3080.webp'
 
-const categories = [
-    "Bluetooth Speaker",
-    "Digital Camera",
-    "Electric Razor",
-    "External Hard Drive",
-    "Frying Pan",
-    "Laser Printer",
-    "Rice Cooker",
-];
-
-const products = [
-    {
-        id: 1,
-        title: "TP-Link Smart WiFi Router Wireless Internet Router",
-        oldPrice: "690,000đ",
-        newPrice: "590,000đ",
-        image: "router.jpg", // Replace with your image source
-    },
-    {
-        id: 2,
-        title: "Skullcandy Dime True In-Ear Earbuds – Golden",
-        oldPrice: "500,000đ",
-        newPrice: "390,000đ",
-        image: "earbuds.jpg", // Replace with your image source
-    },
-    {
-        id: 3,
-        title: "Skullcandy Dime True In-Ear Earbuds – Golden",
-        oldPrice: "500,000đ",
-        newPrice: "390,000đ",
-        image: "earbuds.jpg", // Replace with your image source
-    },{
-        id: 4,
-        title: "Skullcandy Dime True In-Ear Earbuds – Golden",
-        oldPrice: "500,000đ",
-        newPrice: "390,000đ",
-        image: "earbuds.jpg", // Replace with your image source
-    },
-    // Add more products here
-];
-
-const TabComponent = () => {
-    const [activeTab, setActiveTab] = useState("hang-dau"); // Default tab
-    const [activeCategory, setActiveCategory] = useState(0); // Default category
-
-    // Content of each tab
-    const renderContent = () => {
-        const productList = products.map((product) => (
-            <div key={product.id} className="product-card relative bg-white shadow-md rounded-lg p-4 text-center">
-                <img src={product.image} alt={product.title} className="w-full h-32 object-cover rounded-md mb-4" />
-                <h3 className="text-sm font-semibold">{product.title}</h3>
-                <div className="price flex justify-center items-center space-x-2 mt-2">
-                    <span className="original-price line-through text-gray-500 text-xs">{product.oldPrice}</span>
-                    <span className="sale-price text-red-500 font-bold text-md">{product.newPrice}</span>
-                </div>
-                <div className="rating text-yellow-500 mt-2">★★★★★</div>
-            </div>
-        ));
-
-        switch (activeTab) {
-            case "hang-dau":
-                return <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">{productList}</div>;
-            case "ban-chay":
-                return <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">{productList}</div>;
-            default:
-                return null;
-        }
-    };
-
+const CategoryOnlineShopping = () => {
     return (
         <>
-            <div className=" items-center justify-center">
-                <div className=" w-full max-w-7xl mx-auto">
+            <div className="items-center justify-center">
+                <div className="w-full max-w-7xl mx-auto">
                     <div className="container mx-auto mt-6">
-                        {/* Header */}
                         <div className="flex justify-between items-center border-b pb-2">
-                            {/* Left: Main category */}
-                            <h2 className="text-xl font-semibold text-orange-500">Danh Mục</h2>
-
-                            {/* Center: Online Shopping */}
                             <h2 className="text-xl font-semibold">
                                 Mua Sắm <span className="text-orange-500">Trực Tuyến</span>
                             </h2>
-
-                            {/* Right: Tabs */}
-                            <div>
-                                {/* Tabs */}
-                                <div className="flex space-x-4 border-b pb-2">
-                                    <button
-                                        className={`text-gray-600 hover:text-orange-500 transition ${
-                                            activeTab === "hang-dau" ? "text-orange-500 font-semibold" : ""
-                                        }`}
-                                        onClick={() => setActiveTab("hang-dau")}
-                                    >
-                                        Hàng đầu
-                                    </button>
-                                    <button
-                                        className={`text-gray-600 hover:text-orange-500 transition ${
-                                            activeTab === "ban-chay" ? "text-orange-500 font-semibold" : ""
-                                        }`}
-                                        onClick={() => setActiveTab("ban-chay")}
-                                    >
-                                        Bán chạy
-                                    </button>
-                                </div>
-
-
+                            <div className="flex space-x-4 border-b pb-2">
+                                <button className="text-gray-600 hover:text-orange-500 transition">
+                                    Hàng đầu
+                                </button>
+                                <button className="text-gray-600 hover:text-orange-500 transition">
+                                    Bán chạy
+                                </button>
                             </div>
                         </div>
 
-                        <div className="flex mt-6">
-                            {/* Sidebar */}
-                            <div className="w-1/4">
-                                <div className="bg-gray-100 p-4 rounded-lg shadow">
-                                    {categories.map((category, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setActiveCategory(index)}
-                                            className={`block text-left w-full px-4 py-2 mb-2 rounded-lg ${
-                                                activeCategory === index
-                                                    ? "bg-orange-500 text-white"
-                                                    : "bg-white text-gray-600 hover:bg-gray-200"
-                                            }`}
-                                        >
-                                            {category}
-                                        </button>
-                                    ))}
+                        <div className="flex flex-col lg:flex-row mt-6">
+                            <div className="w-full lg:w-1/4 pr-0 lg:pr-8 mb-6 lg:mb-0">
+                                <div className="bg-gray-100 p-4 rounded-lg shadow-lg">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                                        <i className="fas fa-bars px-2"></i> Danh Mục
+                                    </h3>
+                                    <ul className="space-y-3">
+                                        <li className="group">
+                                            <a
+                                                href="#"
+                                                className="flex items-center text-gray-700 group-hover:text-orange-500 transition font-medium"
+                                            >
+                  <span className="mr-2">
+                    <i className="fas fa-music"></i>
+                  </span>
+                                                Bluetooth Speaker
+                                            </a>
+                                        </li>
+                                        <li className="group">
+                                            <a
+                                                href="#"
+                                                className="flex items-center text-gray-700 group-hover:text-orange-500 transition font-medium"
+                                            >
+                  <span className="mr-2">
+                    <i className="fas fa-camera"></i>
+                  </span>
+                                                Digital Camera
+                                            </a>
+                                        </li>
+                                        <li className="group">
+                                            <a
+                                                href="#"
+                                                className="flex items-center text-gray-700 group-hover:text-orange-500 transition font-medium"
+                                            >
+                  <span className="mr-2">
+                    <i className="fas fa-hdd"></i>
+                  </span>
+                                                External Hard Drive
+                                            </a>
+                                        </li>
+                                        <li className="group">
+                                            <a
+                                                href="#"
+                                                className="flex items-center text-gray-700 group-hover:text-orange-500 transition font-medium"
+                                            >
+                  <span className="mr-2">
+                    <i className="fas fa-utensil-spoon"></i>
+                  </span>
+                                                Frying Pan
+                                            </a>
+                                        </li>
+                                        <li className="group">
+                                            <a
+                                                href="#"
+                                                className="flex items-center text-gray-700 group-hover:text-orange-500 transition font-medium"
+                                            >
+                  <span className="mr-2">
+                    <i className="fas fa-print"></i>
+                  </span>
+                                                Laser Printer
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                            <div className={`w-3/4`}>
-                                {/* Displayed content */}
-                                <div className="mt-4">{renderContent()}</div>
+
+                            <div className="w-full lg:w-3/4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                                    {[...Array(6)].map((_, index) => (
+                                        <div
+                                            key={index}
+                                            className="border rounded-lg p-4 shadow hover:shadow-lg transition"
+                                        >
+                                            <div className="relative">
+                  <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                    SALE!
+                  </span>
+                                                <img
+                                                    src="https://via.placeholder.com/150"
+                                                    alt="Product Image"
+                                                    className="w-full h-40 object-cover rounded"
+                                                />
+                                            </div>
+                                            <h3 className="mt-2 text-sm font-semibold">
+                                                Skullcandy Dime Earbuds
+                                            </h3>
+                                            <div className="flex items-center mt-2 text-yellow-500">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-4 w-4 fill-current"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path
+                                                        d="M10 15l-5.878 3.09 1.122-6.545L0 6.545l6.561-.954L10 0l3.439 5.591L20 6.545l-5.244 5.09L15.878 18z"/>
+                                                </svg>
+                                                <span className="ml-1 text-gray-600">(1)</span>
+                                            </div>
+                                            <div className="mt-2">
+                                                <span className="text-red-500 font-bold">390,000₫</span>
+                                                <span className="text-gray-500 line-through ml-2">
+                    500,000₫
+                  </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+
         </>
 
     );
-};
-
-function App() {
-    return <TabComponent/>;
 }
 
-export default App;
+
+export default CategoryOnlineShopping;
