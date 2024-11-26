@@ -30,25 +30,32 @@ const BillingInfo = () => {
     };
 
     useEffect(() => {
-        // Fetch thông tin người dùng mặc định
-        UserAddressService.getDefaultUserInfo()
-            .then((data) => {
-                if (data) {
-                    setUserInfo({
-                        fullName: data.fullName || 'Chưa cập nhật',
-                        phone: data.phone || 'Chưa cập nhật',
-                        fullAddress: data.fullAddress || 'Chưa có địa chỉ mặc định',
-                        email: data.email || 'Chưa cập nhập',
-                    });
-                }
-            })
-            .catch((error) => console.error('Lỗi khi lấy thông tin người dùng:', error));
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.log("Token không tồn tại hoặc đã hết hạn");
+            // Chuyển hướng người dùng về trang đăng nhập
+            window.location.href = '/login';
+        } else {
+            UserAddressService.getDefaultUserInfo()
+                .then((data) => {
+                    if (data) {
+                        setUserInfo({
+                            fullName: data.fullName || 'Chưa cập nhật',
+                            phone: data.phone || 'Chưa cập nhật',
+                            fullAddress: data.fullAddress || 'Chưa có địa chỉ mặc định',
+                            email: data.email || 'Chưa cập nhật',
+                        });
+                    }
+                })
+                .catch((error) => console.error('Lỗi khi lấy thông tin người dùng:', error));
 
-        // Fetch danh sách địa chỉ của người dùng
-        UserAddressService.getAllAddresses()
-            .then((data) => setAddresses(data || []))
-            .catch((error) => console.error('Lỗi khi lấy danh sách địa chỉ:', error));
+            // Fetch danh sách địa chỉ của người dùng
+            UserAddressService.getAllAddresses()
+                .then((data) => setAddresses(data || []))
+                .catch((error) => console.error('Lỗi khi lấy danh sách địa chỉ:', error));
+        }
     }, []);
+
 
     // Cấu hình cột cho DataTable
     const columns = [

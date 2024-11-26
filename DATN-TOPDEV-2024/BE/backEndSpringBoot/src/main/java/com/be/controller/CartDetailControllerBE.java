@@ -1,7 +1,7 @@
 package com.be.controller;
 
 import com.be.entity.CartDetail;
-import com.be.seurity.CartDetailResponseDTO;
+import com.be.DTO.CartDetailResponseDTO;
 import com.be.service.CartDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

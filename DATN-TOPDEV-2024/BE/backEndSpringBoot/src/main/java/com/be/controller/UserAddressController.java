@@ -1,7 +1,7 @@
 package com.be.controller;
 
 import com.be.service.UserAddressService;
-import com.be.seurity.UserInfoDTO;  // DTO cho thông tin người dùng
+import com.be.DTO.UserInfoDTO;  // DTO cho thông tin người dùng
 import com.be.entity.Address;      // Import đối tượng Address nếu cần trả về danh sách địa chỉ chi tiết
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

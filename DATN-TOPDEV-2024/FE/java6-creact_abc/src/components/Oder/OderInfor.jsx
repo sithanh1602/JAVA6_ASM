@@ -102,7 +102,6 @@ const OrderInfo = () => {
                     <div className="mt-2 text-sm text-gray-700">
                         Dữ liệu cá nhân của bạn sẽ được sử dụng để xử lý đơn đặt hàng, hỗ trợ trải nghiệm của bạn trên trang web này và cho các mục đích khác được mô tả trong <a href="#" className="text-orange-600">chính sách riêng tư</a> của chúng tôi.
                     </div>
-                    <button className="mt-4 w-full bg-orange-600 text-white py-2 rounded-md">ĐẶT HÀNG</button>
                 </div>
             </div>
         </div>

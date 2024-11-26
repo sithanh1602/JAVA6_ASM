@@ -4,7 +4,7 @@ import com.be.entity.Address;
 import com.be.entity.User;
 import com.be.rep.AddressRepository;
 import com.be.rep.UserRepository;
-import com.be.seurity.UserInfoDTO;
+import com.be.DTO.UserInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +38,7 @@ public class UserAddressService {
         }
 
         Address address = addressOptional.get();
-        UserInfoDTO userInfoDTO = new UserInfoDTO(user.getFullName(), address.getPhone(), address.getFullAddress());
+        UserInfoDTO userInfoDTO = new UserInfoDTO(user.getFullName(), address.getPhone(), address.getFullAddress(),address.getIdAddress());
 
         return Optional.of(userInfoDTO);
     }

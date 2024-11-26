@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Đảm bảo sử dụng Link từ react-router-dom
+import { Link,useNavigate } from 'react-router-dom'; // Đảm bảo sử dụng Link từ react-router-dom
 import Swal from 'sweetalert2';
 import logo from '../../assets/images/logoWeb.png';
-import Cart from "../../pages/Cart"; // Component Giỏ Hàng
-import AOS from 'aos';
-import 'aos/dist/aos.css';
 
 const Navbar = () => {
     const [cartItems, setCartItems] = useState([]);
-    const [isCartVisible, setIsCartVisible] = useState(false); // Trạng thái hiển thị giỏ hàng
-    const [isCategoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
     const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    const toggleCategoryDropdown = () => {
-        setCategoryDropdownOpen(!isCategoryDropdownOpen);
-    };
+    const navigate = useNavigate();  // Khởi tạo useNavigate
 
     const toggleUserDropdown = () => {
         setUserDropdownOpen(!isUserDropdownOpen);
@@ -32,18 +24,26 @@ const Navbar = () => {
     }, []);
 
     const handleLogout = () => {
+        // Xoá token và thông tin người dùng khỏi localStorage và sessionStorage
         document.cookie = 'token=; Max-Age=0';
         sessionStorage.removeItem('token');
         localStorage.removeItem('token');
         localStorage.removeItem('roles');
         localStorage.removeItem('UserId');
+
+        // Đặt lại trạng thái đăng nhập
         setIsLoggedIn(false);
         setUserDropdownOpen(false);
+
+        // Hiển thị thông báo SweetAlert
         Swal.fire({
             icon: 'success',
             title: 'Đăng xuất thành công!',
             showConfirmButton: false,
             timer: 1500
+        }).then(() => {
+            // Chuyển hướng về trang chủ ("/") sau khi thông báo hiển thị xong
+            navigate('/');
         });
     };
 
