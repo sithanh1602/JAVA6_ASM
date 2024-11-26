@@ -1,4 +1,4 @@
-package com.be.seurity;
+package com.be.DTO;
 
 import com.be.rep.AddressRepository;
 import com.be.rep.UserRepository;

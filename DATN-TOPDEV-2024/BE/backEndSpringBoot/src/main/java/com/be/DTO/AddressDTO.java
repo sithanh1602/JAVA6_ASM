@@ -1,4 +1,4 @@
-package com.be.seurity;
+package com.be.DTO;
 
 import lombok.Data;
 

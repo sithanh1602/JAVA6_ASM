@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import AOS from 'aos'; // Import AOS library
 import 'aos/dist/aos.css'; // Import AOS styles
+import { Link } from 'react-router-dom';
 
 const Header = () => {
     useEffect(() => {
@@ -23,7 +24,7 @@ const Header = () => {
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                            <span className="hover:text-orange-500 cursor-pointer transition duration-300">Theo dõi đơn hàng</span>
+                            <Link to="/OrderUser"><span className="hover:text-orange-500 cursor-pointer transition duration-300">Theo dõi đơn hàng</span></Link>
                             <span className="hover:text-orange-500 cursor-pointer transition duration-300">Chính sách</span>
                             <span className="hover:text-orange-500 cursor-pointer transition duration-300">Thanh toán</span>
                         </div>

@@ -1,7 +1,7 @@
 package com.be.controller;
 
 import com.be.entity.Address;
-import com.be.seurity.AddressDTO;
+import com.be.DTO.AddressDTO;
 import com.be.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/addresses")
