@@ -1,48 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import OrderService from "../../services/OrderSevice"; // Kiểm tra tên dịch vụ chính xác
+import OrderService from "../../services/OrderSevice"; // Đảm bảo tên dịch vụ chính xác
 import DataTable from 'react-data-table-component';
 import { FaCheckCircle, FaTruck, FaStar, FaShoppingCart } from 'react-icons/fa'; // Icons for each step
 
 // OrderStatusStepper component to display status in a stepper form with continuous connectors
 const OrderStatusStepper = ({ status }) => {
     const steps = [
-        { label: 'Đang chờ xác nhận', icon: <FaShoppingCart className="text-lg" />, key: 'pending' },
-        { label: 'Đã xác nhận', icon: <FaCheckCircle className="text-lg" />, key: 'confirmed' },
-        { label: 'Đang giao hàng', icon: <FaTruck className="text-lg" />, key: 'inTransit' },
-        { label: 'Hoàn tất giao hàng', icon: <FaCheckCircle className="text-lg" />, key: 'completed' },
+        { label: 'Đã đặt hàng', icon: <FaShoppingCart className="text-lg" />, key: 1 },
+        { label: 'Chưa thanh toán', icon: <FaStar className="text-lg" />, key: 2 },
+        { label: 'Đã thanh toán', icon: <FaCheckCircle className="text-lg" />, key: 3 },
+        { label: 'Đã xác nhận', icon: <FaCheckCircle className="text-lg" />, key: 4 },
+        { label: 'Đang giao hàng', icon: <FaTruck className="text-lg" />, key: 5 },
+        { label: 'Đã hoàn thành', icon: <FaCheckCircle className="text-lg" />, key: 6 },
+        { label: 'Đã hủy', icon: <FaCheckCircle className="text-lg" />, key: 7 },
     ];
 
     // Determine the color of each step based on the current order status
     const getStatusClass = (step) => {
-        switch (status) {
-            case 'Đã xác nhận':
-                return step.key === 'confirmed' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-500';
-            case 'Đang giao hàng':
-                return step.key === 'inTransit' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500';
-            case 'Hoàn tất giao hàng':
-                return step.key === 'completed' ? 'bg-gray-500 text-white' : 'bg-gray-300 text-gray-500';
-            default:
-                return step.key === 'pending' ? 'bg-yellow-500 text-white' : 'bg-gray-300 text-gray-500';
+        if (status >= step.key) {
+            return 'bg-green-500 text-white'; // Active step
+        } else {
+            return 'bg-gray-300 text-gray-500'; // Inactive step
         }
     };
 
     return (
         <div className="flex justify-between items-center my-6 relative">
-            {steps.map((step, index) => (
+            {steps.map((step) => (
                 <div key={step.key} className={`flex flex-col items-center ${getStatusClass(step)} px-4 py-2 rounded-lg z-10`}>
                     <div className="mb-2">{step.icon}</div>
                     <span className="text-sm">{step.label}</span>
                 </div>
             ))}
             <div className="absolute top-1/2 left-0 right-0 z-0 flex justify-between items-center">
-                {steps.map((_, index) => {
-                    return (
-                        <div
-                            key={index}
-                            className={`h-1 bg-gray-300 ${index !== steps.length - 1 ? 'flex-1' : ''}`} // Remove last line
-                        />
-                    );
-                })}
+                {steps.map((_, index) => (
+                    <div key={index} className={`h-1 bg-gray-300 ${index !== steps.length - 1 ? 'flex-1' : ''}`} />
+                ))}
             </div>
         </div>
     );
@@ -60,6 +53,8 @@ const OrderList = () => {
                 if (!userId) throw new Error('User ID not found in localStorage');
 
                 const ordersData = await OrderService.getOrdersByUserId(userId);
+                console.log(ordersData); // Kiểm tra cấu trúc dữ liệu
+
                 const enrichedOrders = await Promise.all(
                     ordersData.map(async (order) => {
                         const products = await OrderService.getProductsByOrderId(order.id);
@@ -91,10 +86,45 @@ const OrderList = () => {
     // Cancel order function
     const cancelOrder = async (orderId) => {
         try {
-            await OrderService.cancelOrder(orderId);
-            setOrders((prevOrders) => prevOrders.filter(order => order.id !== orderId));
+            // Gọi phương thức updateOrderStatushuy để cập nhật trạng thái đơn hàng thành 'Đã hủy'
+            const updatedOrder = await OrderService.updateOrderStatus(orderId, 7); // 7 là trạng thái 'Đã hủy'
+
+            // Cập nhật lại anh sdách đơn hàng với trạng thái mới
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order.id === orderId ? { ...order, status: 7 } : order // Cập nhật trạng thái đơn hàng thành 'Đã hủy'
+                )
+            );
         } catch (err) {
-            setError(`Error canceling order: ${err.message}`);
+            setError(`Error canceling order: ${err.message}`); // Thông báo lỗi nếu có
+        }
+    };
+
+
+    // Pay order function
+    const payOrder = async (orderId) => {
+        try {
+            const orderToPay = orders.find((order) => order.id === orderId);
+            if (!orderToPay) {
+                setError("Đơn hàng không tồn tại.");
+                return;
+            }
+
+            console.log("Giá trị tổng tiền của đơn hàng: ", orderToPay.totalPrice); // Kiểm tra totalPrice
+
+            const groupedOrderData = {
+                userId: parseInt(localStorage.getItem('UserId')),
+                orderId: orderToPay.id,
+                totalPrice: Math.round(orderToPay.totalPrice),
+            };
+
+            console.log(groupedOrderData);
+
+            // Đảm bảo bạn đang gọi đúng phương thức
+            const result = await OrderService.placeOrderNosave(groupedOrderData);
+            window.location.href = result;
+        } catch (err) {
+            setError(`Có lỗi xảy ra khi thanh toán: ${err.message}`);
         }
     };
 
@@ -102,47 +132,74 @@ const OrderList = () => {
     const columns = [
         {
             name: 'Sản phẩm',
-            selector: row => (
+            selector: (row) => (
                 <ul className="space-y-2">
-                    {row.products && row.products.map((product, index) => (
-                        <li key={index} className="flex items-center space-x-3">
-                            <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded-md" />
-                            <div className="text-sm">
-                                <div>{product.name} (x{product.quantity})</div>
-                                <div className="text-gray-500">{formatPrice(product.price)}</div>
-                            </div>
-                        </li>
-                    ))}
+                    {row.products &&
+                        row.products.map((product, index) => (
+                            <li key={index} className="flex items-center space-x-3">
+                                <img
+                                    src={product.imageUrl}
+                                    alt={product.name}
+                                    className="w-12 h-12 object-cover rounded-md"
+                                />
+                                <div className="text-sm">
+                                    <div>{product.name} (x{product.quantity})</div>
+                                    <div className="text-gray-500">{formatPrice(product.price)}</div>
+                                </div>
+                            </li>
+                        ))}
                 </ul>
             ),
             sortable: false,
         },
         {
             name: 'Ngày đặt hàng',
-            selector: row => new Date(row.orderDate).toLocaleDateString(),
+            selector: (row) => new Date(row.orderDate).toLocaleDateString(),
             sortable: true,
         },
         {
             name: 'Tổng tiền',
-            selector: row => formatPrice(row.totalPrice),
+            selector: (row) => formatPrice(row.totalPrice),
             sortable: true,
             right: true,
         },
         {
             name: 'Trạng thái',
-            selector: row => row.status,
+            selector: (row) => {
+                const statusLabels = [
+                    'Đã đặt hàng',
+                    'Chưa thanh toán',
+                    'Đã thanh toán',
+                    'Đã xác nhận',
+                    'Đang giao hàng',
+                    'Đã hoàn thành',
+                    'Đã hủy',
+                ];
+                return statusLabels[row.status - 1] || 'Không xác định';
+            },
             sortable: true,
         },
         {
             name: 'Huỷ đơn',
-            cell: row => (
-                <button
-                    onClick={() => cancelOrder(row.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                    disabled={row.status === 'Cancelled'}
-                >
-                    {row.status === 'Cancelled' ? 'Đã huỷ' : 'Huỷ đơn hàng'}
-                </button>
+            cell: (row) => (
+                <>
+                    {row.status !== 7 && row.status !== 4 && row.status !== 5 && row.status !== 6 && row.status !== 3 && (
+                        <button
+                            onClick={() => cancelOrder(row.id)}
+                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                        >
+                            {row.status === 7 ? 'Đã huỷ' : 'Huỷ đơn hàng'}
+                        </button>
+                    )}
+                    {row.status === 1 || row.status === 2 ? (
+                        <button
+                            onClick={() => payOrder(row.id)}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        >
+                            Thanh toán
+                        </button>
+                    ) : null}
+                </>
             ),
             sortable: false,
         },
@@ -153,8 +210,8 @@ const OrderList = () => {
             {orders.length === 0 ? (
                 <p className="text-center">Không có đơn hàng nào.</p>
             ) : (
-                orders.map(order => (
-                    <div key={order.id} className="mb-8 bg-white p-6 rounded-lg ">
+                orders.map((order) => (
+                    <div key={order.id} className="mb-8 bg-white p-6 rounded-lg">
                         {/* Display Order Status Stepper above the table */}
                         <OrderStatusStepper status={order.status} />
                         <DataTable
@@ -165,36 +222,12 @@ const OrderList = () => {
                             className="shadow-lg rounded-lg"
                             customStyles={{
                                 rows: {
+                                    highlightOnHover: true,
                                     style: {
-                                        borderBottom: '1px solid #ddd',
-                                    },
-                                },
-                                headCells: {
-                                    style: {
-                                        backgroundColor: '#f7f7f7',
-                                        fontWeight: 'bold',
-                                    },
-                                },
-                                cells: {
-                                    style: {
-                                        padding: '12px',
+                                        backgroundColor: '#f0f0f0',
                                     },
                                 },
                             }}
-                            conditionalRowStyles={[
-                                {
-                                    when: (row, index) => index % 2 === 0,
-                                    style: {
-                                        backgroundColor: '#f9f9f9',
-                                    },
-                                },
-                                {
-                                    when: (row, index) => index % 2 !== 0,
-                                    style: {
-                                        backgroundColor: '#ffffff',
-                                    },
-                                },
-                            ]}
                         />
                     </div>
                 ))
