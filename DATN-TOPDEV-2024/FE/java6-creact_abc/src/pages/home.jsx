@@ -22,6 +22,7 @@ import ProvinceSelect from "../components/account/ProvinceSelect";
 import Address from "../components/account/AdderssList";
 import EditAddress from "../components/account/EditAddress";
 import OrderList from "../components/Oder/OrderList";
+import PaymentSuccess from "../components/vnpaypayment/PaymentSuccess";
 
 const HomePage = () => {
     return (
@@ -44,6 +45,7 @@ const HomePage = () => {
                     <Route path="/Address" element={<Address />} />
                     <Route path="/Editadderss" element={<EditAddress />} />
                     <Route path="/OrderUser" element={<OrderList />} />
+                    <Route path="/payment/vnpay-payment" element={<PaymentSuccess />} />
                 </Routes>
             </div>
             <Footer className="mt-auto"/> {/* Ensure footer sticks to the bottom */}

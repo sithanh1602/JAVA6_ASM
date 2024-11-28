@@ -3,33 +3,56 @@ import axios from 'axios';
 // URL của API Backend
 const ORDER_API_URL = 'http://localhost:8080/api/orders';
 
-// Đặt API để lấy danh sách đơn hàng của người dùng
+// API lấy danh sách đơn hàng của người dùng
 const getOrdersByUserId = async (userId) => {
     try {
         const response = await axios.get(`${ORDER_API_URL}/user/${userId}`);
-        return response.data;  // Trả về dữ liệu đơn hàng
+        return response.data;
     } catch (error) {
         handleError(error);
     }
 };
 
-// Đặt API để lấy các sản phẩm trong một đơn hàng
+// API lấy sản phẩm trong đơn hàng theo orderId
 const getProductsByOrderId = async (orderId) => {
     try {
         const response = await axios.get(`${ORDER_API_URL}/products/${orderId}`);
-        return response.data; // Trả về mảng các sản phẩm kèm theo số lượng
+        return response.data;
     } catch (error) {
-        console.error('Error getting products for order:', error);
-        throw new Error('Could not fetch products');
+        handleError(error);
     }
 };
 
-
-// Gửi yêu cầu tạo đơn hàng mới
+// API tạo đơn hàng với VNPay
 const placeOrder = async (orderData) => {
     try {
         const response = await axios.post(`${ORDER_API_URL}/place`, orderData);
-        return response.data;  // Trả về dữ liệu đơn hàng sau khi tạo
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// API tạo đơn hàng với thanh toán COD
+const placeOrderNoVnpay = async (orderData) => {
+    try {
+        const response = await axios.post(`${ORDER_API_URL}/placecod`, orderData);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+// API tạo đơn hàng để xem trước, không lưu thông tin thanh toán
+const placeOrderNosave = async (orderData) => {
+    try {
+        const response = await axios.post(`${ORDER_API_URL}/placeno`, orderData);
+
+        if (response.status !== 200) {
+            throw new Error('Không thể xử lý đơn hàng');
+        }
+
+        return response.data;
     } catch (error) {
         handleError(error);
     }
@@ -39,15 +62,16 @@ const placeOrder = async (orderData) => {
 const handleError = (error) => {
     if (error.response) {
         console.error('Error response:', error.response);
-        throw new Error(`Lỗi từ server: ${error.response.data || error.message}`);
+        throw new Error(`Lỗi từ server: ${error.response.data.message || error.message}`);
     } else if (error.request) {
         console.error('Error request:', error.request);
-        throw new Error('Không có phản hồi từ server');
+        throw new Error('Không có phản hồi từ server. Vui lòng kiểm tra kết nối mạng.');
     } else {
         console.error('Error message:', error.message);
         throw new Error(`Yêu cầu thất bại: ${error.message}`);
     }
 };
+
 
 const getAllOrders = async () => {
     try {
@@ -79,10 +103,25 @@ const updateOrderStatus = async (orderId, status) => {
     }
 };
 
+
+// API cập nhật trạng thái đơn hàng thành "hủy"
+const updateOrderStatushuy = async (orderId, status) => {
+    try {
+        const response = await axios.put(`${ORDER_API_URL}/${orderId}/statushuy`, { status });
+        return response.data; // Trả về đơn hàng đã được cập nhật
+    } catch (err) {
+        throw new Error(`Error updating order status: ${err.message}`);
+    }
+};
+
+// Export các hàm API
 export default {
-    placeOrder,
     getOrdersByUserId,
     getProductsByOrderId,
     getAllOrders,
     updateOrderStatus,
+    placeOrder,
+    placeOrderNoVnpay,
+    placeOrderNosave,
+    updateOrderStatushuy, // Kiểm tra lại xuất khẩu
 };
