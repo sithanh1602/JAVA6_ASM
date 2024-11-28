@@ -18,6 +18,11 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @GetMapping("/all")
+    public List<Map<String, Object>> getAllOrders() throws Exception {
+        return orderService.getAllOrdersWithDetails();
+    }
+
     // Endpoint to place an order
     @PostMapping("/place")
     public ResponseEntity<?> placeOrder(@RequestBody OrderRequest orderRequest) {
@@ -38,6 +43,16 @@ public class OrderController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while processing the order.");
+        }
+    }
+
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<Orders> updateOrderStatus(@PathVariable Long orderId, @RequestParam int status) {
+        try {
+            Orders updatedOrder = orderService.updateOrderStatus(orderId, status);
+            return ResponseEntity.ok(updatedOrder); // Respond with the updated order
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(null); // Return 404 if order not found or any error
         }
     }
 

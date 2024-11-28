@@ -5,6 +5,7 @@ import com.be.entity.User;
 import com.be.rep.RoleRepository;
 import com.be.rep.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,10 @@ public class UserService {
         // Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+    }
+
+    public List<User> getTopCustomers(int limit) {
+        return userRepository.findTopCustomers(PageRequest.of(0, limit));
     }
 
     // Phương thức lấy tất cả người dùng
