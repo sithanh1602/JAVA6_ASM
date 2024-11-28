@@ -32,6 +32,39 @@ public class OrderService {
 
     @Autowired
     private EmailService emailService;
+    public List<Map<String, Object>> getAllOrdersWithDetails() throws Exception {
+        List<Orders> orders = ordersRepository.findAll();
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (Orders order : orders) {
+            User user = order.getUser();
+            List<Map<String, Object>> products = getProductsByOrderId(order.getId());
+
+            Map<String, Object> orderInfo = new HashMap<>();
+            orderInfo.put("id", order.getId());
+            orderInfo.put("userName", user != null ? user.getFullName() : "Unknown");
+            orderInfo.put("totalPrice", order.getTotalPrice());
+            orderInfo.put("status", order.getStatus());
+            orderInfo.put("orderDate", order.getOrderDate());
+            orderInfo.put("products", products);
+
+            response.add(orderInfo);
+        }
+
+        return response;
+    }
+
+
+    public Orders updateOrderStatus(Long orderId, int status) {
+        // Find the order by ID
+        Orders order = ordersRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+        // Update the status
+        order.setStatus(status);
+
+        // Save the updated order to the database
+        return ordersRepository.save(order);
+    }
 
 
     public List<Orders> getOrdersByUserId(Long userId) {

@@ -49,8 +49,40 @@ const handleError = (error) => {
     }
 };
 
+const getAllOrders = async () => {
+    try {
+        const response = await axios.get(`${ORDER_API_URL}/all`); // Đảm bảo endpoint chính xác
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            console.error('Error response:', error.response);
+            throw new Error(`Lỗi từ server: ${error.response.data.message || error.message}`);
+        } else if (error.request) {
+            console.error('Error request:', error.request);
+            throw new Error('Không có phản hồi từ server');
+        } else {
+            console.error('Error message:', error.message);
+            throw new Error(`Yêu cầu thất bại: ${error.message}`);
+        }
+    }
+};
+
+// Cập nhật trạng thái đơn hàng
+const updateOrderStatus = async (orderId, status) => {
+    try {
+        const response = await axios.put(`${ORDER_API_URL}/${orderId}/status`, null, {
+            params: { status },
+        });
+        return response.data;  // Trả về đơn hàng đã được cập nhật
+    } catch (error) {
+        handleError(error);
+    }
+};
+
 export default {
     placeOrder,
     getOrdersByUserId,
     getProductsByOrderId,
+    getAllOrders,
+    updateOrderStatus,
 };

@@ -9,6 +9,8 @@ import Dashboard from "./TableForm/DashB/mainDash";
 import Categorys from "../../pages/admin/Categorys";
 import OrderStatus from "./TableForm/OrderStatus";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
+import AdminOrderManagement  from "./TableForm/OrderStatusAdmin/AdminOrderManagement";
+import Top3User from "../dashBoard/Top3User";
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true); // Mở menu dọc mặc định
     const navigate = useNavigate();
@@ -45,8 +47,8 @@ const AdminLayout = () => {
                     transition={{ duration: 0.5 }}
                 >
                     <Routes>
-                        <Route path="/" element={<OrderStatus />} />
-                        <Route path="/dash" element={<Dashboard />} />
+                        <Route path="/" element={<AdminOrderManagement />} />
+                        <Route path="/dash" element={<Top3User />} />
                         <Route path="/user" element={<Users />} />
                         <Route path="/category" element={<Categorys />} />
                         <Route path="/brand" element={<BrandTableWithBoundary />} />
