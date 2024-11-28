@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -63,6 +64,26 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // Endpoint để đổi mật khẩu
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody Map<String, String> passwordRequest) {
+        try {
+            Long userId = Long.valueOf(passwordRequest.get("userId"));
+            String oldPassword = passwordRequest.get("oldPassword");
+            String newPassword = passwordRequest.get("newPassword");
+            String confirmPassword = passwordRequest.get("confirmPassword");
+
+            // Gọi UserService để xử lý logic đổi mật khẩu
+            userService.changePassword(userId, oldPassword, newPassword, confirmPassword);
+
+            return ResponseEntity.ok("Mật khẩu đã được thay đổi thành công.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đã xảy ra lỗi: " + e.getMessage());
         }
     }
 }

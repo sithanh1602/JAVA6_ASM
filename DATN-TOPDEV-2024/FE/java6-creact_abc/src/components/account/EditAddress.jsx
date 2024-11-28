@@ -160,7 +160,7 @@ const AddressForm = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto mt-10 p-5 border rounded-lg shadow-lg bg-white">
+        <div className="max-w-3xl mx-auto  p-5 rounded-lg  bg-white">
             <h1 className="text-2xl font-bold mb-5 text-center">Cập nhật địa chỉ</h1>
             <div className="space-y-4">
                 <div>

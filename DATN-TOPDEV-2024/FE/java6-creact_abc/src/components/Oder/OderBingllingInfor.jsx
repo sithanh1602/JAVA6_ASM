@@ -3,6 +3,7 @@ import UserAddressService from '../../services/UserAddressService';  // Import s
 import { FaCogs } from 'react-icons/fa';
 import DataTable from 'react-data-table-component';  // Import the DataTable
 import { Link } from 'react-router-dom';
+import ProvinceSelect from "../account/ProvinceSelect";
 
 const BillingInfo = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -149,14 +150,8 @@ const BillingInfo = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-4xl">
                         <h3 className="text-xl font-semibold mb-4">Tất cả Địa Chỉ</h3>
-                        <Link to="/ProvinceSelect">
-                            <button
-                                type="button"
-                                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                            >
-                                Thêm Địa Chỉ
-                            </button>
-                        </Link>
+                        <ProvinceSelect></ProvinceSelect>
+
                         <DataTable
                             columns={columns}
                             data={addresses}

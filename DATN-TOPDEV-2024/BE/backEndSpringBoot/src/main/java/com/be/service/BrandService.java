@@ -32,8 +32,8 @@ public class BrandService {
 
     public Brand updateBrand(Long id, Brand brand) {
         Brand existingBrand = brandRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Brand not found with id: " + id));
-
+                .orElseThrow(() -> new RuntimeException("Brand not found with id: " + id)); 
+    
         existingBrand.setName(brand.getName());
         existingBrand.setContactInfo(brand.getContactInfo());
         existingBrand.setImage(brand.getImage());
