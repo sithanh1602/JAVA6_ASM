@@ -62,7 +62,7 @@ public class ProductService {
         if (product.getDescription() == null) {
             throw new ValidationException("Description must not be empty");
         }
-        if (product.getStock() <= 0) {
+        if (product.getStock() < 0) {
             throw new ValidationException("Stock must be a positive number");
         }
         if (product.getPrice() <= 0) {
@@ -118,9 +118,14 @@ public class ProductService {
         // Kiểm tra nếu sản phẩm tồn tại
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+        if (product.getStock() == 0) {
+            product.setStatus("Out of Stock");
+        }
+        if (product.getStock() > 0) {
+            product.setStatus("Available");
+        }
 
         validateProductUpdate(product,id);  // Validate cho việc cập nhật sản phẩm
-
         // Cập nhật thông tin sản phẩm
         existingProduct.setName(product.getName());
         existingProduct.setDescription(product.getDescription());
@@ -129,7 +134,6 @@ public class ProductService {
         existingProduct.setCategory(product.getCategory());
         existingProduct.setBrand(product.getBrand());
         existingProduct.setStatus(product.getStatus());
-        existingProduct.setImageUrl(product.getImageUrl());
 
         return productRepository.save(existingProduct);
     }

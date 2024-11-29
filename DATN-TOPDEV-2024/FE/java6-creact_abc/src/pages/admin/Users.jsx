@@ -44,16 +44,27 @@ const AdminUsersPage = () => {
     const handleDelete = async (userId, user) => {
         console.log("User ID:", userId);
         console.log("User Object:", user);
+
+        // Xác định trạng thái mới
+        const newStatus = user.status === 'Active' ? 'Inactive' : 'Active';
+        const statusMessage = newStatus === 'Active' ? 'Còn Hoạt Động' : 'Hết Hoạt Động';
+
         try {
-            const updatedUserDetails = { ...user, status: 'Inactive' };
+            // Cập nhật trạng thái mới cho người dùng
+            const updatedUserDetails = { ...user, status: newStatus };
             await UserService.updateUser(userId, updatedUserDetails);
+
+            // Thông báo thành công
             Swal.fire({
                 icon: 'success',
-                title: 'Đã cập nhật trạng thái',
-                text: 'Người dùng đã chuyển sang trạng thái "Hết Hoạt Động".',
+                title: 'Cập nhật thành công',
+                text: `Người dùng đã chuyển sang trạng thái "${statusMessage}".`,
             });
+
+            // Làm mới danh sách người dùng
             await fetchUsers();
         } catch (error) {
+            // Thông báo lỗi
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi',
@@ -62,6 +73,7 @@ const AdminUsersPage = () => {
             console.error('Lỗi khi cập nhật trạng thái người dùng:', error);
         }
     };
+
 
 
 
