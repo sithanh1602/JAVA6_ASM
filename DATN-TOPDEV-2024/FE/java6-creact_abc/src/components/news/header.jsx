@@ -1,21 +1,22 @@
 import React from "react";
+import 'aos/dist/aos.css';
 
 const Header = () => {
     return (
         <div className="container mx-auto p-4 py-12 px-12">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 <div className="lg:col-span-3">
-                    <div className="bg-white rounded-lg shadow-md mb-4">
+                    <div className="bg-white rounded-lg shadow-md mb-4" data-aos="fade-left" data-aos-anchor-placement="top-center">
                         <div className="relative">
                             <img
                                 alt="A modern work computer setup with a desktop and laptop in a bright room with a large window"
                                 className="w-full rounded-t-lg h-[500px]"
-                                src="https://mona-smart.monamedia.net/wp-content/uploads/2022/09/img_08.jpg"
+                                src="https://hoanglonglaptop.vn/media/lib/26-09-2023/intel-cpu-thumb.jpg"
                             />
                             <div className="absolute top-4 left-4 bg-orange-500 text-white px-2 py-1 rounded">
-        <span className="block text-lg font-bold">
-         07
-        </span>
+                            <span className="block text-lg font-bold">
+                                07
+                            </span>
                                 <span className="block text-sm">
          Th5
         </span>
@@ -39,7 +40,7 @@ const Header = () => {
                             <h2 className="text-2xl font-bold mb-2">
                                 Finally found a work computer setup That’s practically perf
                             </h2>
-                            <div className="flex items-center text-gray-500 text-sm mb-4">
+                            <div className="flex items-center text-gray-500 text-sm mb-4" data-aos="fade-up-left" data-aos-duration="1200" data-aos-delay="500" data-aos-offset="200">
                                 <img alt="Avatar of monamedia" className="w-6 h-6 rounded-full mr-2" height="24"
                                      src="https://storage.googleapis.com/a1aa/image/Tet0UMONbE0CYKfUsXkRpSe7CBrPcNJyT9OOaJ1NfmLEqDGPB.jpg"
                                      width="24"/>
@@ -76,12 +77,12 @@ const Header = () => {
                             </p>
                         </div>
                     </div>
-                    <div className="bg-white rounded-lg shadow-md mb-4">
+                    <div className="bg-white rounded-lg shadow-md mb-4" data-aos="fade-up-left" data-aos-duration="1200" data-aos-delay="500" data-aos-offset="200">
                         <div className="relative">
                             <img
                                 alt="A modern work computer setup with a desktop and laptop in a bright room with a large window"
                                 className="w-full rounded-t-lg h-[500px]"
-                                src="https://mona-smart.monamedia.net/wp-content/uploads/2022/09/img_18.jpg"
+                                src="http://surl.li/nghavt"
                             />
                             <div className="absolute top-4 left-4 bg-orange-500 text-white px-2 py-1 rounded">
         <span className="block text-lg font-bold">
@@ -94,7 +95,7 @@ const Header = () => {
                         </div>
                         <div className="p-4">
                             <div className="flex items-center mb-2">
-        <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded mr-2">
+        <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded mr-2" >
          Tags
         </span>
                                 <span className="text-gray-600 text-sm">
@@ -110,7 +111,7 @@ const Header = () => {
                             <h2 className="text-2xl font-bold mb-2">
                                 Finally found a work computer setup That’s practically perf
                             </h2>
-                            <div className="flex items-center text-gray-500 text-sm mb-4">
+                            <div className="flex items-center text-gray-500 text-sm mb-4" >
                                 <img alt="Avatar of monamedia" className="w-6 h-6 rounded-full mr-2" height="24"
                                      src="https://storage.googleapis.com/a1aa/image/Tet0UMONbE0CYKfUsXkRpSe7CBrPcNJyT9OOaJ1NfmLEqDGPB.jpg"
                                      width="24"/>
@@ -147,12 +148,12 @@ const Header = () => {
                             </p>
                         </div>
                     </div>
-                    <div className="bg-white rounded-lg shadow-md mb-4">
+                    <div className="bg-white rounded-lg shadow-md mb-4"  data-aos="fade-up-down" data-aos-duration="1200" data-aos-delay="500" data-aos-offset="200">
                         <div className="relative">
                             <img
                                 alt="A modern work computer setup with a desktop and laptop in a bright room with a large window"
                                 className="w-full rounded-t-lg h-[500px]"
-                                src="https://mona-smart.monamedia.net/wp-content/uploads/2022/09/img_17-1450x790.jpg"
+                                src="http://surl.li/cwiwjg"
                             />
                             <div className="absolute top-4 left-4 bg-orange-500 text-white px-2 py-1 rounded">
         <span className="block text-lg font-bold">

@@ -1,10 +1,12 @@
 import React, {useState} from "react";
 import imagess from '../../assets/images/imageProducts/NVIDIARTX3080.webp'
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const CategoryOnlineShopping = () => {
     return (
         <>
-            <div className="items-center justify-center">
+            <div className="items-center justify-center" data-aos="fade-up">
                 <div className="w-full max-w-7xl mx-auto">
                     <div className="container mx-auto mt-6">
                         <div className="flex justify-between items-center border-b pb-2">

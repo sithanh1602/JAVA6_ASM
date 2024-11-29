@@ -6,19 +6,19 @@ import { FaCheckCircle, FaTruck, FaStar, FaShoppingCart } from 'react-icons/fa';
 // OrderStatusStepper component to display status in a stepper form with continuous connectors
 const OrderStatusStepper = ({ status }) => {
     const steps = [
-        { label: 'Đã đặt hàng', icon: <FaShoppingCart className="text-lg" />, key: 1 },
-        { label: 'Chưa thanh toán', icon: <FaStar className="text-lg" />, key: 2 },
-        { label: 'Đã thanh toán', icon: <FaCheckCircle className="text-lg" />, key: 3 },
-        { label: 'Đã xác nhận', icon: <FaCheckCircle className="text-lg" />, key: 4 },
-        { label: 'Đang giao hàng', icon: <FaTruck className="text-lg" />, key: 5 },
-        { label: 'Đã hoàn thành', icon: <FaCheckCircle className="text-lg" />, key: 6 },
-        { label: 'Đã hủy', icon: <FaCheckCircle className="text-lg" />, key: 7 },
+        { label: 'Đã đặt hàng', icon: <FaShoppingCart className="text-3xl" />, key: 1, color: 'bg-blue-500' },
+        { label: 'Chưa thanh toán', icon: <FaStar className="text-3xl" />, key: 2, color: 'bg-yellow-500' },
+        { label: 'Đã thanh toán', icon: <FaCheckCircle className="text-3xl" />, key: 3, color: 'bg-green-500' },
+        { label: 'Đã xác nhận', icon: <FaCheckCircle className="text-3xl" />, key: 4, color: 'bg-teal-500' },
+        { label: 'Đang giao hàng', icon: <FaTruck className="text-3xl" />, key: 5, color: 'bg-orange-500' },
+        { label: 'Đã hoàn thành', icon: <FaCheckCircle className="text-3xl" />, key: 6, color: 'bg-gray-500' },
+        { label: 'Đã hủy', icon: <FaCheckCircle className="text-3xl" />, key: 7, color: 'bg-red-500' },
     ];
 
     // Determine the color of each step based on the current order status
     const getStatusClass = (step) => {
         if (status >= step.key) {
-            return 'bg-green-500 text-white'; // Active step
+            return `${step.color} text-white`; // Active step with custom color
         } else {
             return 'bg-gray-300 text-gray-500'; // Inactive step
         }
@@ -34,7 +34,7 @@ const OrderStatusStepper = ({ status }) => {
             ))}
             <div className="absolute top-1/2 left-0 right-0 z-0 flex justify-between items-center">
                 {steps.map((_, index) => (
-                    <div key={index} className={`h-1 bg-gray-300 ${index !== steps.length - 1 ? 'flex-1' : ''}`} />
+                    <div key={index} className={`h-1 ${getStatusClass(steps[index])} ${index !== steps.length - 1 ? 'flex-1' : ''}`} />
                 ))}
             </div>
         </div>
@@ -89,7 +89,7 @@ const OrderList = () => {
             // Gọi phương thức updateOrderStatushuy để cập nhật trạng thái đơn hàng thành 'Đã hủy'
             const updatedOrder = await OrderService.updateOrderStatus(orderId, 7); // 7 là trạng thái 'Đã hủy'
 
-            // Cập nhật lại anh sdách đơn hàng với trạng thái mới
+            // Cập nhật lại danh sách đơn hàng với trạng thái mới
             setOrders((prevOrders) =>
                 prevOrders.map((order) =>
                     order.id === orderId ? { ...order, status: 7 } : order // Cập nhật trạng thái đơn hàng thành 'Đã hủy'
@@ -99,7 +99,6 @@ const OrderList = () => {
             setError(`Error canceling order: ${err.message}`); // Thông báo lỗi nếu có
         }
     };
-
 
     // Pay order function
     const payOrder = async (orderId) => {
@@ -219,15 +218,7 @@ const OrderList = () => {
                             data={[order]} // Show only the current order
                             highlightOnHover
                             pointerOnHover
-                            className="shadow-lg rounded-lg"
-                            customStyles={{
-                                rows: {
-                                    highlightOnHover: true,
-                                    style: {
-                                        backgroundColor: '#f0f0f0',
-                                    },
-                                },
-                            }}
+                            className="mt-4"
                         />
                     </div>
                 ))

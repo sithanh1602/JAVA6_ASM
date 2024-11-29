@@ -22,6 +22,7 @@ import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import UserService from "../../services/UserService";
+import 'aos/dist/aos.css';
 
 const VerticalMenu = ({ isOpen, toggleMenu }) => {
     const [openSubMenus, setOpenSubMenus] = useState({});
@@ -33,7 +34,7 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
     const menuItems = [
         { icon: <FaHome className="text-blue-500" />, label: 'Dashboard', link: '/admin/dash' },
         { icon: <MdCategory className="text-red-500" />, label: 'Category', link: '/admin/category' },
-        {icon: <FaDisease className="text-red-500" />, label: 'Brand', link: '/admin/brand' },
+        { icon: <FaDisease className="text-red-500" />, label: 'Brand', link: '/admin/brand' },
         { icon: <FaProductHunt className="text-orange-500" />, label: 'Product', link: '/admin/product' },
         { icon: <FaUser className="text-pink-500" />, label: 'User', link: '/admin/user' },
         { icon: <FaEnvelope className="text-purple-500" />, label: 'Email', link: '/chat' },

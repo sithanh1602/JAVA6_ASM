@@ -3,6 +3,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import images from '../../assets/images/imageProducts/Mainboard.webp';
+import 'aos/dist/aos.css';
 
 const SliderProductBottom = () => {
     const settings = {
@@ -37,7 +38,7 @@ const SliderProductBottom = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 py-1 mt-10">
+        <div className="container mx-auto px-4 py-1 mt-10" data-aos="fade-down-right">
             {/* Right section: Slider */}
             <div className="w-full">
                 <div className="border border-orange-300 p-5 rounded-lg">
