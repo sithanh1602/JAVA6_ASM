@@ -129,9 +129,9 @@ const CategoryTable = () => {
                     </button>
                 </div>
             ),
-            ignoreRowClick: true,
-            allowOverflow: true,
-            button: true,
+            // ignoreRowClick: true,
+            // allowOverflow: true,
+            // button: true,
         }
     ];
 

@@ -21,7 +21,7 @@ public class EmailService {
 
         helper.setTo(to);
         helper.setSubject(subject);
-        helper.setText(text, true);  // Tham số thứ hai là 'true' để chỉ định rằng đây là HTML
+        helper.setText(text, true);  // true indicates HTML content
 
         emailSender.send(message);
     }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FiRefreshCw } from 'react-icons/fi';
 
 const UserTable = ({ users, onEditUser, onDeleteUser }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -82,7 +83,6 @@ const UserTable = ({ users, onEditUser, onDeleteUser }) => {
         },
         {
             name: 'Hành động',
-            button: true,
             cell: (row) => (
                 <div className="flex justify-center">
                     <button
@@ -92,14 +92,16 @@ const UserTable = ({ users, onEditUser, onDeleteUser }) => {
                         <FaEdit />
                     </button>
                     <button
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-orange-600"
                         onClick={() => onDeleteUser(row.userId, row)}
                     >
-                        <FaTrash />
+                        <FiRefreshCw />
                     </button>
                 </div>
             ),
-        },
+        }
+
+
     ];
 
     return (

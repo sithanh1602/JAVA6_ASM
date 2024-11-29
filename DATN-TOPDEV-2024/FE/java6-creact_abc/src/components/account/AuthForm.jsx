@@ -27,6 +27,12 @@ const AuthForm = () => {
     const [isRegistered, setIsRegistered] = useState(false);
     const navigate = useNavigate(); // Sử dụng useNavigate thay vì useHistory
     const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+    const [isResetPasswordModal, setIsResetPasswordModal] = useState(false);
+    const [resetEmail, setResetEmail] = useState('');
+    const [resetOtp, setResetOtp] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const [resetStage, setResetStage] = useState('email');
 
     useEffect(() => {
         // Tải tên đăng nhập và mật khẩu từ localStorage khi component được tải
@@ -104,7 +110,6 @@ const AuthForm = () => {
                     title: 'Đăng nhập không thành công',
                     text: 'Tài khoản hoặc mật khẩu không đúng'
                 });
-                console.error('Đăng nhập không thành công:', err);
             }
         }, 10); // Thời gian chờ 2000ms (2 giây)
     };
@@ -155,15 +160,78 @@ const AuthForm = () => {
         }
     };
 
+    // Email validation regex
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    };
+
     const handleForgotPassword = async () => {
+        // Validate email before sending
+        if (!resetEmail) {
+            toast.error('Vui lòng nhập email');
+            return;
+        }
+
+        if (!validateEmail(resetEmail)) {
+            toast.error('Địa chỉ email không hợp lệ');
+            return;
+        }
+
         try {
-            console.log("Sending request with email:", email);
-            const response = await axios.post('http://localhost:8080/api/auth/forgot-password', { email });
+            const response = await axios.post('http://localhost:8080/api/auth/forgot-password', { email: resetEmail });
             toast.success(response.data);
-            setIsModalOpen(false);
+            setResetStage('otp'); // Move to OTP verification stage
         } catch (error) {
-            console.error("Error:", error.response.data);
-            toast.error('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.');
+            toast.error(error.response?.data || 'Đã xảy ra lỗi khi gửi yêu cầu');
+        }
+    };
+
+    const handleVerifyOtpForgotPassWord = async () => {
+        // Validate OTP
+        if (!resetOtp || resetOtp.length !== 6) {
+            toast.error('Mã OTP phải có 6 chữ số');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/verify-otp-for-password', null, {
+                params: {
+                    email: resetEmail,
+                    otpCode: resetOtp
+                }
+            });
+            toast.success(response.data);
+            setResetStage('newPassword'); // Move to new password stage
+        } catch (error) {
+            toast.error(error.response?.data || 'Mã OTP không chính xác');
+        }
+    };
+
+    const handleResetPassword = async () => {
+        // Validate new password
+        if (!newPassword || newPassword.length < 6) {
+            toast.error('Mật khẩu phải có ít nhất 6 ký tự');
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            toast.error('Mật khẩu mới và xác nhận mật khẩu không khớp');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/reset-password', null, {
+                params: {
+                    email: resetEmail,
+                    newPassword: newPassword
+                }
+            });
+            toast.success(response.data);
+            setIsResetPasswordModal(false);
+            setResetStage('email');
+        } catch (error) {
+            toast.error(error.response?.data || 'Đã xảy ra lỗi khi đặt lại mật khẩu');
         }
     };
 
@@ -399,36 +467,74 @@ const AuthForm = () => {
                 isOpen={isModalOpen}
                 onRequestClose={handleModalClose}
                 contentLabel="Forgot Password Modal"
-                className="bg-gray-800 text-white p-6 rounded-lg w-full max-w-md mx-auto"
-                overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+                className="bg-gray-800 text-white p-6 rounded-lg w-full max-w-md mx-auto mt-14"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-70"
             >
-                <h2 className="text-2xl font-semibold text-center mb-6">Quên Mật Khẩu</h2>
-                <div className="mb-4">
-                    <input
-                        type="email"
-                        className="p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500"
-                        placeholder="Nhập email của bạn"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <FaEnvelope className="absolute right-2 top-2" />
-                </div>
-                <div className="flex justify-center">
-                    <button
-                        className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-                        onClick={handleForgotPassword}
-                    >
-                        Gửi yêu cầu
-                    </button>
-                </div>
-                <div className="mt-4 text-center">
-                    <button
-                        onClick={handleModalClose}
-                        className="text-red-400 hover:underline"
-                    >
-                        Đóng
-                    </button>
+                <div className="bg-gray-800 p-6 rounded-lg max-w-md mx-auto">
+                    {resetStage === 'email' && (
+                        <div>
+                            <h2 className="text-2xl text-white mb-4">Quên Mật Khẩu</h2>
+                            <input
+                                type="email"
+                                placeholder="Nhập email của bạn"
+                                value={resetEmail}
+                                onChange={(e) => setResetEmail(e.target.value)}
+                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
+                            />
+                            <button
+                                onClick={handleForgotPassword}
+                                className="w-full bg-blue-600 text-white py-2 rounded"
+                            >
+                                Gửi Mã OTP
+                            </button>
+                        </div>
+                    )}
+
+                    {resetStage === 'otp' && (
+                        <div>
+                            <h2 className="text-2xl text-white mb-4">Xác Minh OTP</h2>
+                            <input
+                                type="text"
+                                placeholder="Nhập mã OTP"
+                                value={resetOtp}
+                                onChange={(e) => setResetOtp(e.target.value)}
+                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
+                                maxLength="6"
+                            />
+                            <button
+                                onClick={handleVerifyOtpForgotPassWord}
+                                className="w-full bg-green-600 text-white py-2 rounded"
+                            >
+                                Xác Minh
+                            </button>
+                        </div>
+                    )}
+
+                    {resetStage === 'newPassword' && (
+                        <div>
+                            <h2 className="text-2xl text-white mb-4">Đặt Lại Mật Khẩu</h2>
+                            <input
+                                type="password"
+                                placeholder="Nhập mật khẩu mới"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
+                            />
+                            <input
+                                type="password"
+                                placeholder="Xác nhận mật khẩu mới"
+                                value={confirmNewPassword}
+                                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
+                            />
+                            <button
+                                onClick={handleResetPassword}
+                                className="w-full bg-blue-600 text-white py-2 rounded"
+                            >
+                                Đặt Lại Mật Khẩu
+                            </button>
+                        </div>
+                    )}
                 </div>
             </Modal>
             <style>

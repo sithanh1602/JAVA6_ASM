@@ -5,6 +5,7 @@ import ProductInput from './ProductInput'; // Ensure this path points to your Pr
 import ProductService from '../../../../services/ProductService';
 import Swal from 'sweetalert2';
 import {FaEdit, FaTrash} from 'react-icons/fa';
+import { FiRefreshCw } from 'react-icons/fi';
 
 const ProductTable = forwardRef((_, ref) => {
     const [products, setProducts] = useState([]);
@@ -53,17 +54,24 @@ const ProductTable = forwardRef((_, ref) => {
         setIsModalOpen(true); // Open modal
     };
 
-    // Delete a product by changing its status to Unavailable
+    // Toggle product status between Available and Unavailable
     const handleDelete = async (id, currentProductDetails) => {
         try {
-            const updatedProductDetails = { ...currentProductDetails, status: 'Unavailable' };
+            const updatedProductDetails = {
+                ...currentProductDetails,
+                stock: currentProductDetails.stock, // Dữ liệu stock hiện tại
+                status: currentProductDetails.stock === 0 ? 'Out of Stock' : currentProductDetails.status === 'Unavailable' ? 'Available' : 'Unavailable',
+            };
+
             await ProductService.updateProduct(id, updatedProductDetails);
+
             Swal.fire({
                 icon: 'success',
                 title: 'Success',
-                text: 'Product status updated to Unavailable!',
+                text: `Product status updated to ${updatedProductDetails.status}!`,
             });
-            fetchProducts(); // Refresh the product list
+
+            fetchProducts(); // Refresh product list
         } catch (error) {
             Swal.fire({
                 icon: 'error',
@@ -126,16 +134,21 @@ const ProductTable = forwardRef((_, ref) => {
         {
             name: 'Trạng Thái',
             selector: (row) => row.status,
-            cell: (row) => (
-                <span
-                    className={`px-2 py-1 rounded text-white ${
-                        row.status === 'Available' ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                >
-                    {row.status === 'Available' ? 'Còn hàng' : 'Hết hàng'}
+            cell: (row) => {
+                const isOutOfStock = row.stock === 0;
+                const statusDisplay = isOutOfStock ? 'Hết hàng' : row.status === 'Available' ? 'Còn hoạt động' : 'Hết hoạt động';
+                return (
+                    <span
+                        className={`px-2 py-1 rounded text-white ${
+                            isOutOfStock ? 'bg-red-500' : row.status === 'Available' ? 'bg-green-500' : 'bg-yellow-500'
+                        }`}
+                    >
+                    {statusDisplay}
                 </span>
-            ),
+                );
+            },
         },
+
         {
             name: 'Ảnh',
             selector: (row) => row.imageUrl,
@@ -162,16 +175,16 @@ const ProductTable = forwardRef((_, ref) => {
                         <FaEdit />
                     </button>
                     <button
-                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                        onClick={() => handleDelete(row.id, row)}
+                        className={`px-2 py-1 rounded ${
+                            row.stock === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-500 text-white hover:bg-red-600'
+                        }`}
+                        onClick={() => row.stock !== 0 && handleDelete(row.id, row)}
+                        disabled={row.stock === 0}
                     >
-                        <FaTrash />
+                        <FiRefreshCw />
                     </button>
                 </div>
             ),
-            ignoreRowClick: true,
-            allowOverflow: true,
-            button: true,
         },
     ];
 
@@ -225,8 +238,9 @@ const ProductTable = forwardRef((_, ref) => {
                     onChange={(e) => setStatusFilter(e.target.value)}
                 >
                     <option value="">Trạng thái</option>
-                    <option value="Available">Còn hàng</option>
-                    <option value="Unavailable">Hết hàng</option>
+                    <option value="Available">Còn Hoạt Động</option>
+                    <option value="Unavailable">Hết Hoạt Động</option>
+                    <option value="Out of Stock">Hết hàng</option>
                 </select>
                 <input
                     type="number"

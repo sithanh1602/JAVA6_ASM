@@ -12,6 +12,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@mui/material": "^6.1.9",
     "@mui/x-charts": "^7.22.3",
+    "@mui/icons-material": "^6.1.9",
     "@rjsf/core": "^5.22.4",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",

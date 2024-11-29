@@ -341,8 +341,8 @@ const ProductInput = ({ product, onSave }) => {
                             {...register("status")}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                         >
-                            <option value="Available">Còn Hàng</option>
-                            <option value="Unavailable">Hết Hàng</option>
+                            <option value="Available">Còn hoạt động</option>
+                            <option value="Unavailable">Hết hoạt động</option>
                         </select>
                     </div>
 
