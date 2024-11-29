@@ -4,12 +4,12 @@ import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import images from '../../assets/images/imageProducts/Mainboard.webp';
 
-const ProductsSlider = () => {
+const SliderProductBottom = () => {
     const settings = {
         dots: false,
         infinite: true,
         speed: 500,
-        slidesToShow: 4,
+        slidesToShow: 6, // Hiển thị 6 sản phẩm trên màn hình lớn
         slidesToScroll: 1,
         arrows: true,
         nextArrow: <NextArrow />,
@@ -32,41 +32,42 @@ const ProductsSlider = () => {
                 settings: {
                     slidesToShow: 1, // Hiển thị 1 sản phẩm
                 },
-            },]
+            },
+        ],
     };
 
     return (
-        <div className="container mx-auto px-4 py-1">
-
-
-                {/* Right section: Slider */}
-                <div className="w-4/4">
-                    <div className="border border-gray-300 p-5 rounded-lg">
-                        <Slider {...settings}>
-                            {[1, 2, 3, 4].map((_, index) => (
-                                <div key={index} className="px-3">
-                                    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-                                        <img
-                                            src={images}
-                                            className="w-full h-40 object-cover"
-                                        />
-                                        <div className="p-4">
-                                            <h3 className="text-lg font-semibold text-gray-800 mb-2">Tên sản phẩm {index + 1}</h3>
-                                            <p className="text-gray-800 mb-2">Mô tả sản phẩm {index + 1}</p>
-                                            <p className="text-orange-600 font-semibold mb-4">Giá đ</p>
-                                            <button
-                                                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition duration-300"
-                                            >
-                                                Thêm vào giỏ hàng
-                                            </button>
-                                        </div>
+        <div className="container mx-auto px-4 py-1 mt-10">
+            {/* Right section: Slider */}
+            <div className="w-full">
+                <div className="border border-orange-300 p-5 rounded-lg">
+                    <Slider {...settings}>
+                        {[1, 2, 3, 4, 5, 6].map((_, index) => (
+                            <div key={index} className="px-3">
+                                <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                                    <img
+                                        src={images}
+                                        alt={`Sản phẩm ${index + 1}`}
+                                        className="w-full h-40 object-cover"
+                                    />
+                                    <div className="p-4">
+                                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                            Tên sản phẩm {index + 1}
+                                        </h3>
+                                        <p className="text-gray-800 mb-2">
+                                            Mô tả sản phẩm {index + 1}
+                                        </p>
+                                        <p className="text-orange-600 font-semibold mb-4">Giá đ</p>
+                                        <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition duration-300">
+                                            Thêm vào giỏ hàng
+                                        </button>
                                     </div>
                                 </div>
-
-                            ))}
-                        </Slider>
-                    </div>
+                            </div>
+                        ))}
+                    </Slider>
                 </div>
+            </div>
         </div>
     );
 };
@@ -95,4 +96,4 @@ const NextArrow = ({ onClick }) => {
     );
 };
 
-export default ProductsSlider;
+export default SliderProductBottom;

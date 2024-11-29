@@ -72,6 +72,8 @@ public class AuthController {
     private Map<String, User> temporaryUsers = new HashMap<>();
     // Khai báo Map lưu trữ OTP tạm thời
     private Map<String, String> temporaryOtpMap = new HashMap<>();
+    @Autowired
+    private UserService userService;
 
 
     @PostMapping("/login")
@@ -269,4 +271,5 @@ public class AuthController {
     public Map<String, Object> currentUser(OAuth2AuthenticationToken oAuth2AuthenticationToken){
         return oAuth2AuthenticationToken.getPrincipal().getAttributes();
     }
+
 }

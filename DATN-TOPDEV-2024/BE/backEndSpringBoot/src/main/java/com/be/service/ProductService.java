@@ -6,6 +6,10 @@ import com.be.rep.CategoryRepository;
 import com.be.rep.ProductRepository;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -143,6 +147,12 @@ public class ProductService {
 
         // Trả về thương hiệu của sản phẩm
         return product.getBrand(); // Giả sử Product có mối quan hệ với Brand
+    }
+    // Service method to fetch the top 3 best-selling products
+    public List<Product> getTop3BestSellingProducts() {
+        // Fetch the top 3 best-selling products directly from the repository
+        List<Product> topProducts = productRepository.findTop3BestSellingProducts();
+        return topProducts;  // Return the list of top 3 products
     }
 
 

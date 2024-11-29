@@ -47,5 +47,8 @@ public class Product {
     @NotBlank(message = "Status must not be blank")
     private String status;
 
+    // Add new column for purchase count
+    @Column(name = "purchase_count", nullable = false)
+    private int purchaseCount ; // Default value is 0
     // getters and setters
 }

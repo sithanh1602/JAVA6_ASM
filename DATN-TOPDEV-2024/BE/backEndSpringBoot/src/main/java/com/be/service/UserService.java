@@ -5,6 +5,7 @@ import com.be.entity.User;
 import com.be.rep.RoleRepository;
 import com.be.rep.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +48,10 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public List<User> getTopCustomers(int limit) {
+        return userRepository.findTopCustomers(PageRequest.of(0, limit));
+    }
+
     // Phương thức lấy tất cả người dùng
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -77,7 +82,6 @@ public class UserService {
         if (user.getRegistrationDate() == null) {
             user.setRegistrationDate(new Date());
         }
-
         if (user.getStatus() == null) {
             user.setStatus("Active");
         }
@@ -105,4 +109,27 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    public void changePassword(Long userId, String oldPassword, String newPassword, String confirmPassword) {
+        // Lấy thông tin người dùng từ cơ sở dữ liệu
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Mật khẩu cũ không chính xác");
+        }
+
+        // Kiểm tra mật khẩu mới và xác nhận
+        if (!newPassword.equals(confirmPassword)) {
+            throw new RuntimeException("Mật khẩu xác nhận không khớp");
+        }
+
+        // Cập nhật mật khẩu mới (mã hóa)
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 }
+
+
+

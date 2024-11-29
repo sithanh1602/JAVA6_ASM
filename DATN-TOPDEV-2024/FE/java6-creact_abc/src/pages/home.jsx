@@ -17,11 +17,12 @@ import Contact from "./mainContact";
 import News from "./mainNews";
 import GroupOrder from "../components/Oder/GroupOrder";
 import MessageIcon from "../components/home/MessageIcon";
-import ProfilePage from "../components/account/profile";
+import ProfilePage from "../components/Profile/ProfilePage";
 import ProvinceSelect from "../components/account/ProvinceSelect";
 import Address from "../components/account/AdderssList";
 import EditAddress from "../components/account/EditAddress";
 import OrderList from "../components/Oder/OrderList";
+import PaymentSuccess from "../components/vnpaypayment/PaymentSuccess";
 
 const HomePage = () => {
     return (
@@ -39,11 +40,11 @@ const HomePage = () => {
                     <Route path="/news" element={< News/>}/>
                     <Route path="/product/:productId" element={<ProductPage/>}/>
                     <Route path="/orders" element={< GroupOrder/>}/>
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/ProvinceSelect" element={<ProvinceSelect />} />
-                    <Route path="/Address" element={<Address />} />
-                    <Route path="/Editadderss" element={<EditAddress />} />
+                    <Route path="/profile/*" element={<ProfilePage />} /> {/* Lưu ý: Dùng `/*` để định nghĩa các route con */}
+                    {/*<Route path="/ProvinceSelect" element={<ProvinceSelect />} />*/}
+                    {/*<Route path="/Editadderss" element={<EditAddress />} />*/}
                     <Route path="/OrderUser" element={<OrderList />} />
+                    <Route path="/payment/vnpay-payment" element={<PaymentSuccess />} />
                 </Routes>
             </div>
             <Footer className="mt-auto"/> {/* Ensure footer sticks to the bottom */}

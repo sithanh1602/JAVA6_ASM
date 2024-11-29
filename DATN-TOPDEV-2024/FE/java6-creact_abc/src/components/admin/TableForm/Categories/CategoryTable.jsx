@@ -99,6 +99,7 @@ const CategoryTable = () => {
             name: 'Tên loại sản phẩm',
             selector: row => row.name,
             sortable: true,
+
         },
         {
             name: 'Ghi chú',
@@ -150,10 +151,11 @@ const CategoryTable = () => {
     }
 
     return (
-        <div className="p-2">
+        <div className="p-4 bg-white">
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-300 ease-out">
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-300 ease-out">
                     <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-md">
                         <div className="flex justify-between items-center mb-2">
                             <h2 className="text-lg font-semibold">
@@ -167,12 +169,21 @@ const CategoryTable = () => {
             )}
 
             {/* Button mở modal */}
-            <div className="flex justify-between items-center mb-4">
-                <button onClick={() => openModal()} className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+            <div className=" mb-4">
+                <button onClick={() => openModal()}
+                        className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
                     + Thêm loại sản phẩm
                 </button>
             </div>
-
+            <div className="flex space-x-2">
+                <input
+                    type="text"
+                    placeholder="Tìm kiếm theo tên..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="w-4/4 border px-2 py-2 rounded-md mt-2"
+                />
+            </div>
             <DataTable
                 columns={columns}
                 data={tableData}
@@ -180,17 +191,7 @@ const CategoryTable = () => {
                 highlightOnHover
                 responsive
                 subHeader
-                subHeaderComponent={
-                    <div className="flex space-x-2">
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm theo tên..."
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            className="border rounded px-2 py-1"
-                        />
-                    </div>
-                }
+                noDataComponent={<div>Không có thương hiệu nào</div>}
             />
         </div>
     );
