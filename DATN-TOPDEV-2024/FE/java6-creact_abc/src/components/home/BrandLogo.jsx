@@ -2,6 +2,7 @@ import React from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
+import 'aos/dist/aos.css';
 
 const BrandLogo = () => {
     const settings = {
@@ -34,7 +35,7 @@ const BrandLogo = () => {
     };
 
     return (
-        <div className=" items-center justify-center">
+        <div className=" items-center justify-center" data-aos="fade-up-right">
             <div className=" w-full max-w-5xl mx-auto">
                 <Slider {...settings}>
                     <div className="px-3">

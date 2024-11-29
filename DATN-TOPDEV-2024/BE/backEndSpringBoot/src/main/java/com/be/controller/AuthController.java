@@ -79,17 +79,23 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
-            // Tìm người dùng theo tên người dùng
+            // Find the user by username
             Optional<User> existingUser = userRepository.findByUserName(user.getUserName());
             if (!existingUser.isPresent()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
             }
 
-            // Lấy người dùng từ cơ sở dữ liệu
+            // Get the user from the database
             User storedUser = existingUser.get();
+
+            // Check if the user status is "Inactive"
+            if ("Inactive".equalsIgnoreCase(storedUser.getStatus())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản của bạn đang bị khóa");
+            }
+
             String rawPassword = new String(Base64.getDecoder().decode(user.getPassword()));
 
-            // So sánh mật khẩu đã mã hóa trong cơ sở dữ liệu với mật khẩu gốc
+            // Compare the password in the database with the raw password
             if (!passwordEncoder.matches(rawPassword, storedUser.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
             }
@@ -101,18 +107,19 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserName());
 
-            // Lấy danh sách role của người dùng
+            // Get the list of roles for the user
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
-            // Tạo token với username, roles, và userId
+            // Generate the token with username, roles, and userId
             final String jwt = jwtUtil.generateToken(userDetails.getUsername(), roles, storedUser.getUserId());
             return ResponseEntity.ok(new AuthResponse(jwt, storedUser.getUserId()));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
         }
     }
+
 
 
 

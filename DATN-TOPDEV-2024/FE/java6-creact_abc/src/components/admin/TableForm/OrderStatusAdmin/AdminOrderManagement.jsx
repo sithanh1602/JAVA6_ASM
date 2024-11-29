@@ -96,12 +96,40 @@ const ProgressLabel = styled.div`
     color: ${props => props.active ? '#007bff' : '#333'};
 `;
 
+const PendingOrdersButton = styled.button`
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+`;
+
+const PendingOrdersBadge = styled.div`
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+`;
 
 const AdminOrderManagement = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('Tất cả');
+    const [pendingOrders, setPendingOrders] = useState([]); // Lưu danh sách đơn hàng chờ xác nhận
 
     const tabs = [
         { label: 'Tất cả', status: null },
@@ -139,6 +167,10 @@ const AdminOrderManagement = () => {
             try {
                 const ordersData = await OrderSevice.getAllOrders();
                 setOrders(ordersData);
+                // Lọc các đơn hàng có trạng thái "Chờ xác nhận" (status: 2)
+                const pendingOrdersList = ordersData.filter(order => order.status === 2);
+                setPendingOrders(pendingOrdersList); // Lưu các đơn hàng chờ xác nhận
+
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -175,6 +207,12 @@ const AdminOrderManagement = () => {
             });
         }
     };
+
+    const handlePendingOrdersClick = () => {
+        // Khi nhấn vào nút "Đơn hàng chờ xác nhận", chuyển sang tab "Chưa thanh toán"
+        setActiveTab('Đã thanh toán');
+    };
+
 
 
     const filteredOrders = activeTab === 'Tất cả'
@@ -302,6 +340,15 @@ const AdminOrderManagement = () => {
                     </Tab>
                 ))}
             </TabContainer>
+
+
+            {/* Nút "Đơn hàng chờ xác nhận" */}
+            <PendingOrdersButton onClick={handlePendingOrdersClick}>
+                Đơn hàng chờ xác nhận
+                {pendingOrders.length > 0 && <PendingOrdersBadge>{pendingOrders.length}</PendingOrdersBadge>}
+            </PendingOrdersButton>
+
+
             <DataTable
                 columns={columns}
                 data={filteredOrders}

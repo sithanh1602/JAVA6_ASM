@@ -1,9 +1,11 @@
 import React from 'react';
 import images from "../../assets/images/imageProducts/Mainboard.webp";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const PopularProducts = () => {
     return (
-        <div className="m-10">
+        <div className="m-10" data-aos="fade-zoom">
             <div className="flex items-baseline space-x-2 border-b-2 border-gray-100">
                 <span className="text-gray-600 text-xl font-bold">Sản Phẩm</span>
                 <span className="text-orange-500 text-xl font-bold">Phổ Biến</span>

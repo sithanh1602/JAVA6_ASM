@@ -3,8 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLayout from '../components/admin/AdminLayout';
 import AuthForm from "../components/account/AuthForm";
 import HomePage from "../pages/home";
-
-
 const App = () => {
     return (
         <Router>

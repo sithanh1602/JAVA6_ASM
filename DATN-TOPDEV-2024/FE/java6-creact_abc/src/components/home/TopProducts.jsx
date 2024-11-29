@@ -1,11 +1,12 @@
 import React from "react";
 import ProductsSlider from "../home/ProductsSlider";
 import images from "../../assets/images/imageProducts/Mainboard.webp";
+import 'aos/dist/aos.css';
 
 const TopProducts = () => {
     return (
         <>
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:px-10 px-4 mt-8 space-y-6 lg:space-y-0 lg:space-x-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:px-10 px-4 mt-8 space-y-6 lg:space-y-0 lg:space-x-6" data-aos="fade-down-left">
                 {/* Left: Card Section */}
                 <div className="lg:w-1/4 w-full">
                     <div className="relative bg-white border border-gray-300 rounded-lg shadow-lg p-5 text-center">

@@ -69,6 +69,18 @@ const AuthForm = () => {
             try {
                 const encodedPassword = btoa(password);
                 const response = await axios.post('http://localhost:8080/api/auth/login', { userName: username, password: encodedPassword });
+
+                // Check if the response indicates the account is inactive
+                if (response.data && response.data.message === "Tài khoản của bạn đang bị khóa") {
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Tài khoản bị khóa',
+                        text: 'Tài khoản của bạn đang bị khóa. Vui lòng liên hệ quản trị viên.'
+                    });
+                    return;
+                }
+
                 const token = response.data.token;
                 localStorage.setItem('token', token);
                 sessionStorage.setItem('token', token);
@@ -108,11 +120,12 @@ const AuthForm = () => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Đăng nhập không thành công',
-                    text: 'Tài khoản hoặc mật khẩu không đúng'
+                    text: err.response && err.response.data ? err.response.data : 'Tài khoản hoặc mật khẩu không đúng'
                 });
             }
-        }, 10); // Thời gian chờ 2000ms (2 giây)
+        }, 10); // Thời gian chờ 10ms
     };
+
 
 
 

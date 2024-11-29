@@ -8,6 +8,7 @@ import net.minidev.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,9 @@ public class OrderController {
 
     // Endpoint để tạo đơn hàng (với thanh toán VNPay)
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     @PostMapping("/place")
     public ResponseEntity<?> placeOrder(@RequestBody OrderRequest orderRequest) {
         try {
@@ -40,6 +44,9 @@ public class OrderController {
             }
 
             Orders savedOrder = orderService.saveOrder(orderRequest);
+
+            // Gửi thông báo đến admin về đơn hàng mới
+            messagingTemplate.convertAndSend("/topic/orders", "Có đơn hàng mới với ID: " + savedOrder.getId());
 
             // Tạo URL thanh toán VNPay
             String urlPayment = vnPayService.createOrder(

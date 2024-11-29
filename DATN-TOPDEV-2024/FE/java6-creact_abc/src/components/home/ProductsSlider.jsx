@@ -1,10 +1,81 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
-import images from '../../assets/images/imageProducts/Mainboard.webp';
+import 'aos/dist/aos.css';
+import { Link, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCartPlus, faHeart, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import ProductService from '../../services/ProductService'; // Import ProductService
+import { addProductToCart } from '../../services/CartService';
 
 const ProductsSlider = () => {
+    const [products, setProducts] = useState([]);
+    const navigate = useNavigate();
+
+    // Fetch products directly from the ProductService
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const productsData = await ProductService.getAllProducts();
+                setProducts(productsData); // Set fetched products to state
+            } catch (error) {
+                console.error('Failed to fetch products:', error);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    const handleAddToCart = async (product) => {
+        const userId = JSON.parse(localStorage.getItem('UserId')); // Get userId from localStorage
+
+        if (!userId) {
+            Swal.fire({
+                title: 'Thông báo',
+                text: 'Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng',
+                icon: 'warning',
+                confirmButtonText: 'Đăng nhập'
+            }).then(() => {
+                navigate('/login');
+            });
+            return;
+        }
+
+        try {
+            await addProductToCart(userId, product.id, 1); // Pass userId first, then productId and quantity
+            Swal.fire({
+                title: 'Thành công',
+                text: 'Thêm vào giỏ hàng thành công!',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: 'Xem giỏ hàng',
+                cancelButtonText: 'Tiếp tục mua sắm'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/cart');
+                }
+            });
+        } catch (error) {
+            Swal.fire('Lỗi', 'Lỗi khi thêm sản phẩm vào giỏ hàng', 'error');
+        }
+    };
+
+    const handleFavorite = () => {
+        // Implement the logic for adding the product to favorites
+        Swal.fire({
+            title: 'Thông báo',
+            text: 'Sản phẩm đã được thêm vào danh sách yêu thích',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    };
+
+    const handleShowProductDetails = (product) => {
+        navigate(`/product/${product.id}`);
+    };
+
     const settings = {
         dots: false,
         infinite: true,
@@ -16,57 +87,79 @@ const ProductsSlider = () => {
         prevArrow: <PrevArrow />,
         responsive: [
             {
-                breakpoint: 1024, // Màn hình tablet
+                breakpoint: 1024,
                 settings: {
-                    slidesToShow: 3, // Hiển thị 3 sản phẩm
+                    slidesToShow: 3,
                 },
             },
             {
-                breakpoint: 768, // Màn hình nhỏ
+                breakpoint: 768,
                 settings: {
-                    slidesToShow: 2, // Hiển thị 2 sản phẩm
+                    slidesToShow: 2,
                 },
             },
             {
-                breakpoint: 480, // Màn hình điện thoại
+                breakpoint: 480,
                 settings: {
-                    slidesToShow: 1, // Hiển thị 1 sản phẩm
+                    slidesToShow: 1,
                 },
-            },]
+            },
+        ]
     };
 
     return (
-        <div className="container mx-auto px-4 py-1">
-
-
-                {/* Right section: Slider */}
-                <div className="w-4/4">
-                    <div className="border border-gray-300 p-5 rounded-lg">
-                        <Slider {...settings}>
-                            {[1, 2, 3, 4].map((_, index) => (
-                                <div key={index} className="px-3">
-                                    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-                                        <img
-                                            src={images}
-                                            className="w-full h-40 object-cover"
-                                        />
-                                        <div className="p-4">
-                                            <h3 className="text-lg font-semibold text-gray-800 mb-2">Tên sản phẩm {index + 1}</h3>
-                                            <p className="text-gray-800 mb-2">Mô tả sản phẩm {index + 1}</p>
-                                            <p className="text-orange-600 font-semibold mb-4">Giá đ</p>
-                                            <button
-                                                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition duration-300"
-                                            >
-                                                Thêm vào giỏ hàng
-                                            </button>
+        <div className="container mx-auto px-4 py-1" data-aos="fade-down-right">
+            <div className="w-full">
+                <div className="border border-gray-300 p-5 rounded-lg">
+                    <Slider {...settings}>
+                        {products.map((product, index) => (
+                            <div key={product.id} className="px-3">
+                                <div className="bg-white shadow-lg rounded-lg overflow-hidden relative">
+                                    <Link to={`/product/${product.id}`}>
+                                        <div className="flex justify-center items-center">
+                                            <img
+                                                src={product.imageUrl || `https://placehold.co/200x200?text=Product+Image+${index + 1}`}
+                                                className="w-full h-40 object-cover"
+                                                alt={product.name || `Product Image ${index + 1}`}
+                                            />
                                         </div>
+                                    </Link>
+                                    <div className="p-4">
+                                        <h3 className="text-lg font-semibold text-gray-800 mb-2">{product.name}</h3>
+                                        <p className="text-gray-800 mb-2">{product.stock}</p>
+                                        <p className="text-orange-600 font-semibold mb-4">{formatPrice(product.price)}</p>
+                                        <button
+                                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition duration-300"
+                                            onClick={() => handleAddToCart(product)}
+                                        >
+                                            Thêm vào giỏ hàng
+                                        </button>
+                                    </div>
+                                    <div
+                                        className="absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4"
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faCartPlus}
+                                            className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-900"
+                                            onClick={() => handleAddToCart(product)}
+                                        />
+                                        <FontAwesomeIcon
+                                            icon={faHeart}
+                                            className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-900"
+                                            onClick={handleFavorite}
+                                        />
+                                        <FontAwesomeIcon
+                                            icon={faExclamationCircle}
+                                            className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-900"
+                                            onClick={() => handleShowProductDetails(product)}
+                                        />
                                     </div>
                                 </div>
-
-                            ))}
-                        </Slider>
-                    </div>
+                            </div>
+                        ))}
+                    </Slider>
                 </div>
+            </div>
         </div>
     );
 };
@@ -93,6 +186,10 @@ const NextArrow = ({ onClick }) => {
             <span className="text-2xl">❯</span>
         </button>
     );
+};
+
+const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
 };
 
 export default ProductsSlider;
