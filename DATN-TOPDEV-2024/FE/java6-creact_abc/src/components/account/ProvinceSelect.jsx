@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { createAddress } from "../../services/AddressService"; // Đảm bảo đường dẫn đúng
+import { createAddress } from "../../services/AddressService";
+import { useNavigate } from "react-router-dom";
 
 const App = () => {
     const API_HOST = "https://provinces.open-api.vn/api/";
     const userId = localStorage.getItem("UserId");
+    const navigate = useNavigate();
 
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -16,7 +18,8 @@ const App = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [isDefault, setIsDefault] = useState(false);
     const [fullAddress, setFullAddress] = useState("");
-    const [errorMessage, setErrorMessage] = useState(""); // Thêm state để lưu lỗi
+    const [errorMessage, setErrorMessage] = useState(""); // Quản lý thông báo lỗi
+    const [successMessage, setSuccessMessage] = useState("");
 
     const fullAddressText = useMemo(() => {
         const addressParts = [
@@ -26,12 +29,14 @@ const App = () => {
             provinces.find((item) => String(item.code) === String(selectedProvince))?.name,
         ];
         return addressParts.filter(Boolean).join(", ");
-    }, [selectedProvince, selectedDistrict, selectedWard, streetAddress, provinces, districts, wards]);
+    }, [streetAddress, selectedProvince, selectedDistrict, selectedWard, wards, districts, provinces]);
 
+    // Cập nhật địa chỉ đầy đủ khi các thông tin thay đổi
     useEffect(() => {
-        setFullAddress(fullAddressText || "Vui lòng nhập đầy đủ thông tin để hiển thị địa chỉ.");
+        setFullAddress(fullAddressText || "Vui lòng nhập đầy đủ thông tin.");
     }, [fullAddressText]);
 
+    // Lấy danh sách tỉnh/thành phố
     useEffect(() => {
         axios
             .get(`${API_HOST}?depth=1`)
@@ -48,10 +53,7 @@ const App = () => {
         if (provinceCode) {
             axios
                 .get(`${API_HOST}p/${provinceCode}?depth=2`)
-                .then((response) => {
-                    setDistricts(response.data.districts);
-                    setWards([]);
-                })
+                .then((response) => setDistricts(response.data.districts))
                 .catch((error) => console.error("Lỗi khi lấy danh sách Quận/Huyện:", error));
         } else {
             setDistricts([]);
@@ -67,9 +69,7 @@ const App = () => {
         if (districtCode) {
             axios
                 .get(`${API_HOST}d/${districtCode}?depth=2`)
-                .then((response) => {
-                    setWards(response.data.wards);
-                })
+                .then((response) => setWards(response.data.wards))
                 .catch((error) => console.error("Lỗi khi lấy danh sách Xã/Phường:", error));
         } else {
             setWards([]);
@@ -79,9 +79,6 @@ const App = () => {
     const handleWardChange = (e) => {
         setSelectedWard(e.target.value);
     };
-
-    const handleStreetAddressChange = (e) => setStreetAddress(e.target.value);
-    const handlePhoneNumberChange = (e) => setPhoneNumber(e.target.value);
 
     const handleSaveAddress = async () => {
         if (!phoneNumber || !/^\d{10,11}$/.test(phoneNumber)) {
@@ -106,28 +103,27 @@ const App = () => {
                 fullAddress: fullAddressText,
             };
 
-            console.log("Dữ liệu địa chỉ gửi đi:", address);
-
             await createAddress(address);
-            alert("Địa chỉ đã được lưu thành công!");
-
-            window.location.reload();
+            setSuccessMessage("Lưu địa chỉ thành công!");
+            setTimeout(() => {
+                navigate("/profile/address-list"); // Điều hướng sau 2 giây
+            }, 2000);
         } catch (error) {
             setErrorMessage("Đã xảy ra lỗi khi lưu địa chỉ: " + error.message);
         }
     };
 
     return (
-        <div className="max-w-xl mx-auto  p-3 ">
+        <div className="max-w-xl mx-auto p-3">
             <h1 className="text-2xl font-bold mb-5 text-center">Thêm địa chỉ</h1>
             <div className="grid gap-5">
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="province" className="text-gray-700 font-medium">Tỉnh/Thành phố</label>
+                    <label htmlFor="province" className="font-medium">Tỉnh/Thành phố</label>
                     <select
                         id="province"
                         value={selectedProvince}
                         onChange={handleProvinceChange}
-                        className="border rounded-md p-2 bg-white text-gray-700"
+                        className="border rounded-md p-2"
                     >
                         <option value="">Vui lòng chọn</option>
                         {provinces.map((province) => (
@@ -138,13 +134,13 @@ const App = () => {
                     </select>
                 </div>
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="district" className="text-gray-700 font-medium">Quận/Huyện</label>
+                    <label htmlFor="district" className="font-medium">Quận/Huyện</label>
                     <select
                         id="district"
                         value={selectedDistrict}
                         onChange={handleDistrictChange}
                         disabled={!selectedProvince}
-                        className="border rounded-md p-2 bg-white text-gray-700"
+                        className="border rounded-md p-2"
                     >
                         <option value="">Vui lòng chọn</option>
                         {districts.map((district) => (
@@ -154,15 +150,14 @@ const App = () => {
                         ))}
                     </select>
                 </div>
-
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="ward" className="text-gray-700 font-medium">Xã/Phường</label>
+                    <label htmlFor="ward" className="font-medium">Xã/Phường</label>
                     <select
                         id="ward"
                         value={selectedWard}
                         onChange={handleWardChange}
                         disabled={!selectedDistrict}
-                        className="border rounded-md p-2 bg-white text-gray-700"
+                        className="border rounded-md p-2"
                     >
                         <option value="">Vui lòng chọn</option>
                         {wards.map((ward) => (
@@ -172,41 +167,34 @@ const App = () => {
                         ))}
                     </select>
                 </div>
-
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="street-address" className="text-gray-700 font-medium">Số nhà/Đường</label>
+                    <label htmlFor="street-address" className="font-medium">Số nhà/Đường</label>
                     <input
-                        type="text"
                         id="street-address"
                         value={streetAddress}
-                        onChange={handleStreetAddressChange}
+                        onChange={(e) => setStreetAddress(e.target.value)}
+                        className="border rounded-md p-2"
                         placeholder="Nhập số nhà, tên đường"
-                        className="border rounded-md p-2 text-gray-700"
                     />
                 </div>
-
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="phone-number" className="text-gray-700 font-medium">Số điện thoại</label>
+                    <label htmlFor="phone-number" className="font-medium">Số điện thoại</label>
                     <input
-                        type="text"
                         id="phone-number"
                         value={phoneNumber}
-                        onChange={handlePhoneNumberChange}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        className="border rounded-md p-2"
                         placeholder="Nhập số điện thoại"
-                        className="border rounded-md p-2 text-gray-700"
                     />
                 </div>
-
-                {errorMessage && (
-                    <div className="text-red-500 text-sm text-center">{errorMessage}</div>
-                )}
-
+                {errorMessage && <div className="text-red-500 text-sm">{errorMessage}</div>}
+                {successMessage && <div className="text-green-500 text-sm">{successMessage}</div>}
                 <button
                     onClick={handleSaveAddress}
-                    disabled={!fullAddress || !phoneNumber}
-                    className="w-full py-2 rounded-md text-white bg-blue-500 hover:bg-blue-600 transition disabled:bg-gray-300"
+                    // disabled={!streetAddress || !selectedProvince || !selectedDistrict || !selectedWard || !phoneNumber}
+                    className="w-full py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-md"
                 >
-                    Lưu Địa Chỉ
+                    Lưu địa chỉ
                 </button>
             </div>
         </div>
