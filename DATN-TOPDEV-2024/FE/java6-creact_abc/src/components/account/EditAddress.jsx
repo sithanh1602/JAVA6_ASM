@@ -20,6 +20,7 @@ const AddressForm = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [isDefault, setIsDefault] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
 
     // Dùng useMemo để tính toán địa chỉ đầy đủ
     const fullAddress = useMemo(() => {
@@ -128,6 +129,7 @@ const AddressForm = () => {
 
     const handleSaveAddress = async () => {
         setErrorMessage("");
+        setSuccessMessage(""); // Reset thông báo thành công
 
         if (!phoneNumber || !/^\d{10,11}$/.test(phoneNumber)) {
             setErrorMessage("Số điện thoại không hợp lệ. Vui lòng nhập đúng.");
@@ -143,7 +145,7 @@ const AddressForm = () => {
             userId,
             streetAddress,
             phoneNumber,
-            isDefault, // Sử dụng isDefault thay vì defaults
+            isDefault,
             province: provinces.find((item) => String(item.code) === String(selectedProvince))?.name,
             district: districts.find((item) => String(item.code) === String(selectedDistrict))?.name,
             ward: wards.find((item) => String(item.code) === String(selectedWard))?.name,
@@ -152,20 +154,21 @@ const AddressForm = () => {
 
         try {
             await updateAddress(addressId, addressData);
-            alert("Cập nhật địa chỉ thành công!");
-            navigate("/address");
+            setSuccessMessage("Cập nhật địa chỉ thành công!"); // Cập nhật thông báo thành công
+            setTimeout(() => navigate("/profile/address-list"), 2000); // Điều hướng sau 2 giây
         } catch (error) {
             setErrorMessage("Lỗi khi lưu địa chỉ: " + error.message);
         }
     };
 
     return (
-        <div className="max-w-3xl mx-auto  p-5 rounded-lg  bg-white">
+        <div className="max-w-3xl mx-auto p-5 rounded-lg bg-white">
             <h1 className="text-2xl font-bold mb-5 text-center">Cập nhật địa chỉ</h1>
             <div className="space-y-4">
                 <div>
-                    <label className="block font-medium">Tỉnh/Thành phố:</label>
+                    <label className="block font-medium" htmlFor="province-select">Tỉnh/Thành phố:</label>
                     <select
+                        id="province-select"
                         value={selectedProvince}
                         onChange={handleProvinceChange}
                         className="w-full p-2 border rounded"
@@ -180,8 +183,9 @@ const AddressForm = () => {
                 </div>
 
                 <div>
-                    <label className="block font-medium">Quận/Huyện:</label>
+                    <label className="block font-medium" htmlFor="district-select">Quận/Huyện:</label>
                     <select
+                        id="district-select"
                         value={selectedDistrict}
                         onChange={handleDistrictChange}
                         disabled={!selectedProvince}
@@ -197,8 +201,9 @@ const AddressForm = () => {
                 </div>
 
                 <div>
-                    <label className="block font-medium">Phường/Xã:</label>
+                    <label className="block font-medium" htmlFor="ward-select">Phường/Xã:</label>
                     <select
+                        id="ward-select"
                         value={selectedWard}
                         onChange={(e) => setSelectedWard(e.target.value)}
                         disabled={!selectedDistrict}
@@ -214,8 +219,9 @@ const AddressForm = () => {
                 </div>
 
                 <div>
-                    <label className="block font-medium">Địa chỉ chi tiết:</label>
+                    <label className="block font-medium" htmlFor="street-address">Địa chỉ chi tiết:</label>
                     <input
+                        id="street-address"
                         type="text"
                         value={streetAddress}
                         onChange={(e) => setStreetAddress(e.target.value)}
@@ -225,8 +231,9 @@ const AddressForm = () => {
                 </div>
 
                 <div>
-                    <label className="block font-medium">Số điện thoại:</label>
+                    <label className="block font-medium" htmlFor="phone-number">Số điện thoại:</label>
                     <input
+                        id="phone-number"
                         type="text"
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
@@ -244,16 +251,14 @@ const AddressForm = () => {
                     />
                 </div>
 
-                {errorMessage && (
-                    <div className="text-red-500 text-center">{errorMessage}</div>
-                )}
-
-                <div className="text-center mt-5">
-                    <button
-                        onClick={handleSaveAddress}
-                        className="bg-blue-500 text-white px-6 py-2 rounded"
-                    >
-                        Lưu địa chỉ
+                {errorMessage && <p id="error-message" className="text-red-500">{errorMessage}</p>}
+                {successMessage && <p id="success-message" className="text-green-500">{successMessage}</p>} {/* Hiển thị thông báo thành công */}
+                <div className="flex justify-center space-x-4 mt-5">
+                    <button onClick={handleSaveAddress} className="px-4 py-2 bg-blue-500 text-white rounded">
+                        Cập nhật địa chỉ
+                    </button>
+                    <button onClick={() => navigate("/profile/address-list")} className="px-4 py-2 bg-gray-500 text-white rounded">
+                        Hủy
                     </button>
                 </div>
             </div>

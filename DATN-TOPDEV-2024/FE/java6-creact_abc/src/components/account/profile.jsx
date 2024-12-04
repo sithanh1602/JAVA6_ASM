@@ -92,14 +92,15 @@ const ProfilePage = () => {
             </aside>
 
             {/* Main Section */}
-            <main className="w-full md:w-3/4 bg-white p-8 shadow-lg">
-                <h2 className="text-xl font-bold mb-4">Hồ Sơ Của Tôi</h2>
-                {error && <p className="text-red-500">{error}</p>}
+            <main className="w-full md:w-3/4 bg-white p-8 shadow-lg" id="main-section">
+                <h2 className="text-xl font-bold mb-4" id="profile-heading">Hồ Sơ Của Tôi</h2>
+                {error && <p id="error-message" className="text-red-500">{error}</p>}
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();
                         handleSave();
                     }}
+                    id="profile-form"
                 >
                     <div className="flex flex-wrap">
                         {/* Input fields */}
@@ -108,22 +109,25 @@ const ProfilePage = () => {
                                 label="Tên đầy đủ"
                                 value={user.fullName}
                                 onChange={(e) => setUser({ ...user, fullName: e.target.value })}
+                                id="full-name"
                             />
                             <FormField
                                 label="Email"
                                 value={user.email}
                                 onChange={(e) => setUser({ ...user, email: e.target.value })}
+                                id="email"
                             />
                             <FormField
                                 label="Phone"
                                 value={user.phone}
                                 onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                                id="phone"
                             />
                         </div>
 
                         {/* Profile Picture */}
                         <div className="w-full md:w-1/3 flex flex-col items-center">
-                            <div className="relative w-40 h-40 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center overflow-hidden">
+                            <div className="relative w-40 h-40 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center overflow-hidden" id="profile-picture">
                                 <img
                                     src={user.image || "https://placehold.co/150x150"}
                                     alt="User profile"
@@ -131,7 +135,7 @@ const ProfilePage = () => {
                                 />
                                 {/* Hiển thị nút "Chọn ảnh" ở trên */}
                                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
-                                    <label htmlFor="profileImage" className="text-white text-sm font-semibold cursor-pointer">
+                                    <label htmlFor="profileImage" className="text-white text-sm font-semibold cursor-pointer" id="select-image-label">
                                         Chọn ảnh
                                     </label>
                                 </div>
@@ -143,10 +147,10 @@ const ProfilePage = () => {
                                 onChange={handleImageChange}
                                 className="hidden"
                             />
-                            <p className="text-sm text-gray-500 mt-4">Dung lượng file tối đa 1 MB</p>
+                            <p className="text-sm text-gray-500 mt-4" id="file-size-info">Dung lượng file tối đa 1 MB</p>
                         </div>
                     </div>
-                    <button className="bg-red-500 text-white px-6 py-2 rounded mt-6" type="submit">
+                    <button className="bg-red-500 text-white px-6 py-2 rounded mt-6" type="submit" id="save-button">
                         Lưu
                     </button>
                 </form>
