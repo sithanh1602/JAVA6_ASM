@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DataTable from 'react-data-table-component';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
 import { FiRefreshCw } from 'react-icons/fi';
 
 const UserTable = ({ users, onEditUser, onDeleteUser }) => {

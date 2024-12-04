@@ -24,10 +24,23 @@ const OrderStatusStepper = ({ status }) => {
         }
     };
 
+    if(status === 7) {
+        const canceledStep = steps.find(step => step.key === 7);
+        return (
+            <div className="flex justify-center items-center my-6">
+                <div className={`flex flex-col items-center ${getStatusClass(canceledStep)} px-4 py-2 rounded-lg`}>
+                    <div className="mb-2">{canceledStep.icon}</div>
+                    <span className="text-sm">{canceledStep.label}</span>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="flex justify-between items-center my-6 relative">
             {steps.map((step) => (
-                <div key={step.key} className={`flex flex-col items-center ${getStatusClass(step)} px-4 py-2 rounded-lg z-10`}>
+                <div key={step.key}
+                     className={`flex flex-col items-center ${getStatusClass(step)} px-4 py-2 rounded-lg z-10`}>
                     <div className="mb-2">{step.icon}</div>
                     <span className="text-sm">{step.label}</span>
                 </div>
@@ -179,6 +192,11 @@ const OrderList = () => {
             sortable: true,
         },
         {
+            name:'Phương thức thanh toán',
+            selector: (row) => row.paymentMethod ? 'Thanh toán online' : 'Thanh toán khi nhận hàng',
+            sortable: true,
+        },
+        {
             name: 'Huỷ đơn',
             cell: (row) => (
                 <>
@@ -212,13 +230,14 @@ const OrderList = () => {
                 orders.map((order) => (
                     <div key={order.id} className="mb-8 bg-white p-6 rounded-lg">
                         {/* Display Order Status Stepper above the table */}
-                        <OrderStatusStepper status={order.status} />
+                        <OrderStatusStepper status={order.status} paymentStatus={order.paymentMethod} />
                         <DataTable
                             columns={columns}
                             data={[order]} // Show only the current order
                             highlightOnHover
                             pointerOnHover
                             className="mt-4"
+                            noHeader
                         />
                     </div>
                 ))

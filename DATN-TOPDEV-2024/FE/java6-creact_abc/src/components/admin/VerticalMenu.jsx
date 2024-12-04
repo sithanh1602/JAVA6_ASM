@@ -16,6 +16,7 @@ import {
     FaProductHunt,
     FaUser,
     FaDisease,
+    FaFileExcel
 } from 'react-icons/fa';
 import { MdCategory } from 'react-icons/md';
 import Swal from 'sweetalert2';
@@ -38,8 +39,8 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         { icon: <FaProductHunt className="text-orange-500" />, label: 'Product', link: '/admin/product' },
         { icon: <FaUser className="text-pink-500" />, label: 'User', link: '/admin/user' },
         { icon: <FaEnvelope className="text-purple-500" />, label: 'Email', link: '/admin/contact' },
-        { icon: <FaComments className="text-purple-500" />, label: 'Chat', link: '/chat' },
-        { icon: <FaChartBar className="text-blue-500" />, label: 'Charts', link: '/charts' },
+        { icon: <FaFileExcel className="text-purple-500" />, label: 'Driver Excel', link: '/admin/tplXlsx' },
+        { icon: <FaChartBar className="text-blue-500" />, label: '', link: '/charts' },
         { icon: <FaPencilAlt className="text-blue-500" />, label: 'Forms', link: '/forms' },
         { icon: <FaPuzzlePiece className="text-pink-500" />, label: 'UI Elements', link: '/ui-elements' },
         { icon: <FaTable className="text-orange-500" />, label: 'Tables', hasArrow: true, subItems: [

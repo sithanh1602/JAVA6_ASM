@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import Cookies from "js-cookie";
 
 const WebSocketNotification = () => {
     const navigate = useNavigate();
@@ -15,7 +15,7 @@ const WebSocketNotification = () => {
             },
             onConnect: () => {
                 // Lắng nghe thông báo trạng thái người dùng từ backend
-                client.subscribe('/topic/userStatus/' + localStorage.getItem('userId'), (message) => {
+                client.subscribe('/topic/userStatus/' + localStorage.getItem('UserId'), (message) => {
                     if (message.body) {
                         Swal.fire({
                             icon: 'warning',
@@ -26,6 +26,7 @@ const WebSocketNotification = () => {
                         // Đăng xuất người dùng
                         localStorage.clear();
                         sessionStorage.clear();
+                        Cookies.clear();
                         navigate('/login');
                     }
                 });
