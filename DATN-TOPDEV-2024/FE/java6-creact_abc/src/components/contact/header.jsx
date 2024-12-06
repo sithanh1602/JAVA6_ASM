@@ -12,15 +12,14 @@ const Header = () => {
                         <i className="fas fa-envelope text-orange-500 text-2xl"></i>
                         <div>
                             <h3 className="font-bold">Email</h3>
-                            <p>info@thenona.global</p>
-                            <p>(+84) 0313-728-397</p>
+                            <p>info@fivestar.team</p>
                         </div>
                     </div>
                     <div className="flex items-center space-x-4 p-4 hover-border">
                         <i className="fas fa-map-marker-alt text-orange-500 text-2xl"></i>
                         <div>
                             <h3 className="font-bold">Địa chỉ</h3>
-                            <p>1073/23 Cách Mạng Tháng 8, P.7, Q.Tân Bình, TPHCM</p>
+                            <p>306h/2 KDC Hang Bang, KV5, An Khanh, Ninh Kieu, Can Tho</p>
                         </div>
                     </div>
                     <div className="flex items-center space-x-4 p-4 hover-border">
@@ -34,7 +33,7 @@ const Header = () => {
                     <div className="flex items-center space-x-4 p-4 hover-border">
                         <i className="fas fa-comments text-orange-500 text-2xl"></i>
                         <div>
-                            <h3 className="font-bold">Contact Us</h3>
+                            <h3 className="font-bold">Liên hệ</h3>
                             <p>radios.info@gmail.com</p>
                             <p>radios.support@gmail.com</p>
                         </div>

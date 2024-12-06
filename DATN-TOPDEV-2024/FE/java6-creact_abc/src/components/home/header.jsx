@@ -20,7 +20,7 @@ const Header = () => {
                             </div>
                             <div className="flex items-center space-x-2">
                                 <i className="fas fa-envelope text-orange-500"></i>
-                                <span>assecessnameit@gmail.com</span>
+                                <span>info@fivestar.team</span>
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">

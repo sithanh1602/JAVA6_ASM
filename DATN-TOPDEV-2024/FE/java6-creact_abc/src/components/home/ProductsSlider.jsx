@@ -126,14 +126,14 @@ const ProductsSlider = () => {
                                     </Link>
                                     <div className="p-4">
                                         <h3 className="text-lg font-semibold text-gray-800 mb-2">{product.name}</h3>
-                                        <p className="text-gray-800 mb-2">{product.stock}</p>
+                                        <p className="text-gray-800 mb-2">Còn lại: {product.stock}</p>
                                         <p className="text-orange-600 font-semibold mb-4">{formatPrice(product.price)}</p>
-                                        <button
-                                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition duration-300"
-                                            onClick={() => handleAddToCart(product)}
-                                        >
-                                            Thêm vào giỏ hàng
-                                        </button>
+                                        {/*<button*/}
+                                        {/*    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition duration-300"*/}
+                                        {/*    onClick={() => handleAddToCart(product)}*/}
+                                        {/*>*/}
+                                        {/*    Thêm vào giỏ hàng*/}
+                                        {/*</button>*/}
                                     </div>
                                     <div
                                         className="absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4"

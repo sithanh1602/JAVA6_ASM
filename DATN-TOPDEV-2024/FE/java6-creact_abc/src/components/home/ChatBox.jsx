@@ -46,7 +46,7 @@ const ChatBox = ({ closeChat }) => {
                 />
                 <button
                     onClick={handleSendMessage}
-                    className="bg-blue-500 text-white p-2 rounded-r-lg"
+                    className="bg-orange-500 text-white p-2 rounded-r-lg"
                 >
                     Send
                 </button>

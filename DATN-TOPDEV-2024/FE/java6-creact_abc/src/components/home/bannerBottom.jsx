@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import imgBanner1 from "../../assets/images/imageBanner/banner1.jpg";  // Chỉnh sửa đường dẫn ảnh
+import imgBanner1 from "../../assets/images/imageBanner/banner4.jpg";  // Chỉnh sửa đường dẫn ảnh
 import AOS from 'aos';  // Import thư viện AOS
 import 'aos/dist/aos.css';  // Import các style của AOS
 
