@@ -28,24 +28,23 @@ const Header = () => {
          Tags
         </span>
                                 <span className="text-gray-600 text-sm">
-         Bike
+         CPU
         </span>
                                 <span className="text-gray-600 text-sm mx-1">
          •
         </span>
                                 <span className="text-gray-600 text-sm">
-         Smartphone
+         Intel
         </span>
                             </div>
                             <h2 className="text-2xl font-bold mb-2">
-                                Finally found a work computer setup That’s practically perf
-                            </h2>
+                                "Cuối cùng, tôi đã tìm ra một thiết lập máy tính lý tưởng. Quả thực, nó hoàn hảo đến từng chi tiết!"                            </h2>
                             <div className="flex items-center text-gray-500 text-sm mb-4" data-aos="fade-up-left" data-aos-duration="1200" data-aos-delay="500" data-aos-offset="200">
                                 <img alt="Avatar of monamedia" className="w-6 h-6 rounded-full mr-2" height="24"
                                      src="https://storage.googleapis.com/a1aa/image/Tet0UMONbE0CYKfUsXkRpSe7CBrPcNJyT9OOaJ1NfmLEqDGPB.jpg"
                                      width="24"/>
                                 <span>
-         monamedia
+         fivestarmedia
         </span>
                                 <span className="mx-1">
          /
@@ -65,15 +64,11 @@ const Header = () => {
          /
         </span>
                                 <span>
-         3 min read
+         3 phút trước
         </span>
                             </div>
                             <p className="text-gray-700">
-                                We have covered many special events such as fireworks, fairs, parades, races, walks,
-                                awards ceremonies, fashion shows, sporting events, and even a memorial service. Lorem
-                                ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vulputate vestibulum
-                                rhoncus, dolor eget viverra pretium, dolor tellus aliquet nunc, vitae ultricies erat
-                                elit eu lacus. Vestibulum non justo fin consectetur, [...]
+                                "Cuối cùng, sau nhiều ngày tìm kiếm và thử nghiệm, tôi đã tìm ra một thiết lập máy tính lý tưởng. Mọi thứ đều hoàn hảo, từ hiệu suất mạnh mẽ đến thiết kế tinh tế. Đặc biệt, tôi cảm thấy vô cùng hài lòng khi mọi tác vụ đều được xử lý nhanh chóng, mượt mà. Quả thực, đây là một hệ thống máy tính đáp ứng mọi nhu cầu công việc và giải trí của tôi."
                             </p>
                         </div>
                     </div>
@@ -109,14 +104,13 @@ const Header = () => {
         </span>
                             </div>
                             <h2 className="text-2xl font-bold mb-2">
-                                Finally found a work computer setup That’s practically perf
-                            </h2>
+                                "Sau một thời gian dài nghiên cứu và lựa chọn, tôi cuối cùng đã có được một thiết lập máy tính hoàn hảo."                            </h2>
                             <div className="flex items-center text-gray-500 text-sm mb-4" >
                                 <img alt="Avatar of monamedia" className="w-6 h-6 rounded-full mr-2" height="24"
                                      src="https://storage.googleapis.com/a1aa/image/Tet0UMONbE0CYKfUsXkRpSe7CBrPcNJyT9OOaJ1NfmLEqDGPB.jpg"
                                      width="24"/>
                                 <span>
-         monamedia
+       fivestarmedia
         </span>
                                 <span className="mx-1">
          /
@@ -136,15 +130,11 @@ const Header = () => {
          /
         </span>
                                 <span>
-         3 min read
+         3 phút trước
         </span>
                             </div>
                             <p className="text-gray-700">
-                                We have covered many special events such as fireworks, fairs, parades, races, walks,
-                                awards ceremonies, fashion shows, sporting events, and even a memorial service. Lorem
-                                ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vulputate vestibulum
-                                rhoncus, dolor eget viverra pretium, dolor tellus aliquet nunc, vitae ultricies erat
-                                elit eu lacus. Vestibulum non justo fin consectetur, [...]
+                                "Sau một thời gian dài nghiên cứu và lựa chọn, tôi cuối cùng đã có được một thiết lập máy tính hoàn hảo. Mọi thứ, từ phần cứng cho đến phần mềm, đều được tối ưu hóa để mang lại hiệu suất vượt trội. Khi sử dụng, tôi cảm nhận rõ ràng sự khác biệt, từ tốc độ xử lý cực nhanh đến khả năng đa nhiệm [...]
                             </p>
                         </div>
                     </div>
@@ -180,14 +170,13 @@ const Header = () => {
         </span>
                             </div>
                             <h2 className="text-2xl font-bold mb-2">
-                                Finally found a work computer setup That’s practically perf
-                            </h2>
+                                "Với thiết lập này, tôi không còn phải lo lắng về việc máy tính bị lag hay gặp phải sự cố khi làm việc với các phần mềm nặng."                            </h2>
                             <div className="flex items-center text-gray-500 text-sm mb-4">
                                 <img alt="Avatar of monamedia" className="w-6 h-6 rounded-full mr-2" height="24"
                                      src="https://storage.googleapis.com/a1aa/image/Tet0UMONbE0CYKfUsXkRpSe7CBrPcNJyT9OOaJ1NfmLEqDGPB.jpg"
                                      width="24"/>
                                 <span>
-         monamedia
+         fivestarmedia
         </span>
                                 <span className="mx-1">
          /
@@ -207,15 +196,11 @@ const Header = () => {
          /
         </span>
                                 <span>
-         3 min read
+         3 phút trước
         </span>
                             </div>
                             <p className="text-gray-700">
-                                We have covered many special events such as fireworks, fairs, parades, races, walks,
-                                awards ceremonies, fashion shows, sporting events, and even a memorial service. Lorem
-                                ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vulputate vestibulum
-                                rhoncus, dolor eget viverra pretium, dolor tellus aliquet nunc, vitae ultricies erat
-                                elit eu lacus. Vestibulum non justo fin consectetur, [...]
+                                "Với thiết lập này, tôi không còn phải lo lắng về việc máy tính bị lag hay gặp phải sự cố khi làm việc với các phần mềm nặng. Cả tốc độ khởi động lẫn quá trình xử lý các tác vụ phức tạp đều diễn ra mượt mà, nhanh chóng. Những trải nghiệm chơi game hay xem phim cũng trở nên sống động và sắc nét [...]."
                             </p>
                         </div>
                     </div>
@@ -291,10 +276,10 @@ const Header = () => {
           01
          </span>
                                     <span className="block text-gray-700 font-bold">
-          BICYCLE PARTS
+          RAM
          </span>
                                     <span className="block text-gray-600">
-          Finally found a work computer.
+        Cuối cùng cũng tìm thấy một máy tính làm việc.
          </span>
                                 </div>
                             </li>
@@ -308,10 +293,10 @@ const Header = () => {
           02
          </span>
                                     <span className="block text-gray-700 font-bold">
-          BULL DOZER
+         CPU
          </span>
                                     <span className="block text-gray-600">
-          Hoya Vision USA: Using Inbound.
+     Hoya Vision USA: Sử dụng Inbound.
          </span>
                                 </div>
                             </li>
@@ -325,10 +310,10 @@ const Header = () => {
           03
          </span>
                                     <span className="block text-gray-700 font-bold">
-          CAR PARTS NAME
+         KEYBOARD
          </span>
                                     <span className="block text-gray-600">
-          Finally found a work computer.
+         Cuối cùng cũng tìm thấy một máy tính làm việc.
          </span>
                                 </div>
                             </li>
@@ -341,17 +326,17 @@ const Header = () => {
                         <ul>
                             <li className="mb-2">
                                 <a className="text-gray-700" href="#">
-                                    Bicycle Parts
+                                MainBoard
                                 </a>
                             </li>
                             <li className="mb-2">
                                 <a className="text-gray-700" href="#">
-                                    Bull Dozer
+                                    Bộ nhớ RAM
                                 </a>
                             </li>
                             <li className="mb-2">
                                 <a className="text-gray-700" href="#">
-                                    Car parts Name
+                                    Card đồ họa
                                 </a>
                             </li>
                         </ul>

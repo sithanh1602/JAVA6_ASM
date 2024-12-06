@@ -61,32 +61,35 @@ const Navbar = () => {
                         <span className="text-orange-300 text-sm">TECHNOLOGY</span>
                     </div>
                 </div>
-                    <div className="hidden md:flex justify-center flex-1">
-                        <ul className="flex space-x-8">
-                            <li>
-                                <Link to="/" className="text-gray-700 hover:text-orange-500 transition duration-300">Trang
-                                    chủ</Link>
-                            </li>
-                            <li>
-                                <Link to="/aboutUs"
-                                      className="text-gray-700 hover:text-orange-500 transition duration-300">Giới
-                                    thiệu</Link>
-                            </li>
-                            <li>
-                                <Link to="/products"
-                                      className="text-gray-700 hover:text-orange-500 transition duration-300">Sản
-                                    phẩm</Link>
-                            </li>
-                            <li>
-                                <Link to="/news"
-                                      className="text-gray-700 hover:text-orange-500 transition duration-300">Tin tức</Link>
-                            </li>
-                            <li>
-                                <Link to="/contact"
-                                      className="text-gray-700 hover:text-orange-500 transition duration-300">Liên hệ</Link>
-                            </li>
-                        </ul>
-                    </div>
+                <div className="hidden md:flex justify-center flex-1">
+                    <ul className="flex space-x-8">
+                        <li>
+                            <Link to="/"
+                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Trang
+                                chủ</Link>
+                        </li>
+                        <li>
+                            <Link to="/aboutUs"
+                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Giới
+                                thiệu</Link>
+                        </li>
+                        <li>
+                            <Link to="/products"
+                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Sản
+                                phẩm</Link>
+                        </li>
+                        <li>
+                            <Link to="/news"
+                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Tin
+                                tức</Link>
+                        </li>
+                        <li>
+                            <Link to="/contact"
+                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Liên
+                                hệ</Link>
+                        </li>
+                    </ul>
+                </div>
                 <div className="flex items-center space-x-4 p-3">
                     <Link to="" className="text-gray-700 hover:text-orange-500"><i className="fas fa-heart"></i></Link>
 
@@ -97,7 +100,8 @@ const Navbar = () => {
                         </Link>
 
                         {/* Dropdown hiển thị sản phẩm khi hover */}
-                        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md hidden group-hover:block">
+                        <div
+                            className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md hidden group-hover:block">
                             <div className="p-4 max-h-60 overflow-y-auto">
                                 {cartItems.length > 0 ? (
                                     cartItems.map((item, index) => (

@@ -251,10 +251,10 @@ const ProductInput = ({ product, onSave }) => {
                         <input
                             {...register("name", { required: true })}
                             placeholder="Nhập Tên Sản Phẩm"
-                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none  errormessage"
                         />
                         {errors.name && (
-                            <span className="text-red-500 text-sm">{errors.name.message}</span>
+                            <span className="text-red-500 text-sm errormessage">{errors.name.message}</span>
                         )}
                     </div>
 
@@ -268,11 +268,11 @@ const ProductInput = ({ product, onSave }) => {
                                     {...register("price", { required: true, min: 0 })}
                                     type="number"
                                     placeholder="0.00"
-                                    className="w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none "
                                 />
                             </div>
                             {errors.price && (
-                                <span className="text-red-500 text-sm">{errors.price.message}</span>
+                                <span className="text-red-500 text-sm errormessage">{errors.price.message}</span>
                             )}
                         </div>
 
@@ -282,10 +282,10 @@ const ProductInput = ({ product, onSave }) => {
                                 {...register("stock", { required: true, min: 0 })}
                                 type="number"
                                 placeholder="Nhập Số Lượng"
-                                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none  "
                             />
                             {errors.stock && (
-                                <span className="text-red-500 text-sm">{errors.stock.message}</span>
+                                <span className="text-red-500 text-sm errormessage">{errors.stock.message}</span>
                             )}
                         </div>
                     </div>
@@ -298,7 +298,7 @@ const ProductInput = ({ product, onSave }) => {
                             <select
                                 {...register("categoryId")}
                                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                                    errors.categoryId ? "border-red-500" : "border-gray-300"
+                                    errors.categoryId ? "border-red-500" : "border-gray-300 "
                                 }`}
                             >
                                 <option value="">Chọn Loại Sản Phẩm</option>
@@ -309,7 +309,7 @@ const ProductInput = ({ product, onSave }) => {
                                 ))}
                             </select>
                             {errors.categoryId && (
-                                <p className="text-red-500 text-sm">{errors.categoryId.message}</p>
+                                <p className="text-red-500 text-sm errormessage">{errors.categoryId.message}</p>
                             )}
                         </div>
 
@@ -319,7 +319,7 @@ const ProductInput = ({ product, onSave }) => {
                             <select
                                 {...register("brandId")}
                                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                                    errors.brandId ? "border-red-500" : "border-gray-300"
+                                    errors.brandId ? "border-red-500" : "border-gray-300 "
                                 }`}
                             >
                                 <option value="">Chọn Thương Hiệu</option>
@@ -330,7 +330,7 @@ const ProductInput = ({ product, onSave }) => {
                                 ))}
                             </select>
                             {errors.brandId && (
-                                <p className="text-red-500 text-sm">{errors.brandId.message}</p>
+                                <p className="text-red-500 text-sm errormessage">{errors.brandId.message}</p>
                             )}
                         </div>
                     </div>
