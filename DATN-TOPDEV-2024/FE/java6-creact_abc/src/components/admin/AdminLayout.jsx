@@ -6,13 +6,13 @@ import Users from "../../pages/admin/Users";
 import Products from "../../pages/admin/Products";
 import Categorys from "../../pages/admin/Categorys";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
-import AdminOrderManagement from "./TableForm/OrderStatusAdmin/AdminOrderManagement";
 import Top3User from "../dashBoard/Top3User";
 import Contact from "../../pages/admin/Contact";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import MonthlyProductionChart from "./TableForm/DashB/RevenueChart";
 
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true); // Mở menu dọc mặc định
@@ -64,13 +64,14 @@ const AdminLayout = () => {
                     transition={{ duration: 0.5 }}
                 >
                     <Routes>
-                        <Route path="/" element={<AdminOrderManagement />} />
+                        <Route path="/" element={<Top3User />} />
                         <Route path="/dash" element={<Top3User />} />
                         <Route path="/user" element={<Users />} />
                         <Route path="/category" element={<Categorys />} />
                         <Route path="/brand" element={<BrandTableWithBoundary />} />
                         <Route path="/product" element={<Products />} />
                         <Route path="/contact" element={<Contact />} />
+                        <Route path="/tk" element={<MonthlyProductionChart />} />
                     </Routes>
                 </motion.div>
             </div>

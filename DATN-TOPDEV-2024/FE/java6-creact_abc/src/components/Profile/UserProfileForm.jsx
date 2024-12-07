@@ -1,51 +1,45 @@
 import React, { useState, useEffect } from "react";
 
 const UserProfileForm = ({ user, setUser, handleImageChange, handleSave }) => {
-    const [imagePreview, setImagePreview] = useState(user.image || "https://placehold.co/150x150");
+    const [imagePreview, setImagePreview] = useState(user?.image || "https://placehold.co/150x150");
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        setImagePreview(user.image);
+        setImagePreview(user?.image || "https://placehold.co/150x150");
     }, [user]);
 
-    // Validate phone number immediately when user types
     useEffect(() => {
         const phonePattern = /^(0[3|5|7|8|9|1][0-9]{8})|(\+(\d{1,3})\s?)?(\d{10,15})$/;
-        if (user.phone && !phonePattern.test(user.phone)) {
-            setErrors((prevErrors) => ({ ...prevErrors, phone: "Số điện thoại không hợp lệ. Vui lòng nhập đúng số điện thoại." }));
+        if (user?.phone && !phonePattern.test(user.phone)) {
+            setErrors((prev) => ({ ...prev, phone: "Số điện thoại không hợp lệ. Vui lòng nhập đúng số điện thoại." }));
         } else {
-            setErrors((prevErrors) => {
-                const { phone, ...rest } = prevErrors;
-                return rest; // Remove the error for phone if it's valid
+            setErrors((prev) => {
+                const { phone, ...rest } = prev;
+                return rest;
             });
         }
-    }, [user.phone]);
+    }, [user?.phone]);
 
     const validateForm = () => {
         const newErrors = {};
 
-        // Validate Full Name (cannot contain numbers)
-        if (/\d/.test(user.fullName)) {
+        if (/\d/.test(user?.fullName || "")) {
             newErrors.fullName = "Tên không được chứa số.";
         }
 
-        // Validate Email format (standard email validation)
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailPattern.test(user.email)) {
+        if (!emailPattern.test(user?.email || "")) {
             newErrors.email = "Email không hợp lệ. Vui lòng nhập đúng định dạng email.";
         }
 
         setErrors(newErrors);
-
-        // If there are errors, return false to prevent saving
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if (validateForm() && Object.keys(errors).length === 0) {
-            handleSave(); // Proceed with the save action if validation passes
+            handleSave();
         }
     };
 
@@ -57,37 +51,33 @@ const UserProfileForm = ({ user, setUser, handleImageChange, handleSave }) => {
                     <div>
                         <FormField
                             label="Tên đầy đủ"
-                            value={user.fullName}
+                            value={user?.fullName || ""}
                             onChange={(e) => setUser({ ...user, fullName: e.target.value })}
                             error={errors.fullName}
                         />
                         <FormField
                             label="Email"
-                            value={user.email}
+                            value={user?.email || ""}
                             onChange={(e) => setUser({ ...user, email: e.target.value })}
                             error={errors.email}
                         />
                         <FormField
                             label="Số điện thoại"
-                            value={user.phone}
+                            value={user?.phone || ""}
                             onChange={(e) => setUser({ ...user, phone: e.target.value })}
                             error={errors.phone}
                         />
                     </div>
 
-                    {/* Profile Picture */}
                     <div className="flex flex-col items-center">
-                        <div
-                            className="relative w-40 h-40 border-4 border-dashed border-gray-400 rounded-full overflow-hidden mb-4">
+                        <div className="relative w-40 h-40 border-4 border-dashed border-gray-400 rounded-full overflow-hidden mb-4">
                             <img
                                 src={imagePreview}
                                 alt="User profile"
                                 className="w-full h-full object-cover"
                             />
-                            <div
-                                className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
-                                <label htmlFor="profileImage"
-                                       className="text-white text-sm font-semibold cursor-pointer">
+                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+                                <label htmlFor="profileImage" className="text-white text-sm font-semibold cursor-pointer">
                                     Chọn ảnh
                                 </label>
                             </div>
@@ -124,7 +114,9 @@ const FormField = ({ label, value, onChange, error }) => (
             type="text"
             value={value}
             onChange={onChange}
-            className={`w-full p-3 border border-gray-300 rounded-lg mt-2 focus:ring-2 focus:ring-blue-500 ${error ? "border-red-500" : ""}`}
+            className={`w-full p-3 border border-gray-300 rounded-lg mt-2 focus:ring-2 focus:ring-blue-500 ${
+                error ? "border-red-500" : ""
+            }`}
         />
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>

@@ -13,24 +13,33 @@ import AddressList from "../account/AdderssList";
 import ChangePassword from "./ChangePassword";
 
 const ProfilePage = () => {
-    const [user, setUser] = useState(null);
-    const [error, setError] = useState(null);
+    const [user, setUser] = useState({
+        image: "", // Đảm bảo có giá trị mặc định cho hình ảnh
+    });
     const [image, setImage] = useState(null);
 
     useEffect(() => {
         const userId = JSON.parse(localStorage.getItem("UserId"));
         if (userId) {
             UserService.getUserById(userId)
-                .then((data) => setUser(data))
-                .catch(() => setError("Không thể tải thông tin người dùng."));
-        } else {
-            setError("UserId không tồn tại trong localStorage.");
+                .then((data) => {
+                    // Đảm bảo rằng dữ liệu trả về không undefined
+                    if (data) {
+                        setUser(data);
+                    } else {
+                        toast.error("Không thể tải thông tin người dùng.");
+                    }
+                })
+                .catch(() => toast.error("Không thể tải thông tin người dùng."));
         }
     }, []);
 
     const handleImageChange = (file) => {
         setImage(file);
-        setUser({ ...user, image: URL.createObjectURL(file) });
+        setUser((prev) => ({
+            ...prev,
+            image: URL.createObjectURL(file), // Cập nhật ảnh mới vào state
+        }));
     };
 
     const handleSave = async () => {
@@ -59,19 +68,17 @@ const ProfilePage = () => {
         }
     };
 
-    if (!user && !error) return null;
+    if (!user) return null;
 
     return (
         <div className="flex flex-col md:flex-row bg-gray-100 p-6 h-[750px]">
             <ToastContainer position="top-right" autoClose={3000} />
 
-            {user && (
-                <aside className="w-full md:w-1/4  bg-white rounded-lg h-[700px]" >
-                    <Sidebar user={user} />
-                </aside>
-            )}
+            <aside className="w-full md:w-1/4 bg-white rounded-lg h-[700px]">
+                <Sidebar user={user} />
+            </aside>
 
-            <main className="flex flex-col w-full md:w-4/4 px-6 ">
+            <main className="flex flex-col w-full md:w-3/4 px-6">
                 <div className="bg-white rounded-lg p-6 mb-6 h-[700px]">
                     <Routes>
                         <Route

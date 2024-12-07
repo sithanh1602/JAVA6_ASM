@@ -129,6 +129,7 @@ const AddressForm = () => {
 
     const handleSaveAddress = async () => {
         setErrorMessage("");
+
         setSuccessMessage(""); // Reset thông báo thành công
 
         if (!phoneNumber || !/^\d{10,11}$/.test(phoneNumber)) {
@@ -138,6 +139,12 @@ const AddressForm = () => {
 
         if (!streetAddress || !selectedProvince || !selectedDistrict || !selectedWard) {
             setErrorMessage("Vui lòng điền đầy đủ các trường thông tin.");
+            return;
+        }
+
+        // Ensure selectedProvince, selectedDistrict, and selectedWard are defined before accessing them
+        if (!provinces || !districts || !wards) {
+            setErrorMessage("Dữ liệu không hợp lệ.");
             return;
         }
 
