@@ -37,7 +37,7 @@ const TemplateList = () => {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, {
                     type: "array",
-                    cellStyles: true, // Ensure styles are read
+                    cellStyles: true,
                 });
 
                 workbookRef.current = workbook;
@@ -59,29 +59,11 @@ const TemplateList = () => {
     const loadSheetData = (workbook, sheetName) => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-        // Get color and style data (e.g., background, font)
-        const styleData = jsonData.map((row, rowIndex) =>
-            row.map((_, colIndex) => {
-                const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
-                const cell = worksheet[cellAddress];
-                const style = cell?.s || {};  // Get the style object if available
-
-                const bgColor = style?.fill?.bgColor?.rgb;
-                const fontColor = style?.font?.color?.rgb;
-                const fontWeight = style?.font?.bold ? 'bold' : 'normal';
-                const fontSize = style?.font?.sz;
-                const borderColor = style?.border?.top?.color?.rgb;
-
-                return { bgColor, fontColor, fontWeight, fontSize, borderColor };
-            })
-        );
-
         setTableData(jsonData);
-        renderTable(jsonData, styleData, workbook, worksheet);
+        renderTable(jsonData, workbook, worksheet);
     };
 
-    const renderTable = (data, styleData, workbook, worksheet) => {
+    const renderTable = (data, workbook, worksheet) => {
         if (hotInstance) {
             hotInstance.destroy();
         }
@@ -97,53 +79,6 @@ const TemplateList = () => {
             stretchH: 'all',
             filters: true,
             dropdownMenu: true,
-            cells: (row, col) => {
-                const cellProperties = {};
-                const cellStyle = styleData[row]?.[col];
-
-                if (cellStyle) {
-                    // Set background color
-                    if (cellStyle.bgColor) {
-                        cellProperties.renderer = function (instance, td) {
-                            Handsontable.renderers.TextRenderer.apply(this, arguments);
-                            td.style.backgroundColor = `#${cellStyle.bgColor}`;
-                        };
-                    }
-
-                    // Set font color
-                    if (cellStyle.fontColor) {
-                        cellProperties.renderer = function (instance, td) {
-                            Handsontable.renderers.TextRenderer.apply(this, arguments);
-                            td.style.color = `#${cellStyle.fontColor}`;
-                        };
-                    }
-
-                    // Set font weight
-                    if (cellStyle.fontWeight) {
-                        cellProperties.renderer = function (instance, td) {
-                            Handsontable.renderers.TextRenderer.apply(this, arguments);
-                            td.style.fontWeight = cellStyle.fontWeight;
-                        };
-                    }
-
-                    // Set font size
-                    if (cellStyle.fontSize) {
-                        cellProperties.renderer = function (instance, td) {
-                            Handsontable.renderers.TextRenderer.apply(this, arguments);
-                            td.style.fontSize = `${cellStyle.fontSize}px`;
-                        };
-                    }
-
-                    // Set border color
-                    if (cellStyle.borderColor) {
-                        cellProperties.renderer = function (instance, td) {
-                            Handsontable.renderers.TextRenderer.apply(this, arguments);
-                            td.style.borderColor = `#${cellStyle.borderColor}`;
-                        };
-                    }
-                }
-                return cellProperties;
-            },
         });
 
         // Handle merged cells
@@ -156,7 +91,6 @@ const TemplateList = () => {
 
         setHotInstance(newHot);
     };
-
 
     const handleSheetChange = (event) => {
         const sheetName = event.target.value;
@@ -185,8 +119,8 @@ const TemplateList = () => {
 
     const handleDelete = (id) => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'Once deleted, you will not be able to recover this template!',
+            title: 'Bạn có chắc muốn xoá?',
+            text: 'Sau khi xóa, bạn sẽ không thể khôi phục mẫu này!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!',
@@ -200,7 +134,7 @@ const TemplateList = () => {
 
     const deleteTemplate = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/api/templates/${id}`);
+            await axios.delete(`http://localhost:8080/api/templates/delete/${id}`);
             setTemplates(templates.filter((template) => template.id !== id));
             Swal.fire('Deleted!', 'Your template has been deleted.', 'success');
         } catch (error) {
@@ -209,11 +143,68 @@ const TemplateList = () => {
         }
     };
 
+
+    const handleDownloadUpdated = () => {
+        if (!workbookRef.current || !hotInstance) return;
+
+        const updatedData = hotInstance.getData();
+
+        const worksheet = XLSX.utils.aoa_to_sheet(updatedData);
+
+        const originalSheet = workbookRef.current.Sheets[selectedSheet];
+        if (originalSheet) {
+            Object.keys(originalSheet).forEach(key => {
+                if (key[0] === '!') return;
+
+
+                if (originalSheet[key] && originalSheet[key].s) {
+                    worksheet[key] = worksheet[key] || {};
+                    worksheet[key].s = originalSheet[key].s;
+                }
+            });
+            if (originalSheet['!merges']) {
+                worksheet['!merges'] = originalSheet['!merges'];
+            }
+        }
+
+        workbookRef.current.Sheets[selectedSheet] = worksheet;
+
+        const workbookOut = XLSX.write(workbookRef.current, {
+            bookType: 'xlsx',
+            type: 'binary',
+        });
+
+        // Convert the binary string to an ArrayBuffer (required for Blob)
+        const blob = new Blob([s2ab(workbookOut)], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+
+        // Create a temporary download link
+        const fileURL = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = fileURL;
+        link.setAttribute('download', `template-updated-${selectedSheet}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        Swal.fire('success', 'Dowload thành công.', 'success');
+    };
+
+// Function to convert binary string to ArrayBuffer
+    function s2ab(s) {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) {
+            view[i] = s.charCodeAt(i) & 0xff;
+        }
+        return buf;
+    }
+
+
+
     return (
         <div className="container mx-auto px-4 py-6">
-            <UploadTemplate />
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">Template List</h2>
-            <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+            <table className=" bg-white border border-gray-200 shadow-md rounded-lg">
                 <thead>
                 <tr className="bg-gray-100">
                     <th className="py-2 px-4 border-b">Name</th>
@@ -224,7 +215,7 @@ const TemplateList = () => {
                 {templates.map((template) => (
                     <tr key={template.id} className="hover:bg-gray-50">
                         <td className="py-2 px-4 border-b">{template.name}</td>
-                        <td className="py-2 px-4 border-b">
+                        <td className="py-2 p-3 border-b">
                             <button
                                 onClick={() => handleDownload(template.id)}
                                 className="bg-blue-500 text-white px-3 py-1 rounded-md mr-2 hover:bg-blue-600"
@@ -249,25 +240,36 @@ const TemplateList = () => {
                 </tbody>
             </table>
 
-            <div className="mt-6">
-                <label htmlFor="sheetSelector" className="block text-gray-700 font-medium">
-                    Select Sheet:
-                </label>
-                <select
-                    id="sheetSelector"
-                    value={selectedSheet}
-                    onChange={handleSheetChange}
-                    className="mt-2 p-2 border border-gray-300 rounded-md"
-                >
-                    {sheetNames.map((sheetName) => (
-                        <option key={sheetName} value={sheetName}>
-                            {sheetName}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
+                {selectedSheet && (
+                    <div className="mt-4">
+                        <button
+                            onClick={handleDownloadUpdated}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                        >
+                            Download Updated
+                        </button>
+                    </div>
+                )}
             <div id="handsontable" className="mt-6"></div>
+            {selectedSheet && (
+                <div className="mt-6">
+                    <label htmlFor="sheetSelector" className="block text-gray-700 font-medium">
+                        Select Sheet:
+                    </label>
+                    <select
+                        id="sheetSelector"
+                        value={selectedSheet}
+                        onChange={handleSheetChange}
+                        className="mt-2 p-2 border border-gray-300 rounded-md"
+                    >
+                        {sheetNames.map((sheetName) => (
+                            <option key={sheetName} value={sheetName}>
+                                {sheetName}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
         </div>
     );
 };

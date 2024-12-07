@@ -33,9 +33,11 @@ public class AddressService {
 
     // Tạo địa chỉ mới từ DTO
     public Address createAddress(AddressDTO addressDTO) {
+        // Tìm người dùng
         User user = userRepository.findById(addressDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng với ID: " + addressDTO.getUserId()));
 
+        // Tạo một đối tượng Address mới
         Address address = new Address();
         address.setUser(user);
         address.setStreetaddress(addressDTO.getStreetAddress());
@@ -45,17 +47,28 @@ public class AddressService {
         address.setWard(addressDTO.getWard());
         address.setFullAddress(addressDTO.getFullAddress());
 
-        // Xử lý trường `isDefault`
-        if (addressDTO.getIsDefault() != null && addressDTO.getIsDefault()) {
-            // Nếu là địa chỉ mặc định, cập nhật tất cả các địa chỉ khác thành không mặc định
-            addressRepository.updateAllDefaultAddressesToFalse(user.getUserId(), address.getIdAddress());
+        // Kiểm tra xem người dùng đã có địa chỉ nào chưa
+        List<Address> existingAddresses = addressRepository.findByUserId(user.getUserId());
+
+        if (existingAddresses.isEmpty()) {
+            // Nếu chưa có địa chỉ nào, đặt địa chỉ này làm mặc định
             address.setDefaults(true);
         } else {
-            address.setDefaults(false); // Nếu không có giá trị, mặc định là `false`
+            // Nếu đã có địa chỉ, kiểm tra giá trị `isDefault` từ DTO
+            if (addressDTO.getIsDefault() != null && addressDTO.getIsDefault()) {
+                // Nếu địa chỉ này được đánh dấu là mặc định, cập nhật các địa chỉ khác thành không mặc định
+                addressRepository.updateAllDefaultAddressesToFalse(user.getUserId(), null);
+                address.setDefaults(true);
+            } else {
+                // Nếu không, đặt `isDefault` là false
+                address.setDefaults(false);
+            }
         }
 
+        // Lưu địa chỉ
         return addressRepository.save(address);
     }
+
 
     @Transactional
     public Address updateAddress(Long addressId, AddressDTO addressDTO) {
@@ -114,4 +127,6 @@ public class AddressService {
         Address existingAddress = getAddressById(addressId);
         addressRepository.delete(existingAddress);
     }
+
+
 }

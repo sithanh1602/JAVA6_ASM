@@ -25,7 +25,7 @@ const AddressList = () => {
                 if (Array.isArray(data)) {
                     setAddresses(data);
                 } else {
-                    setError("Dữ liệu trả về không hợp lệ.");
+                    // setError("Dữ liệu trả về không hợp lệ.");
                 }
             } catch (err) {
                 setError("Lỗi khi lấy địa chỉ: " + err.message);
@@ -38,7 +38,14 @@ const AddressList = () => {
     }, [userId]);
 
     const handleDeleteAddressClick = async (idAddress) => {
+        // Hiển thị hộp thoại xác nhận
+        const isConfirmed = window.confirm("Bạn có chắc chắn muốn xóa địa chỉ này?");
+        if (!isConfirmed) {
+            return; // Nếu người dùng không xác nhận, dừng lại
+        }
+
         try {
+            // Tiến hành xóa nếu đã xác nhận
             await deleteAddress(idAddress);
             setAddresses((prevAddresses) =>
                 prevAddresses.filter((address) => address.idAddress !== idAddress)
@@ -46,6 +53,7 @@ const AddressList = () => {
             alert("Xóa địa chỉ thành công!");
         } catch (error) {
             console.error("Không thể xóa địa chỉ:", error);
+            alert("Có lỗi xảy ra khi xóa địa chỉ.");
         }
     };
 
