@@ -259,6 +259,14 @@ const AdminOrderManagement = () => {
             name: 'Hành động',
             cell: row => (
                 <div className="flex space-x-2 justify-center">
+                    {row.status === 1 && (
+                        <button
+                            onClick={() => handleChangeStatus(row.id, 4)}
+                            className="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                            Xác nhận đơn hàng
+                        </button>
+                    )}
                     {row.status === 3 && (
                         <button
                             onClick={() => handleChangeStatus(row.id, 4)}
@@ -340,14 +348,6 @@ const AdminOrderManagement = () => {
                     </Tab>
                 ))}
             </TabContainer>
-
-
-            {/* Nút "Đơn hàng chờ xác nhận" */}
-            <PendingOrdersButton onClick={handlePendingOrdersClick}>
-                Đơn hàng chờ xác nhận
-                {pendingOrders.length > 0 && <PendingOrdersBadge>{pendingOrders.length}</PendingOrdersBadge>}
-            </PendingOrdersButton>
-
 
             <DataTable
                 columns={columns}
