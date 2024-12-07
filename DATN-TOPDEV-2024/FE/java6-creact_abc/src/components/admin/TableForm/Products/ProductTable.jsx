@@ -6,6 +6,9 @@ import ProductService from '../../../../services/ProductService';
 import Swal from 'sweetalert2';
 import {FaEdit, FaTrash} from 'react-icons/fa';
 import { FiRefreshCw } from 'react-icons/fi';
+import * as XLSX from 'xlsx';
+import axios from "axios";
+
 
 const ProductTable = forwardRef((_, ref) => {
     const [products, setProducts] = useState([]);
@@ -188,6 +191,43 @@ const ProductTable = forwardRef((_, ref) => {
         },
     ];
 
+    const exportToExcel = async () => {
+        try {
+            // Tạo worksheet từ dữ liệu bảng
+            const worksheet = XLSX.utils.json_to_sheet(filteredProducts);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
+
+            // Chuyển workbook thành buffer
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+
+            // Chuyển buffer thành Blob
+            const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+            // Tạo FormData để gửi file
+            const formData = new FormData();
+            formData.append('file', new File([blob], 'products.xlsx'));
+
+            // Gửi file lên backend qua API
+            await axios.post('http://localhost:8080/api/templates/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: 'Để tải vui lòng vào mục Drive Excel!',
+            });
+        } catch (error) {
+            console.error('Lỗi khi lưu file:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không thể lưu file vào cơ sở dữ liệu!',
+            });
+        }
+    };
+
     return (
         <div className="p-4 bg-white">
             {/* Modal Component */}
@@ -220,6 +260,14 @@ const ProductTable = forwardRef((_, ref) => {
                     onClick={handleAddProduct}
                 >
                     + Thêm loại sản phẩm
+                </button>
+
+                {/* Nút Xuất Excel */}
+                <button
+                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    onClick={exportToExcel}
+                >
+                    Xuất Excel
                 </button>
             </div>
 

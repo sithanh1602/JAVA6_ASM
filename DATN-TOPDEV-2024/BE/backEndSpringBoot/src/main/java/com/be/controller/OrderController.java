@@ -71,7 +71,7 @@ public class OrderController {
             Orders savedOrder = orderService.saveOrder(orderRequest);
 
             // Gửi thông báo đến admin về đơn hàng mới
-            messagingTemplate.convertAndSend("/topic/orders", "Có đơn hàng mới với ID: " + savedOrder.getId());
+            messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getId());
 
             // Tạo URL thanh toán VNPay
             String urlPayment = vnPayService.createOrder(
@@ -88,17 +88,6 @@ public class OrderController {
                     .body("An error occurred while processing the order.");
         }
     }
-
-
-//    @PutMapping("/{orderId}/status")
-//    public ResponseEntity<Orders> updateOrderStatus(@PathVariable Long orderId, @RequestParam int status) {
-//        try {
-//            Orders updatedOrder = orderService.updateOrderStatus(orderId, status);
-//            return ResponseEntity.ok(updatedOrder); // Respond with the updated order
-//        } catch (Exception e) {
-//            return ResponseEntity.status(404).body(null); // Return 404 if order not found or any error
-//        }
-//    }
 
 
     // Endpoint để tạo đơn hàng (không sử dụng VNPay, thanh toán COD)

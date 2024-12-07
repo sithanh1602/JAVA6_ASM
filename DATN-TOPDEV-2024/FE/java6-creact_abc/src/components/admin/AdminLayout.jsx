@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Users from "../../pages/admin/Users";
 import Products from "../../pages/admin/Products";
 import Categorys from "../../pages/admin/Categorys";
+import TemplateList from "../excel/TemplateList";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
 import Top3User from "../dashBoard/Top3User";
 import Contact from "../../pages/admin/Contact";
@@ -72,6 +73,7 @@ const AdminLayout = () => {
                         <Route path="/product" element={<Products />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/tk" element={<MonthlyProductionChart />} />
+                        <Route path="/tplXlsx" element={<TemplateList />} />
                     </Routes>
                 </motion.div>
             </div>
