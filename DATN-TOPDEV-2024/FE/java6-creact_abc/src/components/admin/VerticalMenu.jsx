@@ -3,8 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
     FaHome,
     FaEnvelope,
-    FaComments,
-    FaChartBar,
     FaPencilAlt,
     FaPuzzlePiece,
     FaTable,
@@ -16,7 +14,7 @@ import {
     FaProductHunt,
     FaUser,
     FaDisease,
-    FaFileExcel
+    FaFileExcel, FaFirstOrder
 } from 'react-icons/fa';
 import { MdCategory } from 'react-icons/md';
 import Swal from 'sweetalert2';
@@ -34,13 +32,13 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
 
     const menuItems = [
         { icon: <FaHome className="text-blue-500" />, label: 'Dashboard', link: '/admin/dash' },
+        { icon: <FaFirstOrder className="text-blue-500" />, label: 'Order', link: '/admin/order' },
         { icon: <MdCategory className="text-red-500" />, label: 'Category', link: '/admin/category' },
         { icon: <FaDisease className="text-red-500" />, label: 'Brand', link: '/admin/brand' },
         { icon: <FaProductHunt className="text-orange-500" />, label: 'Product', link: '/admin/product' },
         { icon: <FaUser className="text-pink-500" />, label: 'User', link: '/admin/user' },
         { icon: <FaEnvelope className="text-purple-500" />, label: 'Email', link: '/admin/contact' },
         { icon: <FaFileExcel className="text-purple-500" />, label: 'Driver Excel', link: '/admin/tplXlsx' },
-        { icon: <FaChartBar className="text-blue-500" />, label: '', link: '/charts' },
         { icon: <FaPencilAlt className="text-blue-500" />, label: 'Forms', link: '/forms' },
         { icon: <FaPuzzlePiece className="text-pink-500" />, label: 'UI Elements', link: '/ui-elements' },
         { icon: <FaTable className="text-orange-500" />, label: 'Tables', hasArrow: true, subItems: [
