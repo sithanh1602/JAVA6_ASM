@@ -121,9 +121,6 @@ public class ProductService {
         if (product.getStock() == 0) {
             product.setStatus("Out of Stock");
         }
-        if (product.getStock() > 0) {
-            product.setStatus("Available");
-        }
 
         validateProductUpdate(product,id);  // Validate cho việc cập nhật sản phẩm
         // Cập nhật thông tin sản phẩm
@@ -134,7 +131,7 @@ public class ProductService {
         existingProduct.setCategory(product.getCategory());
         existingProduct.setBrand(product.getBrand());
         existingProduct.setStatus(product.getStatus());
-
+        existingProduct.setImageUrl(product.getImageUrl());
         return productRepository.save(existingProduct);
     }
 
