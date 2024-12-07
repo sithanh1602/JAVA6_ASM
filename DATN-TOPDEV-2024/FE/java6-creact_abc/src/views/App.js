@@ -7,7 +7,6 @@ import WebSocketNotification from "../components/account/WebSocketNotification";
 const App = () => {
     return (
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Router>
             <WebSocketNotification />
             <div className="min-h-screen flex flex-col">
                 <Routes>
@@ -18,6 +17,6 @@ const App = () => {
             </div>
         </Router>
     );
-};
+}
 
 export default App;

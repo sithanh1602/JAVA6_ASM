@@ -14,6 +14,7 @@ import SockJS from 'sockjs-client';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MonthlyProductionChart from "./TableForm/DashB/RevenueChart";
+import AdminOrderManagement from "./TableForm/OrderStatusAdmin/AdminOrderManagement";
 
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true); // Mở menu dọc mặc định
@@ -74,6 +75,7 @@ const AdminLayout = () => {
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/tk" element={<MonthlyProductionChart />} />
                         <Route path="/tplXlsx" element={<TemplateList />} />
+                        <Route path="/order" element={<AdminOrderManagement />} />
                     </Routes>
                 </motion.div>
             </div>
