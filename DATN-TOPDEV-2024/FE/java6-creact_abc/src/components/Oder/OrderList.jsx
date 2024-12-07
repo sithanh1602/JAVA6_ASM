@@ -4,23 +4,22 @@ import DataTable from 'react-data-table-component';
 import { FaCheckCircle, FaTruck, FaStar, FaShoppingCart } from 'react-icons/fa'; // Icons for each step
 
 // OrderStatusStepper component to display status in a stepper form with continuous connectors
-const OrderStatusStepper = ({ status }) => {
+const OrderStatusStepper = ({ status, paymentStatus }) => {
     const steps = [
         { label: 'Đã đặt hàng', icon: <FaShoppingCart className="text-3xl" />, key: 1, color: 'bg-blue-500' },
-        { label: 'Chưa thanh toán', icon: <FaStar className="text-3xl" />, key: 2, color: 'bg-yellow-500' },
-        { label: 'Đã thanh toán', icon: <FaCheckCircle className="text-3xl" />, key: 3, color: 'bg-green-500' },
+        paymentStatus && { label: 'Chưa thanh toán', icon: <FaStar className="text-3xl" />, key: 2, color: 'bg-yellow-500' },
+        paymentStatus && { label: 'Đã thanh toán', icon: <FaCheckCircle className="text-3xl" />, key: 3, color: 'bg-green-500' },
         { label: 'Đã xác nhận', icon: <FaCheckCircle className="text-3xl" />, key: 4, color: 'bg-teal-500' },
         { label: 'Đang giao hàng', icon: <FaTruck className="text-3xl" />, key: 5, color: 'bg-orange-500' },
         { label: 'Đã hoàn thành', icon: <FaCheckCircle className="text-3xl" />, key: 6, color: 'bg-gray-500' },
         { label: 'Đã hủy', icon: <FaCheckCircle className="text-3xl" />, key: 7, color: 'bg-red-500' },
-    ];
+    ].filter(Boolean); // Loại bỏ các bước null khi paymentStatus = false.
 
-    // Determine the color of each step based on the current order status
     const getStatusClass = (step) => {
         if (status >= step.key) {
-            return `${step.color} text-white`; // Active step with custom color
+            return `${step.color} text-white`;
         } else {
-            return 'bg-gray-300 text-gray-500'; // Inactive step
+            return 'bg-gray-300 text-gray-500';
         }
     };
 
@@ -36,6 +35,7 @@ const OrderStatusStepper = ({ status }) => {
         )
     }
 
+    // Trả về giao diện như cũ nhưng đã được lọc trạng thái
     return (
         <div className="flex justify-between items-center my-6 relative">
             {steps.map((step) => (
@@ -192,8 +192,12 @@ const OrderList = () => {
             sortable: true,
         },
         {
-            name:'Phương thức thanh toán',
-            selector: (row) => row.paymentMethod ? 'Thanh toán online' : 'Thanh toán khi nhận hàng',
+            name: 'Phương thức thanh toán',
+            selector: (row) => {
+                if (row.paymentStatus === true) return 'Thanh toán online';
+                if (row.paymentStatus === false) return 'Thanh toán khi nhận hàng';
+                return 'Không xác định';
+            },
             sortable: true,
         },
         {
@@ -230,7 +234,7 @@ const OrderList = () => {
                 orders.map((order) => (
                     <div key={order.id} className="mb-8 bg-white p-6 rounded-lg">
                         {/* Display Order Status Stepper above the table */}
-                        <OrderStatusStepper status={order.status} paymentStatus={order.paymentMethod} />
+                        <OrderStatusStepper status={order.status} paymentStatus={order.paymentStatus} />
                         <DataTable
                             columns={columns}
                             data={[order]} // Show only the current order
