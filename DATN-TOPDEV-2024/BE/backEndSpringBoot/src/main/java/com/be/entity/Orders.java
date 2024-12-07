@@ -1,40 +1,40 @@
-package com.be.entity;
+    package com.be.entity;
 
-import lombok.Data;
+    import lombok.Data;
 
-import jakarta.persistence.*;
-import java.util.Date;
+    import jakarta.persistence.*;
+    import java.util.Date;
 
-@Entity
-@Table(name = "Orders")
-@Data // Lombok generates getters, setters, toString, equals, and hashCode methods
-public class Orders {
+    @Entity
+    @Table(name = "Orders")
+    @Data // Lombok generates getters, setters, toString, equals, and hashCode methods
+    public class Orders {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+        @ManyToOne
+        @JoinColumn(name = "user_id")
+        private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "address_id")
-    private Address address;
+        @ManyToOne
+        @JoinColumn(name = "address_id")
+        private Address address;
 
-    @ManyToOne
-    @JoinColumn(name = "voucher_id")
-    private Voucher voucher;
+        @ManyToOne
+        @JoinColumn(name = "voucher_id")
+        private Voucher voucher;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date orderDate;
+        @Temporal(TemporalType.TIMESTAMP)
+        private Date orderDate;
 
-    private int totalPrice;
+        private int totalPrice;
 
-    private int status;
+        private int status;
 
-    private boolean paymentStatus;
+        private boolean paymentStatus;
 
-    @Column(name = "full_address")
-    private String fullAddress;
-}
+        @Column(name = "full_address")
+        private String fullAddress;
+    }

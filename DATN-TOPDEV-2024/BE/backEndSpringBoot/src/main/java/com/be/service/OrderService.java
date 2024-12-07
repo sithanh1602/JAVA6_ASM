@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,7 +57,32 @@ public class OrderService {
         return response;
     }
 
+    // Get total revenue between start and end date
+    public Integer calculateRevenue(Date startDate, Date endDate) {
+        Integer revenue = ordersRepository.calculateTotalRevenue(startDate, endDate);
+        return revenue != null ? revenue : 0; // Ensure null safety
+    }
 
+    // Get all completed orders within the period
+    public List<Orders> getCompletedOrders(Date startDate, Date endDate) {
+        return ordersRepository.findCompletedOrdersWithinPeriod(startDate, endDate);
+    }
+
+    // Get daily revenue by grouping orders by date
+    public Map<Date, Integer> getRevenuePerDay(Date startDate, Date endDate) {
+        List<Orders> completedOrders = ordersRepository.findCompletedOrdersWithinPeriod(startDate, endDate);
+
+        return completedOrders.stream()
+                .collect(Collectors.groupingBy(
+                        Orders::getOrderDate,
+                        Collectors.summingInt(Orders::getTotalPrice)
+                ));
+    }
+
+    // Get daily revenue using the custom query
+    public List<Object[]> getDailyRevenue(Date startDate, Date endDate) {
+        return ordersRepository.calculateDailyRevenue(startDate, endDate);
+    }
     public Orders updateOrderStatus(Long orderId, int status) {
         // Find the order by ID
         Orders order = ordersRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));

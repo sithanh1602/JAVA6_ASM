@@ -4,13 +4,14 @@ import com.be.DTO.OrderRequest;
 import com.be.entity.*;
 import com.be.service.OrderService;
 import com.be.service.VNPayService;
-import net.minidev.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 @RestController
@@ -31,7 +32,31 @@ public class OrderController {
     @Autowired
     private VNPayService vnPayService;
 
-    // Endpoint để tạo đơn hàng (với thanh toán VNPay)
+
+    // Endpoint to get total revenue between two dates
+    @GetMapping("/revenue")
+    public Integer getRevenue(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+        return orderService.calculateRevenue(startDate, endDate);
+    }
+
+    // Endpoint to get revenue per day between two dates
+    @GetMapping("/completed")
+    public Map<Date, Integer> getDailyRevenue(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+        return orderService.getRevenuePerDay(startDate, endDate);
+    }
+
+    // Endpoint to get daily revenue using custom query
+    @GetMapping("/daily-revenue")
+    public List<Object[]> getDailyRevenueQuery(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+        return orderService.getDailyRevenue(startDate, endDate);
+    }
+
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
