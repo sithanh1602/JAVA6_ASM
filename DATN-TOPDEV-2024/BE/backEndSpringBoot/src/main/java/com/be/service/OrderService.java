@@ -189,6 +189,9 @@ public class OrderService {
                 throw new Exception("Insufficient stock for product: " + product.getName());
             }
             product.setStock(newStock);
+            if (newStock == 0) {
+                product.setStatus("Out of Stock");
+            }
             productRepository.save(product);
 
             // Lưu chi tiết đơn hàng
@@ -252,6 +255,9 @@ public class OrderService {
                 throw new Exception("Insufficient stock for product: " + product.getName());
             }
             product.setStock(newStock);
+            if (newStock == 0) {
+                product.setStatus("Out of Stock");
+            }
             productRepository.save(product);
 
             // Lưu chi tiết đơn hàng
