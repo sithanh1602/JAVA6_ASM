@@ -118,8 +118,11 @@ public class ProductService {
         // Kiểm tra nếu sản phẩm tồn tại
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+        // Xử lý logic trạng thái
         if (product.getStock() == 0) {
             product.setStatus("Out of Stock");
+        } else if (product.getStock() > 0 && "Out of Stock".equals(product.getStatus())) {
+            product.setStatus("Available");
         }
 
         validateProductUpdate(product,id);  // Validate cho việc cập nhật sản phẩm
