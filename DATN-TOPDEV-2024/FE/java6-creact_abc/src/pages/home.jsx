@@ -49,12 +49,12 @@ const HomePage = () => {
             </div>
             <Footer className="mt-auto"/> {/* Ensure footer sticks to the bottom */}
             {/* Container for the buttons */}
-            <div className="fixed bottom-4 left-4 z-50 flex space-x-4">
-                {/* Cart Button */}
-                <div>
-                    <CartButton/>
-                </div>
-            </div>
+            {/*<div className="fixed bottom-4 left-4 z-50 flex space-x-4">*/}
+            {/*    /!* Cart Button *!/*/}
+            {/*    <div>*/}
+            {/*        <CartButton/>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
         </div>
     )
 };
