@@ -71,7 +71,7 @@ const ProductTable = forwardRef((_, ref) => {
             Swal.fire({
                 icon: 'success',
                 title: 'Success',
-                text: `Product status updated to ${updatedProductDetails.status}!`,
+                text: `Trạng thái sản phẩm được cập nhật thành ${updatedProductDetails.status}!`,
             });
 
             fetchProducts(); // Refresh product list
@@ -81,7 +81,7 @@ const ProductTable = forwardRef((_, ref) => {
                 title: 'Error',
                 text: 'Failed to update product status!',
             });
-            console.error('Error updating product status:', error);
+            console.error('Lỗi cập nhật trạng thái sản phẩm:', error);
         }
     };
 

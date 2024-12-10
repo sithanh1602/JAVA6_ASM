@@ -63,7 +63,7 @@ const CategoryTable = () => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi!',
-                    text: 'Không thể xóa danh mục. Vui lòng thử lại.',
+                    text: 'Không thể xóa danh mục.Vì danh mục đã tồn tại sản phẩm.',
                     confirmButtonText: 'Đóng'
                 });
             }

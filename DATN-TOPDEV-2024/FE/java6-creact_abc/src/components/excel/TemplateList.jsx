@@ -52,7 +52,7 @@ const TemplateList = () => {
             reader.readAsArrayBuffer(file);
         } catch (error) {
             console.error('Error viewing file:', error);
-            Swal.fire('Error', 'Unable to load the template for viewing.', 'error');
+            Swal.fire('Error', 'Không thể tải mẫu lên để xem.', 'error');
         }
     };
 
@@ -123,8 +123,8 @@ const TemplateList = () => {
             text: 'Sau khi xóa, bạn sẽ không thể khôi phục mẫu này!',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, keep it',
+            confirmButtonText: 'Có.Hãy xóa nó đi!',
+            cancelButtonText: 'Không.Hãy giữ nó lại!',
         }).then((result) => {
             if (result.isConfirmed) {
                 deleteTemplate(id);
@@ -136,10 +136,10 @@ const TemplateList = () => {
         try {
             await axios.delete(`http://localhost:8080/api/templates/delete/${id}`);
             setTemplates(templates.filter((template) => template.id !== id));
-            Swal.fire('Deleted!', 'Your template has been deleted.', 'success');
+            Swal.fire('Deleted!', 'Mẫu của bạn đã được xóa.', 'success');
         } catch (error) {
             console.error('Error deleting template:', error);
-            Swal.fire('Error', 'Unable to delete the template.', 'error');
+            Swal.fire('Error', 'Không thể xóa mẫu này.', 'error');
         }
     };
 
@@ -186,7 +186,7 @@ const TemplateList = () => {
         link.setAttribute('download', `template-updated-${selectedSheet}.xlsx`);
         document.body.appendChild(link);
         link.click();
-        Swal.fire('success', 'Dowload thành công.', 'success');
+        Swal.fire('success', 'Tải thành công.', 'success');
     };
 
 // Function to convert binary string to ArrayBuffer
@@ -203,12 +203,12 @@ const TemplateList = () => {
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Template List</h2>
+            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Danh Sách Mẫu</h2>
             <table className=" bg-white border border-gray-200 shadow-md rounded-lg">
                 <thead>
                 <tr className="bg-gray-100">
-                    <th className="py-2 px-4 border-b">Name</th>
-                    <th className="py-2 px-4 border-b">Actions</th>
+                    <th className="py-2 px-4 border-b">Tên</th>
+                    <th className="py-2 px-4 border-b">Hành Động</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -220,19 +220,19 @@ const TemplateList = () => {
                                 onClick={() => handleDownload(template.id)}
                                 className="bg-blue-500 text-white px-3 py-1 rounded-md mr-2 hover:bg-blue-600"
                             >
-                                Download
+                                Tải về
                             </button>
                             <button
                                 onClick={() => handleView(template.id)}
                                 className="bg-green-500 text-white px-3 py-1 rounded-md mr-2 hover:bg-green-600"
                             >
-                                View
+                                Xem
                             </button>
                             <button
                                 onClick={() => handleDelete(template.id)}
                                 className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                             >
-                                Delete
+                                Xóa
                             </button>
                         </td>
                     </tr>
@@ -246,7 +246,7 @@ const TemplateList = () => {
                             onClick={handleDownloadUpdated}
                             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
                         >
-                            Download Updated
+                            Cập nhật và tải về
                         </button>
                     </div>
                 )}
@@ -254,7 +254,7 @@ const TemplateList = () => {
             {selectedSheet && (
                 <div className="mt-6">
                     <label htmlFor="sheetSelector" className="block text-gray-700 font-medium">
-                        Select Sheet:
+                        Chọn Sheet:
                     </label>
                     <select
                         id="sheetSelector"
