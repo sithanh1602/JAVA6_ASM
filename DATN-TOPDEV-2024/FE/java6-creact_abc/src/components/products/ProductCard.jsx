@@ -15,7 +15,8 @@ const ProductCard = ({ product, index }) => {
     const navigate = useNavigate();
 
     const handleAddToCart = async () => {
-        const userId = JSON.parse(localStorage.getItem('UserId')); // Get userId from localStorage
+        const userId = localStorage.getItem('UserId'); // Lấy userId từ localStorage
+        const role = localStorage.getItem('role'); // Lấy role từ localStorage
 
         if (!userId) {
             Swal.fire({
@@ -29,8 +30,18 @@ const ProductCard = ({ product, index }) => {
             return;
         }
 
+        if (role === 'ADMIN') {
+            Swal.fire({
+                title: 'Thông báo',
+                text: 'Quản trị viên không được phép thêm sản phẩm vào giỏ hàng',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
         try {
-            await addProductToCart(userId, product.id, 1); // Pass userId first, then productId and quantity
+            await addProductToCart(userId, product.id, 1); // Thêm sản phẩm vào giỏ hàng
             Swal.fire({
                 title: 'Thành công',
                 text: 'Thêm vào giỏ hàng thành công!',
@@ -47,6 +58,7 @@ const ProductCard = ({ product, index }) => {
             Swal.fire('Lỗi', 'Lỗi khi thêm sản phẩm vào giỏ hàng', 'error');
         }
     };
+
 
     const handleFavorite = () => {
         // Implement the logic for adding the product to favorites
@@ -81,9 +93,9 @@ const ProductCard = ({ product, index }) => {
             </Link>
             <h3 className="text-sm font-bold mb-2">{product.name}</h3>
             <div className="text-sm text-gray-600 mb-2">{formatPrice(product.price)}</div>
-            <div className={`text-sm font-bold mb-2 ${isOutOfStock ? 'text-red-500' : 'text-orange-500'}`}>
-                {isOutOfStock ? 'Hết hàng' : `Còn lại: ${product.stock}`}
-            </div>
+            {/*<div className={`text-sm font-bold mb-2 ${isOutOfStock ? 'text-red-500' : 'text-orange-500'}`}>*/}
+            {/*    {isOutOfStock ? 'Hết hàng' : `Còn lại: ${product.stock}`}*/}
+            {/*</div>*/}
 
             {/* Hover Effect for Icons */}
             <div

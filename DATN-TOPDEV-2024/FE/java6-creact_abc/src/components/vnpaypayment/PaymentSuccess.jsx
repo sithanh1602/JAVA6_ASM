@@ -20,22 +20,19 @@ const PaymentSuccess = () => {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    // Thêm Authorization nếu cần
-                    // Authorization: `Bearer ${yourAuthToken}`,
                 },
-                body: JSON.stringify({ status: newStatus }), // Cập nhật trạng thái (3 cho thành công, 2 cho thất bại)
+                body: JSON.stringify({ status: newStatus }), // Cập nhật trạng thái
             })
                 .then((response) => {
                     if (!response.ok) {
-                        // Nếu không thành công, log lỗi chi tiết
                         return response.text().then((text) => {
-                            console.error("Error details:", text); // Log nội dung phản hồi dạng text
+                            console.error("Error details:", text);
                             throw new Error(
                                 `Failed to update order status: ${response.status} ${response.statusText}`
                             );
                         });
                     }
-                    return response.json(); // Nếu thành công, phân tích cú pháp JSON
+                    return response.json();
                 })
                 .then((data) => {
                     console.log("Order status updated successfully", data);
@@ -64,14 +61,22 @@ const PaymentSuccess = () => {
                         </p>
                     </div>
                 )}
-                <div className="text-center">
+                <div className="text-center space-x-4">
                     {transactionStatus === "00" ? (
-                        <button
-                            onClick={() => (window.location.href = "/")}
-                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                        >
-                            Tiếp tục mua sắm
-                        </button>
+                        <>
+                            <button
+                                onClick={() => (window.location.href = "/")}
+                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                                Tiếp tục mua sắm
+                            </button>
+                            <button
+                                onClick={() => (window.location.href = "/OrderUser")}
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                Xem đơn hàng
+                            </button>
+                        </>
                     ) : (
                         <button
                             onClick={() => (window.location.href = "/OrderUser")}

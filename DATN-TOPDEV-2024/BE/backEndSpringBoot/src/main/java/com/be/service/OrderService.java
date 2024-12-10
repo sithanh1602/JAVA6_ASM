@@ -57,18 +57,19 @@ public class OrderService {
         return response;
     }
 
-    // Get total revenue between start and end date
+    public List<Object[]> getOrderDetails(Date startDate, Date endDate) {
+        return ordersRepository.getOrderDetails(startDate, endDate);
+    }
     public Integer calculateRevenue(Date startDate, Date endDate) {
         Integer revenue = ordersRepository.calculateTotalRevenue(startDate, endDate);
         return revenue != null ? revenue : 0; // Ensure null safety
     }
 
-    // Get all completed orders within the period
+
     public List<Orders> getCompletedOrders(Date startDate, Date endDate) {
         return ordersRepository.findCompletedOrdersWithinPeriod(startDate, endDate);
     }
 
-    // Get daily revenue by grouping orders by date
     public Map<Date, Integer> getRevenuePerDay(Date startDate, Date endDate) {
         List<Orders> completedOrders = ordersRepository.findCompletedOrdersWithinPeriod(startDate, endDate);
 

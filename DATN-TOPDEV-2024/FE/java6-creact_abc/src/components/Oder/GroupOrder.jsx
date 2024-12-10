@@ -103,7 +103,6 @@ const GroupOrder = () => {
 
         try {
             if (paymentMethod === 'bank') {
-                // Xử lý thanh toán qua ngân hàng
                 const response = await OrderService.placeOrder(orderData);
                 Swal.fire({
                     title: 'Chuyển hướng...',
@@ -112,11 +111,26 @@ const GroupOrder = () => {
                 });
                 window.location.href = response; // Điều hướng đến URL thanh toán VNPay
             } else if (paymentMethod === 'cash') {
-                // Thanh toán tiền mặt khi nhận hàng
                 await OrderService.placeOrderNoVnpay(orderData);
+
+                // Tạo danh sách sản phẩm dưới dạng HTML
+                const productDetails = cartItems
+                    .map(
+                        (item) =>
+                            `<li>${item.productName} - Số lượng: ${item.quantity} - Giá: ${(
+                                item.productPrice * item.quantity
+                            ).toLocaleString()} VNĐ</li>`
+                    )
+                    .join('');
+
+                // Hiển thị thông báo chi tiết đơn hàng
                 Swal.fire({
                     title: 'Đặt hàng thành công!',
-                    text: 'Đơn hàng của bạn đã được ghi nhận.',
+                    html: `
+                    <p>Đơn hàng của bạn đã được ghi nhận.</p>
+                    <ul style="text-align: left;">${productDetails}</ul>
+                    <p><strong>Tổng tiền: ${calculateTotalPrice().toLocaleString()} VNĐ</strong></p>
+                `,
                     icon: 'success',
                 }).then(() => {
                     navigate('/OrderUser'); // Điều hướng đến trang quản lý đơn hàng
@@ -139,6 +153,7 @@ const GroupOrder = () => {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="container mx-auto p-4">
