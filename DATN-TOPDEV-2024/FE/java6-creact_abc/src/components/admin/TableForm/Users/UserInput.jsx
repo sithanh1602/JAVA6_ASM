@@ -172,10 +172,10 @@ const UserInput = ({ user, onSave }) => {
                 );
 
                 await UserService.updateUser(user.userId, updateData);
-                Swal.fire("Success", "User updated successfully", "success");
+                Swal.fire("Success", "Cập nhật người dùng thành công", "success");
             } else {
                 await UserService.createUser(finalData);
-                Swal.fire("Success", "User created successfully", "success");
+                Swal.fire("Success", "Thêm mới người dùng thành công", "success");
             }
             onSave();
         } catch (error) {

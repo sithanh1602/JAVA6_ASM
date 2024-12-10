@@ -22,10 +22,12 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
                 const fetchedProducts = await ProductService.getAllProducts();
 
                 // Lọc sản phẩm chỉ lấy những sản phẩm có trạng thái là "Available"
-                const availableProducts = fetchedProducts.filter(product => product.status === 'Available');
+                const validProducts = fetchedProducts.filter(product =>
+                    product.status === 'Available' || product.status === 'Out of Stock'
+                );
 
                 // Sắp xếp sản phẩm dựa trên sortOption
-                const sortedProducts = [...availableProducts].sort((a, b) => {
+                const sortedProducts = [...validProducts].sort((a, b) => {
                     if (sortOption === 'priceAsc') return a.price - b.price;
                     if (sortOption === 'priceDesc') return b.price - a.price;
                     return 0;

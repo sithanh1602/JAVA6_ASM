@@ -166,14 +166,14 @@ const ProductInput = ({ product, onSave }) => {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
-                    text: 'Product updated successfully!'
+                    text: 'Sản phẩm được cập nhật thành công!'
                 });
             } else {
                 await ProductService.createProduct(productData);
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
-                    text: 'Product created successfully!'
+                    text: 'Sản phẩm được tạo thành công!'
                 });
             }
 
@@ -184,14 +184,14 @@ const ProductInput = ({ product, onSave }) => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Validation Error',
-                    text: 'Please check the form for errors',
+                    text: 'Vui lòng kiểm tra biểu mẫu để tìm lỗi',
                     html: Object.values(backendErrors).join('<br>')
                 });
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: error.message || 'An unexpected error occurred'
+                    text: error.message || 'Đã xảy ra lỗi không mong muốn'
                 });
             }
         }

@@ -58,7 +58,7 @@ const BrandTable = () => {
                 fetchBrands();
                 Swal.fire('Thành công!', 'Thương hiệu đã được xóa.', 'success');
             } catch (error) {
-                Swal.fire('Lỗi', 'Không thể xóa thương hiệu!', 'error');
+                Swal.fire('Lỗi', 'Không thể xóa thương hiệu.Vì đã tồn tại sản phẩm trong đó!', 'error');
             }
         }
     };
