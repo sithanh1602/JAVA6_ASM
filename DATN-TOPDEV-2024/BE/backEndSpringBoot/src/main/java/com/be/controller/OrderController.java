@@ -32,8 +32,12 @@ public class OrderController {
     @Autowired
     private VNPayService vnPayService;
 
-
-    // Endpoint to get total revenue between two dates
+    @GetMapping("/details")
+    public List<Object[]> getOrderDetails(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+        return orderService.getOrderDetails(startDate, endDate);
+    }
     @GetMapping("/revenue")
     public Integer getRevenue(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
@@ -41,7 +45,7 @@ public class OrderController {
         return orderService.calculateRevenue(startDate, endDate);
     }
 
-    // Endpoint to get revenue per day between two dates
+
     @GetMapping("/completed")
     public Map<Date, Integer> getDailyRevenue(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
