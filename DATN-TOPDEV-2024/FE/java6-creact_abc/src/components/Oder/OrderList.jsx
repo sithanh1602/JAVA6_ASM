@@ -201,18 +201,22 @@ const OrderList = () => {
             sortable: true,
         },
         {
-            name: 'Huỷ đơn',
+            name: 'Thao Tác',
             cell: (row) => (
                 <>
-                    {row.status !== 7 && row.status !== 4 && row.status !== 5 && row.status !== 6 && row.status !== 3 && (
-                        <button
-                            onClick={() => cancelOrder(row.id)}
-                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                        >
-                            {row.status === 7 ? 'Đã huỷ' : 'Huỷ đơn hàng'}
-                        </button>
-                    )}
-                    {row.status === 1 || row.status === 2 ? (
+                    {row.status !== 7 &&
+                        row.status !== 4 &&
+                        row.status !== 5 &&
+                        row.status !== 6 &&
+                        row.status !== 3 && (
+                            <button
+                                onClick={() => cancelOrder(row.id)}
+                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                            >
+                                {row.status === 7 ? 'Đã huỷ' : 'Huỷ đơn hàng'}
+                            </button>
+                        )}
+                    {row.paymentStatus === true && (row.status === 1 || row.status === 2) ? (
                         <button
                             onClick={() => payOrder(row.id)}
                             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"

@@ -86,8 +86,8 @@ const ProductDetails = () => {
                     {/*/!* Mô tả sản phẩm *!/*/}
                     {/*<p className="mt-4 text-gray-600">{product.description}</p>*/}
 
-                    {/* Thông tin tồn kho */}
-                    <p className="mt-4 text-sm">Còn lại: {product.stock}</p>
+                    {/*/!* Thông tin tồn kho *!/*/}
+                    {/*<p className="mt-4 text-sm">Còn lại: {product.stock}</p>*/}
 
                     {/* Thêm vào giỏ hàng */}
                     <div className="flex items-center justify-center mt-4">
