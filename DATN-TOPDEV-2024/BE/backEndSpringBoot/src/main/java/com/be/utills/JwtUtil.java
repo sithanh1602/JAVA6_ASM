@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 public class JwtUtil {
     // Tạo khóa bảo mật đủ mạnh
-    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final long expirationTime = 1000 * 60 * 60 * 11; // 11 giờ
 
     public String generateToken(String username, List<String> roles, long userId) {
@@ -36,6 +36,7 @@ public class JwtUtil {
                     .getBody();
         } catch (Exception e) {
             // Nếu token không hợp lệ, trả về null
+            e.printStackTrace();
             return null;
         }
     }
