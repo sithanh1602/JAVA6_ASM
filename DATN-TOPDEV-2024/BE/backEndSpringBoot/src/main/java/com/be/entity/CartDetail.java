@@ -17,7 +17,7 @@ public class CartDetail {
     private User userId; // User associated with the cart detail
 
     @ManyToOne
-    @JoinColumn(name = "product_id") // Foreign key to the Products table
+    @JoinColumn(name = "product_variant_id") // Foreign key to the Products table
     private Product product; // Product associated with the cart detail
 
     private Integer quantity; // Quantity of the product in the cart

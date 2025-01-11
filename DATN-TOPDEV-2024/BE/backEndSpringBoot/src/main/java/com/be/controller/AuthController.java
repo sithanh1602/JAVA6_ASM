@@ -79,44 +79,58 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
-            // Find the user by username
+            // Kiểm tra nếu tên người dùng hoặc mật khẩu bị null hoặc trống
+            if (user.getUserName() == null || user.getUserName().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tên tài khoản không được để trống");
+            }
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mật khẩu không được để trống");
+            }
+
+            // Tìm người dùng trong cơ sở dữ liệu
             Optional<User> existingUser = userRepository.findByUserName(user.getUserName());
             if (!existingUser.isPresent()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
             }
 
-            // Get the user from the database
+            // Lấy thông tin người dùng từ cơ sở dữ liệu
             User storedUser = existingUser.get();
 
-            // Check if the user status is "Inactive"
+            // Kiểm tra trạng thái tài khoản
             if ("Inactive".equalsIgnoreCase(storedUser.getStatus())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản của bạn đang bị khóa");
             }
 
-            String rawPassword = new String(Base64.getDecoder().decode(user.getPassword()));
-
-            // Compare the password in the database with the raw password
-            if (!passwordEncoder.matches(rawPassword, storedUser.getPassword())) {
+            // Kiểm tra mật khẩu bằng BCryptPasswordEncoder
+            if (!passwordEncoder.matches(user.getPassword(), storedUser.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
             }
 
+            // Xác thực thông qua AuthenticationManager
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUserName(), rawPassword)
+                    new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword())
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserName());
 
-            // Get the list of roles for the user
+            // Lấy danh sách quyền của người dùng
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
-            // Generate the token with username, roles, and userId
+            // Tạo token JWT
             final String jwt = jwtUtil.generateToken(userDetails.getUsername(), roles, storedUser.getUserId());
+
+            // Trả về phản hồi thành công
             return ResponseEntity.ok(new AuthResponse(jwt, storedUser.getUserId()));
+
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
+        } catch (Exception e) {
+            // Ghi log lỗi chi tiết
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra, vui lòng thử lại sau");
         }
     }
 
