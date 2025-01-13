@@ -50,7 +50,6 @@ const AuthForm = () => {
     const handleModalClose = () => setIsModalOpen(false); // Close modal
 
     const handleToggle = () => setIsLogin(!isLogin);
-
     const handleLogin = async (e) => {
         e.preventDefault();
 
@@ -64,69 +63,78 @@ const AuthForm = () => {
             }
         });
 
-        // Thêm thời gian chờ để tăng thời gian hiển thị hiệu ứng loading
-        setTimeout(async () => {
-            try {
-                const encodedPassword = btoa(password);
-                const response = await axios.post('http://localhost:8080/api/auth/login', { userName: username, password: encodedPassword });
+        try {
+            // Gửi yêu cầu đăng nhập với mật khẩu thô (không mã hóa Base64)
+            const response = await axios.post('http://localhost:8080/api/auth/login', {
+                userName: username,
+                password: password // Gửi mật khẩu thô
+            });
 
-                // Check if the response indicates the account is inactive
-                if (response.data && response.data.message === "Tài khoản của bạn đang bị khóa") {
-                    Swal.close();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Tài khoản bị khóa',
-                        text: 'Tài khoản của bạn đang bị khóa. Vui lòng liên hệ quản trị viên.'
-                    });
-                    return;
-                }
+            const { token, message, userId } = response.data;
 
-                const token = response.data.token;
-                localStorage.setItem('token', token);
-                sessionStorage.setItem('token', token);
-                Cookies.set('token', token, { expires: 7, sameSite: 'Strict' });
-                const decodedToken = jwtDecode(token);
-
-                localStorage.setItem('roles', JSON.stringify(decodedToken.roles));
-                const userRole = decodedToken.roles[0];
-                localStorage.setItem('role', userRole);
-                localStorage.setItem('UserId', JSON.stringify(decodedToken.userId));
-                if (rememberMe) {
-                    localStorage.setItem('savedUsername', username);
-                    localStorage.setItem('savedPassword', password);
-                } else {
-                    localStorage.removeItem('savedUsername');
-                    localStorage.removeItem('savedPassword');
-                }
-
-                // Đóng thông báo "Đang đăng nhập..." và hiển thị thông báo thành công
-                Swal.close();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng nhập thành công!',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-
-                if (userRole === 'ADMIN') {
-                    navigate('/admin');
-                } else if (userRole === 'USER') {
-                    navigate('/');
-                } else {
-                    toast.error('Không có quyền truy cập');
-                }
-            } catch (err) {
+            // Kiểm tra nếu tài khoản bị khóa
+            if (message === "Tài khoản của bạn đang bị khóa") {
                 Swal.close();
                 Swal.fire({
                     icon: 'error',
-                    title: 'Đăng nhập không thành công',
-                    text: err.response && err.response.data ? err.response.data : 'Tài khoản hoặc mật khẩu không đúng'
+                    title: 'Tài khoản bị khóa',
+                    text: 'Tài khoản của bạn đang bị khóa. Vui lòng liên hệ quản trị viên.'
                 });
+                return;
             }
-        }, 10); // Thời gian chờ 10ms
+
+            // Lưu token vào localStorage, sessionStorage và Cookies
+            localStorage.setItem('token', token);
+            sessionStorage.setItem('token', token);
+            Cookies.set('token', token, { expires: 7, sameSite: 'Strict' });
+
+            // Giải mã token để lấy thông tin roles và userId
+            const decodedToken = jwtDecode(token);
+
+            localStorage.setItem('roles', JSON.stringify(decodedToken.roles));
+            const userRole = decodedToken.roles[0];
+            localStorage.setItem('role', userRole);
+            localStorage.setItem('UserId', JSON.stringify(userId));
+
+            // Lưu thông tin đăng nhập nếu nhớ mật khẩu
+            if (rememberMe) {
+                localStorage.setItem('savedUsername', username);
+                localStorage.setItem('savedPassword', password);
+            } else {
+                localStorage.removeItem('savedUsername');
+                localStorage.removeItem('savedPassword');
+            }
+
+            // Đóng thông báo "Đang đăng nhập..." và hiển thị thông báo thành công
+            Swal.close();
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng nhập thành công!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            // Điều hướng dựa trên vai trò người dùng
+            if (userRole === 'ADMIN') {
+                navigate('/admin');
+            } else if (userRole === 'USER') {
+                navigate('/');
+            } else {
+                toast.error('Không có quyền truy cập');
+            }
+        } catch (err) {
+            Swal.close();
+
+            // Xử lý lỗi đăng nhập và hiển thị thông báo lỗi
+            Swal.fire({
+                icon: 'error',
+                title: 'Đăng nhập không thành công',
+                text: err.response && err.response.data
+                    ? err.response.data
+                    : 'Tài khoản hoặc mật khẩu không đúng'
+            });
+        }
     };
-
-
 
 
     const handleRegister = async (e) => {

@@ -18,6 +18,7 @@ import GroupOrder from "../components/Oder/GroupOrder";
 import ProfilePage from "../components/Profile/ProfilePage";
 import OrderList from "../components/Oder/OrderList";
 import PaymentSuccess from "../components/vnpaypayment/PaymentSuccess";
+import ProductDetail from "../components/products/productDetails/ProductDetail";
 
 const HomePage = () => {
     return (
@@ -30,10 +31,10 @@ const HomePage = () => {
                     <Route path="/products" element={<Products/>}/>
                     <Route path="/cart" element={<Cart/>}/>
                     <Route path="/product/:productId" element={<ProductPage/>}/>
+                    <Route path="/products/:productId/productdetail" element={<ProductDetail />} />
                     <Route path="/aboutUs" element={<AboutUs/>}/>
                     <Route path="/contact" element={< Contact/>}/>
                     <Route path="/news" element={< News/>}/>
-                    <Route path="/product/:productId" element={<ProductPage/>}/>
                     <Route path="/orders" element={< GroupOrder/>}/>
                     <Route path="/profile/*" element={<ProfilePage />} />
                     <Route path="/OrderUser" element={<OrderList />} />

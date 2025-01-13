@@ -6,6 +6,7 @@ import lombok.Data;
 
 
 import java.util.Date;
+import java.util.Set;
 
 @Data
 @Entity
@@ -51,4 +52,8 @@ public class Product {
     @Column(name = "purchase_count", nullable = false)
     private int purchaseCount ; // Default value is 0
     // getters and setters
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ProductVariant> productVariants; // Đảm bảo bạn có thuộc tính này
+
 }
