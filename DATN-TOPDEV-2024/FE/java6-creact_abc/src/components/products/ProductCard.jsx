@@ -72,7 +72,7 @@ const ProductCard = ({ product, index }) => {
 
     const handleShowProductDetails = () => {
         // Logic for viewing product details can go here
-        navigate(`/product/${product.id}`);
+        navigate(`/products/${product.id}/productdetail`);
     };
 
     // Check if the product is out of stock

@@ -3,29 +3,66 @@ import axios from 'axios';
 const BASE_URL = 'http://localhost:8080/api/products';
 
 class ProductService {
-    // Fetch all products
+
     async getAllProducts() {
         try {
             const response = await axios.get(BASE_URL);
-            return response.data; // Returns the list of products
+            return response.data;
         } catch (error) {
             console.error('Error fetching products:', error);
+            throw error;
+        }
+    }
+    async getProductDetail(id) {
+        try {
+            const response = await axios.get(`${BASE_URL}/${id}/productdetail`);
+            return response.data; // Returns the product details
+        } catch (error) {
+            console.error(`Error fetching product with ID ${id}:`, error);
+            throw error;
+        }
+    }
+
+    async getBrand(id) {
+        try {
+            const response = await axios.get(`${BASE_URL}/${id}/brand`);
+            return response.data; // Returns the product details
+        } catch (error) {
+            console.error(`Error fetching product with ID ${id}:`, error);
+            throw error;
+        }
+    }
+
+    async getCategory(id) {
+        try {
+            const response = await axios.get(`${BASE_URL}/${id}/category`);
+            return response.data; // Returns the product details
+        } catch (error) {
+            console.error(`Error fetching product with ID ${id}:`, error);
+            throw error;
+        }
+    }
+
+    async getProduct(productId) {
+        try {
+            const response = await axios.get(`${BASE_URL}/${productId}/product`);
+            return response.data; // Returns the product variants
+        } catch (error) {
+            console.error(`Error fetching product variants for product ID ${productId}:`, error);
             throw error; // Propagate error for handling in the calling code
         }
     }
 
-    // Fetch a product by ID
-    async getProductById(id) {
+    async getImagesByProductVariantId(variantId) {
         try {
-            const response = await axios.get(`${BASE_URL}/${id}`);
-            return response.data; // Returns the product
+            const response = await axios.get(`${BASE_URL}/${variantId}/image`);
+            return response.data; // Returns the list of images
         } catch (error) {
-            console.error(`Error fetching product with ID ${id}:`, error);
-            throw error; // Propagate error
+            console.error(`Error fetching images for product variant ID ${variantId}:`, error);
+            throw error; // Propagate error for handling in the calling code
         }
     }
 
-    // Create a new product
     async createProduct(product) {
         try {
             const response = await axios.post(BASE_URL, product);
@@ -74,16 +111,6 @@ class ProductService {
         }
     }
 
-    // Fetch brand by product ID
-    async getBrandByProductId(productId) {
-        try {
-            const response = await axios.get(`${BASE_URL}/${productId}/brand`); // Adjust the URL for the brand API
-            return response.data; // Returns the brand data
-        } catch (error) {
-            console.error(`Error fetching brand for product ID ${productId}:`, error);
-            throw error; // Propagate error
-        }
-    }
 
 }
 

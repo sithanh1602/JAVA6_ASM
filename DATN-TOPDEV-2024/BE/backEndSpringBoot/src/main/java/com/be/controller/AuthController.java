@@ -27,7 +27,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -76,6 +75,7 @@ public class AuthController {
     private UserService userService;
 
 
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
@@ -122,8 +122,7 @@ public class AuthController {
             // Tạo token JWT
             final String jwt = jwtUtil.generateToken(userDetails.getUsername(), roles, storedUser.getUserId());
 
-            // Trả về phản hồi thành công
-            return ResponseEntity.ok(new AuthResponse(jwt, storedUser.getUserId()));
+            return ResponseEntity.ok(new AuthResponse(jwt, storedUser.getUserId(),roles));
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
@@ -133,7 +132,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra, vui lòng thử lại sau");
         }
     }
-
 
 
 
