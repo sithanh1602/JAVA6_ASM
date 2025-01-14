@@ -30,66 +30,66 @@ public class CartDetailService {
         return cartDetailRepository.findByUserId(userId);
     }
 
-    public List<CartDetailResponseDTO> getCartItemsWithProductInfo(Long userId) {
-        List<CartDetail> cartDetails = cartDetailRepository.findByUserId(userId);
-
-        return cartDetails.stream().map(cartDetail -> {
-            CartDetailResponseDTO dto = new CartDetailResponseDTO();
-            dto.setId(cartDetail.getId());
-
-            // Set user ID if present
-            if (cartDetail.getUserId() != null) {
-                dto.setUserId(cartDetail.getUserId().getUserId());
-            } else {
-                dto.setUserId(null);
-            }
-
-            // Set product details if present
-            Optional<Product> productOpt = Optional.ofNullable(cartDetail.getProduct());
-            if (productOpt.isPresent()) {
-                Product product = productOpt.get();
-                dto.setProductId((long) product.getId());
-                dto.setProductName(product.getName());
-                dto.setProductDescription(product.getDescription());
-                dto.setProductStock(product.getStock());
-                dto.setProductImageUrl(product.getImageUrl());
-                dto.setProductCreatedAt(product.getCreatedAt());
-                dto.setProductPrice(product.getPrice());
-                dto.setProductStatus(product.getStatus());
-            } else {
-                dto.setProductId(null);
-                dto.setProductName(null);
-                dto.setProductDescription(null);
-                dto.setProductStock(0);
-                dto.setProductImageUrl(null);
-                dto.setProductCreatedAt(null);
-                dto.setProductPrice(0);
-                dto.setProductStatus(null);
-            }
-
-            dto.setQuantity(cartDetail.getQuantity());
-            return dto;
-        }).collect(Collectors.toList());
-    }
-
-    public CartDetail addProductToCart(Long userId, Long productId, Integer quantity) {
-        // Validate user and product existence
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new RuntimeException("User không tồn tại với ID: " + userId));
-        Product product = productRepository.findById(productId).orElseThrow(() ->
-                new RuntimeException("Product không tồn tại với ID: " + productId));
-
-        // Find existing cart detail or create a new one
-        CartDetail cartDetail = cartDetailRepository.findByUserIdAndProductId(userId, productId)
-                .orElseGet(CartDetail::new);
-
-        // Set properties for CartDetail
-        cartDetail.setUserId(user);
-        cartDetail.setProduct(product);
-        cartDetail.setQuantity(cartDetail.getQuantity() == null ? quantity : cartDetail.getQuantity() + quantity);
-
-        return cartDetailRepository.save(cartDetail);
-    }
+//    public List<CartDetailResponseDTO> getCartItemsWithProductInfo(Long userId) {
+//        List<CartDetail> cartDetails = cartDetailRepository.findByUserId(userId);
+//
+//        return cartDetails.stream().map(cartDetail -> {
+//            CartDetailResponseDTO dto = new CartDetailResponseDTO();
+//            dto.setId(cartDetail.getId());
+//
+//            // Set user ID if present
+//            if (cartDetail.getUserId() != null) {
+//                dto.setUserId(cartDetail.getUserId().getUserId());
+//            } else {
+//                dto.setUserId(null);
+//            }
+//
+//            // Set product details if present
+//            Optional<Product> productOpt = Optional.ofNullable(cartDetail.getProduct());
+//            if (productOpt.isPresent()) {
+//                Product product = productOpt.get();
+//                dto.setProductId((long) product.getId());
+//                dto.setProductName(product.getName());
+//                dto.setProductDescription(product.getDescription());
+//                dto.setProductStock(product.getStock());
+//                dto.setProductImageUrl(product.getImageUrl());
+//                dto.setProductCreatedAt(product.getCreatedAt());
+//                dto.setProductPrice(product.getPrice());
+//                dto.setProductStatus(product.getStatus());
+//            } else {
+//                dto.setProductId(null);
+//                dto.setProductName(null);
+//                dto.setProductDescription(null);
+//                dto.setProductStock(0);
+//                dto.setProductImageUrl(null);
+//                dto.setProductCreatedAt(null);
+//                dto.setProductPrice(0);
+//                dto.setProductStatus(null);
+//            }
+//
+//            dto.setQuantity(cartDetail.getQuantity());
+//            return dto;
+//        }).collect(Collectors.toList());
+//    }
+//
+//    public CartDetail addProductToCart(Long userId, Long productId, Integer quantity) {
+//        // Validate user and product existence
+//        User user = userRepository.findById(userId).orElseThrow(() ->
+//                new RuntimeException("User không tồn tại với ID: " + userId));
+//        Product product = productRepository.findById(productId).orElseThrow(() ->
+//                new RuntimeException("Product không tồn tại với ID: " + productId));
+//
+//        // Find existing cart detail or create a new one
+//        CartDetail cartDetail = cartDetailRepository.findByUserIdAndProductId(userId, productId)
+//                .orElseGet(CartDetail::new);
+//
+//        // Set properties for CartDetail
+//        cartDetail.setUserId(user);
+//        cartDetail.setProduct(product);
+//        cartDetail.setQuantity(cartDetail.getQuantity() == null ? quantity : cartDetail.getQuantity() + quantity);
+//
+//        return cartDetailRepository.save(cartDetail);
+//    }
 
     public void removeProduct(Long userId, Long productId) {
         // Xóa sản phẩm khỏi giỏ hàng của người dùng

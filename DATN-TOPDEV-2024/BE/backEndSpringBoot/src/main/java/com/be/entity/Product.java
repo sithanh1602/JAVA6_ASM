@@ -41,8 +41,9 @@ public class Product {
     private String imageUrl;
 
     private Date createdAt;
-    @Min(value = 0, message = "Price must be greater than or equal to 0")
-    private Integer price;
+
+//    @Min(value = 0, message = "Price must be greater than or equal to 0")
+//    private Integer price;
 
     @Column(columnDefinition = "NVARCHAR(50)")
     @NotBlank(message = "Status must not be blank")

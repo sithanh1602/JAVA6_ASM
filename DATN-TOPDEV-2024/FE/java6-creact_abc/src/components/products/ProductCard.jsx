@@ -92,7 +92,7 @@ const ProductCard = ({ product, index }) => {
                 </div>
             </Link>
             <h3 className="text-sm font-bold mb-2">{product.name}</h3>
-            <div className="text-sm text-gray-600 mb-2">{formatPrice(product.price)}</div>
+            {/*<div className="text-sm text-gray-600 mb-2">{formatPrice(product.price)}</div>*/}
             {/*<div className={`text-sm font-bold mb-2 ${isOutOfStock ? 'text-red-500' : 'text-orange-500'}`}>*/}
             {/*    {isOutOfStock ? 'Hết hàng' : `Còn lại: ${product.stock}`}*/}
             {/*</div>*/}

@@ -52,9 +52,10 @@ public class ProductService {
         if (product.getStock() <= 0) {
             throw new ValidationException("Stock must be a positive number");
         }
-        if (product.getPrice() <= 0) {
-            throw new ValidationException("Price must be a positive number");
-        }
+
+//        if (product.getPrice() <= 0) {
+//            throw new ValidationException("Price must be a positive number");
+//        }
 
         // Kiểm tra trùng tên sản phẩm (không cho phép tên sản phẩm trùng)
         if (productRepository.existsByName(product.getName())) {
@@ -73,9 +74,9 @@ public class ProductService {
         if (product.getStock() < 0) {
             throw new ValidationException("Stock must be a positive number");
         }
-        if (product.getPrice() <= 0) {
-            throw new ValidationException("Price must be a positive number");
-        }
+//        if (product.getPrice() <= 0) {
+//            throw new ValidationException("Price must be a positive number");
+//        }
         // Kiểm tra trùng tên sản phẩm (bỏ qua sản phẩm hiện tại)
         if (productRepository.existsByNameAndIdNot(product.getName(), (long) product.getId())) {
             throw new ValidationException("Product name must be unique");
@@ -133,7 +134,7 @@ public class ProductService {
         existingProduct.setName(product.getName());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setStock(product.getStock());
-        existingProduct.setPrice(product.getPrice());
+//        existingProduct.setPrice(product.getPrice());
         existingProduct.setCategory(product.getCategory());
         existingProduct.setBrand(product.getBrand());
         existingProduct.setStatus(product.getStatus());

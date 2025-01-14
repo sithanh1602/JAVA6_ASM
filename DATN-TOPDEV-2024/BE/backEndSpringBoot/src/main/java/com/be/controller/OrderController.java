@@ -22,10 +22,10 @@ public class OrderController {
     private OrderService orderService;
 
 
-    @GetMapping("/all")
-    public List<Map<String, Object>> getAllOrders() throws Exception {
-        return orderService.getAllOrdersWithDetails();
-    }
+//    @GetMapping("/all")
+//    public List<Map<String, Object>> getAllOrders() throws Exception {
+//        return orderService.getAllOrdersWithDetails();
+//    }
 
     // Endpoint to place an order
 
@@ -65,51 +65,51 @@ public class OrderController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-    @PostMapping("/place")
-    public ResponseEntity<?> placeOrder(@RequestBody OrderRequest orderRequest) {
-        try {
-            if (orderRequest == null || orderRequest.getCartItems().isEmpty()) {
-                return ResponseEntity.badRequest().body("Order data is invalid.");
-            }
-
-            Orders savedOrder = orderService.saveOrder(orderRequest);
-
-            // Gửi thông báo đến admin về đơn hàng mới
-            messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getId());
-
-            // Tạo URL thanh toán VNPay
-            String urlPayment = vnPayService.createOrder(
-                    savedOrder.getTotalPrice(),
-                    "Thanh toán cho đơn hàng",
-                    "http://localhost:3000/payment",
-                    String.valueOf(savedOrder.getId())
-            );
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(urlPayment);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while processing the order.");
-        }
-    }
+//    @PostMapping("/place")
+//    public ResponseEntity<?> placeOrder(@RequestBody OrderRequest orderRequest) {
+//        try {
+//            if (orderRequest == null || orderRequest.getCartItems().isEmpty()) {
+//                return ResponseEntity.badRequest().body("Order data is invalid.");
+//            }
+//
+//            Orders savedOrder = orderService.saveOrder(orderRequest);
+//
+//            // Gửi thông báo đến admin về đơn hàng mới
+//            messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getId());
+//
+//            // Tạo URL thanh toán VNPay
+//            String urlPayment = vnPayService.createOrder(
+//                    savedOrder.getTotalPrice(),
+//                    "Thanh toán cho đơn hàng",
+//                    "http://localhost:3000/payment",
+//                    String.valueOf(savedOrder.getId())
+//            );
+//
+//            return ResponseEntity.status(HttpStatus.CREATED).body(urlPayment);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("An error occurred while processing the order.");
+//        }
+//    }
 
 
     // Endpoint để tạo đơn hàng (không sử dụng VNPay, thanh toán COD)
-    @PostMapping("/placecod")
-    public ResponseEntity<?> placeOrderNoVnpay(@RequestBody OrderRequest orderRequest) {
-        try {
-            if (orderRequest == null || orderRequest.getCartItems().isEmpty()) {
-                return ResponseEntity.badRequest().body("Order data is invalid.");
-            }
-
-            Orders savedOrder = orderService.saveOrdernovnpay(orderRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while processing the order.");
-        }
-    }
+//    @PostMapping("/placecod")
+//    public ResponseEntity<?> placeOrderNoVnpay(@RequestBody OrderRequest orderRequest) {
+//        try {
+//            if (orderRequest == null || orderRequest.getCartItems().isEmpty()) {
+//                return ResponseEntity.badRequest().body("Order data is invalid.");
+//            }
+//
+//            Orders savedOrder = orderService.saveOrdernovnpay(orderRequest);
+//            return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("An error occurred while processing the order.");
+//        }
+//    }
 
     @PostMapping("/placeno")
     public ResponseEntity<?> placeOrderPreview(@RequestBody OrderRequest orderRequest) {
@@ -154,18 +154,18 @@ public class OrderController {
         }
     }
 
-    // Endpoint lấy sản phẩm trong đơn hàng theo orderId
-    @GetMapping("/products/{orderId}")
-    public ResponseEntity<?> getProductsByOrderId(@PathVariable Long orderId) {
-        try {
-            List<Map<String, Object>> products = orderService.getProductsByOrderId(orderId);
-            return ResponseEntity.ok(products);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Có lỗi xảy ra khi lấy danh sách sản phẩm.");
-        }
-    }
+//    // Endpoint lấy sản phẩm trong đơn hàng theo orderId
+//    @GetMapping("/products/{orderId}")
+//    public ResponseEntity<?> getProductsByOrderId(@PathVariable Long orderId) {
+//        try {
+//            List<Map<String, Object>> products = orderService.getProductsByOrderId(orderId);
+//            return ResponseEntity.ok(products);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Có lỗi xảy ra khi lấy danh sách sản phẩm.");
+//        }
+//    }
 
     // Endpoint cập nhật trạng thái đơn hàng
     @PutMapping("/{orderId}/status")
