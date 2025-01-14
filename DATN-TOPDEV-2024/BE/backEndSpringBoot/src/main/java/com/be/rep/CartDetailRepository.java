@@ -18,11 +18,11 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
     @Query("SELECT c FROM CartDetail c WHERE c.userId.userId = :userId")
     List<CartDetail> findByUserId(Long userId);
 
-    @Query("SELECT cd FROM CartDetail cd WHERE cd.userId.userId = :userId AND cd.product.id = :productId")
+    @Query("SELECT cd FROM CartDetail cd WHERE cd.userId.userId = :userId AND cd.product_variant_id.id = :productId")
     Optional<CartDetail> findByUserIdAndProductId(@Param("userId") Long userId, @Param("productId") Long productId);
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM CartDetail c WHERE c.userId.userId = :userId AND c.product.id = :productId")
+    @Query("DELETE FROM CartDetail c WHERE c.userId.userId = :userId AND c.product_variant_id.id = :productId")
     void deleteByUserIdAndProductId(@Param("userId") Long userId, @Param("productId") Long productId);
 }

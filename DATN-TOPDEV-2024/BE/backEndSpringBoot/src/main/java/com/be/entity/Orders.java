@@ -19,10 +19,6 @@
         private User user;
 
         @ManyToOne
-        @JoinColumn(name = "address_id")
-        private Address address;
-
-        @ManyToOne
         @JoinColumn(name = "voucher_id")
         private Voucher voucher;
 
@@ -34,6 +30,8 @@
         private int status;
 
         private boolean paymentStatus;
+
+        private String phone;
 
         @Column(name = "full_address")
         private String fullAddress;
