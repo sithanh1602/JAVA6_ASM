@@ -37,7 +37,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 """, nativeQuery = true)
     List<Object[]> findProductById(@Param("productId") Long productId);
 
-    @Query(value = "SELECT b.name, b.image_url, b.price, b.stock, b.description, a.id AS id_Variants " +
+    @Query(value = "SELECT b.name, a.image, a.price, a.quantity, b.description, a.id AS id_Variants " +
             "FROM Product_Variants a " +
             "JOIN Products b ON a.product_id = b.id " +
             "WHERE a.product_id = :productId AND a.status = 1",

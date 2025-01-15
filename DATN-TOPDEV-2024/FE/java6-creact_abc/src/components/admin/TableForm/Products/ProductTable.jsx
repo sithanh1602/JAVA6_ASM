@@ -109,7 +109,7 @@ const ProductTable = forwardRef((_, ref) => {
     // Trigger filtering whenever the filters change
     useEffect(() => {
         filterProducts();
-    }, [statusFilter, searchName, minPrice, maxPrice, products]);
+    }, [statusFilter, searchName, products]);
 
     // Define columns for React Data Table Component
     const columns = [
@@ -127,12 +127,6 @@ const ProductTable = forwardRef((_, ref) => {
             name: 'Tồn kho',
             selector: (row) => row.stock,
             sortable: true,
-        },
-        {
-            name: 'Đơn Giá',
-            selector: (row) => row.price,
-            sortable: true,
-            format: (row) => `${row.price.toLocaleString()} VND`,
         },
         {
             name: 'Trạng Thái',
@@ -290,22 +284,6 @@ const ProductTable = forwardRef((_, ref) => {
                     <option value="Unavailable">Hết Hoạt Động</option>
                     <option value="Out of Stock">Hết hàng</option>
                 </select>
-                <input
-                    type="number"
-                    className="border border-gray-300 px-4 py-2 rounded"
-                    placeholder="Min Price"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                    onKeyUp={filterProducts}
-                />
-                <input
-                    type="number"
-                    className="border border-gray-300 px-4 py-2 rounded"
-                    placeholder="Max Price"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    onKeyUp={filterProducts}
-                />
             </div>
 
             <DataTable
