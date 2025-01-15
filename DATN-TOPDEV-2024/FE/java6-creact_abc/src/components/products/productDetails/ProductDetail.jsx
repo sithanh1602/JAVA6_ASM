@@ -155,7 +155,7 @@ const ProductDetail = () => {
         quantity: 1, // Số lượng mặc định là 1, có thể điều chỉnh theo nhu cầu
       };
 
-      await addProductToCart(userId, selectedVariant.variantId, 1);  // Gọi API thêm sản phẩm vào giỏ hàng
+      await addProductToCart(cartItem.userId,cartItem.productVariantId,cartItem.quantity);  // Gọi API thêm sản phẩm vào giỏ hàng
       alert("Sản phẩm đã được thêm vào giỏ hàng.");
     } catch (err) {
       console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", err);
