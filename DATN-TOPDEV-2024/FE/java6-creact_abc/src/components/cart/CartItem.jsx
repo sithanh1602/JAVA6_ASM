@@ -5,31 +5,33 @@ import Swal from 'sweetalert2';
 
 const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected }) => {
     const [quantity, setQuantity] = useState(item.quantity);
-    const [productStock, setProductStock] = useState(null);
+    const [productQuantity, setProductQuantity] = useState(null);
 
     useEffect(() => {
-        const fetchProductStock = async () => {
+        const fetchProductQuantity = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/products/${item.productId}`);
-                setProductStock(response.data.stock);
+                // Thay {id} bằng item.product_variant_id
+                const response = await axios.get(`http://localhost:8080/api/products/variants/${item.product_variant_id}`);
+                setProductQuantity(response.data.quantity);
             } catch (error) {
                 console.error('Error fetching product stock:', error);
             }
         };
 
-        fetchProductStock();
-    }, [item.productId]);
+        fetchProductQuantity();
+    }, [item.product_variant_id]);
 
     useEffect(() => {
         setQuantity(item.quantity);
     }, [item.quantity]);
 
     const handleQuantityChange = (newQuantity) => {
-        if (productStock === null) {
+        if (productQuantity === null) {
             console.warn('Stock data is not loaded yet.');
             return;
         }
 
+        // Kiểm tra số lượng hợp lệ
         if (newQuantity < 1) {
             Swal.fire({
                 icon: 'warning',
@@ -40,22 +42,22 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
             return;
         }
 
-        if (newQuantity > productStock) {
+        if (newQuantity > productQuantity) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Số lượng vượt quá giới hạn!',
-                text: `Chỉ còn ${productStock} sản phẩm trong kho.`,
+                text: `Chỉ còn ${productQuantity} sản phẩm trong kho.`,
                 confirmButtonText: 'Đóng',
             });
             return;
         }
 
         setQuantity(newQuantity);
-        onUpdateQuantity(item.productId, newQuantity);
+        onUpdateQuantity(item.product_variant_id, newQuantity);
     };
 
     const handleCheckboxChange = () => {
-        onSelectChange(item.productId, !isSelected);
+        onSelectChange(item.product_variant_id, !isSelected);
     };
 
     const price = item.productPrice || 0;
@@ -106,7 +108,7 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
             </div>
             <div className="pl-10 text-sm">{formatCurrency(price * quantity)}</div>
             <div>
-                <button onClick={() => onDelete(item.productId)} className="text-red-600 hover:text-red-800 pl-10">
+                <button onClick={() => onDelete(item.product_variant_id)} className="text-red-600 hover:text-red-800 pl-10">
                     <FaTrash />
                 </button>
             </div>

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/api/categories'; // Adjust the URL based on your API server
+const BASE_URL = 'http://localhost:8080/api/admin/categories'; // Adjust the URL based on your API server
 
 class CategoryService {
     // Fetch all categories

@@ -3,10 +3,7 @@ package com.be.service;
 import com.be.DTO.ProductDto;
 import com.be.DTO.ProductVariantDTO;
 import com.be.entity.*;
-import com.be.rep.BrandRepository;
-import com.be.rep.CategoryRepository;
-import com.be.rep.ImageRepository;
-import com.be.rep.ProductRepository;
+import com.be.rep.*;
 import jakarta.validation.ValidationException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -29,16 +26,18 @@ public class ProductService {
     BrandRepository brandRepository;
     ImageRepository imageRepository;
     CategoryService categoryService;
+    ProductVariantRepository productVariantRepository;
 
     @Autowired
     public ProductService(ProductRepository productRepository,
                           CategoryRepository categoryRepository,
-                          BrandRepository brandRepository, ImageRepository imageRepository, CategoryService categoryService) {
+                          BrandRepository brandRepository, ImageRepository imageRepository, CategoryService categoryService,ProductVariantRepository productVariantRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
         this.imageRepository = imageRepository;
         this.categoryService = categoryService;
+        this.productVariantRepository = productVariantRepository;
     }
 
     private void validateProductCreate(Product product) {
@@ -52,10 +51,6 @@ public class ProductService {
         if (product.getStock() <= 0) {
             throw new ValidationException("Stock must be a positive number");
         }
-
-//        if (product.getPrice() <= 0) {
-//            throw new ValidationException("Price must be a positive number");
-//        }
 
         // Kiểm tra trùng tên sản phẩm (không cho phép tên sản phẩm trùng)
         if (productRepository.existsByName(product.getName())) {
@@ -74,9 +69,6 @@ public class ProductService {
         if (product.getStock() < 0) {
             throw new ValidationException("Stock must be a positive number");
         }
-//        if (product.getPrice() <= 0) {
-//            throw new ValidationException("Price must be a positive number");
-//        }
         // Kiểm tra trùng tên sản phẩm (bỏ qua sản phẩm hiện tại)
         if (productRepository.existsByNameAndIdNot(product.getName(), (long) product.getId())) {
             throw new ValidationException("Product name must be unique");
@@ -85,6 +77,10 @@ public class ProductService {
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
+    }
+
+    public List<ProductVariant> getAllProductVariants() {
+        return productVariantRepository.findAll();
     }
 
     public Optional<Product> getProductById(Long id) {
@@ -134,7 +130,6 @@ public class ProductService {
         existingProduct.setName(product.getName());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setStock(product.getStock());
-//        existingProduct.setPrice(product.getPrice());
         existingProduct.setCategory(product.getCategory());
         existingProduct.setBrand(product.getBrand());
         existingProduct.setStatus(product.getStatus());
@@ -208,5 +203,10 @@ public class ProductService {
     public List<Image> getImagesByProductVariantId(Long productVariantId) {
         return imageRepository.findByProductVariant_Id(productVariantId);
     }
+
+    public Optional<ProductVariant> getProductVariantById(Long id) {
+        return productVariantRepository.findById(id);  // Giả sử có phương thức này trong repository
+    }
+
 
 }

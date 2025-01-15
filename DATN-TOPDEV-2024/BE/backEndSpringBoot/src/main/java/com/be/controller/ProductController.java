@@ -1,4 +1,5 @@
 package com.be.controller;
+
 import com.be.DTO.ProductDto;
 import com.be.DTO.ProductVariantDTO;
 import com.be.entity.*;
@@ -8,14 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
 
     private final ProductService productService;
+
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
@@ -26,12 +30,14 @@ public class ProductController {
         List<Product> products = productService.getAllProducts();
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
         return product.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
     @PostMapping
     public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
         Product createdProduct = productService.createProduct(product);
@@ -68,12 +74,11 @@ public class ProductController {
     @GetMapping("/{productId}/category")
     public ResponseEntity<Category> getCategoryByProductId(@PathVariable Long productId) {
         Category category = productService.getCategoryByProductId(productId);
-        return  category!= null ? ResponseEntity.ok(category) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return category != null ? ResponseEntity.ok(category) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-
     @GetMapping("/{productId}/productdetail")
-    public ResponseEntity<List<ProductDto>> getroductdetail(@PathVariable("productId") Long id) {
+    public ResponseEntity<List<ProductDto>> getProductDetail(@PathVariable("productId") Long id) {
         List<ProductDto> product = productService.ProductById(id);
         return ResponseEntity.ok(product);
     }
@@ -87,6 +92,19 @@ public class ProductController {
     @GetMapping("{VariantId}/image")
     public List<Image> getImagesByProductVariantId(@PathVariable("VariantId") Long productVariantId) {
         return productService.getImagesByProductVariantId(productVariantId);
+    }
+
+    @GetMapping("/variants")
+    public ResponseEntity<List<ProductVariant>> getAllProductVariants() {
+        List<ProductVariant> variants = productService.getAllProductVariants();
+        return ResponseEntity.ok(variants);
+    }
+
+    @GetMapping("/variants/{id}")
+    public ResponseEntity<ProductVariant> getProductVariantById(@PathVariable Long id) {
+        Optional<ProductVariant> variant = productService.getProductVariantById(id);
+        return variant.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
 }

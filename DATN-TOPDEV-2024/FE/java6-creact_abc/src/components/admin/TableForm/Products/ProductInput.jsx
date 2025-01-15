@@ -251,7 +251,7 @@ const ProductInput = ({ product, onSave }) => {
                         <input
                             {...register("name", { required: true })}
                             placeholder="Nhập Tên Sản Phẩm"
-                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none  errormessage"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none  errormessage"
                         />
                         {errors.name && (
                             <span className="text-red-500 text-sm errormessage">{errors.name.message}</span>
@@ -260,21 +260,6 @@ const ProductInput = ({ product, onSave }) => {
 
                     {/* Price and Stock */}
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">Giá Sản Phẩm</label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                                <input
-                                    {...register("price", { required: true, min: 0 })}
-                                    type="number"
-                                    placeholder="0.00"
-                                    className="w-full pl-8 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none "
-                                />
-                            </div>
-                            {errors.price && (
-                                <span className="text-red-500 text-sm errormessage">{errors.price.message}</span>
-                            )}
-                        </div>
 
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">Tồn Kho</label>
@@ -353,7 +338,7 @@ const ProductInput = ({ product, onSave }) => {
                             {...register("description")}
                             placeholder="Nhập Mô Tả Sản Phẩm"
                             rows={3}
-                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
                         />
                     </div>
 

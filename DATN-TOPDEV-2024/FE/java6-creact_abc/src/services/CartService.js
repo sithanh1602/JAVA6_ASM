@@ -4,13 +4,13 @@ import axios from 'axios';
 const API_URL = 'http://localhost:8080/api/carts';
 
 // Hàm để thêm sản phẩm vào giỏ hàng
-export const addProductToCart = async (userId, productId, quantity) => {
+export const addProductToCart = async (userId, productVariantId, quantity) => {
     try {
         // Gửi request POST đến API để thêm sản phẩm vào giỏ hàng
         const response = await axios.post(`${API_URL}/add`, null, {
             params: {
                 userId,
-                productId,
+                productVariantId,
                 quantity,
             }
         });
@@ -37,16 +37,16 @@ export const getAllCartItemsForUser = async (userId) => {
     }
 };
 
-export const removeProductFromCart = async (userId, productId) => {
+export const removeProductFromCart = async (userId, productVariantId) => {
     try {
-        // Kiểm tra lại productId và userId có phải là các giá trị hợp lệ không
-        console.log('userId:', userId, 'productId:', productId);  // Debug thông tin
+        // Kiểm tra lại productVariantId và userId có phải là các giá trị hợp lệ không
+        console.log('userId:', userId, 'productVariantId:', productVariantId);  // Debug thông tin
 
         // Gửi request DELETE đến API để xóa sản phẩm khỏi giỏ hàng
         const response = await axios.delete(`${API_URL}/remove`, {
             params: {
                 userId: userId,
-                productId: productId
+                productVariantId: productVariantId
             },
         });
 
@@ -57,8 +57,8 @@ export const removeProductFromCart = async (userId, productId) => {
     }
 };
 
-export const updateCartItemQuantity = async (userId, productId, quantity) => {
-    await axios.put(`${API_URL}/user/${userId}/product/${productId}`, { quantity });
+export const updateCartItemQuantity = async (userId, productVariantId, quantity) => {
+    await axios.put(`${API_URL}/user/${userId}/product/${productVariantId}`, { quantity });
 };
 
 

@@ -35,7 +35,7 @@ const CartPage = () => {
                 } else {
                     const initialSelectedState = {};
                     items.forEach(item => {
-                        initialSelectedState[item.productId] = false;
+                        initialSelectedState[item.product_variant_id] = false;
                     });
                     setSelectedItems(initialSelectedState);
                     setCartItems(items.map(item => ({
@@ -59,12 +59,12 @@ const CartPage = () => {
         localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
     }, [cartItems, selectedItems]);
 
-    const handleDeleteItemFromCart = async (productId) => {
+    const handleDeleteItemFromCart = async (product_variant_id) => {
         try {
-            await removeProductFromCart(userId, productId);
-            setCartItems(cartItems.filter(item => item.productId !== productId));
+            await removeProductFromCart(userId, product_variant_id);
+            setCartItems(cartItems.filter(item => item.product_variant_id !== product_variant_id));
             const newSelectedItems = { ...selectedItems };
-            delete newSelectedItems[productId];
+            delete newSelectedItems[product_variant_id];
             setSelectedItems(newSelectedItems);
 
             Swal.fire({
@@ -84,24 +84,24 @@ const CartPage = () => {
 
     const calculateTotalPrice = () => {
         return cartItems.reduce((total, item) => {
-            if (selectedItems[item.productId]) {
+            if (selectedItems[item.product_variant_id]) {
                 return total + (item.productPrice * item.quantity);
             }
             return total;
         }, 0);
     };
 
-    const handleUpdateQuantity = (productId, newQuantity) => {
+    const handleUpdateQuantity = (product_variant_id, newQuantity) => {
         const updatedCartItems = cartItems.map(item =>
-            item.productId === productId ? { ...item, quantity: newQuantity } : item
+            item.product_variant_id === product_variant_id ? { ...item, quantity: newQuantity } : item
         );
         setCartItems(updatedCartItems);
     };
 
-    const handleSelectChange = (productId, isSelected) => {
+    const handleSelectChange = (product_variant_id, isSelected) => {
         const updatedSelectedItems = {
             ...selectedItems,
-            [productId]: isSelected
+            [product_variant_id]: isSelected
         };
         setSelectedItems(updatedSelectedItems);
     };
@@ -116,7 +116,7 @@ const CartPage = () => {
     };
 
     const handleProceedToCheckout = () => {
-        const selectedCartItems = cartItems.filter(item => selectedItems[item.productId]);
+        const selectedCartItems = cartItems.filter(item => selectedItems[item.product_variant_id]);
         if (selectedCartItems.length === 0) {
             Swal.fire({
                 icon: 'warning',
@@ -149,12 +149,12 @@ const CartPage = () => {
                     ) : cartItems.length > 0 ? (
                         cartItems.map(item => (
                             <CartItem
-                                key={item.productId}
+                                key={item.product_variant_id}
                                 item={item}
                                 onDelete={handleDeleteItemFromCart}
                                 onUpdateQuantity={handleUpdateQuantity}
                                 onSelectChange={handleSelectChange}
-                                isSelected={selectedItems[item.productId]}
+                                isSelected={selectedItems[item.product_variant_id]}
                             />
                         ))
                     ) : (
