@@ -13,6 +13,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByName(String name);
 
     boolean existsByName(String name);
+    List<Product> findByCategoryId(int categoryId);
 
     boolean existsByNameAndIdNot(String name, Long id);
 
@@ -43,6 +44,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE a.product_id = :productId AND a.status = 1",
             nativeQuery = true)
     List<Object[]> getProductVariants(@Param("productId") Long productId);
-
 
 }

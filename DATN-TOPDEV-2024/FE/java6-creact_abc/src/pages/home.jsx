@@ -19,13 +19,15 @@ import ProfilePage from "../components/Profile/ProfilePage";
 import OrderList from "../components/Oder/OrderList";
 import PaymentSuccess from "../components/vnpaypayment/PaymentSuccess";
 import ProductDetail from "../components/products/productDetails/ProductDetail";
+import HeaderDownNavbar from "../components/home/headerDownNavbar";
 
 const HomePage = () => {
     return (
-        <div className="bg-white">
-            <div className="container mx-auto p-4">
+        <div className="bg-gray-100">
+            <div className="container-fluid bg-gray-100">
                 <Header/>
                 <Navbar/>
+                <HeaderDownNavbar/>
                 <Routes>
                     <Route path="/" element={<Conten/>}/>
                     <Route path="/products" element={<Products/>}/>

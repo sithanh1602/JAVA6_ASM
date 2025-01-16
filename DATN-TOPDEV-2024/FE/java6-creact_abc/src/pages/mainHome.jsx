@@ -8,13 +8,14 @@ import BannerPhu1 from "../components/home/bannerPhu";
 import BrandLogo  from "../components/home/BrandLogo";
 import SliderProductBottom from "../components/home/SliderProductBottom";
 import BannerPhu2 from "../components/home/bannerBottom";
+import TabProduct from "../components/nextUI/home/TabProduct";
 
 const HomePage = () => {
     return (
-        <div className="bg-white">
+        <div className="bg-gray-100 will-change-transform">
             <div className="container mx-auto p-4">
                 <BannerContent/>
-                <TopProducts/>
+                <TabProduct/>
                 <PopularProducts/>
                 <BannerPhu1/>
                 <CategoryOnlineShopping/>

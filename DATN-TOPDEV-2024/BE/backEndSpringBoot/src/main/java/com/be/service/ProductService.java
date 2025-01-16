@@ -205,7 +205,10 @@ public class ProductService {
     }
 
     public Optional<ProductVariant> getProductVariantById(Long id) {
-        return productVariantRepository.findById(id);  // Giả sử có phương thức này trong repository
+        return productVariantRepository.findById(id);}  // Giả sử có phương thức này trong repository
+
+    public List<Product> getProductsByCategoryId(int categoryId) {
+        return productRepository.findByCategoryId(categoryId);
     }
 
 
