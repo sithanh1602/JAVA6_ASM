@@ -13,10 +13,11 @@ class ProductService {
             throw error;
         }
     }
+
     async getProductDetail(id) {
         try {
             const response = await axios.get(`${BASE_URL}/${id}/productdetail`);
-            return response.data; // Returns the product details
+            return response.data;
         } catch (error) {
             console.error(`Error fetching product with ID ${id}:`, error);
             throw error;
@@ -26,9 +27,9 @@ class ProductService {
     async getBrand(id) {
         try {
             const response = await axios.get(`${BASE_URL}/${id}/brand`);
-            return response.data; // Returns the product details
+            return response.data;
         } catch (error) {
-            console.error(`Error fetching product with ID ${id}:`, error);
+            console.error(`Error fetching product brand with ID ${id}:`, error);
             throw error;
         }
     }
@@ -36,9 +37,9 @@ class ProductService {
     async getCategory(id) {
         try {
             const response = await axios.get(`${BASE_URL}/${id}/category`);
-            return response.data; // Returns the product details
+            return response.data;
         } catch (error) {
-            console.error(`Error fetching product with ID ${id}:`, error);
+            console.error(`Error fetching product category with ID ${id}:`, error);
             throw error;
         }
     }
@@ -46,20 +47,20 @@ class ProductService {
     async getProduct(productId) {
         try {
             const response = await axios.get(`${BASE_URL}/${productId}/product`);
-            return response.data; // Returns the product variants
+            return response.data;
         } catch (error) {
             console.error(`Error fetching product variants for product ID ${productId}:`, error);
-            throw error; // Propagate error for handling in the calling code
+            throw error;
         }
     }
 
     async getImagesByProductVariantId(variantId) {
         try {
             const response = await axios.get(`${BASE_URL}/${variantId}/image`);
-            return response.data; // Returns the list of images
+            return response.data;
         } catch (error) {
             console.error(`Error fetching images for product variant ID ${variantId}:`, error);
-            throw error; // Propagate error for handling in the calling code
+            throw error;
         }
     }
 
@@ -69,9 +70,7 @@ class ProductService {
             return response.data;
         } catch (error) {
             if (error.response) {
-                // Lỗi từ backend với status code
                 if (error.response.status === 400) {
-                    // Validation errors
                     throw error.response;
                 } else if (error.response.status === 404) {
                     throw new Error('Resource not found');
@@ -83,7 +82,6 @@ class ProductService {
         }
     }
 
-    // Update an existing product
     async updateProduct(id, product) {
         try {
             const response = await axios.put(`${BASE_URL}/${id}`, product);
@@ -100,18 +98,26 @@ class ProductService {
         }
     }
 
-    // Delete a product
     async deleteProduct(id) {
         try {
             await axios.delete(`${BASE_URL}/${id}`);
-            return; // No content returned on successful deletion
+            return;
         } catch (error) {
             console.error(`Error deleting product with ID ${id}:`, error);
-            throw error; // Propagate error
+            throw error;
         }
     }
 
-
+    // New method: Get products by category ID
+    async getProductsByCategoryId(categoryId) {
+        try {
+            const response = await axios.get(`${BASE_URL}/category/${categoryId}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching products for category ID ${categoryId}:`, error);
+            throw error;
+        }
+    }
 }
 
 export default new ProductService();

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link,useNavigate } from 'react-router-dom'; // Đảm bảo sử dụng Link từ react-router-dom
 import Swal from 'sweetalert2';
-import logo from '../../assets/images/logoWeb.png';
+import logo from '../../assets/images/cpu2.png';
+import {Input} from "@nextui-org/react";
+import { FiSearch } from "react-icons/fi";
 
 const Navbar = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -48,55 +50,39 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="bg-white shadow sticky top-0 z-50" data-aos="fade-down">
+        <nav className="shadow sticky top-0 z-50 bg-white" data-aos="fade-down">
             <div className="container mx-auto flex justify-between items-center py-4 px-4 md:px-0">
                 <div className="flex items-center space-x-4 p-3">
                     <img
                         src={logo}
-                        alt="Mona Smart Technology Logo"
-                        className="h-10"
+                        alt="Logo Mona Smart Technology"
+                        className="h-10 w-10 animate-spin"
                     />
                     <div className="flex flex-col">
-                        <span className="text-2xl font-bold">TECH SMART</span>
-                        <span className="text-orange-300 text-sm">TECHNOLOGY</span>
+                        <span className="text-2xl font-semibold">TECHSMART.VN</span>
+                        <span className="text-gray-500text-sm">TECH ELECTRONICS</span>
                     </div>
                 </div>
                 <div className="hidden md:flex justify-center flex-1">
-                    <ul className="flex space-x-8">
-                        <li>
-                            <Link to="/"
-                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Trang
-                                chủ</Link>
-                        </li>
-                        <li>
-                            <Link to="/aboutUs"
-                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Giới
-                                thiệu</Link>
-                        </li>
-                        <li>
-                            <Link to="/products"
-                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Sản
-                                phẩm</Link>
-                        </li>
-                        <li>
-                            <Link to="/news"
-                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Tin
-                                tức</Link>
-                        </li>
-                        <li>
-                            <Link to="/contact"
-                                  className="text-gray-700 hover:text-orange-500 hover:underline hover:underline-offset-4 transition duration-300 font-bold">Liên
-                                hệ</Link>
-                        </li>
-                    </ul>
+                    <div className="relative flex items-center w-full max-w-md">
+                        {/* Search Icon */}
+                        <FiSearch className="absolute left-3 text-gray-400 text-lg"/>
+
+                        {/* Input Field */}
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm sản phẩm, danh mục..."
+                            className="w-full pl-10 pr-4 py-2 text-sm text-gray-700 placeholder-gray-400 bg-white border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
                 </div>
                 <div className="flex items-center space-x-4 p-3">
-                    <Link to="" className="text-gray-700 hover:text-orange-500"><i className="fas fa-heart"></i></Link>
+                    <Link to="" className="text-gray-700 hover:text-orange-500"><i className="fas fa-heart fa-x"></i></Link>
 
                     {/* Giỏ hàng với hover để hiển thị tất cả sản phẩm trong giỏ hàng */}
                     <div className="relative group">
                         <Link to="/cart" className="text-gray-700 hover:text-orange-500">
-                            <i className="fas fa-shopping-cart"></i>
+                            <i className="fas fa-shopping-cart fa-x"></i>
                         </Link>
 
                         {/* Dropdown hiển thị sản phẩm khi hover */}
@@ -118,56 +104,6 @@ const Navbar = () => {
                                 Xem giỏ hàng
                             </Link>
                         </div>
-                    </div>
-
-                    {/* Dropdown cho người dùng */}
-                    <div className="relative">
-                        <i
-                            onClick={toggleUserDropdown}
-                            className="fas fa-user text-gray-700 hover:text-orange-500 cursor-pointer"
-                        ></i>
-                        {isUserDropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-20">
-                                <ul className="py-2">
-                                    <li>
-                                        <Link
-                                            to="/profile"
-                                            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                            onClick={() => setUserDropdownOpen(false)}
-                                        >
-                                            Hồ sơ
-                                        </Link>
-                                    </li>
-                                    {isLoggedIn ? (
-                                        <>
-                                            <li>
-                                                <button
-                                                    onClick={handleLogout}
-                                                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                                >
-                                                    Đăng xuất
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                                    Đổi mật khẩu
-                                                </button>
-                                            </li>
-                                        </>
-                                    ) : (
-                                        <li>
-                                            <Link
-                                                to="/login"
-                                                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                                onClick={() => setUserDropdownOpen(false)}
-                                            >
-                                                Đăng nhập
-                                            </Link>
-                                        </li>
-                                    )}
-                                </ul>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

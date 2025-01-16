@@ -33,7 +33,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register","/**").permitAll() // Các endpoint public
+                        .requestMatchers("/api/auth/login", "/api/auth/register","/**","/api/**").permitAll() // Các endpoint public
                         .requestMatchers("/admin/**", "/api/categories/**").hasAuthority("ADMIN")
                         .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") // USER và ADMIN
                         .requestMatchers("/api/users/**","/api/categories/**").authenticated() // Yêu cầu xác thực

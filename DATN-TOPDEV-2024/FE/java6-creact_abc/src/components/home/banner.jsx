@@ -97,29 +97,6 @@ const BannerContent = () => {
                                 </div>
                             </Slider>
                         </div>
-                        <div className="w-1/3 bg-gray-50 p-6 rounded-lg">
-                            <div>
-                        <span className="bg-orange-500 text-white text-sm px-2 py-1 rounded-md">
-                            NEW
-                        </span>
-                                <h2 className="text-2xl font-bold mt-4 mb-4 leading-snug">
-                                    MUA SẮM THUẬN TIỆN <br/> VÀ ĐƠN GIẢN
-                                </h2>
-                                <p className="text-orange-500 text-xl font-bold">
-                                    Ưu đãi <span className="text-4xl font-extrabold">70%</span>
-                                </p>
-                            </div>
-                            <button
-                                className="border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-md text-lg mt-6 flex items-center hover:bg-orange-500 hover:text-white transition-colors">
-                                MUA NGAY <i className="fas fa-arrow-right ml-2"></i>
-                            </button>
-
-                            <img
-                                src={imgBanner1}
-                                alt="Smartphone with stylus"
-                                className="mt-6 h-48 w-auto mx-auto"
-                            />
-                        </div>
                     </div>
                 </main>
             </div>

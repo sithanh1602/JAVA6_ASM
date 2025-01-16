@@ -16,7 +16,7 @@ import java.util.Optional;
 @RequestMapping("/api/users")  // Base URL for all user-related endpoints
 public class UserController {
 
-    private final UserService userService;
+    private final UserService userService;  
 
     @Autowired
     public UserController(UserService userService) {
