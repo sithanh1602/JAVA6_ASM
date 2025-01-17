@@ -1,21 +1,21 @@
 package com.be.DTO;
 
 public class OrderItem {
-    private Long productId;  // ID of the product
-    private int quantity;    // Quantity of the product in the cart
-    private double productPrice;  // Price of the product
-    private String productName;  // Name of the product
+    private Long productVariantId;  // ID của biến thể sản phẩm
+    private int quantity;           // Số lượng của sản phẩm trong giỏ
+    private double productPrice;    // Giá của sản phẩm
+    private String productName;     // Tên của sản phẩm
 
-    // Getter and Setter for productId
-    public long getProductId() {
-        return productId;
+    // Getter và Setter cho productVariantId
+    public Long getProductVariantId() {
+        return productVariantId;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setProductVariantId(Long productVariantId) {
+        this.productVariantId = productVariantId;
     }
 
-    // Getter and Setter for quantity
+    // Getter và Setter cho quantity
     public int getQuantity() {
         return quantity;
     }
@@ -24,7 +24,7 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    // Getter and Setter for productPrice
+    // Getter và Setter cho productPrice
     public double getProductPrice() {
         return productPrice;
     }
@@ -33,7 +33,7 @@ public class OrderItem {
         this.productPrice = productPrice;
     }
 
-    // Getter and Setter for productName
+    // Getter và Setter cho productName
     public String getProductName() {
         return productName;
     }

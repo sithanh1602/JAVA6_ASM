@@ -6,12 +6,14 @@ import OrderBr from './OderBr';
 import OrderService from "../../services/OrderSevice"; // Đảm bảo đường dẫn chính xác
 import UserAddressService from "../../services/UserAddressService";
 import { useLocation, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import {jwtDecode} from 'jwt-decode'; // Thư viện giải mã token
 
 const GroupOrder = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { cartItems = [] } = location.state || {}; // Đảm bảo cartItems luôn là một mảng
-
+    console.log("cartItems",cartItems)
     const [userInfo, setUserInfo] = useState({
         id: '',
         fullName: '',
@@ -22,10 +24,26 @@ const GroupOrder = () => {
     const [paymentMethod, setPaymentMethod] = useState('');  // Payment method: 'bank' or 'cash'
     const [loading, setLoading] = useState(false);
 
+    // Giải mã token và lấy userId từ cookie
+    const getUserIdFromToken = () => {
+        const token = Cookies.get("token"); // Lấy token từ cookie
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token); // Giải mã token
+                console.log("Token giải mã:", decodedToken); // Kiểm tra cấu trúc
+                return decodedToken.userId; // Trả về userId từ token
+            } catch (err) {
+                console.error("Token không hợp lệ:", err);
+                return null;
+            }
+        }
+        return null;
+    };
+
     // Lấy thông tin người dùng khi component được mount
     useEffect(() => {
         const fetchUserInfo = async () => {
-            const userId = localStorage.getItem('UserId');
+            const userId = getUserIdFromToken(); // Lấy userId từ token
             if (!userId) {
                 Swal.fire({
                     title: 'Lỗi',
@@ -57,7 +75,6 @@ const GroupOrder = () => {
                 });
             }
         };
-
         fetchUserInfo();
     }, [navigate]);
 
@@ -91,16 +108,17 @@ const GroupOrder = () => {
         const orderData = {
             userId: userInfo.id,
             fullAddress: userInfo.fullAddress,
+            phone: userInfo.phone,
             cartItems: cartItems.map((item) => ({
-                productId: item.productId,
-                quantity: item.quantity,
+                productVariantId: item.product_variant_id,
+                quantity: item.productQuantity,
                 productName: item.productName,
                 productPrice: item.productPrice,
             })),
             totalPrice: calculateTotalPrice(),
             paymentMethod,
         };
-
+        console.log("text", orderData)
         try {
             if (paymentMethod === 'bank') {
                 const response = await OrderService.placeOrder(orderData);
@@ -151,10 +169,9 @@ const GroupOrder = () => {
             });
         } finally {
             setLoading(false);
-
-
         }
     };
+
     return (
         <div className="container mx-auto p-4">
             <OrderBr />

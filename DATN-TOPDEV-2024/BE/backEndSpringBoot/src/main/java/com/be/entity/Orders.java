@@ -31,8 +31,16 @@
 
         private boolean paymentStatus;
 
-        private String phone;
-
         @Column(name = "full_address")
         private String fullAddress;
+
+        @Column(name = "order_num")
+        private String orderNum;
+
+        private int shipping_fee;
+
+        @Column(name = "discout_price")
+        private int discountPrice;
+
+        private String phone;
     }

@@ -40,6 +40,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             "ORDER BY o.id, p.name", nativeQuery = true)
     List<Object[]> getOrderDetails(Date startDate, Date endDate);
 
-
+    @Query("SELECT MAX(CAST(SUBSTRING(o.orderNum, 3) AS LONG)) FROM Orders o")
+    Long getMaxOrderNum();
 }
 

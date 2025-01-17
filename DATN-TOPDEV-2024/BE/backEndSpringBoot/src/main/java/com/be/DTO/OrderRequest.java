@@ -6,14 +6,18 @@ import java.util.List;
 
 public class OrderRequest {
     private Long userId;  // userId từ FE
-    private Long orderId;
+    private Long orderId;  // orderId, có thể là null trong quá trình tạo đơn hàng mới
     @JsonProperty("fullAddress")
-    private String fullAddress;
+    private String fullAddress;  // Địa chỉ giao hàng
     private List<OrderItem> cartItems;  // Các sản phẩm trong giỏ hàng
     private int totalPrice;  // Tổng giá trị đơn hàng
     private String paymentMethod; // Phương thức thanh toán
-    private String orderInfo;
-    private String urlReturn;
+    private String orderInfo; // Thông tin đơn hàng (có thể là ghi chú)
+    private String urlReturn; // URL để trả về sau khi thanh toán
+    private String phone; // Số điện thoại người dùng
+    private Long voucherId; // ID của voucher (nếu có)
+    private int shippingFee; // Phí vận chuyển
+    private int discountPrice; // Giá trị giảm giá từ voucher (nếu có)
 
     // Getters and Setters
     public Long getUserId() {
@@ -24,7 +28,7 @@ public class OrderRequest {
         this.userId = userId;
     }
 
-    public Long getOrderId() {  // Thêm phương thức getOrderId
+    public Long getOrderId() {
         return orderId;
     }
 
@@ -80,5 +84,35 @@ public class OrderRequest {
         this.urlReturn = urlReturn;
     }
 
+    public String getPhone() {
+        return phone;
+    }
 
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public Long getVoucherId() {
+        return voucherId;
+    }
+
+    public void setVoucherId(Long voucherId) {
+        this.voucherId = voucherId;
+    }
+
+    public int getShippingFee() {
+        return shippingFee;
+    }
+
+    public void setShippingFee(int shippingFee) {
+        this.shippingFee = shippingFee;
+    }
+
+    public int getDiscountPrice() {
+        return discountPrice;
+    }
+
+    public void setDiscountPrice(int discountPrice) {
+        this.discountPrice = discountPrice;
+    }
 }
