@@ -7,18 +7,27 @@ import lombok.Data;
 @Entity
 @Table(name = "Product_Variants")
 public class ProductVariant {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id")
+    private Long id;
 
+    // Sử dụng đối tượng Product thay vì kiểu int cho khóa ngoại
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Column(name = "quantity")
     private int quantity;
-    private String image;
-    private String status;
-    private int price;
 
-    // getters and setters
+    @Column(name = "image")
+    private String image;
+
+    @Column(name = "status")
+    private String status;
+
+    @Column(name = "Price")
+    private Double price;
 }
+

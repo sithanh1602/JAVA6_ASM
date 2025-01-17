@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ProductService from '../servies/ProductService';
+import ProductService from '../services/ProductService';
 // Main Product Management Component
 const ProductManagement = () => {
     const [products, setProducts] = useState([]);

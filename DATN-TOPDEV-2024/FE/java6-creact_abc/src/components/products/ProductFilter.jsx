@@ -1,45 +1,85 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import BrandService from "../../services/BrandService";
+import CategoryService from "../../services/CategoryService";
 
-const ProductFilter = () => (
-    <div className="w-1/4 p-4 bg-white rounded shadow">
-        <div className="mb-4">
-            <h2 className="text-lg font-bold mb-2">Tìm Kiếm</h2>
-            <input type="text" className="w-full p-2 border rounded" placeholder="Tìm kiếm..." />
-        </div>
-        <div className="mb-4">
-            <h2 className="text-lg font-bold mb-2">Lọc Theo Giá</h2>
-            <input type="range" min="0" max="20000000" className="w-full" />
-            <div className="flex justify-between text-sm text-gray-600">
-                <span>0</span>
-                <span>20,000,000</span>
+const ProductFilter = () => {
+    const [brands, setBrands] = useState([]);
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const fetchBrands = async () => {
+            try {
+                const fetchedBrands = await BrandService.getAllBrands();
+                setBrands(fetchedBrands);
+                console.log("Brands:", fetchedBrands);
+            } catch (error) {
+                console.error('Error fetching brands:', error);
+            }
+        };
+
+        const fetchCategories = async () => {
+            try {
+                const fetchedCategories = await CategoryService.getAllCategories();
+                setCategories(fetchedCategories);
+                console.log("Categories:", fetchedCategories);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchBrands();
+        fetchCategories();
+    }, []);
+
+    return (
+        <div className="col-lg-3 pr-5" data-aos="fade-down">
+            <div className="left_sidebar_area p-4 border bg-white shadow-md">
+                {/* Brand Filter */}
+                <aside className="left_widgets p_filter_widgets mb-6">
+                    <div className="l_w_title">
+                        <h3 className="text-lg font-semibold">Thương Hiệu</h3>
+                    </div>
+                    <div className="widgets_inner">
+                        <ul className="list">
+                            {brands.length > 0 ? (
+                                brands.map((brand) => (
+                                    <li key={brand.id || brand.name} className="py-2 hover:scale-105 transform transition duration-300">
+                                        <a href="#" className="text-gray-700 hover:text-blue-500">
+                                            {brand.name}
+                                        </a>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="text-gray-500">No brands available</li>
+                            )}
+                        </ul>
+                    </div>
+                </aside>
+
+                {/* Category Filter */}
+                <aside className="left_widgets p_filter_widgets mb-6">
+                    <div className="l_w_title">
+                        <h3 className="text-lg font-semibold">Danh Mục Sản Phẩm</h3>
+                    </div>
+                    <div className="widgets_inner">
+                        <ul className="list">
+                            {categories.length > 0 ? (
+                                categories.map((category) => (
+                                    <li key={category.id || category.name} className="py-2 hover:scale-105 transform transition duration-300">
+                                        <a href="#" className="text-gray-700 hover:text-blue-500">
+                                            {category.name}
+                                        </a>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="text-gray-500">No categories available</li>
+                            )}
+                        </ul>
+                    </div>
+                </aside>
             </div>
         </div>
-        <div className="mb-4">
-            <h2 className="text-lg font-bold mb-2">Màu Sắc</h2>
-            <ul className="space-y-2">
-                <li><input type="checkbox"/> <span>Intel</span></li>
-                <li><input type="checkbox"/> <span>AMD</span></li>
-                <li><input type="checkbox"/> <span>NVIDIA</span></li>
-                <li><input type="checkbox"/> <span>Asus</span></li>
-                <li><input type="checkbox"/> <span>MSI</span></li>
-                <li><input type="checkbox"/> <span>Gigabyte</span></li>
-                <li><input type="checkbox"/> <span>Samsung</span></li>
-                <li><input type="checkbox"/> <span>Kingston</span></li>
-                <li><input type="checkbox"/> <span>Seagate</span></li>
-                <li><input type="checkbox"/> <span>Western Digital</span></li>
-
-            </ul>
-        </div>
-        <div className="mb-4">
-            <h2 className="text-lg font-bold mb-2">Danh Mục Sản Phẩm</h2>
-            <ul className="space-y-2">
-                <li><a href="#" className="text-gray-600 hover:text-orange-500">Gia dụng</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-orange-500">Linh kiện máy tính</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-orange-500">Máy ảnh</a></li>
-                {/* Các danh mục khác */}
-            </ul>
-        </div>
-    </div>
-);
+    );
+};
 
 export default ProductFilter;

@@ -2,9 +2,9 @@
 import React from 'react';
 
 const Breadcrumb = () => (
-    <nav className="text-sm text-gray-600 mb-4">
-        <a href="#" className="hover:underline">Trang chủ</a> &gt; <span>Giỏ hàng</span>
-    </nav>
+    <div className="text-sm text-gray-600 p-3">
+        <a href="#" className="text-orange-500">Trang Chủ</a> / Giỏ hàng
+    </div>
 );
 
 export default Breadcrumb;

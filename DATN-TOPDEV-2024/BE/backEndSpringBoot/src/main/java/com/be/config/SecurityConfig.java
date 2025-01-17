@@ -1,9 +1,7 @@
 package com.be.config;
 
 import com.be.service.UserDetailsServiceImpl;
-import com.be.config.JwtRequestFilter;
-import com.be.utills.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @Configuration
 @EnableWebSecurity
@@ -32,20 +31,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login","/api/products","/api/auth/register","/api/auth/verify-otp","/api/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                .anyRequest().authenticated()
-            ).oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/authorization/google") // Make sure this is set correctly
-                        .defaultSuccessUrl("/api/auth/google-success", true)
-                        .failureUrl("/api/auth/google-failure")
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/login", "/api/auth/register","/**","/api/**").permitAll() // Các endpoint public
+                        .requestMatchers("/admin/**", "/api/categories/**").hasAuthority("ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") // USER và ADMIN
+                        .requestMatchers("/api/users/**","/api/categories/**").authenticated() // Yêu cầu xác thực
+                        .anyRequest().authenticated() // Mọi yêu cầu khác cần xác thực
                 )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            );
+
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -57,13 +54,11 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-//    @Bean
-//    public JwtUtil jwtUtil() {
-//        return new JwtUtil();
-//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // Define a PasswordEncoder bean
     }
+
+
 }

@@ -10,24 +10,22 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.List;
 
-
 @Component
 public class JwtUtil {
     // Tạo khóa bảo mật đủ mạnh
-    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long expirationTime = 1000 * 60 * 60; // 1 giờ
+    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private final long expirationTime = 1000 * 60 * 60 * 11; // 11 giờ
 
-    public String generateToken(String username, List<String> roles) {
+    public String generateToken(String username, List<String> roles, long userId) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles) // Thêm roles vào token
+                .claim("userId", userId)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(secretKey)
                 .compact();
     }
-
-
 
     public Claims extractClaims(String token) {
         try {
@@ -37,21 +35,31 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            // Xử lý ngoại lệ như token không hợp lệ
+            // Nếu token không hợp lệ, trả về null
+            e.printStackTrace();
             return null;
         }
     }
 
-
     public String extractUsername(String token) {
-        return extractClaims(token).getSubject();
+        Claims claims = extractClaims(token);
+        if (claims != null) {
+            return claims.getSubject();
+        }
+        return null; // Trả về null nếu không thể giải mã token
     }
 
     public boolean isTokenExpired(String token) {
-        return extractClaims(token).getExpiration().before(new Date());
+        Claims claims = extractClaims(token);
+        if (claims != null) {
+            return claims.getExpiration().before(new Date());
+        }
+        return true; // Nếu không thể giải mã token, coi như token đã hết hạn
     }
 
     public boolean validateToken(String token, String username) {
-        return (extractUsername(token).equals(username) && !isTokenExpired(token));
+        String tokenUsername = extractUsername(token);
+        // Kiểm tra nếu token hợp lệ và không hết hạn
+        return (tokenUsername != null && tokenUsername.equals(username) && !isTokenExpired(token));
     }
 }

@@ -28,25 +28,44 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        // Lấy Authorization header từ request
         final String authorizationHeader = request.getHeader("Authorization");
 
-        String username = null;
         String jwt = null;
+        String username = null;
 
+        // Kiểm tra Authorization header
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
+            jwt = authorizationHeader.substring(7); // Loại bỏ "Bearer "
+            try {
+                username = jwtUtil.extractUsername(jwt); // Trích xuất username từ token
+            } catch (Exception e) {
+                logger.warn("Không thể trích xuất username từ token: " + e.getMessage());
+            }
+        } else if (authorizationHeader != null) {
+            logger.warn("Authorization header không đúng định dạng (phải bắt đầu bằng 'Bearer ')");
         }
 
+        // Xử lý nếu username hợp lệ và chưa được xác thực trong SecurityContext
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            // Lấy thông tin người dùng từ UserDetailsService
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            // Xác minh token hợp lệ
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                System.out.println();
+                UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // Gán xác thực vào SecurityContext
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            } else {
+                logger.warn("Token không hợp lệ hoặc đã hết hạn");
             }
         }
+
+        // Tiếp tục chuỗi filter
         chain.doFilter(request, response);
     }
 }

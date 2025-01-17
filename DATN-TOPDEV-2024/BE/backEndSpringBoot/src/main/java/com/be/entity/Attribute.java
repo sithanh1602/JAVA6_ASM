@@ -9,10 +9,9 @@ import lombok.Data;
 public class Attribute {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
+    private Long id;
+    @Column(name = "name", columnDefinition = "NVARCHAR(255)", nullable = false)
     private String name;
+    @Column(name = "value", columnDefinition = "NVARCHAR(MAX)", nullable = true)
     private String value;
-
-    // getters and setters
 }

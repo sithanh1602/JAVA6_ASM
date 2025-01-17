@@ -1,6 +1,8 @@
 package com.be.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -11,9 +13,16 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotBlank(message = "Category name is required")
+    @NotNull(message = "Category name cannot be null")
     private String name;
-    private String description;
-    private String image;
 
-    // getters and setters
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @NotBlank(message = "Description is required")
+    @NotNull(message = "Description cannot be null")
+    private String description;
+
+    @NotBlank(message = "Image URL is required")
+    @NotNull(message = "Image URL cannot be null")
+    private String image;
 }

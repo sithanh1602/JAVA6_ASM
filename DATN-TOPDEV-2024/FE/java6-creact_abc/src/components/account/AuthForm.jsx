@@ -8,11 +8,13 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 import { FaUser, FaLock, FaEnvelope, FaGoogle, FaFacebook ,FaUserCircle,FaKey,FaPhone} from 'react-icons/fa';
+import Modal from 'react-modal'; // Import react-modal
 
 
 
 const AuthForm = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const [userId, setUserId] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -24,6 +26,13 @@ const AuthForm = () => {
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const navigate = useNavigate(); // Sử dụng useNavigate thay vì useHistory
+    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+    const [isResetPasswordModal, setIsResetPasswordModal] = useState(false);
+    const [resetEmail, setResetEmail] = useState('');
+    const [resetOtp, setResetOtp] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState('');
+    const [resetStage, setResetStage] = useState('email');
 
     useEffect(() => {
         // Tải tên đăng nhập và mật khẩu từ localStorage khi component được tải
@@ -36,8 +45,11 @@ const AuthForm = () => {
         }
     }, []);
 
-    const handleToggle = () => setIsLogin(!isLogin);
 
+    const handleModalOpen = () => setIsModalOpen(true); // Open modal
+    const handleModalClose = () => setIsModalOpen(false); // Close modal
+
+    const handleToggle = () => setIsLogin(!isLogin);
     const handleLogin = async (e) => {
         e.preventDefault();
 
@@ -51,57 +63,78 @@ const AuthForm = () => {
             }
         });
 
-        // Thêm thời gian chờ để tăng thời gian hiển thị hiệu ứng loading
-        setTimeout(async () => {
-            try {
-                const encodedPassword = btoa(password);
-                const response = await axios.post('http://localhost:8080/api/auth/login', { userName: username, password: encodedPassword });
-                const token = response.data.token;
-                localStorage.setItem('token', token);
-                sessionStorage.setItem('token', token);
-                Cookies.set('token', token, { expires: 7, sameSite: 'Strict' });
-                const decodedToken = jwtDecode(token);
+        try {
+            // Gửi yêu cầu đăng nhập với mật khẩu thô (không mã hóa Base64)
+            const response = await axios.post('http://localhost:8080/api/auth/login', {
+                userName: username,
+                password: password // Gửi mật khẩu thô
+            });
 
-                localStorage.setItem('roles', JSON.stringify(decodedToken.roles));
-                const userRole = decodedToken.roles[0];
-                localStorage.setItem('role', userRole);
+            const { token, message, userId } = response.data;
 
-                if (rememberMe) {
-                    localStorage.setItem('savedUsername', username);
-                    localStorage.setItem('savedPassword', password);
-                } else {
-                    localStorage.removeItem('savedUsername');
-                    localStorage.removeItem('savedPassword');
-                }
-
-                // Đóng thông báo "Đang đăng nhập..." và hiển thị thông báo thành công
-                Swal.close();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng nhập thành công!',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-
-                if (userRole === 'ADMIN') {
-                    navigate('/admin');
-                } else if (userRole === 'USER') {
-                    navigate('/');
-                } else {
-                    toast.error('Không có quyền truy cập');
-                }
-            } catch (err) {
+            // Kiểm tra nếu tài khoản bị khóa
+            if (message === "Tài khoản của bạn đang bị khóa") {
                 Swal.close();
                 Swal.fire({
                     icon: 'error',
-                    title: 'Đăng nhập không thành công',
-                    text: 'Tài khoản hoặc mật khẩu không đúng'
+                    title: 'Tài khoản bị khóa',
+                    text: 'Tài khoản của bạn đang bị khóa. Vui lòng liên hệ quản trị viên.'
                 });
-                console.error('Đăng nhập không thành công:', err);
+                return;
             }
-        }, 10); // Thời gian chờ 2000ms (2 giây)
-    };
 
+            // Lưu token vào localStorage, sessionStorage và Cookies
+            localStorage.setItem('token', token);
+            sessionStorage.setItem('token', token);
+            Cookies.set('token', token, { expires: 7, sameSite: 'Strict' });
+
+            // Giải mã token để lấy thông tin roles và userId
+            const decodedToken = jwtDecode(token);
+
+            localStorage.setItem('roles', JSON.stringify(decodedToken.roles));
+            const userRole = decodedToken.roles[0];
+            localStorage.setItem('role', userRole);
+            localStorage.setItem('UserId', JSON.stringify(userId));
+
+            // Lưu thông tin đăng nhập nếu nhớ mật khẩu
+            if (rememberMe) {
+                localStorage.setItem('savedUsername', username);
+                localStorage.setItem('savedPassword', password);
+            } else {
+                localStorage.removeItem('savedUsername');
+                localStorage.removeItem('savedPassword');
+            }
+
+            // Đóng thông báo "Đang đăng nhập..." và hiển thị thông báo thành công
+            Swal.close();
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng nhập thành công!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            // Điều hướng dựa trên vai trò người dùng
+            if (userRole === 'ADMIN') {
+                navigate('/admin');
+            } else if (userRole === 'USER') {
+                navigate('/');
+            } else {
+                toast.error('Không có quyền truy cập');
+            }
+        } catch (err) {
+            Swal.close();
+
+            // Xử lý lỗi đăng nhập và hiển thị thông báo lỗi
+            Swal.fire({
+                icon: 'error',
+                title: 'Đăng nhập không thành công',
+                text: err.response && err.response.data
+                    ? err.response.data
+                    : 'Tài khoản hoặc mật khẩu không đúng'
+            });
+        }
+    };
 
 
     const handleRegister = async (e) => {
@@ -147,6 +180,82 @@ const AuthForm = () => {
             }
         }
     };
+
+    // Email validation regex
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    };
+
+    const handleForgotPassword = async () => {
+        // Validate email before sending
+        if (!resetEmail) {
+            toast.error('Vui lòng nhập email');
+            return;
+        }
+
+        if (!validateEmail(resetEmail)) {
+            toast.error('Địa chỉ email không hợp lệ');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/forgot-password', { email: resetEmail });
+            toast.success(response.data);
+            setResetStage('otp'); // Move to OTP verification stage
+        } catch (error) {
+            toast.error(error.response?.data || 'Đã xảy ra lỗi khi gửi yêu cầu');
+        }
+    };
+
+    const handleVerifyOtpForgotPassWord = async () => {
+        // Validate OTP
+        if (!resetOtp || resetOtp.length !== 6) {
+            toast.error('Mã OTP phải có 6 chữ số');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/verify-otp-for-password', null, {
+                params: {
+                    email: resetEmail,
+                    otpCode: resetOtp
+                }
+            });
+            toast.success(response.data);
+            setResetStage('newPassword'); // Move to new password stage
+        } catch (error) {
+            toast.error(error.response?.data || 'Mã OTP không chính xác');
+        }
+    };
+
+    const handleResetPassword = async () => {
+        // Validate new password
+        if (!newPassword || newPassword.length < 6) {
+            toast.error('Mật khẩu phải có ít nhất 6 ký tự');
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            toast.error('Mật khẩu mới và xác nhận mật khẩu không khớp');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/reset-password', null, {
+                params: {
+                    email: resetEmail,
+                    newPassword: newPassword
+                }
+            });
+            toast.success(response.data);
+            setIsResetPasswordModal(false);
+            setResetStage('email');
+        } catch (error) {
+            toast.error(error.response?.data || 'Đã xảy ra lỗi khi đặt lại mật khẩu');
+        }
+    };
+
 
     return (
         <>
@@ -200,7 +309,8 @@ const AuthForm = () => {
                                         </label>
                                         <button
                                             type="button"
-                                            className="text-orange-400 hover:underline "
+                                            className="text-orange-400 hover:underline"
+                                            onClick={handleModalOpen} // Open the modal
                                         >
                                             Quên mật khẩu?
                                         </button>
@@ -372,6 +482,82 @@ const AuthForm = () => {
                 </div>
                 <ToastContainer/>
             </div>
+
+            {/* Modal for Forgot Password */}
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={handleModalClose}
+                contentLabel="Forgot Password Modal"
+                className="bg-gray-800 text-white p-6 rounded-lg w-full max-w-md mx-auto mt-14"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-70"
+            >
+                <div className="bg-gray-800 p-6 rounded-lg max-w-md mx-auto">
+                    {resetStage === 'email' && (
+                        <div>
+                            <h2 className="text-2xl text-white mb-4">Quên Mật Khẩu</h2>
+                            <input
+                                type="email"
+                                placeholder="Nhập email của bạn"
+                                value={resetEmail}
+                                onChange={(e) => setResetEmail(e.target.value)}
+                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
+                            />
+                            <button
+                                onClick={handleForgotPassword}
+                                className="w-full bg-blue-600 text-white py-2 rounded"
+                            >
+                                Gửi Mã OTP
+                            </button>
+                        </div>
+                    )}
+
+                    {resetStage === 'otp' && (
+                        <div>
+                            <h2 className="text-2xl text-white mb-4">Xác Minh OTP</h2>
+                            <input
+                                type="text"
+                                placeholder="Nhập mã OTP"
+                                value={resetOtp}
+                                onChange={(e) => setResetOtp(e.target.value)}
+                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
+                                maxLength="6"
+                            />
+                            <button
+                                onClick={handleVerifyOtpForgotPassWord}
+                                className="w-full bg-green-600 text-white py-2 rounded"
+                            >
+                                Xác Minh
+                            </button>
+                        </div>
+                    )}
+
+                    {resetStage === 'newPassword' && (
+                        <div>
+                            <h2 className="text-2xl text-white mb-4">Đặt Lại Mật Khẩu</h2>
+                            <input
+                                type="password"
+                                placeholder="Nhập mật khẩu mới"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
+                            />
+                            <input
+                                type="password"
+                                placeholder="Xác nhận mật khẩu mới"
+                                value={confirmNewPassword}
+                                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
+                            />
+                            <button
+                                onClick={handleResetPassword}
+                                className="w-full bg-blue-600 text-white py-2 rounded"
+                            >
+                                Đặt Lại Mật Khẩu
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </Modal>
             <style>
                 {`
                   .bg-galaxy {

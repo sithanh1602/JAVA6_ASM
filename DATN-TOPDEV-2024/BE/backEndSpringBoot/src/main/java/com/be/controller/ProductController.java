@@ -1,7 +1,10 @@
 package com.be.controller;
 
+import com.be.DTO.ProductDto;
+import com.be.DTO.ProductVariantDTO;
 import com.be.entity.*;
 import com.be.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,71 +13,103 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin("*")
 @RestController
-@RequestMapping("/api/products") // Base URL for product-related operations
+@RequestMapping("/api/products")
 public class ProductController {
 
     private final ProductService productService;
-
 
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
-    // Get all products
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
-    // Get a product by ID
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
-        return product.map(ResponseEntity::ok) // Return 200 OK if found
-                      .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build()); // Return 404 if not found
+        return product.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // Create a new product
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
         Product createdProduct = productService.createProduct(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct); // Return 201 Created
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
-    // Update an existing product
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product productDetails) {
+        Optional<Product> existingProduct = productService.getProductById(id);
+        if (existingProduct.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
         Product updatedProduct = productService.updateProduct(id, productDetails);
-        return ResponseEntity.ok(updatedProduct); // Return 200 OK
+        return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
     }
 
-    // Delete a product
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        Optional<Product> product = productService.getProductById(id);
+        if (product.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         productService.deleteProduct(id);
-        return ResponseEntity.noContent().build(); // Return 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
-    // Endpoint để lấy thông tin thương hiệu của sản phẩm
     @GetMapping("/{productId}/brand")
-    public Brand getBrandByProductId(@PathVariable Long productId) {
-        return productService.getBrandByProductId(productId); // Trả về thương hiệu
+    public ResponseEntity<Brand> getBrandByProductId(@PathVariable Long productId) {
+        Brand brand = productService.getBrandByProductId(productId);
+        return brand != null ? ResponseEntity.ok(brand) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @GetMapping("/{id}/variants")
-    public List<ProductVariant> getVariantsByProductId(@PathVariable int id) {
-        return productService.getVariantsByProductId(id);
+    @GetMapping("/{productId}/category")
+    public ResponseEntity<Category> getCategoryByProductId(@PathVariable Long productId) {
+        Category category = productService.getCategoryByProductId(productId);
+        return category != null ? ResponseEntity.ok(category) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @GetMapping("/{productId}/productdetail")
+    public ResponseEntity<List<ProductDto>> getProductDetail(@PathVariable("productId") Long id) {
+        List<ProductDto> product = productService.ProductById(id);
+        return ResponseEntity.ok(product);
+    }
 
-    @GetMapping("/{productId}/variants/{variantId}/attributes")
-    public ResponseEntity<List<Attribute>> getAttributesByVariantId(
-            @PathVariable int productId,
-            @PathVariable int variantId) {
-        List<Attribute> attributes = productService.getAttributesByVariantId(variantId);
-        return ResponseEntity.ok(attributes);
+    @GetMapping("/{productId}/product")
+    public ResponseEntity<List<ProductVariantDTO>> getProduct(@PathVariable("productId") Long id) {
+        List<ProductVariantDTO> variants = productService.getProductVariants(id);
+        return ResponseEntity.ok(variants);
+    }
+
+    @GetMapping("{VariantId}/image")
+    public List<Image> getImagesByProductVariantId(@PathVariable("VariantId") Long productVariantId) {
+        return productService.getImagesByProductVariantId(productVariantId);
+    }
+
+    @GetMapping("/variants")
+    public ResponseEntity<List<ProductVariant>> getAllProductVariants() {
+        List<ProductVariant> variants = productService.getAllProductVariants();
+        return ResponseEntity.ok(variants);
+    }
+
+    @GetMapping("/variants/{id}")
+    public ResponseEntity<ProductVariant> getProductVariantById(@PathVariable Long id) {
+        Optional<ProductVariant> variant = productService.getProductVariantById(id);
+        return variant.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int categoryId) {
+        List<Product> products = productService.getProductsByCategoryId(categoryId);
+        return products.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(products);
     }
 }

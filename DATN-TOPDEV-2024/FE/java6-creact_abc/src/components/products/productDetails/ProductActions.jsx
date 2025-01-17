@@ -1,10 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import ProductService from "../../../services/ProductService";
+import { useParams } from "react-router-dom";
 
 const ProductActions = ({ activeTab, setActiveTab }) => {
+    const { productId } = useParams(); // Lấy productId từ URL
+    const [product, setProduct] = useState(null);
+
+    useEffect(() => {
+        // Fetch product details and brand when productId changes
+        const fetchProductDetails = async () => {
+            try {
+                const fetchedProduct = await ProductService.getProductById(productId); // Lấy thông tin sản phẩm
+                setProduct(fetchedProduct);
+
+            } catch (err) {
+                console.error("Error fetching product details:", err);
+            }
+        };
+
+        fetchProductDetails();
+    }, [productId]); // Fetch lại dữ liệu khi productId thay đổi
+
     const renderContent = () => {
+        if (!product) {
+            return <p>Loading...</p>;
+        }
+
         switch (activeTab) {
             case 'description':
-                return <p>Product description content goes here.</p>;
+                return <p>{product.description}</p>;
             case 'additionalInfo':
                 return <p>Additional information content goes here.</p>;
             case 'reviews':

@@ -6,13 +6,15 @@ const ProductPage = () => {
     const [activeTab, setActiveTab] = useState('description');
 
     return (
-        <div>
-            <div className="flex justify-center p-10">
-                <div className="flex w-full max-w-6xl">
+        <div className="flex flex-col items-center p-10">
+            <div className="flex w-full max-w-6xl space-x-4">
+                <div className="flex-1">
                     <ProductDetail />
                 </div>
+                <div className="flex-1">
+                    <ProductActions activeTab={activeTab} setActiveTab={setActiveTab} />
+                </div>
             </div>
-            <ProductActions activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
     );
 };

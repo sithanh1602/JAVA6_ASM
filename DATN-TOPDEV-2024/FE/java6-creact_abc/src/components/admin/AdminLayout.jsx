@@ -1,30 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import HorizontalMenu from './HorizontalMenu';
 import VerticalMenu from './VerticalMenu';
-import Swal from 'sweetalert2';
 import { motion } from 'framer-motion';
 import Users from "../../pages/admin/Users";
-import ProductTable from "./TableForm/Products/ProductTable";
-import Dashboard from "./TableForm/DashB/mainDash";
-import ProductInput  from "./TableForm/Products/ProductInput";
+import Products from "../../pages/admin/Products";
+import Categorys from "../../pages/admin/Categorys";
+import TemplateList from "../excel/TemplateList";
+import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
+import Top3User from "../dashBoard/Top3User";
+import Contact from "../../pages/admin/Contact";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import MonthlyProductionChart from "./TableForm/DashB/RevenueChart";
+import AdminOrderManagement from "./TableForm/OrderStatusAdmin/AdminOrderManagement";
 
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true); // Mở menu dọc mặc định
     const navigate = useNavigate();
+    const [client, setClient] = useState(null);
 
     useEffect(() => {
         const userRole = JSON.parse(localStorage.getItem('roles'));
 
         if (!userRole || userRole[0] !== 'ADMIN') {
-            Swal.fire({
-                title: 'Không có quyền truy cập',
-                text: 'Bạn không có quyền truy cập trang này.',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                navigate('/');
+            toast.error('Bạn không có quyền truy cập trang này.');
+            navigate('/');
+        } else {
+            const socket = new SockJS('http://localhost:8080/ws');
+            const stompClient = new Client({
+                webSocketFactory: () => socket,
+                debug: (str) => {
+                    console.log(str);
+                },
+                onConnect: () => {
+                    stompClient.subscribe('/topic/orders', (message) => {
+                        toast.info(`Đơn hàng mới: ${message.body}`);
+                    });
+                },
+                onStompError: (frame) => {
+                    console.error('Broker reported error: ' + frame.headers['message']);
+                    console.error('Additional details: ' + frame.body);
+                },
             });
+
+            stompClient.activate();
+            setClient(stompClient);
         }
     }, [navigate]);
 
@@ -33,10 +55,9 @@ const AdminLayout = () => {
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="w-full flex h-full">
             <VerticalMenu isOpen={isOpen} toggleMenu={toggleMenu} />
             <div className="flex-grow p-4 bg-gray-100">
-                <HorizontalMenu toggleMenu={toggleMenu} />
                 <motion.div
                     className="mt-4"
                     initial={{ opacity: 0, y: -20 }}
@@ -45,14 +66,20 @@ const AdminLayout = () => {
                     transition={{ duration: 0.5 }}
                 >
                     <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/dash" element={<Dashboard />} />
+                        <Route path="/" element={<Top3User />} />
+                        <Route path="/dash" element={<Top3User />} />
                         <Route path="/user" element={<Users />} />
-                        <Route path="/prd" element={<ProductTable />} />
-                        <Route path="/prdInput" element={<ProductInput />} />
+                        <Route path="/category" element={<Categorys />} />
+                        <Route path="/brand" element={<BrandTableWithBoundary />} />
+                        <Route path="/product" element={<Products />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/tk" element={<MonthlyProductionChart />} />
+                        <Route path="/tplXlsx" element={<TemplateList />} />
+                        <Route path="/order" element={<AdminOrderManagement />} />
                     </Routes>
                 </motion.div>
             </div>
+            <ToastContainer />
         </div>
     );
 };

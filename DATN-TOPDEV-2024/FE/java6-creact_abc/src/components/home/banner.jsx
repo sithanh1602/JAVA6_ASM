@@ -1,10 +1,12 @@
 import React from 'react';
-import imgBanner1 from '../../assets/images/banner1.jpg';
-import imgBanner2 from '../../assets/images/banner2.jpg';
-import imgBanner3 from '../../assets/images/banner3.jpg';
+import imgBanner1 from '../../assets/images/imageBanner/banner1.jpg';
+import imgBanner2 from '../../assets/images/imageBanner/banner2.jpg';
+import imgBanner3 from '../../assets/images/imageBanner/banner3.jpg';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import AOS from 'aos'; // Import AOS library
+import 'aos/dist/aos.css'; // Import AOS styles
 
 const BannerContent = () => {
     const settings = {
@@ -18,7 +20,7 @@ const BannerContent = () => {
     };
 
     return (
-        <div className=" items-center justify-center">
+        <div className=" items-center justify-center" data-aos="fade-up">
             <div className=" w-full max-w-7xl mx-auto">
                 <main className="container mx-auto py-8">
                     <div className="flex gap-8 items-center">
@@ -94,29 +96,6 @@ const BannerContent = () => {
                                     </div>
                                 </div>
                             </Slider>
-                        </div>
-                        <div className="w-1/3 bg-gray-50 p-6 rounded-lg">
-                            <div>
-                        <span className="bg-orange-500 text-white text-sm px-2 py-1 rounded-md">
-                            NEW
-                        </span>
-                                <h2 className="text-2xl font-bold mt-4 mb-4 leading-snug">
-                                    MUA SẮM THUẬN TIỆN <br/> VÀ ĐƠN GIẢN
-                                </h2>
-                                <p className="text-orange-500 text-xl font-bold">
-                                    Ưu đãi <span className="text-4xl font-extrabold">70%</span>
-                                </p>
-                            </div>
-                            <button
-                                className="border-2 border-orange-500 text-orange-500 px-6 py-3 rounded-md text-lg mt-6 flex items-center hover:bg-orange-500 hover:text-white transition-colors">
-                                MUA NGAY <i className="fas fa-arrow-right ml-2"></i>
-                            </button>
-
-                            <img
-                                src={imgBanner1}
-                                alt="Smartphone with stylus"
-                                className="mt-6 h-48 w-auto mx-auto"
-                            />
                         </div>
                     </div>
                 </main>

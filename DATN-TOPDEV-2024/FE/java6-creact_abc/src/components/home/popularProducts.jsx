@@ -1,82 +1,278 @@
-import React, { useState } from 'react';
-import PopularTabs from './PopularTabs';
+import React from 'react';
+import 'aos/dist/aos.css';
+import image1 from "../../assets/images/imageProducts/fan1.webp";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCartPlus, faExclamationCircle, faHeart} from "@fortawesome/free-solid-svg-icons";
+import image2 from "../../assets/images/imageProducts/card2.webp";
+import image3 from "../../assets/images/imageProducts/image3.webp";
+import image4 from "../../assets/images/imageProducts/image4.jpg";
+import image5 from "../../assets/images/imageProducts/image5.webp";
+import image6 from "../../assets/images/imageProducts/image6.webp";
 
-const data = {
-    Ram: [
-        { name: 'Laptop', price: '$1000', image: 'laptop.jpg' },
-        { name: 'Smartphone', price: '$800', image: 'smartphone.jpg' },
-        { name: 'Tablet', price: '$600', image: 'tablet.jpg' },
-        { name: 'Smartwatch', price: '$200', image: 'smartwatch.jpg' },
-        { name: 'Headphones', price: '$150', image: 'headphones.jpg' },
-    ],
-    CPU: [
-        { name: 'Jacket', price: '$60', image: 'jacket.jpg' },
-        { name: 'Shoes', price: '$120', image: 'shoes.jpg' },
-        { name: 'Dress', price: '$70', image: 'dress.jpg' },
-        { name: 'Handbag', price: '$90', image: 'handbag.jpg' },
-        { name: 'Sunglasses', price: '$50', image: 'sunglasses.jpg' },
-    ],
-    Motherboard: [
-        { name: 'T-shirt', price: '$30', image: 'tshirt.jpg' },
-        { name: 'Backpack', price: '$50', image: 'backpack.jpg' },
-        { name: 'Sweater', price: '$40', image: 'sweater.jpg' },
-        { name: 'Jeans', price: '$60', image: 'jeans.jpg' },
-        { name: 'Scarf', price: '$20', image: 'scarf.jpg' },
-    ],
-    GraphicsCard: [
-        { name: 'Coat', price: '$100', image: 'coat.jpg' },
-        { name: 'Boots', price: '$150', image: 'boots.jpg' },
-        { name: 'Skirt', price: '$45', image: 'skirt.jpg' },
-        { name: 'Gloves', price: '$25', image: 'gloves.jpg' },
-        { name: 'Belt', price: '$35', image: 'belt.jpg' },
-    ],
-    Electronics: [
-        { name: 'Watch', price: '$250', image: 'watch.jpg' },
-        { name: 'Pants', price: '$50', image: 'pants.jpg' },
-        { name: 'Earrings', price: '$30', image: 'earrings.jpg' },
-        { name: 'Socks', price: '$10', image: 'socks.jpg' },
-        { name: 'Tie', price: '$20', image: 'tie.jpg' },
-    ],
-};
-
-const CategoryTabs = () => {
-    const [selectedCategory, setSelectedCategory] = useState('Electronics');
-    const categories = Object.keys(data);
-
+const PopularProducts = () => {
     return (
-        <>
-            <div className=" items-center justify-center">
-                <div className=" w-full max-w-7xl mx-auto">
-                    <div className="p-6">
-                        <PopularTabs categories={categories} onSelectCategory={setSelectedCategory}/>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                        {data[selectedCategory].map((product, index) => (
-                            <div key={index}
-                                 className="product-card relative bg-white shadow-md rounded-lg p-4 text-center">
-                                <div
-                                    className="sale-badge absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded">SALE!
-                                </div>
-                                <img src="https://i.pinimg.com/564x/00/a7/f7/00a7f7a8c0c30c7e3e2ed058694d3dc0.jpg"
-                                     alt={product.name} className="w-full h-32 object-cover rounded-md mb-4"/>
-                                <h3 className="text-sm font-semibold">{product.name}</h3>
-                                <div className="price flex justify-center items-center space-x-2 mt-2">
-                                    <span
-                                        className="original-price line-through text-gray-500 text-xs">{product.price}</span>
-                                    <span className="sale-price text-red-500 font-bold text-md">{product.price}</span>
-                                </div>
-                                <div className="rating text-yellow-500 mt-2 mb-3">★★★★★</div>
-                                <button
-                                    className="w-50 bg-orange-500 hover:bg-orange-600 p-5 text-white font-semibold py-1 rounded-lg transition duration-300">
-                                    Thêm vào giỏ hàng
-                                </button>
+        <div className="m-10" data-aos="fade-zoom">
+            <div className="flex items-baseline space-x-2 border-b-2 border-gray-100">
+                <span className="text-gray-600 text-xl font-bold">Sản Phẩm</span>
+                <span className="text-orange-500 text-xl font-bold">Phổ Biến</span>
+            </div>
+            <div className="lg:w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                    {/* Product items */}
+                    <div className="rounded-lg overflow-hidden relative">
+                        <div className="border rounded-lg p-4 shadow hover:shadow-lg transition">
+                            <div className="relative">
+                                <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                                  SALE!
+                                </span>
+                                <img
+                                    src={image1}
+                                    alt="Product Image"
+                                    className="w-full h-45 object-cover rounded"
+                                />
                             </div>
-                        ))}
+                            <h3 className="mt-2 text-sm font-semibold">
+                                Card màn hình VGA ASRock Radeon RX 6600 8GB GDDR6 Challenger D
+                            </h3>
+                            <div className="flex items-center mt-2 text-yellow-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current"
+                                     viewBox="0 0 20 20">
+                                    <path
+                                        d="M10 15l-5.878 3.09 1.122-6.545L0 6.545l6.561-.954L10 0l3.439 5.591L20 6.545l-5.244 5.09L15.878 18z"/>
+                                </svg>
+                                <span className="ml-1 text-gray-600">(1)</span>
+                            </div>
+                            <div className="mt-2">
+                                <span className="text-red-500 font-bold">390,000₫</span>
+                                <span className="text-gray-500 line-through ml-2">500,000₫</span>
+                            </div>
+                        </div>
+                    </div>
+            {/* item2   */}
+            <div className=" rounded-lg overflow-hidden relative">
+                <div className="border rounded-lg p-4 shadow hover:shadow-lg transition">
+                    <div className="relative">
+                                            <span
+                                                className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">SALE!</span>
+                        <img src={image2} alt="Product Image"
+                             className="w-full h-45 object-cover rounded"/>
+                    </div>
+                    <h3 className="mt-2 text-sm font-semibold">
+                        Fan Case Redmoon F3 - Đen | Kit 5 Fan Led RGB, kèm sẵn HUB và Remote
+                    </h3>
+                    <div className="flex items-center mt-2 text-yellow-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current"
+                             viewBox="0 0 20 20">
+                            <path
+                                d="M10 15l-5.878 3.09 1.122-6.545L0 6.545l6.561-.954L10 0l3.439 5.591L20 6.545l-5.244 5.09L15.878 18z"/>
+                        </svg>
+                        <span className="ml-1 text-gray-600">(1)</span>
+                    </div>
+                    <div className="mt-2">
+                        <span className="text-red-500 font-bold">390,000₫</span>
+                        <span className="text-gray-500 line-through ml-2">500,000₫</span>
                     </div>
                 </div>
-            </div>
-        </>
-    );
-};
+                <div
+                    className="absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4">
+                    <FontAwesomeIcon
+                        icon={faCartPlus}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-900"
 
-export default CategoryTabs;
+                    />
+                    <FontAwesomeIcon
+                        icon={faHeart}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faExclamationCircle}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-900"
+
+                    />
+                </div>
+            </div>
+            {/* item3   */}
+            <div className=" rounded-lg overflow-hidden relative">
+                <div className="border rounded-lg p-4 shadow hover:shadow-lg transition">
+                    <div className="relative">
+                                            <span
+                                                className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">SALE!</span>
+                        <img src={image3} alt="Product Image"
+                             className="w-full h-45 object-cover rounded"/>
+                    </div>
+                    <h3 className="mt-2 text-sm font-semibold">
+                        CPU AMD Ryzen 5 4600G | AM4, Upto 4.20 GHz, 6C/12T, 8MB
+                    </h3>
+                    <div className="flex items-center mt-2 text-yellow-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current"
+                             viewBox="0 0 20 20">
+                            <path
+                                d="M10 15l-5.878 3.09 1.122-6.545L0 6.545l6.561-.954L10 0l3.439 5.591L20 6.545l-5.244 5.09L15.878 18z"/>
+                        </svg>
+                        <span className="ml-1 text-gray-600">(1)</span>
+                    </div>
+                    <div className="mt-2">
+                        <span className="text-red-500 font-bold">390,000₫</span>
+                        <span className="text-gray-500 line-through ml-2">500,000₫</span>
+                    </div>
+                </div>
+                <div
+                    className="absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4">
+                    <FontAwesomeIcon
+                        icon={faCartPlus}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faHeart}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faExclamationCircle}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-900"
+
+                    />
+                </div>
+            </div>
+            {/* item4 */}
+            <div className=" rounded-lg overflow-hidden relative">
+                <div className="border rounded-lg p-4 shadow hover:shadow-lg transition">
+                    <div className="relative">
+                                            <span
+                                                className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">SALE!</span>
+                        <img src={image4} alt="Product Image"
+                             className="w-full h-45 object-cover rounded"/>
+                    </div>
+                    <h3 className="mt-2 text-sm font-semibold">
+                        CPU Intel Core I3 13100F LGA1700, Turbo 4.50 GHz, 12MB, Không Tản Nhiệt
+                    </h3>
+                    <div className="flex items-center mt-2 text-yellow-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current"
+                             viewBox="0 0 20 20">
+                            <path
+                                d="M10 15l-5.878 3.09 1.122-6.545L0 6.545l6.561-.954L10 0l3.439 5.591L20 6.545l-5.244 5.09L15.878 18z"/>
+                        </svg>
+                        <span className="ml-1 text-gray-600">(1)</span>
+                    </div>
+                    <div className="mt-2">
+                        <span className="text-red-500 font-bold">390,000₫</span>
+                        <span className="text-gray-500 line-through ml-2">500,000₫</span>
+                    </div>
+                </div>
+                <div
+                    className="absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4">
+                    <FontAwesomeIcon
+                        icon={faCartPlus}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faHeart}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faExclamationCircle}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-900"
+
+                    />
+                </div>
+            </div>
+            {/* item5   */}
+            <div className=" rounded-lg overflow-hidden relative">
+                <div className="border rounded-lg p-4 shadow hover:shadow-lg transition">
+                    <div className="relative">
+                                            <span
+                                                className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">SALE!</span>
+                        <img src={image5} alt="Product Image"
+                             className="w-full h-45 object-cover rounded"/>
+                    </div>
+                    <h3 className="mt-2 text-sm font-semibold">
+                        Ram PC Asus 32GB DDR5 4800MHz | 16GB x2, Không Tản Nhiệt
+                    </h3>
+                    <div className="flex items-center mt-2 text-yellow-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current"
+                             viewBox="0 0 20 20">
+                            <path
+                                d="M10 15l-5.878 3.09 1.122-6.545L0 6.545l6.561-.954L10 0l3.439 5.591L20 6.545l-5.244 5.09L15.878 18z"/>
+                        </svg>
+                        <span className="ml-1 text-gray-600">(1)</span>
+                    </div>
+                    <div className="mt-2">
+                        <span className="text-red-500 font-bold">390,000₫</span>
+                        <span className="text-gray-500 line-through ml-2">500,000₫</span>
+                    </div>
+                </div>
+                <div
+                    className="absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4">
+                    <FontAwesomeIcon
+                        icon={faCartPlus}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faHeart}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faExclamationCircle}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-900"
+
+                    />
+                </div>
+            </div>
+            {/* item6   */}
+            <div className=" rounded-lg overflow-hidden relative">
+                <div className="border rounded-lg p-4 shadow hover:shadow-lg transition">
+                    <div className="relative">
+                                            <span
+                                                className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">SALE!</span>
+                        <img src={image6} alt="Product Image"
+                             className="w-full h-45 object-cover rounded"/>
+                    </div>
+                    <h3 className="mt-2 text-sm font-semibold">
+                        Ram DDR4 Gigabyte 16G/3200 Aorus RGB (2x 8GB) (GP-ARS16G32)
+                    </h3>
+                    <div className="flex items-center mt-2 text-yellow-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current"
+                             viewBox="0 0 20 20">
+                            <path
+                                d="M10 15l-5.878 3.09 1.122-6.545L0 6.545l6.561-.954L10 0l3.439 5.591L20 6.545l-5.244 5.09L15.878 18z"/>
+                        </svg>
+                        <span className="ml-1 text-gray-600">(1)</span>
+                    </div>
+                    <div className="mt-2">
+                        <span className="text-red-500 font-bold">390,000₫</span>
+                        <span className="text-gray-500 line-through ml-2">500,000₫</span>
+                    </div>
+                </div>
+                <div
+                    className="absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4">
+                    <FontAwesomeIcon
+                        icon={faCartPlus}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faHeart}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-900"
+
+                    />
+                    <FontAwesomeIcon
+                        icon={faExclamationCircle}
+                        className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-900"
+
+                    />
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+)
+    ;
+}
+
+export default PopularProducts;

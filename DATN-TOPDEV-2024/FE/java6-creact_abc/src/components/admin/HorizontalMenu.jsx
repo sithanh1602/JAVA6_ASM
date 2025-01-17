@@ -50,9 +50,13 @@ const HorizontalMenu = ({ toggleMenu }) => {
                 size={24}
             />
             <ul className="hidden md:flex space-x-6">
-                <motion.li className="hover:text-gray-500 cursor-pointer transition"><Link to="/admin/dash">Dashboard</Link></motion.li>
+                <motion.li className="hover:text-gray-500 cursor-pointer transition"><Link
+                    to="/admin/dash">Dashboard</Link></motion.li>
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">
-                    <Link to="/admin/prd">Product</Link>
+                    <Link to="/admin/product">Product</Link>
+                </motion.li>
+                <motion.li className="hover:text-gray-500 cursor-pointer transition">
+                    <Link to="/admin/category">Category</Link>
                 </motion.li>
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">Orders</motion.li>
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">
@@ -61,7 +65,7 @@ const HorizontalMenu = ({ toggleMenu }) => {
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">Settings</motion.li>
             </ul>
             <div className="flex items-center space-x-4">
-                <FaBell className="text-pink-500 cursor-pointer" size={20} />
+                <FaBell className="text-pink-500 cursor-pointer" size={20}/>
                 <FaEnvelope className="text-pink-500 cursor-pointer" size={20} />
                 <div className="flex items-center">
                     <img
