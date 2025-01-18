@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ProductService from "../../../services/ProductService";
-import { addProductToCart, getAllCartItemsForUser, removeProductFromCart, updateCartItemQuantity } from "../../../services/CartService";
+import {
+  addProductToCart,
+  getAllCartItemsForUser,
+  removeProductFromCart,
+  updateCartItemQuantity,
+} from "../../../services/CartService";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-
+import { Toaster, toast } from 'sonner'
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -17,6 +22,7 @@ const ProductDetail = () => {
   const [brand, setBrand] = useState(null);
   const [category, setCategory] = useState(null);
   const [mainImage, setMainImage] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -124,6 +130,21 @@ const ProductDetail = () => {
     ? selectedVariant.name
     : "Product not found";
 
+  // Hàm kiểm tra và điều chỉnh số lượng
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value);
+    const maxStock = selectedVariant.quantity || selectedVariant.stock || 0;
+
+    if (value < 1) {
+      setQuantity(1);
+    } else if (value > maxStock) {
+      setQuantity(maxStock);
+      toast.error(`Chỉ còn ${maxStock} sản phẩm trong kho`);
+    } else {
+      setQuantity(value);
+    }
+  };
+
   // Giải mã token và lấy userId từ cookie
   const getUserIdFromToken = () => {
     const token = Cookies.get("token"); // Lấy token từ cookie
@@ -139,29 +160,49 @@ const ProductDetail = () => {
     }
     return null;
   };
-  
 
   const handleAddToCart = async () => {
-    const userId = getUserIdFromToken(); // Lấy userId từ token
+    const userId = getUserIdFromToken();
     if (!userId) {
-      alert("Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng.");
-      return;
+        alert("Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng.");
+        return;
     }
 
     try {
-      const cartItem = {
-        userId: userId,
-        productVariantId: selectedVariant.variantId||selectedVariant.idVariants, // ID của biến thể sản phẩm
-        quantity: 1, // Số lượng mặc định là 1, có thể điều chỉnh theo nhu cầu
-      };
+        // Kiểm tra số lượng tồn thực tế
+        const variantId = selectedVariant.variantId || selectedVariant.idVariants;
+        const actualStock = await ProductService.checkVariantQuantity(variantId);
 
-      await addProductToCart(cartItem.userId,cartItem.productVariantId,cartItem.quantity);  // Gọi API thêm sản phẩm vào giỏ hàng
-      alert("Sản phẩm đã được thêm vào giỏ hàng.");
-    } catch (err) {
-      console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", err);
-      alert("Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau.");
-    }
-  };
+        // Kiểm tra nếu hết hàng
+        if (actualStock === 0) {
+            alert("Sản phẩm đã hết hàng!");
+            setSelectedVariant(prev => ({...prev, quantity: 0, stock: 0}));
+            return;
+        }
+
+        // Kiểm tra nếu không đủ số lượng
+        if (quantity > actualStock) {
+            alert(`Chỉ còn ${actualStock} sản phẩm trong kho. Vui lòng giảm số lượng.`);
+            setSelectedVariant(prev => ({...prev, quantity: actualStock, stock: actualStock}));
+            setQuantity(actualStock);
+            return;
+        }
+
+        // Nếu đủ số lượng thì thêm vào giỏ hàng
+        const cartItem = {
+            userId: userId,
+            productVariantId: variantId,
+            quantity: quantity,
+        };
+
+        await addProductToCart(cartItem.userId, cartItem.productVariantId, cartItem.quantity);
+        toast.success("Sản phẩm đã được thêm vào giỏ hàng thành công.");
+
+    } catch (error) {
+        console.error("Lỗi:", error);
+        toast.error(error.message || "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau.");
+      }
+};
 
   return (
     <div className="container mx-auto p-5 max-w-6xl">
@@ -263,6 +304,41 @@ const ProductDetail = () => {
             )}
           </div>
           <div className="space-y-2 mt-4">
+            {/* Thêm phần input số lượng */}
+            <div className="flex items-center space-x-4 mb-4">
+              <label className="text-sm font-medium">Số lượng:</label>
+              <div className="flex items-center border rounded-lg">
+                <button
+                  className="px-3 py-1 border-r hover:bg-gray-100"
+                  onClick={() =>
+                    handleQuantityChange({ target: { value: quantity - 1 } })
+                  }
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  className="w-16 text-center px-2 py-1 focus:outline-none"
+                />
+                <button
+                  className="px-3 py-1 border-l hover:bg-gray-100"
+                  onClick={() =>
+                    handleQuantityChange({ target: { value: quantity + 1 } })
+                  }
+                >
+                  +
+                </button>
+              </div>
+              <span className="text-sm text-gray-500">
+                Còn {selectedVariant.quantity || selectedVariant.stock || 0} sản
+                phẩm
+              </span>
+            </div>
+
+            {/* Các nút giữ nguyên */}
             <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
               Mua ngay
             </button>
@@ -275,6 +351,7 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+      <Toaster richColors position="top-center" />
     </div>
   );
 };

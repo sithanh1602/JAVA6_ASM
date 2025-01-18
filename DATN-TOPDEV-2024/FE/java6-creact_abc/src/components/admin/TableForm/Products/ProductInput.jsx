@@ -46,11 +46,6 @@ const schema = yup.object().shape({
         .required('Bắt buộc nhập số lượng')
         .typeError('Số lượng phải là số')
         .min(0, 'Số lượng không thể là số âm'),
-    price: yup
-        .number()
-        .required('Bắt buộc nhập giá')
-        .typeError('Giá phải là số')
-        .min(0, 'Giá không thể là số âm'),
     categoryId: yup.string().required('Danh mục là bắt buộc'),
     brandId: yup.string().required('Thương hiệu là bắt buộc'),
     status: yup.string().required('Trạng thái là bắt buộc')

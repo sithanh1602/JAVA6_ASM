@@ -94,11 +94,6 @@ public class ProductController {
         return productService.getImagesByProductVariantId(productVariantId);
     }
 
-    @GetMapping("/variants")
-    public ResponseEntity<List<ProductVariant>> getAllProductVariants() {
-        List<ProductVariant> variants = productService.getAllProductVariants();
-        return ResponseEntity.ok(variants);
-    }
 
     @GetMapping("/variants/{id}")
     public ResponseEntity<ProductVariant> getProductVariantById(@PathVariable Long id) {
@@ -111,5 +106,15 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductsByCategoryId(@PathVariable int categoryId) {
         List<Product> products = productService.getProductsByCategoryId(categoryId);
         return products.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/check-quantity/{variantId}")
+    public ResponseEntity<Integer> checkVariantQuantity(@PathVariable Long variantId) {
+        try {
+            Integer quantity = productService.checkVariantQuantity(variantId);
+            return ResponseEntity.ok(quantity);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

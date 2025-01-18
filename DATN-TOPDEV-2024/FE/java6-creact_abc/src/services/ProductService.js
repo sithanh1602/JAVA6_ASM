@@ -118,6 +118,17 @@ class ProductService {
             throw error;
         }
     }
+
+    async checkVariantQuantity(variantId) {
+        try {
+            const response = await axios.get(`${BASE_URL}/check-quantity/${variantId}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error checking quantity for variant ID ${variantId}:`, error);
+            throw error;
+        }
+    }
+
 }
 
 export default new ProductService();
