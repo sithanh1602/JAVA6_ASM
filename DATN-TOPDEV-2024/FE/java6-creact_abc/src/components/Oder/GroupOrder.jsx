@@ -111,7 +111,7 @@ const GroupOrder = () => {
             phone: userInfo.phone,
             cartItems: cartItems.map((item) => ({
                 productVariantId: item.product_variant_id,
-                quantity: item.productQuantity,
+                quantity: item.quantity,
                 productName: item.productName,
                 productPrice: item.productPrice,
             })),

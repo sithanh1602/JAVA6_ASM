@@ -211,6 +211,19 @@ public class OrderService {
             }
             productVariantRepository.save(productVariant);
 
+            // Lấy sản phẩm chính (Product)
+            Product product = productVariant.getProduct();
+
+            // Cập nhật số lượng tồn kho và số lượng mua
+            product.setStock(product.getStock() - item.getQuantity());
+            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
+
+            // Kiểm tra tồn kho của sản phẩm chính
+            if (product.getStock() <= 0) {
+                product.setStatus("Out of Stock");
+            }
+            productRepository.save(product);
+
             // Lưu chi tiết đơn hàng
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrder(savedOrder);
@@ -225,7 +238,6 @@ public class OrderService {
         }
         return savedOrder;
     }
-
 
 
     // Hàm để sinh số đơn hàng (có thể điều chỉnh để phù hợp với yêu cầu)
@@ -257,7 +269,7 @@ public class OrderService {
         order.setTotalPrice(orderRequest.getTotalPrice());
         order.setStatus(1);  // Đơn hàng mới
         order.setFullAddress(orderRequest.getFullAddress());
-        order.setPaymentStatus(false);
+        order.setPaymentStatus(false); // Trạng thái thanh toán là thành công
         order.setOrderDate(new Date()); // Ngày tạo đơn hàng
         order.setPhone(orderRequest.getPhone());
         Orders savedOrder = ordersRepository.save(order);
@@ -285,6 +297,19 @@ public class OrderService {
                 productVariant.setStatus("Out of Stock");
             }
             productVariantRepository.save(productVariant);
+
+            // Lấy sản phẩm chính (Product)
+            Product product = productVariant.getProduct();
+
+            // Cập nhật số lượng tồn kho và số lượng mua
+            product.setStock(product.getStock() - item.getQuantity());
+            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
+
+            // Kiểm tra tồn kho của sản phẩm chính
+            if (product.getStock() <= 0) {
+                product.setStatus("Out of Stock");
+            }
+            productRepository.save(product);
 
             // Lưu chi tiết đơn hàng
             OrderDetail orderDetail = new OrderDetail();
