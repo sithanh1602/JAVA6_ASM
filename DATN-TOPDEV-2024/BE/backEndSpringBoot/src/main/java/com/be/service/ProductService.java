@@ -79,9 +79,6 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<ProductVariant> getAllProductVariants() {
-        return productVariantRepository.findAll();
-    }
 
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
@@ -211,5 +208,10 @@ public class ProductService {
         return productRepository.findByCategoryId(categoryId);
     }
 
+    public Integer checkVariantQuantity(Long variantId) {
+        ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new RuntimeException("Product variant not found"));
+        return variant.getQuantity();
+    }
 
 }

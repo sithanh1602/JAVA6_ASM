@@ -58,27 +58,37 @@ public class CartDetailService {
         }).collect(Collectors.toList());
     }
 
-        public CartDetail addProductVariantToCart(Long userId, Long productVariantId, Integer quantity) {
-            // Validate user existence
-            User user = userRepository.findById(userId).orElseThrow(() ->
-                    new RuntimeException("User không tồn tại với ID: " + userId));
+    public CartDetail addProductVariantToCart(Long userId, Long productVariantId, Integer quantity) {
+        // Validate user existence
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new RuntimeException("User không tồn tại với ID: " + userId));
 
-            // Validate product variant existence
-            ProductVariant productVariant = productVariantRepository.findById(productVariantId).orElseThrow(() ->
-                    new RuntimeException("ProductVariant không tồn tại với ID: " + productVariantId));
+        // Validate product variant existence
+        ProductVariant productVariant = productVariantRepository.findById(productVariantId).orElseThrow(() ->
+                new RuntimeException("ProductVariant không tồn tại với ID: " + productVariantId));
 
-            // Find existing cart detail or create a new one
-            CartDetail cartDetail = cartDetailRepository.findByUserIdAndProductVariantId(userId, productVariantId)
-                    .orElseGet(CartDetail::new);
+        // Kiểm tra số lượng tồn kho
+        int availableStock = productVariant.getQuantity();
+        Optional<CartDetail> existingCartDetailOpt = cartDetailRepository.findByUserIdAndProductVariantId(userId, productVariantId);
+        int currentQuantityInCart = existingCartDetailOpt.map(CartDetail::getQuantity).orElse(0);
 
-            // Set properties for CartDetail
-            cartDetail.setUserId(user);
-            cartDetail.setProduct_variant_id(productVariant);
-            cartDetail.setQuantity(cartDetail.getQuantity() == null ? quantity : cartDetail.getQuantity() + quantity);
-
-            // Save the updated cart detail
-            return cartDetailRepository.save(cartDetail);
+        if (quantity + currentQuantityInCart > availableStock) {
+            throw new RuntimeException(String.format("Sản phẩm chỉ còn %d sản phẩm trong kho. Vui lòng giảm số lượng.", availableStock));
         }
+
+
+        // Find existing cart detail or create a new one
+        CartDetail cartDetail = existingCartDetailOpt.orElseGet(CartDetail::new);
+
+        // Set properties for CartDetail
+        cartDetail.setUserId(user);
+        cartDetail.setProduct_variant_id(productVariant);
+        cartDetail.setQuantity(currentQuantityInCart + quantity);
+
+        // Save the updated cart detail
+        return cartDetailRepository.save(cartDetail);
+    }
+
 
     public void removeProduct(Long userId, Long productVariantId) {
         // Xóa sản phẩm khỏi giỏ hàng của người dùng

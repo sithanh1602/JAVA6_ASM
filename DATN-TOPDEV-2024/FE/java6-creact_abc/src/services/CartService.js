@@ -6,22 +6,26 @@ const API_URL = 'http://localhost:8080/api/carts';
 // Hàm để thêm sản phẩm vào giỏ hàng
 export const addProductToCart = async (userId, productVariantId, quantity) => {
     try {
-        // Gửi request POST đến API để thêm sản phẩm vào giỏ hàng
+        // Gửi request POST đến API
         const response = await axios.post(`${API_URL}/add`, null, {
-            params: {
-                userId,
-                productVariantId,
-                quantity,
-            }
+            params: { userId, productVariantId, quantity },
         });
 
         // Trả về dữ liệu giỏ hàng đã được cập nhật
         return response.data;
     } catch (error) {
-        console.error('Lỗi khi thêm sản phẩm vào giỏ hàng:', error);
-        throw new Error('Không thể thêm sản phẩm vào giỏ hàng');
+        // Kiểm tra lỗi trả về từ server
+        if (error.response && error.response.data) {
+            const { error } = error.response.data;
+            console.error(`Lỗi từ server: ${error}`);
+            throw new Error(error); // Trả về lỗi chi tiết
+        } else {
+            console.error('Lỗi không xác định:', error);
+            throw new Error('Số lượng trong giỏ hàng đã đạt tối đa có sẵn trong kho.');
+        }
     }
 };
+
 
 // Hàm để lấy tất cả các sản phẩm trong giỏ hàng của người dùng
 export const getAllCartItemsForUser = async (userId) => {
