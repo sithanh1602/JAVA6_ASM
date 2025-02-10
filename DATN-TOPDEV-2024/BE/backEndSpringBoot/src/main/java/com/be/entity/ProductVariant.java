@@ -18,6 +18,9 @@ public class ProductVariant {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Column(name="name_variants")
+    private String nameVariants;
+
     @Column(name = "quantity")
     private int quantity;
 

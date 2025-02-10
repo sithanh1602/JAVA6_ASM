@@ -19,7 +19,4 @@ public class ProductVariantDTO {
         this.description = description;
         this.idVariants = idVariants;
     }
-
-
-
 }

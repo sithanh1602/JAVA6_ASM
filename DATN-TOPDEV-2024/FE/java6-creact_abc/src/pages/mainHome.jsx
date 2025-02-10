@@ -15,7 +15,7 @@ const HomePage = () => {
         <div className="bg-gray-100 will-change-transform">
             <div className="container mx-auto p-4">
                 <BannerContent/>
-                <TabProduct/>
+                {/*<TabProduct/>*/}
                 <PopularProducts/>
                 <BannerPhu1/>
                 <CategoryOnlineShopping/>
