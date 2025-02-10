@@ -5,20 +5,23 @@ import AuthForm from "../components/account/AuthForm";
 import HomePage from "../pages/home";
 import WebSocketNotification from "../components/account/WebSocketNotification";
 import {NextUIProvider} from "@nextui-org/react";
+import SmoothScroll from "../services/SmoothScroll";
 const App = () => {
     return (
-        <NextUIProvider>
-            <Router>
-                <WebSocketNotification />
-                <div className="min-h-screen flex flex-col">
-                    <Routes>
-                        <Route path="/*" element={<HomePage />} />
-                        <Route path="/admin/*" element={<AdminLayout />} />
-                        <Route path="/login" element={<AuthForm />} />
-                    </Routes>
-                </div>
-            </Router>
-        </NextUIProvider>
+        <SmoothScroll>
+            <NextUIProvider>
+                <Router>
+                    <WebSocketNotification />
+                    <div className="min-h-screen flex flex-col">
+                        <Routes>
+                            <Route path="/*" element={<HomePage />} />
+                            <Route path="/admin/*" element={<AdminLayout />} />
+                            <Route path="/login" element={<AuthForm />} />
+                        </Routes>
+                    </div>
+                </Router>
+            </NextUIProvider>
+        </SmoothScroll>
     );
 }
 

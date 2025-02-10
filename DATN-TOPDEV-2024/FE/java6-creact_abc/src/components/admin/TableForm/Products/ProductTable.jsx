@@ -2,6 +2,7 @@ import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'rea
 import DataTable from 'react-data-table-component';
 import Modal from 'react-modal';
 import ProductInput from './ProductInput'; // Ensure this path points to your ProductInput component
+import ProductVariantsInput from "./ProductsVariantsInput";
 import ProductService from '../../../../services/ProductService';
 import Swal from 'sweetalert2';
 import {FaEdit, FaTrash} from 'react-icons/fa';
@@ -14,6 +15,7 @@ const ProductTable = forwardRef((_, ref) => {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpenVariants, setIsModalOpenVariants] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [searchName, setSearchName] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
@@ -49,6 +51,11 @@ const ProductTable = forwardRef((_, ref) => {
     const handleAddProduct = () => {
         setSelectedProduct(null); // Clear selection for new product
         setIsModalOpen(true); // Open modal
+    };
+
+    const handleAddProductVariants = () => {
+        setSelectedProduct(null); // Clear selection for new product
+        setIsModalOpenVariants(true); // Open modal
     };
 
     // Open modal for editing an existing product
@@ -88,6 +95,11 @@ const ProductTable = forwardRef((_, ref) => {
     // Close modal after save and refresh product list
     const handleModalClose = () => {
         setIsModalOpen(false); // Close modal
+        fetchProducts(); // Refresh product list after save
+    };
+
+    const handleModalCloseVariants = () => {
+        setIsModalOpenVariants(false); // Close modal
         fetchProducts(); // Refresh product list after save
     };
 
@@ -169,7 +181,7 @@ const ProductTable = forwardRef((_, ref) => {
                         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                         onClick={() => handleEditProduct(row)}
                     >
-                        <FaEdit />
+                        <FaEdit/>
                     </button>
                     <button
                         className={`px-2 py-1 rounded ${
@@ -178,7 +190,12 @@ const ProductTable = forwardRef((_, ref) => {
                         onClick={() => row.stock !== 0 && handleDelete(row.id, row)}
                         disabled={row.stock === 0}
                     >
-                        <FiRefreshCw />
+                        <FiRefreshCw/>
+                    </button>
+                    <button
+                        className={`px-2 py-1 rounded bg-orange-600`}
+                        onClick={handleAddProductVariants}
+                    > Tạo biến thể
                     </button>
                 </div>
             ),
@@ -193,7 +210,7 @@ const ProductTable = forwardRef((_, ref) => {
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
 
             // Chuyển workbook thành buffer
-            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            const excelBuffer = XLSX.write(workbook, {bookType: 'xlsx', type: 'array' });
 
             // Chuyển buffer thành Blob
             const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
@@ -245,6 +262,30 @@ const ProductTable = forwardRef((_, ref) => {
                         </button>
                     </div>
                     <ProductInput product={selectedProduct} onSave={handleModalClose} />
+                </div>
+            </Modal>
+
+            {/* Modal Component */}
+            <Modal
+                isOpen={isModalOpenVariants}
+                onRequestClose={handleModalClose}
+                ariaHideApp={false}
+                className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl transition-opacity duration-300 ease-out"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+            >
+                <div className="h-full w-full bg-white p-6 rounded-lg flex flex-col">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold">
+                            {selectedProduct ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}
+                        </h2>
+                        <button
+                            onClick={handleModalCloseVariants}
+                            className="text-gray-500 hover:text-gray-700"
+                        >
+                            <span className="text-xl">×</span>
+                        </button>
+                    </div>
+                    <ProductVariantsInput product={selectedProduct} onSave={handleModalCloseVariants} />
                 </div>
             </Modal>
 

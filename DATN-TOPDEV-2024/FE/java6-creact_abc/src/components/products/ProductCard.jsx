@@ -4,19 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import { addProductToCart } from '../../services/CartService';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button } from '@nextui-org/react';
 import { faCartPlus, faHeart, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
-
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
 };
 
-const ProductCard = ({ product, index }) => {
+const ProductCard = ({ variant, index }) => {
     const navigate = useNavigate();
-
+    console.log(variant);
     const handleAddToCart = async () => {
-        const userId = localStorage.getItem('UserId'); // Lấy userId từ localStorage
-        const role = localStorage.getItem('role'); // Lấy role từ localStorage
+        const userId = localStorage.getItem('UserId');
+        const role = localStorage.getItem('role');
 
         if (!userId) {
             Swal.fire({
@@ -41,7 +41,7 @@ const ProductCard = ({ product, index }) => {
         }
 
         try {
-            await addProductToCart(userId, product.id, 1); // Thêm sản phẩm vào giỏ hàng
+            await addProductToCart(userId, variant.id, 1);
             Swal.fire({
                 title: 'Thành công',
                 text: 'Thêm vào giỏ hàng thành công!',
@@ -59,9 +59,7 @@ const ProductCard = ({ product, index }) => {
         }
     };
 
-
     const handleFavorite = () => {
-        // Implement the logic for adding the product to favorites
         Swal.fire({
             title: 'Thông báo',
             text: 'Sản phẩm đã được thêm vào danh sách yêu thích',
@@ -71,52 +69,39 @@ const ProductCard = ({ product, index }) => {
     };
 
     const handleShowProductDetails = () => {
-        // Logic for viewing product details can go here
-        navigate(`/products/${product.id}/productdetail`);
+        navigate(`/products/${variant.product.id}/productdetail`);
     };
 
-    // Check if the product is out of stock
-    const isOutOfStock = product.stock === 0;
+    const isOutOfStock = variant.stock === 0;
 
     return (
         <div
-            className={`bg-white p-4 rounded shadow-md w-full relative overflow-hidden ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-            <Link to={`/product/${product.id}`}>
-                <div className="flex justify-center items-center">
+            className={`bg-white p-4 rounded shadow-md w-full relative overflow-hidden ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <div className="flex justify-center items-center" onClick={handleShowProductDetails}>
                     <img
-                        src={product.imageUrl || `https://placehold.co/200x200?text=Product+Image+${index + 1}`}
-                        alt={product.name || `Product Image ${index + 1}`}
+                        src={variant.image || `https://placehold.co/200x200?text=Variant+Image+${index + 1}`}
+                        alt={variant.name || `Variant Image ${index + 1}`}
                         className="h-48 object-cover mb-4"
                     />
                 </div>
-            </Link>
-            <h3 className="text-sm font-bold mb-2">{product.name}</h3>
-            {/*<div className="text-sm text-gray-600 mb-2">{formatPrice(product.price)}</div>*/}
-            {/*<div className={`text-sm font-bold mb-2 ${isOutOfStock ? 'text-red-500' : 'text-orange-500'}`}>*/}
-            {/*    {isOutOfStock ? 'Hết hàng' : `Còn lại: ${product.stock}`}*/}
-            {/*</div>*/}
-
-            {/* Hover Effect for Icons */}
-            <div
-                className={`absolute top-0 left-0 right-0 bottom-0 bg-gray-700 opacity-0 hover:opacity-60 transition-opacity duration-300 flex justify-center items-center space-x-4 ${isOutOfStock ? 'pointer-events-none' : ''}`}
-            >
-                <FontAwesomeIcon
-                    icon={faCartPlus}
-                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-orange-900"
-                    onClick={handleAddToCart}
-                />
-                <FontAwesomeIcon
-                    icon={faHeart}
-                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-red-900"
-                    onClick={handleFavorite}
-                />
-                {/* Exclamation Icon */}
-                <FontAwesomeIcon
-                    icon={faExclamationCircle}
-                    className="text-white text-xl cursor-pointer transition-colors duration-300 ease-in-out hover:text-yellow-900"
-                    onClick={handleShowProductDetails}
-                />
+            <h3 className="text-sm font-bold mb-2">{variant.nameVariants}</h3>
+            <div className="text-sm text-gray-600 mb-2">{formatPrice(variant.price)}</div>
+            <div className={`text-sm font-bold mb-2 ${isOutOfStock ? 'text-red-500' : 'text-orange-500'}`}>
+                {isOutOfStock ? 'Hết hàng' : `Còn lại: ${variant.quantity}`}
+            </div>
+            <div className=" justify-center items-center mt-3">
+                <Button color="warning" onClick={handleAddToCart}>
+                    <FontAwesomeIcon icon={faCartPlus}/> Thêm vào giỏ
+                </Button>
+            </div>
+            <div className=" justify-center items-center space-x-4 mt-3">
+                <Button color="danger" onClick={handleFavorite}>
+                    <FontAwesomeIcon icon={faHeart}/>
+                </Button>
+                <Button color="primary"
+                        onClick={handleShowProductDetails}>
+                    <FontAwesomeIcon icon={faExclamationCircle}/>
+                </Button>
             </div>
         </div>
     );

@@ -20,6 +20,7 @@ import OrderList from "../components/Oder/OrderList";
 import PaymentSuccess from "../components/vnpaypayment/PaymentSuccess";
 import ProductDetail from "../components/products/productDetails/ProductDetail";
 import HeaderDownNavbar from "../components/home/headerDownNavbar";
+import ProductVariantList from "../components/products/Variants/ProductVariantList";
 
 const HomePage = () => {
     return (
@@ -34,7 +35,7 @@ const HomePage = () => {
                     <Route path="/cart" element={<Cart/>}/>
                     <Route path="/product/:productId" element={<ProductPage/>}/>
                     <Route path="/products/:productId/productdetail" element={<ProductDetail />} />
-                    <Route path="/aboutUs" element={<AboutUs/>}/>
+                    <Route path="/aboutUs" element={<AboutUs/>}/>   
                     <Route path="/contact" element={< Contact/>}/>
                     <Route path="/news" element={< News/>}/>
                     <Route path="/orders" element={< GroupOrder/>}/>
