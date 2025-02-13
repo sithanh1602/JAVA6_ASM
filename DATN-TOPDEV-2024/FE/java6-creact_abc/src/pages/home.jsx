@@ -20,7 +20,7 @@ import OrderList from "../components/Oder/OrderList";
 import PaymentSuccess from "../components/vnpaypayment/PaymentSuccess";
 import ProductDetail from "../components/products/productDetails/ProductDetail";
 import HeaderDownNavbar from "../components/home/headerDownNavbar";
-import ProductVariantList from "../components/products/Variants/ProductVariantList";
+import AuthForm from "../components/account/AuthForm";
 
 const HomePage = () => {
     return (
@@ -31,6 +31,7 @@ const HomePage = () => {
                 <HeaderDownNavbar/>
                 <Routes>
                     <Route path="/" element={<Conten/>}/>
+                    <Route path="/loginn" element={<AuthForm />} />
                     <Route path="/products" element={<Products/>}/>
                     <Route path="/cart" element={<Cart/>}/>
                     <Route path="/product/:productId" element={<ProductPage/>}/>

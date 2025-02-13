@@ -39,7 +39,7 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         { icon: <FaUser className="text-pink-500" />, label: 'User', link: '/admin/user' },
         { icon: <FaEnvelope className="text-purple-500" />, label: 'Email', link: '/admin/contact' },
         { icon: <FaFileExcel className="text-purple-500" />, label: 'Driver Excel', link: '/admin/tplXlsx' },
-        { icon: <FaPencilAlt className="text-blue-500" />, label: 'Forms', link: '/forms' },
+        { icon: <FaPencilAlt className="text-blue-500" />, label: 'Forms', link: '/admin/post' },
         { icon: <FaPuzzlePiece className="text-pink-500" />, label: 'UI Elements', link: '/ui-elements' },
         { icon: <FaTable className="text-orange-500" />, label: 'Tables', hasArrow: true, subItems: [
                 { label: 'Basic Table', link: '/tables/basic' },

@@ -19,4 +19,11 @@ public class ProductVariantService {
         List<ProductVariant> productVariants = productVariantRepository.findAll();
         return productVariants;
     }
+
+    public List<ProductVariantDTO> searchProductVariantsByName(String keyword) {
+        return productVariantRepository.findByNameVariantsContainingIgnoreCase(keyword)
+                .stream()
+                .map(product -> new ProductVariantDTO(product))
+                .collect(Collectors.toList());
+    }
 }

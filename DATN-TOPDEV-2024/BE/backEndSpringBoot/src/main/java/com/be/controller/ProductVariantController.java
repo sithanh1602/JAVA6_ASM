@@ -20,4 +20,10 @@ public class ProductVariantController {
     public List<ProductVariant> getAllProductVariants() {
         return productVariantService.getAllProductVariants();
     }
+
+    // API tìm kiếm sản phẩm theo tên
+    @GetMapping("/search")
+    public List<ProductVariantDTO> searchProductVariants(@RequestParam String keyword) {
+        return productVariantService.searchProductVariantsByName(keyword);
+    }
 }

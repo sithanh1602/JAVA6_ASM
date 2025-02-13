@@ -7,7 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
-import { FaUser, FaLock, FaEnvelope, FaGoogle, FaFacebook ,FaUserCircle,FaKey,FaPhone} from 'react-icons/fa';
+import { FaGoogle, FaFacebook} from 'react-icons/fa';
+import {Input, Checkbox} from "@nextui-org/react";
 import Modal from 'react-modal'; // Import react-modal
 
 
@@ -119,6 +120,7 @@ const AuthForm = () => {
                 navigate('/admin');
             } else if (userRole === 'USER') {
                 navigate('/');
+                window.location.reload(); // Load lại trang sau khi chuyển hướng
             } else {
                 toast.error('Không có quyền truy cập');
             }
@@ -260,7 +262,7 @@ const AuthForm = () => {
     return (
         <>
             <div className="min-h-screen flex items-center justify-center bg-gray-100 bg-galaxy">
-                <div className="bg-transparent p-8 rounded-lg shadow-lg w-full max-w-md text-white">
+                <div className="p-8 border-3 w-full max-w-md ">
                     <AnimatePresence mode="wait">
                         {isLogin ? (
                             <motion.div
@@ -273,39 +275,35 @@ const AuthForm = () => {
                                 <h2 className="text-2xl font-semibold text-center mb-6">Đăng Nhập</h2>
                                 <form onSubmit={handleLogin}>
                                     <div className="mb-4 flex items-center">
-                                        <input
-                                            type="text"
-                                            className="mt-1 p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-500 ease-in-out"
-                                            placeholder="Nhập tài khoản của bạn"
+                                        <Input
+                                            label="Tên đăng nhập"
+                                            radius="none"
+                                            className="border-gray-500"
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
                                             required
                                         />
-                                        <FaUser
-                                            className=" ml-2 mt-1"/> {/* Thêm mt-1 để căn chỉnh icon */}
                                     </div>
 
                                     <div className="mb-4 flex items-center">
-                                        <input
+                                        <Input
                                             type="password"
-                                            className="mt-1 p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-500 ease-in-out"
-                                            placeholder="Nhập mật khẩu của bạn"
+                                            radius="none"
+                                            className="border-gray-500"
+                                            label="Mật khẩu"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
                                         />
-                                        <FaLock
-                                            className=" ml-2 mt-1"/> {/* Thêm mt-1 để căn chỉnh icon */}
                                     </div>
                                     <div className="flex items-center justify-between mb-4">
-                                        <label className="flex items-center text-white">
-                                            <input
-                                                type="checkbox"
-                                                className="mr-2"
-                                                checked={rememberMe}
-                                                onChange={() => setRememberMe(!rememberMe)}
-                                            />
-                                            Ghi nhớ tài khoản và mật khẩu ?
+                                        <label className="flex items-center">
+                                            <Checkbox
+                                                isSelected={rememberMe}
+                                                onValueChange={setRememberMe}
+                                            >
+                                                Ghi nhớ tài khoản và mật khẩu
+                                            </Checkbox>
                                         </label>
                                         <button
                                             type="button"
@@ -317,7 +315,7 @@ const AuthForm = () => {
                                     </div>
                                     <button
                                         type="submit"
-                                        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200"
+                                        className="w-full bg-blue-600 text-white py-2 hover:bg-blue-700 transition duration-200"
                                     >
                                         Đăng Nhập
                                     </button>
@@ -329,13 +327,13 @@ const AuthForm = () => {
                                 </div>
                                 <div className="mt-6">
                                     <button
-                                        className="w-full bg-red-600 text-white py-2 rounded flex items-center justify-center hover:bg-red-700 transition duration-200 mb-4"
+                                        className="w-full bg-red-600 text-white py-2 flex items-center justify-center hover:bg-red-700 transition duration-200 mb-4"
                                     >
                                         <FaGoogle className="w-4 h-4 mr-2"/> {/* Thêm mt-1 để căn chỉnh icon */}
                                         Đăng Nhập với Google
                                     </button>
                                     <button
-                                        className="w-full bg-blue-800 text-white py-2 rou   nded flex items-center justify-center hover:bg-blue-900 transition duration-200"
+                                        className="w-full bg-blue-800 text-white py-2 flex items-center justify-center hover:bg-blue-900 transition duration-200"
                                     >
                                         <FaFacebook className="w-4 h-4 mr-2"/>
                                         Đăng Nhập với Facebook
@@ -344,7 +342,7 @@ const AuthForm = () => {
                                 <p className="mt-4 text-center text-white-600">
                                     Chưa có tài khoản?{' '}
                                     <button onClick={handleToggle}
-                                            className="font-semibold text-orange-400 hover:underline">
+                                            className=" text-orange-400 hover:underline">
                                         Đăng ký
                                     </button>
                                 </p>
@@ -360,70 +358,70 @@ const AuthForm = () => {
                                 <h2 className="text-2xl font-semibold text-center mb-6">Đăng Ký</h2>
                                 <form onSubmit={handleRegister}>
                                     <div className="mb-4 flex items-center">
-                                        <input
+                                        <Input
+                                            label="Họ và Tên"
+                                            radius="none"
                                             type="text"
-                                            className="mt-1 p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-500 ease-in-out"
-                                            placeholder="Nhập họ tên của bạn"
+                                            className="border-gray-300"
                                             value={fullName}
                                             onChange={(e) => setFullName(e.target.value)}
                                             required
                                         />
-                                        <FaUser className="ml-2 mt-1" />
                                     </div>
                                     <div className="mb-4 flex items-center">
-                                        <input
+                                        <Input
+                                            label="Email"
+                                            radius="none"
                                             type="email"
-                                            className="mt-1 p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-500 ease-in-out"
-                                            placeholder="Nhập email của bạn"
+                                            className="border-gray-300"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             required
                                         />
-                                        <FaEnvelope className="ml-2 mt-1" />
                                     </div>
                                     <div className="mb-4 flex items-center">
-                                        <input
+                                        <Input
+                                            label="Số điện thoại"
                                             type="text"
-                                            className="mt-1 p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-500 ease-in-out"
-                                            placeholder="Nhập số điện thoại của bạn"
+                                            radius="none"
+                                            className="border-gray-300"
                                             value={phone}
                                             onChange={(e) => setPhone(e.target.value)}
                                             required
                                         />
-                                        <FaPhone className="ml-2 mt-1" />
                                     </div>
                                     <div className="mb-4 flex items-center">
-                                        <input
+                                        <Input
                                             type="text"
-                                            className="mt-1 p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-500 ease-in-out"
-                                            placeholder="Nhập tài khoản của bạn"
+                                            label="Tên tài khoản"
+                                            radius="none"
+                                            className="border-gray-300"
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
                                             required
                                         />
-                                        <FaUserCircle className="ml-2 mt-1" />
                                     </div>
                                     <div className="mb-4 flex items-center">
-                                        <input
+                                        <Input
                                             type="password"
-                                            className="mt-1 p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-500 ease-in-out"
-                                            placeholder="Nhập mật khẩu của bạn"
+                                            label="Mật khẩu"
+                                            radius="none"
+                                            className="border-gray-300"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
                                         />
-                                        <FaLock className="ml-2 mt-1" />
                                     </div>
                                     <div className="mb-4 flex items-center">
-                                        <input
+                                        <Input
                                             type="password"
-                                            className="mt-1 p-2 w-full border-b bg-transparent border-gray-300 focus:outline-none focus:border-blue-500"
-                                            placeholder="Nhập lại mật khẩu của bạn"
+                                            label="Mật khẩu"
+                                            radius="none"
+                                            className="border-gray-300"
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             required
                                         />
-                                        <FaKey className="ml-2 mt-1" />
                                     </div>
                                     <div className="flex items-center justify-center mt-6">
                                         <span className="border-t w-1/5 inline-block"></span>
@@ -465,7 +463,7 @@ const AuthForm = () => {
                                     </div>
                                 )}
 
-                                <p className="mt-4 text-center text-white text-gray-600">
+                                <p className="mt-4 text-center">
                                     Đã có tài khoản?{' '}
                                     <button onClick={handleToggle} className="font-semibold text-orange-400 hover:underline">
                                         Đăng nhập
@@ -558,21 +556,6 @@ const AuthForm = () => {
                     )}
                 </div>
             </Modal>
-            <style>
-                {`
-                  .bg-galaxy {
-                    background: linear-gradient(135deg, #330867, #4b0082, #8a2be2, #ff00ff);
-                    background-size: 200% 200%;
-                    animation: galaxy 10s ease infinite;
-                  }
-        
-                  @keyframes galaxy {
-                    0% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                    100% { background-position: 0% 50%; }
-                  }
-                `}
-            </style>
         </>
     );
 };
