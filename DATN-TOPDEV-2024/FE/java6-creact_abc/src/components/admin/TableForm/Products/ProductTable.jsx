@@ -276,7 +276,7 @@ const ProductTable = forwardRef((_, ref) => {
                 <div className="h-full w-full bg-white p-6 rounded-lg flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold">
-                            {selectedProduct ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}
+                           Thêm Biến thể
                         </h2>
                         <button
                             onClick={handleModalCloseVariants}
