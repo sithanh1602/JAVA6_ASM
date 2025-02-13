@@ -70,6 +70,7 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
             maximumFractionDigits: 0
         }).format(value).replace(/\s?₫/g, ' VND');
     };
+    console.log(item);
 
     return (
         <div className="grid grid-cols-7 gap-4 items-center mt-4">

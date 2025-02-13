@@ -1,11 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { addProductToCart } from '../../services/CartService';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button } from '@nextui-org/react';
-import { faCartPlus, faHeart, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCartPlus, faHeart, faExclamationCircle, faStar } from '@fortawesome/free-solid-svg-icons';
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
@@ -13,7 +11,8 @@ const formatPrice = (price) => {
 
 const ProductCard = ({ variant, index }) => {
     const navigate = useNavigate();
-    console.log(variant);
+    const isOutOfStock = variant.quantity === 0;
+
     const handleAddToCart = async () => {
         const userId = localStorage.getItem('UserId');
         const role = localStorage.getItem('role');
@@ -55,7 +54,7 @@ const ProductCard = ({ variant, index }) => {
                 }
             });
         } catch (error) {
-            Swal.fire('Lỗi', 'Lỗi khi thêm sản phẩm vào giỏ hàng', 'error');
+            Swal.fire('Lỗi', 'Số lượng sản phẩm không đủ', 'error');
         }
     };
 
@@ -68,41 +67,54 @@ const ProductCard = ({ variant, index }) => {
         });
     };
 
-    const handleShowProductDetails = () => {
+    const   handleShowProductDetails = () => {
         navigate(`/products/${variant.product.id}/productdetail`);
     };
 
-    const isOutOfStock = variant.stock === 0;
-
     return (
         <div
-            className={`bg-white p-4 rounded shadow-md w-full relative overflow-hidden ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                <div className="flex justify-center items-center" onClick={handleShowProductDetails}>
-                    <img
-                        src={variant.image || `https://placehold.co/200x200?text=Variant+Image+${index + 1}`}
-                        alt={variant.name || `Variant Image ${index + 1}`}
-                        className="h-48 object-cover mb-4"
-                    />
-                </div>
-            <h3 className="text-sm font-bold mb-2">{variant.nameVariants}</h3>
-            <div className="text-sm text-gray-600 mb-2">{formatPrice(variant.price)}</div>
-            <div className={`text-sm font-bold mb-2 ${isOutOfStock ? 'text-red-500' : 'text-orange-500'}`}>
-                {isOutOfStock ? 'Hết hàng' : `Còn lại: ${variant.quantity}`}
+            className={`relative bg-white p-4 border shadow-md overflow-hidden group ${isOutOfStock ? 'opacity-50' : ''}`}>
+            <div className="relative cursor-pointer" onClick={!isOutOfStock ? handleShowProductDetails : undefined}>
+                <img
+                    src={variant.image || `https://placehold.co/200x200?text=Variant+Image+${index + 1}`}
+                    alt={variant.name || `Variant Image ${index + 1}`}
+                    className="h-64 w-full object-cover rounded-lg"
+                />
+                {isOutOfStock && (
+                    <div
+                        className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-red-800 font-bold text-lg">
+                        HẾT HÀNG
+                    </div>
+                )}
             </div>
-            <div className=" justify-center items-center mt-3">
-                <Button color="warning" onClick={handleAddToCart}>
-                    <FontAwesomeIcon icon={faCartPlus}/> Thêm vào giỏ
-                </Button>
-            </div>
-            <div className=" justify-center items-center space-x-4 mt-3">
-                <Button color="danger" onClick={handleFavorite}>
+            {variant.discount && (
+                <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                    -{variant.discount}%
+                </span>
+            )}
+            <h3 className="text-sm font-bold mt-3">{variant.nameVariants}</h3>
+            <div className="text-sm font-bold text-red-500">{formatPrice(variant.price)}</div>
+            <div className="text-sm font-bold text-red-500 hidden">{variant.product.brand.name}</div>
+            <div className="text-sm font-bold text-red-500 hidden">{variant.product.category.name}</div>
+            <div className="flex mt-2">
+                <button className="text-gray-500 hover:text-red-500" onClick={handleFavorite}>
                     <FontAwesomeIcon icon={faHeart}/>
-                </Button>
-                <Button color="primary"
-                        onClick={handleShowProductDetails}>
+                </button>
+                <button className="text-gray-500 p-2 hover:text-orange-500" onClick={handleShowProductDetails}>
                     <FontAwesomeIcon icon={faExclamationCircle}/>
-                </Button>
+                </button>
             </div>
+            <div className="flex items-center mt-2">
+                {[...Array(5)].map((_, i) => (
+                    <FontAwesomeIcon key={i} icon={faStar} className="text-yellow-400 mr-1"/>
+                ))}
+            </div>
+            <button
+                className="w-full mt-3 px-4 py-2 text-xs font-bold bg-white text-black  shadow opacity-100 hover:bg-gray-100 transition"
+                onClick={handleAddToCart}
+            >
+                <FontAwesomeIcon icon={faCartPlus}/> THÊM VÀO GIỎ HÀNG
+            </button>
         </div>
     );
 };

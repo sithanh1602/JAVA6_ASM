@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate,useLocation } from 'react-router-dom';
 import { FiMenu } from "react-icons/fi";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar, Button } from "@nextui-org/react";
 import Swal from "sweetalert2";
+import { motion } from "framer-motion";
 import UserService from "../../services/UserService";
 
 const HeaderDownNavbar = () => {
@@ -10,9 +11,18 @@ const HeaderDownNavbar = () => {
     const [user, setUser] = useState(null); // State lưu thông tin người dùng
     const [loading, setLoading] = useState(true); // State để xử lý trạng thái loading
     const [error, setError] = useState(""); // State để lưu lỗi
+    const [isOpen, setIsOpen] = useState(false);
+    const location = useLocation(); // Lấy đường dẫn hiện tại
     const navigate = useNavigate();
 
     // Check if token is present in localStorage and fetch user details
+    useEffect(() => {
+        // Nếu không phải trang chủ thì ẩn menu
+        if (location.pathname !== "/") {
+            setIsOpen(false);
+        }
+    }, [location.pathname]); // Chạy lại khi đường dẫn thay đổi
+
     useEffect(() => {
         const userId = JSON.parse(localStorage.getItem("UserId"));
         if (userId) {
@@ -60,45 +70,62 @@ const HeaderDownNavbar = () => {
         window.location.reload();
     };
 
-    return (
-        <Navbar className="bg-gray-500 text-white text-lg">
-            <NavbarBrand>
-                <Dropdown>
-                    <DropdownTrigger>
-                        <Button className="capitalize" variant="bordered">
-                            <FiMenu /> Danh mục sản phẩm
-                        </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu
-                        disallowEmptySelection
-                        aria-label="Single selection example"
-                        selectionMode="single"
-                        variant="flat"
-                    >
-                        <DropdownItem key="text">Category1</DropdownItem>
-                        <DropdownItem key="number">Category1</DropdownItem>
-                        <DropdownItem key="date">Category1</DropdownItem>
-                        <DropdownItem key="single_date">Category1</DropdownItem>
-                        <DropdownItem key="iteration">Category1</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-            </NavbarBrand>
+    const menuItems = [
+        { icon: "fas fa-laptop", text: "Thiết bị điện tử" },
+        { icon: "fas fa-headphones-alt", text: "Phụ kiện" },
+        { icon: "fas fa-tv", text: "TV & Đồ gia dụng" },
+        { icon: "fas fa-heartbeat", text: "Sức khỏe & Làm đẹp" },
+        { icon: "fas fa-baby", text: "Mẹ & Bé" },
+        { icon: "fas fa-tshirt", text: "Thời trang" },
+        { icon: "fas fa-home", text: "Nhà cửa & Đời sống" },
+        { icon: "fas fa-futbol", text: "Thể thao & Du lịch" },
+        { icon: "fas fa-futbol", text: "Thể thao & Du lịch" },
+        { icon: "fas fa-futbol", text: "Thể thao & Du lịch" },
+    ];
 
-            <NavbarContent className="hidden sm:flex gap-4" justify="left">
+    return (
+        <Navbar className="bg-white text-black ">
+            <div className="relative w-64">
+                <button
+                    className="w-full capitalize text-white flex items-center px-4 py-4 border border-gray-300 shadow-sm bg-blue-800"
+                    onClick={() => setIsOpen(!isOpen)}
+                >
+                    <FiMenu className="mr-2"/> Danh mục sản phẩm
+                </button>
+
+                <motion.div
+                    initial={{opacity: 0, y: -10, height: 0}}
+                    animate={isOpen ? {opacity: 1, y: 0, height: "auto"} : {opacity: 0, y: -10, height: 0}}
+                    transition={{duration: 0.3, ease: "easeInOut"}}
+                    className="absolute left-0 w-full bg-white border border-gray-200 shadow-lg z-50 overflow-hidden"
+                >
+                    <ul className="divide-y divide-gray-200">
+                        {menuItems.map((item, index) => (
+                            <li key={index} className="flex items-center p-3 hover:bg-gray-100 cursor-pointer">
+                                <i className={`${item.icon} mr-3`}></i>
+                                <span className="flex-grow">{item.text}</span>
+                                <i className="fas fa-chevron-right"></i>
+                            </li>
+                        ))}
+                    </ul>
+                </motion.div>
+            </div>
+            <NavbarContent className="hidden sm:flex justify-center w-full gap-6 pl-20">
                 <NavbarItem>
-                    <Link color="foreground" href="#" to={"/"}>Trang chủ</Link>
+                    <Link color="foreground" className="hover:text-blue-500 hover:underline" to={"/"}>Trang chủ</Link>
                 </NavbarItem>
                 <NavbarItem>
-                    <Link aria-current="page" color="secondary" href="#" to={"/aboutUs"}>Giới thiệu</Link>
+                    <Link aria-current="page" className="hover:text-blue-500 hover:underline" color="secondary" to={"/aboutUs"}>Giới
+                        thiệu</Link>
                 </NavbarItem>
                 <NavbarItem>
-                    <Link color="foreground" href="#" to={"/products"}>Sản phẩm</Link>
+                    <Link color="foreground" className="hover:text-blue-500 hover:underline" to={"/products"}>Sản phẩm</Link>
                 </NavbarItem>
                 <NavbarItem>
-                    <Link color="foreground" href="#" to={"/news"}>Tin tức</Link>
+                    <Link color="foreground" className="hover:text-blue-500 hover:underline" to={"/news"}>Tin tức</Link>
                 </NavbarItem>
                 <NavbarItem>
-                    <Link color="foreground" href="#" to={"/contact"}>Liên hệ</Link>
+                    <Link color="foreground" className="hover:text-blue-500 hover:underline" to={"/contact"}>Liên hệ</Link>
                 </NavbarItem>
             </NavbarContent>
 
@@ -106,21 +133,22 @@ const HeaderDownNavbar = () => {
                 {loading ? (
                     <Button disabled>Đang tải...</Button> // Hiển thị khi đang tải thông tin
                 ) : isLoggedIn && user ? (
-                    <Dropdown placement="bottom-end">
+                    <Dropdown placement="bottom-end" backdrop="blur">
                         <DropdownTrigger>
                             <div className="flex items-center gap-2">
                                 <Avatar
                                     isBordered
+                                    color="primary"
                                     as="button"
                                     className="transition-transform"
-                                    color="secondary"
                                     src={user.image} // Dùng ảnh từ API
                                     name={user.name} // Dùng tên từ API
-                                    size="sm"
+                                    size="md"
                                 />
+                                <p className="text-sm">{user.fullName}!!</p> {/* Hiển thị họ tên */}
                             </div>
                         </DropdownTrigger>
-                        <DropdownMenu aria-label="Profile Actions" variant="flat">
+                        <DropdownMenu aria-label="Profile Actions" variant="flat" radius="none">
                             <DropdownItem>
                                 <p className="font-semibold text-md">{user.fullName}</p> {/* Hiển thị họ tên */}
                                 <p className="text-sm text-gray-500">{user.email}</p> {/* Hiển thị email */}
@@ -138,8 +166,11 @@ const HeaderDownNavbar = () => {
                     </Dropdown>
                 ) : (
                     <div className="ml-auto">
-                        <Button>
-                            <Link to="/login" variant="outlined" color="secondary">
+                        <Button
+                            color="primary"
+                            radius="none"
+                        >
+                            <Link to="/loginn" variant="outlined" color="secondary">
                                 Đăng nhập
                             </Link>
                         </Button>

@@ -205,154 +205,162 @@ const ProductDetail = () => {
 };
 
   return (
-    <div className="container mx-auto p-5 max-w-6xl">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-4">
-          <div className="relative w-full h-96 bg-gray-100 border rounded-lg overflow-hidden flex items-center justify-center shadow-lg">
-            <img
-              src={
-                mainImage || selectedVariant.image || selectedVariant.imageUrl
-              }
-              alt={selectedVariant.attributes || "No attributes"}
-              className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-            />
-            <button
-              onClick={handlePreviousImage}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black text-2xl transition duration-300 hover:text-gray-700"
-            >
-              {"<"}
-            </button>
-            <button
-              onClick={handleNextImage}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black text-2xl transition duration-300 hover:text-gray-700"
-            >
-              {">"}
-            </button>
-          </div>
-          {images.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto">
-              {images.map((image, index) => (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="bg-white shadow-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Left Column - Images */}
+              <div className="space-y-4">
                 <div
-                  key={image.id}
-                  className={`w-20 h-20 border rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform ${
-                    index === mainImageIndex ? "border-blue-500" : ""
-                  }`}
-                  onClick={() => handleImageChange(index)}
-                >
+                    className="relative w-full h-[400px] bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center">
                   <img
-                    src={image.image}
-                    alt={`Sản phẩm ${image.id}`}
-                    className="w-full h-full object-cover transition-transform duration-200"
+                      src={mainImage || selectedVariant?.image || selectedVariant?.imageUrl}
+                      alt={selectedVariant?.attributes || "Product image"}
+                      className="h-full w-full object-contain transition-transform duration-300 hover:scale-105"
                   />
+                  <button
+                      onClick={handlePreviousImage}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition"
+                  >
+                    {"<"}
+                  </button>
+                  <button
+                      onClick={handleNextImage}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition"
+                  >
+                    {">"}
+                  </button>
                 </div>
-              ))}
-            </div>
-          )}
-          <div className="p-4 border rounded-lg h-32 overflow-y-auto shadow">
-            <h2 className="text-lg font-bold mb-2">Mô tả sản phẩm</h2>
-            <p className="text-sm text-gray-600">
-              {selectedVariant.description || "Không có mô tả"}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col justify-between h-[500px]">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">{productName}</h1>
-            <div className="text-xl font-semibold text-blue-600 mb-4">
-              {selectedVariant.price
-                ? `${selectedVariant.price.toLocaleString()}đ`
-                : "Liên hệ để biết giá"}
-            </div>
-            <div className="text-sm text-gray-600 mb-2">
-              <strong>Thương hiệu:</strong> {brand?.name || "Không rõ"}
-            </div>
-            <div className="text-sm text-gray-600 mb-2">
-              <strong>Danh mục:</strong> {category?.name || "Không rõ"}
-            </div>
-            <div className="text-sm text-gray-600 mb-4">
-              <strong>Số lượng:</strong>{" "}
-              {selectedVariant.quantity || selectedVariant.stock || 0}
-            </div>
-          </div>
-          <div className="h-[300px] p-4 overflow-y-auto ">
-            {variants.length > 0 && selectedVariant.attributes?.length > 0 && (
-              <>
-                <h2 className="text-lg font-bold mb-4">Chọn sản phẩm</h2>
-                <div className="flex gap-4 flex-wrap">
-                  {variants.map((variant) => (
-                    <div
-                      key={variant.variantId}
-                      onClick={() => handleVariantSelect(variant)}
-                      className={`p-3 border rounded-lg text-center cursor-pointer transition-all 
-                                            ${
-                                              selectedVariant?.variantId ===
-                                              variant.variantId
-                                                ? "border-blue-500 bg-blue-100"
-                                                : "hover:bg-gray-100"
-                                            }`}
-                    >
-                      <img
-                        src={variant.image}
-                        alt={variant.attributes || "Variant Image"}
-                        className="w-16 h-16 object-cover mx-auto mb-2"
-                      />
-                      <div className="text-sm">{variant.attributes}</div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-          <div className="space-y-2 mt-4">
-            {/* Thêm phần input số lượng */}
-            <div className="flex items-center space-x-4 mb-4">
-              <label className="text-sm font-medium">Số lượng:</label>
-              <div className="flex items-center border rounded-lg">
-                <button
-                  className="px-3 py-1 border-r hover:bg-gray-100"
-                  onClick={() =>
-                    handleQuantityChange({ target: { value: quantity - 1 } })
-                  }
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                  className="w-16 text-center px-2 py-1 focus:outline-none"
-                />
-                <button
-                  className="px-3 py-1 border-l hover:bg-gray-100"
-                  onClick={() =>
-                    handleQuantityChange({ target: { value: quantity + 1 } })
-                  }
-                >
-                  +
-                </button>
-              </div>
-              <span className="text-sm text-gray-500">
-                Còn {selectedVariant.quantity || selectedVariant.stock || 0} sản
-                phẩm
-              </span>
-            </div>
 
-            {/* Các nút giữ nguyên */}
-            <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
-              Mua ngay
-            </button>
-            <button
-              onClick={handleAddToCart}
-              className="w-full text-blue-600 border border-blue-600 py-3 px-6 rounded-lg shadow hover:bg-blue-50 transition duration-300"
-            >
-              Thêm vào giỏ hàng
-            </button>
+                {images.length > 0 && (
+                    <div className="flex gap-2">
+                      {images.map((image, index) => (
+                          <div
+                              key={image.id}
+                              className={`w-20 h-20 border rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform ${
+                                  index === mainImageIndex ? "border-blue-500" : ""
+                              }`}
+                              onClick={() => handleImageChange(index)}
+                          >
+                            <img
+                                src={image.image}
+                                alt={`Product ${index + 1}`}
+                                className="w-full h-full object-cover"
+                            />
+                          </div>
+                      ))}
+                    </div>
+                )}
+
+                <div className="bg-white border p-4">
+                  <h2 className="text-lg font-bold mb-2">Mô tả sản phẩm</h2>
+                  <p className="text-sm text-gray-600">
+                    {selectedVariant?.description || "Không có mô tả"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column - Product Info */}
+              <div className="bg-white rounded-lg">
+                <div className="space-y-4">
+                  <div className="border-b pb-4">
+                    <h1 className="text-2xl font-bold mb-2">{productName}</h1>
+                    <div className="text-xl font-semibold text-blue-600">
+                      {selectedVariant?.price
+                          ? `${selectedVariant.price.toLocaleString()}đ`
+                          : "Liên hệ để biết giá"}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">Thương hiệu:</span>
+                      <span className="text-gray-600">{brand?.name || "Không rõ"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">Danh mục:</span>
+                      <span className="text-gray-600">{category?.name || "Không rõ"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">Kho:</span>
+                      <span className="text-gray-600">
+                      {selectedVariant?.quantity || selectedVariant?.stock || 0} sản phẩm
+                    </span>
+                    </div>
+                  </div>
+
+                  {variants.length > 0 && selectedVariant?.attributes?.length > 0 && (
+                      <div className="border-t py-4">
+                        <h2 className="text-lg font-bold mb-4">Chọn sản phẩm</h2>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                          {variants.map((variant) => (
+                              <div
+                                  key={variant.variantId}
+                                  onClick={() => handleVariantSelect(variant)}
+                                  className={`p-3 border cursor-pointer transition-all ${
+                                      selectedVariant?.variantId === variant.variantId
+                                          ? "border-blue-500 bg-blue-50"
+                                          : "hover:bg-gray-50"
+                                  }`}
+                              >
+                                <img
+                                    src={variant.image}
+                                    alt={variant.attributes || "Variant"}
+                                    className="w-16 h-16 object-cover mx-auto mb-2"
+                                />
+                                <div className="text-sm text-center">{variant.attributes}</div>
+                              </div>
+                          ))}
+                        </div>
+                      </div>
+                  )}
+
+                  <div className="border-t pt-4 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <label className="font-medium">Số lượng:</label>
+                      <div className="flex items-center border rounded-lg">
+                        <button
+                            className="px-3 py-1 border-r hover:bg-gray-50"
+                            onClick={() => handleQuantityChange({target: {value: quantity - 1}})}
+                        >
+                          -
+                        </button>
+                        <input
+                            type="number"
+                            min="1"
+                            value={quantity}
+                            onChange={handleQuantityChange}
+                            className="w-16 text-center px-2 py-1 focus:outline-none"
+                        />
+                        <button
+                            className="px-3 py-1 border-l hover:bg-gray-50"
+                            onClick={() => handleQuantityChange({target: {value: quantity + 1}})}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-4">
+                      <button
+                          className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg shadow hover:bg-blue-700 transition">
+                        Mua ngay
+                      </button>
+                      <button
+                          onClick={handleAddToCart}
+                          className="w-full text-blue-600 border border-blue-600 py-3 px-6 rounded-lg shadow hover:bg-blue-50 transition"
+                      >
+                        Thêm vào giỏ hàng
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        <Toaster richColors position="top-center"/>
       </div>
-      <Toaster richColors position="top-center" />
-    </div>
   );
 };
 

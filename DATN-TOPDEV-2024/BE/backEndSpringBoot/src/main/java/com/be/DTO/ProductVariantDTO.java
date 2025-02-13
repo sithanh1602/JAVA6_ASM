@@ -1,5 +1,6 @@
 package com.be.DTO;
 
+import com.be.entity.ProductVariant;
 import lombok.Data;
 
 @Data
@@ -18,5 +19,8 @@ public class ProductVariantDTO {
         this.stock = stock;
         this.description = description;
         this.idVariants = idVariants;
+    }
+
+    public ProductVariantDTO(ProductVariant product) {
     }
 }
