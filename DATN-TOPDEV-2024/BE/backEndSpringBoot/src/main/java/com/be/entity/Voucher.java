@@ -12,18 +12,20 @@ public class Voucher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    
+
     private String code;
-    
+
     private LocalDateTime startDate;
-    
+
     private LocalDateTime endDate;
-    
+
     private Integer discount;
-    
+
     private Integer quantity;
-    
+
     private String status;
-    
-    // Getters and Setters
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User user;
 }

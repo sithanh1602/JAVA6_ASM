@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import BillingInfo from './OderBingllingInfor'; // Đảm bảo đường dẫn chính xác
-import OrderInfo from './OderInfor'; // Đảm bảo đường dẫn chính xác
+import BillingInfo from './OderBingllingInfor';
+import OrderInfo from './OderInfor';
 import OrderBr from './OderBr';
-import OrderService from "../../services/OrderSevice"; // Đảm bảo đường dẫn chính xác
+import OrderService from "../../services/OrderSevice";
 import UserAddressService from "../../services/UserAddressService";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import {jwtDecode} from 'jwt-decode'; // Thư viện giải mã token
+import { jwtDecode } from 'jwt-decode';
 
 const GroupOrder = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { cartItems = [] } = location.state || {}; // Đảm bảo cartItems luôn là một mảng
-    console.log("cartItems",cartItems)
+    const { cartItems = [] } = location.state || {};
+
     const [userInfo, setUserInfo] = useState({
         id: '',
         fullName: '',
@@ -21,17 +21,17 @@ const GroupOrder = () => {
         email: '',
         fullAddress: '',
     });
-    const [paymentMethod, setPaymentMethod] = useState('');  // Payment method: 'bank' or 'cash'
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const [voucherDiscount, setVoucherDiscount] = useState(0); // Thêm state lưu giảm giá
+    const [voucherCode, setVoucherCode] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    // Giải mã token và lấy userId từ cookie
     const getUserIdFromToken = () => {
-        const token = Cookies.get("token"); // Lấy token từ cookie
+        const token = Cookies.get("token");
         if (token) {
             try {
-                const decodedToken = jwtDecode(token); // Giải mã token
-                console.log("Token giải mã:", decodedToken); // Kiểm tra cấu trúc
-                return decodedToken.userId; // Trả về userId từ token
+                const decodedToken = jwtDecode(token);
+                return decodedToken.userId;
             } catch (err) {
                 console.error("Token không hợp lệ:", err);
                 return null;
@@ -40,23 +40,22 @@ const GroupOrder = () => {
         return null;
     };
 
-    // Lấy thông tin người dùng khi component được mount
     useEffect(() => {
         const fetchUserInfo = async () => {
-            const userId = getUserIdFromToken(); // Lấy userId từ token
+            const userId = getUserIdFromToken();
             if (!userId) {
                 Swal.fire({
                     title: 'Lỗi',
                     text: 'Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.',
                     icon: 'error',
                 }).then(() => {
-                    navigate('/login'); // Điều hướng đến trang đăng nhập
+                    navigate('/login');
                 });
                 return;
             }
 
             try {
-                const userData = await UserAddressService.getDefaultUserInfo(userId);  // Đảm bảo truyền userId
+                const userData = await UserAddressService.getDefaultUserInfo(userId);
                 if (userData) {
                     setUserInfo({
                         id: userId,
@@ -78,13 +77,15 @@ const GroupOrder = () => {
         fetchUserInfo();
     }, [navigate]);
 
-    // Tính tổng giá trị của giỏ hàng
-    const calculateTotalPrice = () =>
-        cartItems.reduce((total, item) => total + item.productPrice * item.quantity, 0);
+    // Cập nhật logic tính tổng tiền (có trừ giảm giá)
+    const calculateTotalPrice = () => {
+        const total = cartItems.reduce((sum, item) => sum + item.productPrice * item.quantity, 0);
+        return Math.max(total - voucherDiscount, 0); // Đảm bảo không bị âm
+    };
 
-    // Xử lý đặt hàng
+    console.log("tổng tiền", voucherDiscount)
+
     const handlePlaceOrder = async () => {
-        console.log('Phương thức thanh toán:', paymentMethod);
         if (!paymentMethod) {
             Swal.fire({
                 title: 'Lỗi',
@@ -117,8 +118,9 @@ const GroupOrder = () => {
             })),
             totalPrice: calculateTotalPrice(),
             paymentMethod,
+            voucherDiscount,
+            voucherCode,
         };
-        console.log("text", orderData)
         try {
             if (paymentMethod === 'bank') {
                 const response = await OrderService.placeOrder(orderData);
@@ -127,31 +129,26 @@ const GroupOrder = () => {
                     text: 'Đang chuyển đến cổng thanh toán.',
                     icon: 'info',
                 });
-                window.location.href = response; // Điều hướng đến URL thanh toán VNPay
+                window.location.href = response;
             } else if (paymentMethod === 'cash') {
                 await OrderService.placeOrderNoVnpay(orderData);
 
-                // Tạo danh sách sản phẩm dưới dạng HTML
                 const productDetails = cartItems
-                    .map(
-                        (item) =>
-                            `<li>${item.productName} - Số lượng: ${item.quantity} - Giá: ${(
-                                item.productPrice * item.quantity
-                            ).toLocaleString()} VNĐ</li>`
-                    )
+                    .map(item => `<li>${item.productName} - Số lượng: ${item.quantity} - Giá: ${(
+                        item.productPrice * item.quantity
+                    ).toLocaleString()} VNĐ</li>`)
                     .join('');
 
-                // Hiển thị thông báo chi tiết đơn hàng
                 Swal.fire({
                     title: 'Đặt hàng thành công!',
                     html: `
-                    <p>Đơn hàng của bạn đã được ghi nhận.</p>
-                    <ul style="text-align: left;">${productDetails}</ul>
-                    <p><strong>Tổng tiền: ${calculateTotalPrice().toLocaleString()} VNĐ</strong></p>
-                `,
+                        <p>Đơn hàng của bạn đã được ghi nhận.</p>
+                        <ul style="text-align: left;">${productDetails}</ul>
+                        <p><strong>Tổng tiền: ${calculateTotalPrice().toLocaleString()} VNĐ</strong></p>
+                    `,
                     icon: 'success',
                 }).then(() => {
-                    navigate('/OrderUser'); // Điều hướng đến trang quản lý đơn hàng
+                    navigate('/OrderUser');
                 });
             } else {
                 Swal.fire({
@@ -177,7 +174,8 @@ const GroupOrder = () => {
             <OrderBr />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <BillingInfo setUserInfo={setUserInfo} userInfo={userInfo} />
-                <OrderInfo setPaymentMethod={setPaymentMethod} />
+                {/* Truyền setVoucherDiscount vào OrderInfo */}
+                <OrderInfo setPaymentMethod={setPaymentMethod} setVoucherDiscount={setVoucherDiscount} setVoucherCode={setVoucherCode}/>
             </div>
             <button
                 onClick={handlePlaceOrder}

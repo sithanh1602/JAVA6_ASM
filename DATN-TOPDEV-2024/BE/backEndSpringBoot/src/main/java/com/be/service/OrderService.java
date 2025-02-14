@@ -4,14 +4,11 @@ import com.be.DTO.OrderItem;
 import com.be.DTO.OrderRequest;
 import com.be.entity.*;
 import com.be.rep.*;
-import jakarta.mail.MessagingException;
-import jakarta.persistence.criteria.Order;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,28 +34,31 @@ public class OrderService {
     private EmailService emailService;
     @Autowired
     private ProductVariantRepository productVariantRepository;
+    @Autowired
+    private VoucherRepository voucherRepository;
 
-//    public List<Map<String, Object>> getAllOrdersWithDetails() throws Exception {
-//        List<Orders> orders = ordersRepository.findAll();
-//        List<Map<String, Object>> response = new ArrayList<>();
-//
-//        for (Orders order : orders) {
-//            User user = order.getUser();
-//            List<Map<String, Object>> products = getProductsByOrderId(order.getId());
-//
-//            Map<String, Object> orderInfo = new HashMap<>();
-//            orderInfo.put("id", order.getId());
-//            orderInfo.put("userName", user != null ? user.getFullName() : "Unknown");
-//            orderInfo.put("totalPrice", order.getTotalPrice());
-//            orderInfo.put("status", order.getStatus());
-//            orderInfo.put("orderDate", order.getOrderDate());
-//            orderInfo.put("products", products);
-//
-//            response.add(orderInfo);
-//        }
-//
-//        return response;
-//    }
+    public List<Map<String, Object>> getAllOrdersWithDetails() throws Exception {
+        List<Orders> orders = ordersRepository.findAll();
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (Orders order : orders) {
+            User user = order.getUser();
+            List<Map<String, Object>> products = getProductsByOrderId(order.getId());
+
+            Map<String, Object> orderInfo = new HashMap<>();
+            orderInfo.put("id", order.getId());
+            orderInfo.put("userName", user != null ? user.getFullName() : "Unknown");
+            orderInfo.put("totalPrice", order.getTotalPrice());
+            orderInfo.put("status", order.getStatus());
+            orderInfo.put("orderDate", order.getOrderDate());
+            orderInfo.put("products", products);
+
+            response.add(orderInfo);
+        }
+
+        return response;
+    }
+
 
     public List<Object[]> getOrderDetails(Date startDate, Date endDate) {
         return ordersRepository.getOrderDetails(startDate, endDate);
@@ -109,6 +109,12 @@ public class OrderService {
 //        ordersRepository.save(order);
 //    }
 
+
+    public Orders getOrderById(Long orderId) {
+        return ordersRepository.findById(orderId)
+                .orElseThrow();
+    }
+
     public Orders updateOrderStatushuy(Long orderId, Integer status) {
         // Tìm kiếm đơn hàng theo ID
         Orders order = ordersRepository.findById(orderId)
@@ -120,34 +126,31 @@ public class OrderService {
             return ordersRepository.save(order);
     }
 
-
-
-
-
     public List<Orders> getOrdersByUserId(Long userId) {
-        return ordersRepository.findByUser_UserId(userId);  // Sử dụng 'findByUser_UserId'
+        return ordersRepository.findOrdersByUserId(userId);
     }
 
-//    public List<Map<String, Object>> getProductsByOrderId(Long orderId) throws Exception {
-//        // Lấy danh sách chi tiết đơn hàng từ ID đơn hàng
-//        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
-//        if (orderDetails.isEmpty()) {
-//            throw new Exception("Không tìm thấy chi tiết đơn hàng cho ID: " + orderId);
-//        }
-//
-//        // Trả về danh sách các sản phẩm kèm theo số lượng
-//        List<Map<String, Object>> productsWithQuantity = new ArrayList<>();
-//        for (OrderDetail orderDetail : orderDetails) {
-//            Product product = orderDetail.getProduct();
-//            Map<String, Object> productInfo = new HashMap<>();
-//            productInfo.put("name", product.getName());
-//            productInfo.put("imageUrl", product.getImageUrl());
-//            productInfo.put("quantity", orderDetail.getQuantity());
-//            productInfo.put("price", product.getPrice());
-//            productsWithQuantity.add(productInfo);
-//        }
-//        return productsWithQuantity;
-//    }
+    public List<Map<String, Object>> getProductsByOrderId(Long orderId) throws Exception {
+        // Lấy danh sách chi tiết đơn hàng từ ID đơn hàng
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
+        if (orderDetails.isEmpty()) {
+            throw new Exception("Không tìm thấy chi tiết đơn hàng cho ID: " + orderId);
+        }
+
+        // Trả về danh sách các sản phẩm kèm theo số lượng
+        List<Map<String, Object>> productsWithQuantity = new ArrayList<>();
+        for (OrderDetail orderDetail : orderDetails) {
+            ProductVariant  productvariant = orderDetail.getProduct_variant_id();
+            Product product = orderDetail.getProduct_variant_id().getProduct();
+            Map<String, Object> productInfo = new HashMap<>();
+            productInfo.put("name", product.getName());
+            productInfo.put("imageUrl", product.getImageUrl());
+            productInfo.put("quantity", orderDetail.getQuantity());
+            productInfo.put("price", productvariant.getPrice());
+            productsWithQuantity.add(productInfo);
+        }
+        return productsWithQuantity;
+    }
 
     public String generateOrderNum() {
         // Lấy số lượng đơn hàng hiện tại trong cơ sở dữ liệu
@@ -185,6 +188,30 @@ public class OrderService {
         order.setPaymentStatus(true); // Trạng thái thanh toán là thành công
         order.setOrderDate(new Date()); // Ngày tạo đơn hàng
         order.setPhone(orderRequest.getPhone());
+
+        // Kiểm tra xem có sử dụng voucher không
+        if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {
+            // Tìm voucher theo mã
+            Voucher voucher = voucherRepository.findByCode(orderRequest.getvoucherCode())
+                    .orElseThrow(() -> new IllegalArgumentException("Voucher not found with code: " + orderRequest.getvoucherCode()));
+
+            // Kiểm tra số lượng voucher còn lại
+            if (voucher.getQuantity() <= 0) {
+                throw new IllegalArgumentException("Voucher has been fully redeemed");
+            }
+
+            // Trừ số lượng voucher khi đã sử dụng
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherRepository.save(voucher);
+        }
+
+        // Đặt giá trị giảm giá từ orderRequest (không lấy trực tiếp từ voucher)
+        if (orderRequest.getvoucherDiscount() != 0) {
+            order.setDiscountPrice(orderRequest.getvoucherDiscount());
+        } else {
+            order.setDiscountPrice(0); // Nếu không có giảm giá, để 0
+        }
+
         Orders savedOrder = ordersRepository.save(order);
 
         // Kiểm tra các OrderItem
@@ -236,8 +263,10 @@ public class OrderService {
             // Xóa mục khỏi CartDetail
             cartDetailRepository.deleteByUserIdAndProductId(orderRequest.getUserId(), item.getProductVariantId());
         }
+
         return savedOrder;
     }
+
 
 
     // Hàm để sinh số đơn hàng (có thể điều chỉnh để phù hợp với yêu cầu)
@@ -272,6 +301,30 @@ public class OrderService {
         order.setPaymentStatus(false); // Trạng thái thanh toán là thành công
         order.setOrderDate(new Date()); // Ngày tạo đơn hàng
         order.setPhone(orderRequest.getPhone());
+
+        // Kiểm tra xem có sử dụng voucher không
+        if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {
+            // Tìm voucher theo mã
+            Voucher voucher = voucherRepository.findByCode(orderRequest.getvoucherCode())
+                    .orElseThrow(() -> new IllegalArgumentException("Voucher not found with code: " + orderRequest.getvoucherCode()));
+
+            // Kiểm tra số lượng voucher còn lại
+            if (voucher.getQuantity() <= 0) {
+                throw new IllegalArgumentException("Voucher has been fully redeemed");
+            }
+
+            // Trừ số lượng voucher khi đã sử dụng
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherRepository.save(voucher);
+        }
+
+        // Đặt giá trị giảm giá từ orderRequest (không lấy trực tiếp từ voucher)
+        if (orderRequest.getvoucherDiscount() != 0) {
+            order.setDiscountPrice(orderRequest.getvoucherDiscount());
+        } else {
+            order.setDiscountPrice(0); // Nếu không có giảm giá, để 0
+        }
+
         Orders savedOrder = ordersRepository.save(order);
 
         // Kiểm tra các OrderItem
@@ -330,41 +383,37 @@ public class OrderService {
         return savedOrder;
     }
 
-    @Transactional
     public Orders createOrderPreview(OrderRequest orderRequest) throws Exception {
-        // Kiểm tra dữ liệu đầu vào
+        System.out.println("🔍 Debug OrderRequest: " + orderRequest);
+        System.out.println("🔹 userId: " + orderRequest.getUserId());
+        System.out.println("🔹 orderId: " + orderRequest.getOrderId());
+
+        if (orderRequest.getOrderId() == null) {
+            throw new Exception("❌ Lỗi: Order ID không được để trống!");
+        }
         if (orderRequest.getUserId() == null) {
-            throw new Exception("User ID is required");
+            throw new Exception("❌ Lỗi: User ID không được để trống!");
         }
 
-        // Tìm người dùng từ UserRepository
         Optional<User> userOptional = userRepository.findById(orderRequest.getUserId());
         if (!userOptional.isPresent()) {
-            throw new Exception("User not found with ID: " + orderRequest.getUserId());
+            throw new Exception("❌ Không tìm thấy User với ID: " + orderRequest.getUserId());
         }
-        User user = userOptional.get();
 
-        // Tìm đơn hàng từ OrderRepository
         Optional<Orders> existingOrder = ordersRepository.findById(orderRequest.getOrderId());
         if (!existingOrder.isPresent()) {
-            throw new Exception("Order not found with ID: " + orderRequest.getOrderId());
+            throw new Exception("❌ Không tìm thấy Order với ID: " + orderRequest.getOrderId());
         }
+
         Orders order = existingOrder.get();
-
-
-
-        // Cập nhật tổng tiền đơn hàng
-        order.setTotalPrice(orderRequest.getTotalPrice());  // Gắn lại tổng tiền từ frontend vào đơn hàng
-        order.setStatus(2); // Trạng thái đơn hàng, có thể điều chỉnh
-        order.setPaymentStatus(true);  // Thanh toán COD (tiền mặt khi nhận hàng)
-
-        // Cập nhật ngày đặt hàng
+        order.setTotalPrice(orderRequest.getTotalPrice());
+        order.setStatus(2);
+        order.setPaymentStatus(true);
         order.setOrderDate(new Date());
 
-        // Không cần lưu lại vào cơ sở dữ liệu nữa
-        // Chỉ cần trả về đơn hàng đã chỉnh sửa
         return order;
     }
+
 
 
     private String buildEmailContent(User user, OrderRequest orderRequest) {

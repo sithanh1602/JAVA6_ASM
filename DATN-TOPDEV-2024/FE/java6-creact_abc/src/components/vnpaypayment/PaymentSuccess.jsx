@@ -54,13 +54,13 @@ const PaymentSuccess = () => {
                         ? "Cảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi. Đơn hàng của bạn đã được ghi nhận và sẽ sớm được xử lý."
                         : "Rất tiếc, giao dịch của bạn không thành công. Vui lòng thử lại."}
                 </p>
-                {orderId && (
-                    <div className="text-left text-gray-700 mb-6">
-                        <p>
-                            <strong>Mã đơn hàng:</strong> {orderId}
-                        </p>
-                    </div>
-                )}
+                {/*{orderId && (*/}
+                {/*    <div className="text-left text-gray-700 mb-6">*/}
+                {/*        <p>*/}
+                {/*            <strong>Mã đơn hàng:</strong> {orderId}*/}
+                {/*        </p>*/}
+                {/*    </div>*/}
+                {/*)}*/}
                 <div className="text-center space-x-4">
                     {transactionStatus === "00" ? (
                         <>

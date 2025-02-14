@@ -13,6 +13,21 @@ const getOrdersByUserId = async (userId) => {
     }
 };
 
+const getOrderById = async (orderId) => {
+    try {
+        const response = await axios.get(`${ORDER_API_URL}/${orderId}`);
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            console.error("Đơn hàng không tồn tại.");
+            return null; // Trả về null nếu không tìm thấy đơn hàng
+        }
+        console.error("Lỗi khi lấy đơn hàng:", error);
+        throw error; // Ném lỗi để xử lý phía trên
+    }
+};
+
+
 // API lấy sản phẩm trong đơn hàng theo orderId
 const getProductsByOrderId = async (orderId) => {
     try {
@@ -43,20 +58,28 @@ const placeOrderNoVnpay = async (orderData) => {
     }
 };
 
-// API tạo đơn hàng để xem trước, không lưu thông tin thanh toán
-const placeOrderNosave = async (orderData) => {
+const placeOrderNosave = async (orderData, userId, orderId) => {
     try {
-        const response = await axios.post(`${ORDER_API_URL}/placeno`, orderData);
+        const payload = {
+            ...orderData,
+            userId: userId, // Thêm userId vào payload
+            orderId: orderId, // Thêm orderId vào payload
+        };
 
-        if (response.status !== 200) {
-            throw new Error('Không thể xử lý đơn hàng');
-        }
+        console.log("📤 Gửi dữ liệu đặt hàng:", payload); // Debug log
 
-        return response.data;
+        const response = await axios.post(`${ORDER_API_URL}/placeno`, payload);
+
+        console.log("✅ Phản hồi từ server:", response.data); // Debug log
+
+        return response.data; // Trả về dữ liệu từ server
     } catch (error) {
-        handleError(error);
+        console.error("❌ Lỗi khi đặt hàng:", error.response?.data || error.message);
+        throw error; // Ném lỗi để xử lý ở nơi gọi hàm
     }
 };
+
+
 
 // Hàm xử lý lỗi chung
 const handleError = (error) => {
@@ -124,4 +147,5 @@ export default {
     placeOrderNoVnpay,
     placeOrderNosave,
     updateOrderStatushuy, // Kiểm tra lại xuất khẩu
+    getOrderById,
 };
