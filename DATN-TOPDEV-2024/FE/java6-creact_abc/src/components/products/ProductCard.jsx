@@ -94,7 +94,7 @@ const ProductCard = ({ variant, index }) => {
             )}
             <h3 className="text-sm font-bold mt-3">{variant.nameVariants}</h3>
             <div className="text-sm font-bold text-red-500">{formatPrice(variant.price)}</div>
-            <div className="text-sm font-bold text-red-500 hidden">{variant.product.brand.name}</div>
+             <div className="text-sm font-bold text-red-500 hidden">{variant.product.brand.name}</div>
             <div className="text-sm font-bold text-red-500 hidden">{variant.product.category.name}</div>
             <div className="flex mt-2">
                 <button className="text-gray-500 hover:text-red-500" onClick={handleFavorite}>

@@ -2,6 +2,9 @@ package com.be.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -32,5 +35,18 @@ public class ProductVariant {
 
     @Column(name = "Price")
     private Double price;
+
+    @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Image> images;
+
+    @OneToMany
+    @JoinTable(
+            name = "Attributes_Product_Variants",
+            joinColumns = @JoinColumn(name = "product_variant_id"),
+            inverseJoinColumns = @JoinColumn(name = "attribute_id")
+    )
+    @JsonIgnore
+    private List<Attribute> attributes;
 }
 
