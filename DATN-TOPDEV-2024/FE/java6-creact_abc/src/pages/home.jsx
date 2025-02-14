@@ -21,6 +21,8 @@ import PaymentSuccess from "../components/vnpaypayment/PaymentSuccess";
 import ProductDetail from "../components/products/productDetails/ProductDetail";
 import HeaderDownNavbar from "../components/home/headerDownNavbar";
 import AuthForm from "../components/account/AuthForm";
+import OrderDetail from "../components/Oder/OrderDetail";
+
 
 const HomePage = () => {
     return (
@@ -43,6 +45,7 @@ const HomePage = () => {
                     <Route path="/profile/*" element={<ProfilePage />} />
                     <Route path="/OrderUser" element={<OrderList />} />
                     <Route path="/payment/vnpay-payment" element={<PaymentSuccess />} />
+                    <Route path="/order-detail/:orderId" element={<OrderDetail />} />
                 </Routes>
             </div>
             <Footer className="mt-auto"/>

@@ -17,7 +17,8 @@ public class OrderRequest {
     private String phone; // Số điện thoại người dùng
     private Long voucherId; // ID của voucher (nếu có)
     private int shippingFee; // Phí vận chuyển
-    private int discountPrice; // Giá trị giảm giá từ voucher (nếu có)
+    private int voucherDiscount; // Giá trị giảm giá từ voucher (nếu có)
+    private String voucherCode;
 
     // Getters and Setters
     public Long getUserId() {
@@ -108,11 +109,19 @@ public class OrderRequest {
         this.shippingFee = shippingFee;
     }
 
-    public int getDiscountPrice() {
-        return discountPrice;
+    public int getvoucherDiscount() {
+        return voucherDiscount;
     }
 
-    public void setDiscountPrice(int discountPrice) {
-        this.discountPrice = discountPrice;
+    public void setvoucherDiscount(int discountPrice) {
+        this.voucherDiscount = discountPrice;
+    }
+
+    public String getvoucherCode (){
+        return voucherCode;
+    }
+
+    public void setVoucherCode(String voucherCode) {
+        this.voucherCode = voucherCode;
     }
 }

@@ -4,6 +4,7 @@ import com.be.DTO.OrderRequest;
 import com.be.entity.*;
 import com.be.service.OrderService;
 import com.be.service.VNPayService;
+import jakarta.persistence.criteria.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -114,26 +117,25 @@ public class OrderController {
     @PostMapping("/placeno")
     public ResponseEntity<?> placeOrderPreview(@RequestBody OrderRequest orderRequest) {
         try {
-
-            // Tạo đơn hàng xem trước thông qua OrderService
+            System.out.println("📥 Nhận request thanh toán: " + orderRequest); // Debug log
             Orders orderPreview = orderService.createOrderPreview(orderRequest);
 
-            // Tạo URL thanh toán (nếu cần) sử dụng vnPayService
             String urlPayment = vnPayService.createOrder(
                     orderPreview.getTotalPrice(),
                     "Thanh toán cho đơn hàng",
-                    "http://localhost:3000/payment",  // URL quay lại sau khi thanh toán
+                    "http://localhost:3000/payment",
                     String.valueOf(orderPreview.getId())
             );
 
-            // Trả về URL thanh toán cho frontend
+            System.out.println("✅ URL Thanh toán: " + urlPayment);
             return ResponseEntity.status(HttpStatus.OK).body(urlPayment);
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // In lỗi BE
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while processing the order.");
+                    .body("🔥 BE Error: " + e.getMessage());
         }
     }
+
 
 
     // Endpoint lấy đơn hàng theo userId
@@ -154,18 +156,24 @@ public class OrderController {
         }
     }
 
-//    // Endpoint lấy sản phẩm trong đơn hàng theo orderId
-//    @GetMapping("/products/{orderId}")
-//    public ResponseEntity<?> getProductsByOrderId(@PathVariable Long orderId) {
-//        try {
-//            List<Map<String, Object>> products = orderService.getProductsByOrderId(orderId);
-//            return ResponseEntity.ok(products);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body("Có lỗi xảy ra khi lấy danh sách sản phẩm.");
-//        }
-//    }
+    // Endpoint lấy sản phẩm trong đơn hàng theo orderId
+    @GetMapping("/products/{orderId}")
+    public ResponseEntity<?> getProductsByOrderId(@PathVariable Long orderId) {
+        try {
+            List<Map<String, Object>> products = orderService.getProductsByOrderId(orderId);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Có lỗi xảy ra khi lấy danh sách sản phẩm.");
+        }
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<Orders> getOrderById(@PathVariable Long orderId) {
+        Orders order = orderService.getOrderById(orderId);
+        return ResponseEntity.ok(order);
+    }
 
     // Endpoint cập nhật trạng thái đơn hàng
     @PutMapping("/{orderId}/status")

@@ -1,39 +1,88 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 import logoMomo from '../../assets/images/logoMomo.png';
 import logoVNP from '../../assets/images/logoVNP.jpg';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+import classNames from 'classnames';
+import Swal from 'sweetalert2';
 
-const OrderInfo = ({ setPaymentMethod, setSelectedLogo }) => {
+const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setVoucherCode }) => {
     const location = useLocation();
-    const { cartItems } = location.state || { cartItems: [] };
-    const [selectedPayment, setSelectedPayment] = useState('bank'); // Mặc định chọn "bank"
+    const { cartItems = [] } = location.state || {};
+
+    const [selectedPayment, setSelectedPayment] = useState('bank');
     const [selectedLogo, setLocalSelectedLogo] = useState('');
+    const [showVouchers, setShowVouchers] = useState(false);
+    const [vouchers, setVouchers] = useState([]);
+    const [selectedVoucher, setSelectedVoucher] = useState(null);
+    const [discountAmount, setDiscountAmount] = useState(0);
 
-    // Định dạng giá trị tiền tệ thành đơn vị VNĐ
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(value);
-    };
+    const getUserIdFromToken = useCallback(() => {
+        const token = Cookies.get('token');
+        if (token) {
+            try {
+                return jwtDecode(token).userId;
+            } catch (err) {
+                console.error('Token không hợp lệ:', err);
+            }
+        }
+        return null;
+    }, []);
 
-    // Xử lý chọn logo
+    const fetchVouchers = useCallback(async () => {
+        const userId = getUserIdFromToken();
+        if (!userId) return;
+        try {
+            const response = await axios.get(`http://localhost:8080/api/vouchers/user/${userId}`);
+            setVouchers(response.data);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách vouchers:', error);
+        }
+    }, [getUserIdFromToken]);
+
+    useEffect(() => {
+        if (showVouchers) fetchVouchers();
+    }, [showVouchers, fetchVouchers]);
+
+    const formatCurrency = value => new Intl.NumberFormat('vi-VN', {
+        style: 'currency', currency: 'VND'
+    }).format(value);
+
     const handleLogoClick = (logo) => {
         setLocalSelectedLogo(logo);
-        setSelectedLogo?.(logo); // Nếu có hàm từ component cha, thực thi nó
+        setSelectedLogo?.(logo);
     };
 
     const handlePaymentChange = (method) => {
-        setSelectedPayment(method); // Cập nhật local state
-        setPaymentMethod?.(method);  // Gọi hàm từ cha để cập nhật state của cha
+        setSelectedPayment(method);
+        setPaymentMethod?.(method);
     };
 
-    // Tính tổng giá trị đơn hàng
-    const calculateTotal = () =>
-        cartItems.reduce((total, item) => total + item.productPrice * item.quantity, 0);
+
+    const handleApplyVoucher = (voucher) => {
+        setSelectedVoucher(voucher);
+        setDiscountAmount(voucher.discount);
+        setVoucherDiscount(voucher.discount);
+        setVoucherCode(voucher.code);
+
+
+        Swal.fire({
+            title: 'Mã giảm giá áp dụng thành công!',
+            text: `Bạn đã được giảm ${formatCurrency(voucher.discount)}.`,
+            icon: 'success',
+            confirmButtonText: 'OK',
+            timer: 2000,
+            timerProgressBar: true
+        });
+    };
+
+    const totalAmount = cartItems.reduce((total, item) => total + item.productPrice * item.quantity, 0);
+    const totalAfterDiscount = totalAmount - discountAmount;
+
 
     useEffect(() => {
-        // Khi load xong, mặc định chọn thanh toán bằng chuyển khoản ngân hàng
         setPaymentMethod('bank');
     }, [setPaymentMethod]);
 
@@ -44,8 +93,8 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo }) => {
                 <table className="w-full text-left">
                     <thead>
                     <tr>
-                        <th className="pb-2">Sản phẩm</th>
-                        <th className="pb-2">Tạm tính</th>
+                        <th>Sản phẩm</th>
+                        <th>Tạm tính</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -57,72 +106,93 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo }) => {
                     ))}
                     </tbody>
                     <tfoot>
-                    <tr>
-                        <td className="pt-2">Tạm tính</td>
-                        <td className="pt-2">{formatCurrency(calculateTotal())}</td>
-                    </tr>
-                    <tr>
-                        <td className="pt-2 font-bold">Tổng</td>
-                        <td className="pt-2 font-bold">{formatCurrency(calculateTotal())}</td>
-                    </tr>
+                    <tr><td>Tạm tính</td><td>{formatCurrency(totalAmount)}</td></tr>
+                    {discountAmount > 0 && (
+                        <tr><td>Giảm giá</td><td>{formatCurrency(discountAmount)}</td></tr>
+                    )}
+                    <tr><td className="font-bold">Tổng</td><td className="font-bold">{formatCurrency(totalAfterDiscount)}</td></tr>
                     </tfoot>
                 </table>
 
-                {/* Payment Methods */}
+                <button
+                    onClick={() => setShowVouchers(prev => !prev)}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md">
+                    {showVouchers ? "Ẩn mã giảm giá" : "Xem mã giảm giá"}
+                </button>
+
+                {showVouchers && (
+                    <div className="mt-4 p-4 border rounded-md bg-gray-100">
+                        <h3 className="text-lg font-bold mb-2">Danh sách mã giảm giá</h3>
+                        {vouchers.filter(voucher => voucher.quantity > 0).length > 0 ? (
+                            <ul>
+                                {vouchers
+                                    .filter(voucher => voucher.quantity > 0) // Lọc những voucher còn số lượng
+                                    .map((voucher, index) => (
+                                        <li key={index} className="p-2 border-b flex justify-between">
+                                            <span>Giảm {formatCurrency(voucher.discount)}</span>
+                                            <button
+                                                className="px-2 py-1 bg-green-500 text-white rounded-md"
+                                                onClick={() => handleApplyVoucher(voucher)}
+                                            >
+                                                Sử dụng
+                                            </button>
+                                        </li>
+                                    ))}
+                            </ul>
+                        ) : (
+                            <p className="text-gray-500">Bạn chưa có mã giảm giá nào.</p>
+                        )}
+                    </div>
+                )}
+
                 <div className="mt-4">
-                    {/* Phương thức thanh toán: Chuyển khoản */}
-                    <div className="flex items-center">
+                    <label className="flex items-center">
                         <input
                             type="radio"
                             name="payment"
-                            className="h-4 w-4 text-orange-600 border-gray-300"
                             checked={selectedPayment === 'bank'}
                             onChange={() => handlePaymentChange('bank')}
+                            className="h-4 w-4 text-orange-600"
                         />
-                        <label className="ml-2 block text-sm text-gray-900">
-                            Chuyển khoản ngân hàng
-                        </label>
-                    </div>
+                        <span className="ml-2">Chuyển khoản ngân hàng</span>
+                    </label>
                     {selectedPayment === 'bank' && (
-                        <div>
-                            <div className="mt-2 p-2 border border-gray-300 rounded-md bg-gray-100 text-sm text-gray-700">
-                                Vui lòng chuyển khoản vào tài khoản ngân hàng của chúng tôi. Sử dụng mã đơn hàng làm nội dung thanh toán.
-                            </div>
-                            <div className="mt-4 flex">
-                                {/* Logo VNP */}
-                                <div
-                                    className={`flex items-center mr-4 cursor-pointer ${selectedLogo === 'vnp' ? 'border-2 border-orange-500 shadow-lg' : ''}`}
-                                    onClick={() => handleLogoClick('vnp')}
-                                >
-                                    <img src={logoVNP} alt="VNP Logo" className="h-12 w-12" />
-                                </div>
-                                {/* Logo Momo */}
-                                <div
-                                    className={`flex items-center cursor-pointer ${selectedLogo === 'momo' ? 'border-2 border-orange-500 shadow-lg' : ''}`}
-                                    onClick={() => handleLogoClick('momo')}
-                                >
-                                    <img src={logoMomo} alt="Momo Logo" className="h-12 w-12" />
-                                </div>
-                            </div>
+                        <div className="mt-2 p-2 border bg-gray-100 text-sm">
+                            Vui lòng chuyển khoản vào tài khoản ngân hàng của chúng tôi. Sử dụng mã đơn hàng làm nội dung thanh toán.
                         </div>
                     )}
 
-                    {/* Phương thức thanh toán: Trả tiền mặt */}
-                    <div className="flex items-center mt-4">
+                    <div className="mt-4 flex">
+                        {['vnp', 'momo'].map((logo, idx) => (
+                            <div
+                                key={idx}
+                                className={classNames("flex items-center mr-4 cursor-pointer", {
+                                    'border-2 border-orange-500 shadow-lg': selectedLogo === logo
+                                })}
+                                onClick={() => handleLogoClick(logo)}
+                            >
+                                <img
+                                    src={logo === 'vnp' ? logoVNP : logoMomo}
+                                    alt={`${logo} Logo`}
+                                    className="h-12 w-12"
+                                />
+                            </div>
+                        ))}
+                    </div>
+
+                    <label className="flex items-center mt-4">
                         <input
                             type="radio"
                             name="payment"
-                            className="h-4 w-4 text-orange-600 border-gray-300"
                             checked={selectedPayment === 'cash'}
                             onChange={() => handlePaymentChange('cash')}
+                            className="h-4 w-4 text-orange-600"
                         />
-                        <label className="ml-2 block text-sm text-gray-900">
-                            Trả tiền mặt khi nhận hàng
-                        </label>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-700">
-                        Dữ liệu cá nhân của bạn sẽ được sử dụng để xử lý đơn đặt hàng và hỗ trợ trải nghiệm của bạn theo <a href="#" className="text-orange-600">chính sách riêng tư</a>.
-                    </div>
+                        <span className="ml-2">Trả tiền mặt khi nhận hàng</span>
+                    </label>
+                    <p className="mt-2 text-sm">
+                        Dữ liệu cá nhân của bạn sẽ được sử dụng theo <a href="#" className="text-orange-600">chính sách riêng tư</a>.
+                    </p>
                 </div>
             </div>
         </div>

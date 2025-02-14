@@ -3,6 +3,7 @@ package com.be.rep;
 import com.be.entity.Orders;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -42,5 +43,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     @Query("SELECT MAX(CAST(SUBSTRING(o.orderNum, 3) AS LONG)) FROM Orders o")
     Long getMaxOrderNum();
+
+    @Query("SELECT o FROM Orders o WHERE o.user.userId = :userId")
+    List<Orders> findOrdersByUserId(@Param("userId") Long userId);
 }
 
