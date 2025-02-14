@@ -26,7 +26,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         p.description AS product_description,
         pv.price AS product_price,
         pv.image AS product_image, 
-        STRING_AGG(a.value, ', ') AS attributes,
+        STRING_AGG(a.name+' '+a.value, ', ') AS attributes,
         pv.id AS variant_id,
         pv.quantity AS variant_quantity
     FROM Products p

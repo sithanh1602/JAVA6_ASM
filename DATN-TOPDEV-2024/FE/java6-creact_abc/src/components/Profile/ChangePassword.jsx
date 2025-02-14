@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { toast } from 'react-toastify';  // Importing toast for notifications
+import { toast } from 'react-toastify';
 import UserService from "../../services/UserService";
 
 const ChangePassword = () => {

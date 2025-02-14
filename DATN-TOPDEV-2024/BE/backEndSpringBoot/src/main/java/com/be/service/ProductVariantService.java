@@ -1,11 +1,19 @@
 package com.be.service;
 
 import com.be.DTO.ProductVariantDTO;
+import com.be.DTO.ProductVariantRequest;
+import com.be.entity.Attribute;
+import com.be.entity.Image;
+import com.be.entity.Product;
 import com.be.entity.ProductVariant;
+import com.be.rep.AttributeRepository;
+import com.be.rep.ImageRepository;
+import com.be.rep.ProductRepository;
 import com.be.rep.ProductVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +22,15 @@ public class ProductVariantService {
 
     @Autowired
     private ProductVariantRepository productVariantRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private AttributeRepository attributeRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
 
     public List<ProductVariant> getAllProductVariants() {
         List<ProductVariant> productVariants = productVariantRepository.findAll();
@@ -26,4 +43,41 @@ public class ProductVariantService {
                 .map(product -> new ProductVariantDTO(product))
                 .collect(Collectors.toList());
     }
+
+    public ProductVariant addProductVariant(ProductVariantRequest request) {
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        List<Attribute> attributes = new ArrayList<>(attributeRepository.findAllById(request.getAttributeIds()));
+
+        String attributeNames = attributes.stream()
+                .map(Attribute::getValue)
+                .collect(Collectors.joining("/"));
+
+        ProductVariant variant = new ProductVariant();
+        variant.setProduct(product);
+        variant.setQuantity(request.getQuantity());
+        variant.setPrice(request.getPrice());
+        variant.setStatus(request.getStatus());
+        variant.setAttributes(attributes);
+        variant.setNameVariants(product.getName() + " (" + attributeNames + ")");
+
+        // ✅ Nếu có ảnh, chọn ảnh đầu tiên làm ảnh đại diện cho biến thể
+        if (!request.getImageUrls().isEmpty()) {
+            variant.setImage(request.getImageUrls().get(0));
+        }
+
+        ProductVariant savedVariant = productVariantRepository.save(variant);
+
+        // ✅ Lưu tất cả ảnh vào bảng Image
+        for (String imageUrl : request.getImageUrls()) {
+            Image image = new Image();
+            image.setProductVariant(savedVariant);
+            image.setImage(imageUrl);
+            imageRepository.save(image);
+        }
+
+        return savedVariant;
+    }
+
 }

@@ -1,16 +1,18 @@
 package com.be.controller;
 
 import com.be.DTO.ProductVariantDTO;
+import com.be.DTO.ProductVariantRequest;
 import com.be.entity.ProductVariant;
 import com.be.service.ProductVariantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/product-variants")
-@CrossOrigin(origins = "http://localhost:3000") // Cho phép React FE truy cập
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProductVariantController {
 
     @Autowired
@@ -25,5 +27,11 @@ public class ProductVariantController {
     @GetMapping("/search")
     public List<ProductVariantDTO> searchProductVariants(@RequestParam String keyword) {
         return productVariantService.searchProductVariantsByName(keyword);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<ProductVariant> addProductVariant(@RequestBody ProductVariantRequest request) {
+        ProductVariant savedVariant = productVariantService.addProductVariant(request);
+        return ResponseEntity.ok(savedVariant);
     }
 }
