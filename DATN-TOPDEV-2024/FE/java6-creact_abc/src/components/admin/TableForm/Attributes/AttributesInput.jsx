@@ -1,48 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { Input, Button } from "@nextui-org/react";
+import { FaPlus } from "react-icons/fa";
+import {
+  addAttribute,
+  updateAttribute,
+} from "../../../../services/AttributeService";
+import Swal from "sweetalert2";
 
-const AttributesInput = ({ onAddAttribute }) => {
-    const [attributeName, setAttributeName] = useState('Color');
-    const [attributeValue, setAttributeValue] = useState('Red');
+const AttributesInput = ({ selectedAttribute, onAddAttribute }) => {
+  const [attributeName, setAttributeName] = useState("");
+  const [attributeValue, setAttributeValue] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
-    const handleAddAttribute = () => {
-        if (attributeName && attributeValue) {
-            onAddAttribute({ name: attributeName, value: attributeValue });
-            setAttributeName('');
-            setAttributeValue('');
-        } else {
-            alert('Please fill out both the attribute name and value.');
-        }
+  useEffect(() => {
+    if (selectedAttribute) {
+      setAttributeName(selectedAttribute.name);
+      setAttributeValue(selectedAttribute.value);
+      setIsEditing(true);
+    }
+  }, [selectedAttribute]);
+
+  const handleSaveAttribute = async () => {
+    if (!attributeName || !attributeValue) {
+      Swal.fire({
+        icon: "warning",
+        title: "Thiếu thông tin!",
+        text: "Vui lòng nhập đầy đủ tên và giá trị thuộc tính.",
+      });
+      return;
+    }
+  
+    const newAttribute = {
+      id: selectedAttribute?.id, // Đảm bảo lấy đúng ID
+      name: attributeName,
+      value: attributeValue,
     };
+  
+    setLoading(true);
+  
+    try {
+      let data;
+      if (isEditing) {
+        if (!newAttribute.id) {
+          throw new Error("ID không hợp lệ khi cập nhật thuộc tính!");
+        }
+        data = await updateAttribute(newAttribute); // Gọi API update với ID đúng
+      } else {
+        data = await addAttribute(newAttribute); // Gọi API add nếu là mới
+      }
+  
+      Swal.fire({
+        icon: "success",
+        title: "Thành công!",
+        text: isEditing
+          ? "Cập nhật thuộc tính thành công!"
+          : "Thêm thuộc tính thành công!",
+      });
+  
+      if (typeof onAddAttribute === "function") {
+        onAddAttribute(data);
+      }
+  
+      // Reset form
+      setAttributeName("");
+      setAttributeValue("");
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Lỗi khi lưu thuộc tính:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi!",
+        text: "Không thể lưu thuộc tính.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
-    return (
-        <div className="p-4 bg-white rounded shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Add Attribute</h3>
-            <div className="mb-3">
-                <input
-                    type="text"
-                    placeholder="Attribute Name"
-                    value={attributeName}
-                    onChange={(e) => setAttributeName(e.target.value)}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-            </div>
-            <div className="mb-3">
-                <input
-                    type="text"
-                    placeholder="Attribute Value"
-                    value={attributeValue}
-                    onChange={(e) => setAttributeValue(e.target.value)}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-            </div>
-            <button
-                onClick={handleAddAttribute}
-                className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition"
-            >
-                Add Attribute
-            </button>
-        </div>
-    );
+  return (
+    <div className="p-6 bg-white rounded-lg shadow-md w-80">
+      <div className="mb-3">
+        <Input
+          type="text"
+          label="Tên Thuộc Tính"
+          value={attributeName}
+          onChange={(e) => setAttributeName(e.target.value)}
+          placeholder="Nhập tên thuộc tính..."
+          className="w-full"
+          variant="bordered"
+        />
+      </div>
+
+      <div className="mb-4">
+        <Input
+          type="text"
+          label="Giá Trị Thuộc Tính"
+          value={attributeValue}
+          onChange={(e) => setAttributeValue(e.target.value)}
+          placeholder="Nhập giá trị thuộc tính..."
+          className="w-full"
+          variant="bordered"
+        />
+      </div>
+
+      <Button
+        color="primary"
+        className="w-full"
+        onClick={handleSaveAttribute}
+        endContent={<FaPlus size={18} />}
+        isLoading={loading}
+      >
+        {loading
+          ? "Đang lưu..."
+          : isEditing
+          ? "Cập nhật Thuộc tính"
+          : "Thêm Thuộc tính"}
+      </Button>
+    </div>
+  );
 };
 
 export default AttributesInput;
