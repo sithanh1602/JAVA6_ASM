@@ -24,7 +24,8 @@ const ProductTable = forwardRef((_, ref) => {
   const [isModalOpenVariants, setIsModalOpenVariants] = useState(false);
   const [isModalOpenAttributes, setIsModalOpenAttributes] = useState(false);
   const [selectedAttribute, setSelectedAttribute] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  // const [selectedProduct, setSelectedProduct] = useState(null); // Removed this
+  const [selectedProductId, setSelectedProductId] = useState(null); // Added this
   const [searchName, setSearchName] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [minPrice, setMinPrice] = useState("");
@@ -57,13 +58,16 @@ const ProductTable = forwardRef((_, ref) => {
 
   // Open modal for adding a product
   const handleAddProduct = () => {
-    setSelectedProduct(null); // Clear selection for new product
+    //setSelectedProduct(null); // Clear selection for new product - Removed
+    setSelectedProductId(null); // Reset selectedProductId
     setIsModalOpen(true); // Open modal
   };
 
-  const handleAddProductVariants = () => {
-    setSelectedProduct(null); // Clear selection for new product
+  const handleAddProductVariants = (productId) => {
+    // setSelectedProduct(null); // Clear selection for new product - Removed
+    setSelectedProductId(productId); // Set the selected product ID
     setIsModalOpenVariants(true); // Open modal
+    console.log("Opening variant modal for product ID:", productId); // Debugging
   };
   const handleAddAttribute = () => {
     setIsModalOpenAttributes(true); // Open modal
@@ -71,7 +75,8 @@ const ProductTable = forwardRef((_, ref) => {
 
   // Open modal for editing an existing product
   const handleEditProduct = (product) => {
-    setSelectedProduct(product); // Set the selected product for editing
+    //setSelectedProduct(product); // Set the selected product for editing - Removed
+    setSelectedProductId(product.id);  // Set the selected product ID
     setIsModalOpen(true); // Open modal
   };
 
@@ -232,7 +237,7 @@ const ProductTable = forwardRef((_, ref) => {
           </button>
           <button
             className="px-2 py-1 rounded bg-orange-600 text-white hover:bg-orange-700"
-            onClick={() => handleAddProductVariants(row.id)}
+            onClick={() => handleAddProductVariants(row.id)} // Pass the product ID
           >
             Tạo biến thể
           </button>
@@ -296,7 +301,7 @@ const ProductTable = forwardRef((_, ref) => {
         <div className="h-full w-full bg-white p-6 rounded-lg flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
-              {selectedProduct ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
+              {selectedProductId ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
             </h2>
             <button
               onClick={handleModalClose}
@@ -305,7 +310,7 @@ const ProductTable = forwardRef((_, ref) => {
               <span className="text-xl">×</span>
             </button>
           </div>
-          <ProductInput product={selectedProduct} onSave={handleModalClose} />
+          <ProductInput productId={selectedProductId} onSave={handleModalClose} />
         </div>
       </Modal>
 
@@ -328,7 +333,7 @@ const ProductTable = forwardRef((_, ref) => {
             </button>
           </div>
           <ProductVariantsInput
-            product={selectedProduct}
+            productId={selectedProductId} // Pass the product ID
             onSave={handleModalCloseVariants}
           />
         </div>

@@ -13,7 +13,7 @@ import { FaPlus, FaTrash, FaImage } from "react-icons/fa";
 import { getAllAttributes } from "../../../../services/AttributeService";
 import ProductVariantService from "../../../../services/ProductVariantService";
 
-const ProductVariantsInput = ({ variant, onSave }) => {
+const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận productId từ props
   const [formData, setFormData] = useState({
     quantity: variant?.quantity || 1,
     images: variant?.images || [],
@@ -24,22 +24,30 @@ const ProductVariantsInput = ({ variant, onSave }) => {
 
   const [availableAttributes, setAvailableAttributes] = useState([]);
   const [attributeValues, setAttributeValues] = useState({});
+  const [selectedIds, setSelectedIds] = useState([]); // Lưu trữ các ID đã chọn
 
   useEffect(() => {
     const fetchAttributes = async () => {
       const attributes = await getAllAttributes();
+      console.log("📌 Dữ liệu thuộc tính từ API:", attributes);
+
       const attributeMap = {};
       attributes.forEach((attr) => {
         if (!attributeMap[attr.name]) {
           attributeMap[attr.name] = [];
         }
-        attributeMap[attr.name].push(attr.value);
+        attributeMap[attr.name].push({
+          id: attr.id,
+          name: attr.name,
+          value: attr.value,
+        });
       });
-      setAvailableAttributes(
-        Object.keys(attributeMap).map((name) => ({ name }))
-      );
+
+      setAvailableAttributes(Object.keys(attributeMap).map((name) => ({ name })));
       setAttributeValues(attributeMap);
+      console.log("📌 attributeValues:", attributeMap);
     };
+
     fetchAttributes();
   }, []);
 
@@ -64,36 +72,51 @@ const ProductVariantsInput = ({ variant, onSave }) => {
   const handleAttributeChange = (index, field, value) => {
     setFormData((prev) => {
       const updatedAttributes = [...prev.attributes];
-      updatedAttributes[index] = {
-        ...updatedAttributes[index],
-        [field]: value,
-      };
-  
+
       if (field === "name") {
-        // Lấy ID của thuộc tính từ availableAttributes
-        const selectedAttribute = availableAttributes.find(
-          (attr) => attr.name === value
+        updatedAttributes[index] = {
+          name: value,
+          value: "", // Reset giá trị khi thay đổi tên
+          id: null, // Reset ID
+        };
+      } else if (field === "value") {
+        const selectedAttribute = attributeValues[updatedAttributes[index].name]?.find(
+          (attr) => attr.value === value
         );
-        console.log("Selected Attribute ID:", selectedAttribute?.id);
+
+        if (selectedAttribute) {
+          updatedAttributes[index] = {
+            ...updatedAttributes[index],
+            id: selectedAttribute.id,
+            value: selectedAttribute.value,
+          };
+        } else {
+          console.warn("Không tìm thấy attribute value:", value, "cho thuộc tính", updatedAttributes[index].name);
+          updatedAttributes[index] = {
+            ...updatedAttributes[index],
+            id: null,
+            value: "",
+          };
+        }
       }
-  
-      if (field === "value") {
-        // Lấy ID của giá trị thuộc tính từ attributeValues
-        const selectedValue = attributeValues[updatedAttributes[index].name]?.find(
-          (val) => val === value
-        );
-        console.log("Selected Value:", selectedValue);
-      }
-  
       return { ...prev, attributes: updatedAttributes };
     });
+
+    // Cập nhật selectedIds khi giá trị thay đổi
+    const newSelectedIds = formData.attributes
+      .filter(attr => attr.id) // Lọc ra các thuộc tính đã có id (đã chọn giá trị)
+      .map(attr => attr.id);
+    setSelectedIds(newSelectedIds);
   };
-  
 
   const addAttribute = () => {
-    setFormData({
-      ...formData,
-      attributes: [...formData.attributes, { name: "", value: "" }],
+    console.log("ID đã chọn (khi thêm thuộc tính):", selectedIds);
+    setFormData((prevFormData) => {
+      const newAttributes = [...prevFormData.attributes, { name: "", value: "" }];
+      return {
+        ...prevFormData,
+        attributes: newAttributes,
+      };
     });
   };
 
@@ -103,10 +126,36 @@ const ProductVariantsInput = ({ variant, onSave }) => {
   };
 
   const handleSubmit = async () => {
-    const result = await ProductVariantService.addProductVariant(formData);
-    console.log(result);
-    if (result) {
+    const newSelectedIds = formData.attributes
+      .filter(attr => attr.id)
+      .map(attr => attr.id);
+
+    console.log("Dữ liệu chuẩn bị gửi:", {
+      productId: productId, 
+      quantity: parseInt(formData.quantity),
+      price: parseFloat(formData.price),
+      status: formData.status === "Available" ? 1 : 0,
+      attributeIds: newSelectedIds,
+      imageUrls: formData.images.map(img => img.preview)
+    });
+
+    try {
+      const result = await ProductVariantService.addProductVariant({
+        productId: productId, // <-- Sử dụng productId từ props
+        quantity: parseInt(formData.quantity),
+        price: parseFloat(formData.price),
+        status: formData.status === "Available" ? 1 : 0,
+        attributeIds: newSelectedIds,
+        imageUrls: formData.images.map(img => img.preview),
+      });
+      console.log("Kết quả từ API:", result);
       onSave(result);
+    } catch (error) {
+      console.error("Lỗi trong handleSubmit:", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data); // Xem dữ liệu lỗi từ server
+        console.error("Response status:", error.response.status); // Xem status code từ server
+      }
     }
   };
 
@@ -220,16 +269,14 @@ const ProductVariantsInput = ({ variant, onSave }) => {
                   </Select>
                   <Select
                     label="Giá trị"
-                    selectedKeys={[attr.value]}
-                    onChange={(e) =>
-                      handleAttributeChange(index, "value", e.target.value)
-                    }
+                    selectedKeys={attr.value ? new Set([attr.value]) : new Set()} // Sử dụng value cho selectedKeys
+                    onChange={(e) => handleAttributeChange(index, "value", e.target.value)}
                     variant="bordered"
                     size="sm"
                   >
-                    {attributeValues[attr.name]?.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {value}
+                    {attributeValues[attr.name]?.map((attribute) => (
+                      <SelectItem key={attribute.value} value={attribute.value}>
+                        {attribute.value}
                       </SelectItem>
                     ))}
                   </Select>
@@ -247,7 +294,9 @@ const ProductVariantsInput = ({ variant, onSave }) => {
             </div>
           </ScrollShadow>
         </div>
-        <Button color="primary" className="w-full mt-6" onClick={handleSubmit}>
+        <Button color="primary" className="w-full mt-6" onClick={() => {
+          handleSubmit();
+        }}>
           Lưu Biến Thể
         </Button>
       </div>
