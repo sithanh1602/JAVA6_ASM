@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
-import getAllProductVariants from "../../services/ProductVariantService";
+import ProductVariantService from "../../services/ProductVariantService";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { FaSearch } from "react-icons/fa";
@@ -34,7 +34,7 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
     useEffect(() => {
         const fetchVariants = async () => {
             try {
-                const fetchedVariants = await getAllProductVariants();
+                const fetchedVariants = await ProductVariantService.getAllProductVariants();
                 const sortedVariants = [...fetchedVariants].sort((a, b) => {
                     if (sortOption === "priceAsc") return a.price - b.price;
                     if (sortOption === "priceDesc") return b.price - a.price;
