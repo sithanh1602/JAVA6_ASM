@@ -3,16 +3,20 @@ import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
+
 const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected }) => {
+
     const [quantity, setQuantity] = useState(item.quantity);
     const [productQuantity, setProductQuantity] = useState(null);
 
     useEffect(() => {
+
         const fetchProductQuantity = async () => {
             try {
                 // Thay {id} bằng item.product_variant_id
                 const response = await axios.get(`http://localhost:8080/api/products/variants/${item.product_variant_id}`);
                 setProductQuantity(response.data.quantity);
+                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching product stock:', error);
             }

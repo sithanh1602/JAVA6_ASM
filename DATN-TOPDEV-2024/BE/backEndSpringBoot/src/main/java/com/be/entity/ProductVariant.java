@@ -26,9 +26,9 @@ public class ProductVariant {
 
     @Column(name = "quantity")
     private int quantity;
-
-    @Column(name = "image")
-    private String image;
+//
+//    @Column(name = "image")
+//    private String image;
 
     @Column(name = "status")
     private String status;

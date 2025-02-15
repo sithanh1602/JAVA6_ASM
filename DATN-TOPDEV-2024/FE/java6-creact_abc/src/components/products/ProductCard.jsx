@@ -10,6 +10,7 @@ const formatPrice = (price) => {
 };
 
 const ProductCard = ({ variant, index }) => {
+    console.log('Product:', variant);
     const navigate = useNavigate();
     const isOutOfStock = variant.quantity === 0;
 
@@ -68,7 +69,7 @@ const ProductCard = ({ variant, index }) => {
     };
 
     const   handleShowProductDetails = () => {
-        navigate(`/products/${variant.product.id}/productdetail`);
+        navigate(`/products/${variant.productId}/productdetail`);
     };
 
     return (
@@ -94,8 +95,7 @@ const ProductCard = ({ variant, index }) => {
             )}
             <h3 className="text-sm font-bold mt-3">{variant.nameVariants}</h3>
             <div className="text-sm font-bold text-red-500">{formatPrice(variant.price)}</div>
-             <div className="text-sm font-bold text-red-500 hidden">{variant.product.brand.name}</div>
-            <div className="text-sm font-bold text-red-500 hidden">{variant.product.category.name}</div>
+
             <div className="flex mt-2">
                 <button className="text-gray-500 hover:text-red-500" onClick={handleFavorite}>
                     <FontAwesomeIcon icon={faHeart}/>
@@ -110,7 +110,7 @@ const ProductCard = ({ variant, index }) => {
                 ))}
             </div>
             <button
-                className="w-full mt-3 px-4 py-2 text-xs font-bold bg-white text-black  shadow opacity-100 hover:bg-gray-100 transition"
+                className="w-full mt-3 px-4 py-2 text-xs font-bold bg-blue-700 text-white shadow opacity-100 hover:bg-gray-200 hover:text-black transition"
                 onClick={handleAddToCart}
             >
                 <FontAwesomeIcon icon={faCartPlus}/> THÊM VÀO GIỎ HÀNG
