@@ -30,22 +30,27 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
     void deleteByUserIdAndproductVariantId(@Param("userId") Long userId, @Param("productVariantId") Long productVariantId);
 
     @Query(value = """
-    SELECT
-        cd.id,
-        cd.user_id,
-        pv.id AS product_variant_id,
-        cd.quantity,
-        p.name AS product_name,
-        p.description AS product_description,
-        pv.quantity AS product_variant_quantity,
-        pv.image AS product_variant_image,
-        p.created_at AS product_created_at,
-        pv.price AS product_variant_price,
-        pv.status AS product_variant_status
-    FROM cart_detail cd
-    JOIN product_variants pv ON cd.product_variant_id = pv.id
-    JOIN products p ON pv.product_id = p.id
-    WHERE cd.user_id = :userId
+        SELECT
+            cd.id,
+            cd.user_id,
+            pv.id AS product_variant_id,
+            cd.quantity,
+            p.name AS product_name,
+            p.description AS product_description,
+            pv.quantity AS product_variant_quantity,
+            (
+                SELECT TOP 1 img.image
+                FROM images img
+                WHERE img.product_variant_id = pv.id -- ✅ Lấy ảnh đầu tiên theo product_variant_id
+                ORDER BY img.id ASC
+            ) AS product_image,
+            p.created_at AS product_created_at,
+            pv.price AS product_variant_price,
+            pv.status AS product_variant_status
+        FROM cart_detail cd
+        JOIN product_variants pv ON cd.product_variant_id = pv.id
+        JOIN products p ON pv.product_id = p.id
+        WHERE cd.user_id = :userId
 """, nativeQuery = true)
     List<Object[]> findCartDetailsWithProductInfo(@Param("userId") Long userId);
 

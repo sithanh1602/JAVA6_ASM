@@ -305,6 +305,7 @@ const ProductDetail = () => {
                         >
                           <img
                             src={variant.image}
+                            console={variant}
                             alt={variant.attributes || "Variant"}
                             className="w-16 h-16 object-cover mx-auto mb-2"
 

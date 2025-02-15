@@ -178,7 +178,7 @@ const Navbar = () => {
                                 {searchResults.map((variant) => (
                                     <Link
                                         key={variant.idVariants}
-                                        to={`/products/${variant.product.id}/productdetail`}
+                                        to={`/products/${variant.id}/productdetail`}
                                         className="px-4 py-2 hover:bg-gray-100 flex items-center gap-3"
                                     >
                                         <img
@@ -188,7 +188,8 @@ const Navbar = () => {
                                         />
                                         <div className="flex flex-col">
                                             <span className="text-sm font-medium">{variant.nameVariants}</span>
-                                            <span className="text-xs text-gray-500">{variant.product.category.name}</span>
+                                            <span className="text-xs text-gray-500">{variant.brandName}</span>
+                                            <span className="text-xs text-gray-500">{variant.categoryName}</span>
                                         </div>
                                         <span className="text-blue-500 ml-auto">{formatCurrency(variant.price)}</span>
                                     </Link>

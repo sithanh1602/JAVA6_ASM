@@ -56,19 +56,19 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
 
         const timer = setTimeout(() => {
             let filtered = variants.filter((variant) => {
+                console.log(variant)
                 const variantName = variant.nameVariants || "";
                 return variantName.toLowerCase().includes(searchQuery.toLowerCase());
             });
 
             if (selectedBrands.length > 0) {
-                filtered = filtered.filter((variant) => selectedBrands.includes(variant.product.brand.name));
+                filtered = filtered.filter((variant) => selectedBrands.includes(variant.brandName));
             }
 
             if (selectedCategories.length > 0) {
-                filtered = filtered.filter((variant) => selectedCategories.includes(variant.product.category.name));
+                filtered = filtered.filter((variant) => selectedCategories.includes(variant.categoryName));
             }
 
-            // Lọc theo giá
             filtered = filtered.filter(
                 (variant) => variant.price >= priceRange[0] && variant.price <= priceRange[1]
             );
@@ -223,7 +223,7 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
                         onChange={handleSearchChange}
                         className="border-white bg-white focus:border-orange-400 focus:ring-2 focus:ring-orange-400 focus:outline-none p-2 w-full sm:w-1/3 transition duration-200"
                     />
-                    <FaSearch size={18}/>
+                    <FaSearch size={18}/>   
                 </div>
                 <div className="relative min-h-[400px]">
                     {isFiltering && (
@@ -235,7 +235,7 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
                         className={`grid ${view === "grid" ? "grid-cols-2" : "grid-cols-1"} sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5`}>
                         {currentVariants.length > 0 ? (
                             currentVariants.map((variant) => (
-                                <ProductCard key={variant.idVariants} variant={variant}/>
+                                <ProductCard key={variant.id} variant={variant}/>
                             ))
                         ) : (
                             <p>Không có sản phẩm nào.</p>
