@@ -179,23 +179,26 @@ public class ProductService {
 
 
     public List<ProductVariantDTO> getProductVariants(Long productId) {
-        List<Object[]> rawVariants = productRepository.getProductVariants(productId); // Lấy dữ liệu thô từ Repository
+        List<Object[]> rawVariants = productRepository.getProductVariants(productId);
         List<ProductVariantDTO> variantDTOs = new ArrayList<>();
 
         for (Object[] rawVariant : rawVariants) {
             ProductVariantDTO dto = new ProductVariantDTO(
                     (String) rawVariant[0],  // name
                     (String) rawVariant[1],  // image_url
-                    ((Number) rawVariant[2]).doubleValue(), // Chuyển đổi Number -> Double
-                    ((Number) rawVariant[3]).intValue(),    // stock (Number -> int)
-                    (String) rawVariant[4],                 // description
-                    ((Number) rawVariant[5]).longValue()    // id_Variants (Number -> Long)
+                    ((Number) rawVariant[2]).doubleValue(), // price
+                    ((Number) rawVariant[3]).intValue(),    // stock
+                    (String) rawVariant[4],  // description
+                    ((Number) rawVariant[5]).longValue(), // idVariants
+                    (String) rawVariant[6],
+                    new ArrayList<>() // Danh sách attributes rỗng
             );
             variantDTOs.add(dto);
         }
 
-        return variantDTOs; // Trả về danh sách DTO
+        return variantDTOs;
     }
+
 
     public List<Image> getImagesByProductVariantId(Long productVariantId) {
         return imageRepository.findByProductVariant_Id(productVariantId);

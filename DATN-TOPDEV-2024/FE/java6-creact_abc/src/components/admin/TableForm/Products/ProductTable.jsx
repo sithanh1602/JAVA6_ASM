@@ -11,8 +11,9 @@ import ProductVariantsInput from "./ProductsVariantsInput";
 import AttributesInput from "../Attributes/AttributesInput";
 import AttributesTable from "../Attributes/AttributesTable";
 import ProductService from "../../../../services/ProductService";
+import ProductVariantService from "../../../../services/ProductVariantService";
 import Swal from "sweetalert2";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaAsterisk } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import * as XLSX from "xlsx";
 import axios from "axios";
@@ -30,9 +31,21 @@ const ProductTable = forwardRef((_, ref) => {
   const [statusFilter, setStatusFilter] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [variantCounts, setVariantCounts] = useState({});
+
+  // Trigger filtering whenever the filters change
+  useEffect(() => {
+    filterProducts();
+  }, [statusFilter, searchName, products]);
 
   useEffect(() => {
-    fetchProducts();
+    const initialize = async () => {
+      const fetchedProducts = await fetchProducts();
+      if (fetchedProducts.length > 0) {
+        await fetchVariantCounts(fetchedProducts);
+      }
+    };
+    initialize();
   }, []);
 
   useImperativeHandle(ref, () => ({
@@ -43,9 +56,10 @@ const ProductTable = forwardRef((_, ref) => {
   const fetchProducts = async () => {
     try {
       const allProducts = await ProductService.getAllProducts();
-      const validProducts = allProducts.filter((product) => product.name); // Filter out products with null or undefined names
+      const validProducts = allProducts.filter((product) => product.name);
       setProducts(validProducts);
-      setFilteredProducts(validProducts); // Set filtered products initially to all products
+      setFilteredProducts(validProducts);
+      return validProducts; // Return the products for use in fetchVariantCounts
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -53,6 +67,21 @@ const ProductTable = forwardRef((_, ref) => {
         text: "Failed to fetch products!",
       });
       console.error("Error fetching products:", error);
+      return [];
+    }
+  };
+
+  const fetchVariantCounts = async (productsToCount) => {
+    try {
+      const counts = {};
+      for (const product of productsToCount) {
+        const variants =
+          await ProductVariantService.getProductVariantsByProductId(product.id);
+        counts[product.id] = variants.length;
+      }
+      setVariantCounts(counts);
+    } catch (error) {
+      console.error("Error fetching variant counts:", error);
     }
   };
 
@@ -75,8 +104,8 @@ const ProductTable = forwardRef((_, ref) => {
 
   // Open modal for editing an existing product
   const handleEditProduct = (product) => {
-    //setSelectedProduct(product); // Set the selected product for editing - Removed
-    setSelectedProductId(product.id);  // Set the selected product ID
+    //setSelectedProduct(product);
+    setSelectedProductId(product); // Set the selected product ID
     setIsModalOpen(true); // Open modal
   };
 
@@ -119,13 +148,15 @@ const ProductTable = forwardRef((_, ref) => {
     fetchProducts(); // Refresh product list after save
   };
 
-  const handleModalCloseVariants = () => {
+  const handleModalCloseVariants = async () => {
     setIsModalOpenVariants(false); // Close modal
-    fetchProducts(); // Refresh product list after save
+    await fetchProducts(); // Refresh product list after save
+    await fetchVariantCounts(); // Update variant counts
   };
 
   const handleModalCloseAttribute = () => {
     setIsModalOpenAttributes(false); // Close modal
+    setSelectedAttribute(null);
     fetchProducts(); // Refresh product list after save
   };
 
@@ -152,11 +183,6 @@ const ProductTable = forwardRef((_, ref) => {
     setFilteredProducts(filtered);
   };
 
-  // Trigger filtering whenever the filters change
-  useEffect(() => {
-    filterProducts();
-  }, [statusFilter, searchName, products]);
-
   // Define columns for React Data Table Component
   const columns = [
     {
@@ -165,7 +191,7 @@ const ProductTable = forwardRef((_, ref) => {
       sortable: true,
     },
     {
-      name: "Ghi chú",
+      name: "Mô tả",
       selector: (row) => row.description || "", // Fallback to empty string if product.description is null
       sortable: true,
     },
@@ -215,6 +241,22 @@ const ProductTable = forwardRef((_, ref) => {
         ),
     },
     {
+      name: "Số biến thể",
+      selector: (row) => variantCounts[row.id] || 0,
+      sortable: true,
+      cell: (row) => (
+        <span
+          className={`px-2 py-1 rounded ${
+            variantCounts[row.id] === 0
+              ? "bg-red-500 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          {variantCounts[row.id] || 0}
+        </span>
+      ),
+    },
+    {
       name: "Hành động",
       cell: (row) => (
         <div className="flex space-x-2">
@@ -236,10 +278,11 @@ const ProductTable = forwardRef((_, ref) => {
             <FiRefreshCw />
           </button>
           <button
-            className="px-2 py-1 rounded bg-orange-600 text-white hover:bg-orange-700"
-            onClick={() => handleAddProductVariants(row.id)} // Pass the product ID
+            className="px-2 py-1 rounded bg-orange-600 text-white hover:bg-orange-700 flex items-center gap-1"
+            onClick={() => handleAddProductVariants(row.id)}
           >
-            Tạo biến thể
+            <FaAsterisk className="w-4 h-4" />
+            <span>Quản Lý biến thể</span>
           </button>
         </div>
       ),
@@ -310,7 +353,10 @@ const ProductTable = forwardRef((_, ref) => {
               <span className="text-xl">×</span>
             </button>
           </div>
-          <ProductInput productId={selectedProductId} onSave={handleModalClose} />
+          <ProductInput
+            product={selectedProductId}
+            onSave={handleModalClose}
+          />
         </div>
       </Modal>
 
@@ -319,12 +365,12 @@ const ProductTable = forwardRef((_, ref) => {
         isOpen={isModalOpenVariants}
         onRequestClose={handleModalClose}
         ariaHideApp={false}
-        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl transition-opacity duration-300 ease-out"
+        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl transition-opacity duration-300 ease-out max-w-[95vw] w-[95%]"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       >
-        <div className="h-full w-full bg-white p-6 rounded-lg flex flex-col">
+        <div className="h-full w-full bg-white p-6 rounded-lg flex flex-col max-h-[95vh] min-h-[800px] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Thêm Biến thể</h2>
+            <h2 className="text-xl font-semibold">Quản Lý Biến thể</h2>
             <button
               onClick={handleModalCloseVariants}
               className="text-gray-500 hover:text-gray-700"
@@ -333,7 +379,7 @@ const ProductTable = forwardRef((_, ref) => {
             </button>
           </div>
           <ProductVariantsInput
-            productId={selectedProductId} // Pass the product ID
+            productId={selectedProductId}
             onSave={handleModalCloseVariants}
           />
         </div>
@@ -350,7 +396,7 @@ const ProductTable = forwardRef((_, ref) => {
         <div className="h-full w-full bg-white p-6 rounded-lg flex flex-col max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Thêm / Sửa Thuộc tính</h2>
+            <h2 className="text-xl font-semibold">Quản Lý Thuộc tính</h2>
             <button
               onClick={handleModalCloseAttribute}
               className="text-gray-500 hover:text-gray-700"
@@ -359,12 +405,14 @@ const ProductTable = forwardRef((_, ref) => {
             </button>
           </div>
 
-          {/* Attributes Input */}
-          <div className="mb-4">
-            <AttributesInput
-              selectedAttribute={selectedAttribute}
-              onAddAttribute={() => handleModalCloseAttribute()}
-            />
+          {/* Attributes Input - Now centered */}
+          <div className="flex justify-center items-center mb-4">
+            <div className="w-2/3">
+              <AttributesInput
+                selectedAttribute={selectedAttribute}
+                onAddAttribute={() => handleModalCloseAttribute()}
+              />
+            </div>
           </div>
 
           {/* Attributes Table */}

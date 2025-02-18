@@ -1,123 +1,158 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button } from "@nextui-org/react";
-import { FaPlus } from "react-icons/fa";
-import {
-  addAttribute,
-  updateAttribute,
-} from "../../../../services/AttributeService";
+import { FaPlus, FaEdit } from "react-icons/fa";
+import { addAttribute, updateAttribute } from "../../../../services/AttributeService";
 import Swal from "sweetalert2";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+// Validation schema
+const schema = yup.object().shape({
+  name: yup
+    .string()
+    .required("Tên thuộc tính là bắt buộc")
+    .min(2, "Tên thuộc tính phải có ít nhất 2 ký tự"),
+  value: yup
+    .string()
+    .required("Giá trị thuộc tính là bắt buộc")
+    .min(1, "Giá trị thuộc tính không được để trống")
+});
 
 const AttributesInput = ({ selectedAttribute, onAddAttribute }) => {
-  const [attributeName, setAttributeName] = useState("");
-  const [attributeValue, setAttributeValue] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    clearErrors
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      value: ""
+    }
+  });
+
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [editingAttribute, setEditingAttribute] = useState(null);
 
   useEffect(() => {
-    if (selectedAttribute) {
-      setAttributeName(selectedAttribute.name);
-      setAttributeValue(selectedAttribute.value);
-      setIsEditing(true);
-    }
-  }, [selectedAttribute]);
-
-  const handleSaveAttribute = async () => {
-    if (!attributeName || !attributeValue) {
-      Swal.fire({
-        icon: "warning",
-        title: "Thiếu thông tin!",
-        text: "Vui lòng nhập đầy đủ tên và giá trị thuộc tính.",
+    // Nếu có selectedAttribute mới khác với đang chỉnh sửa hiện tại, reset form với dữ liệu mới
+    if (selectedAttribute && selectedAttribute.id !== (editingAttribute && editingAttribute.id)) {
+      reset({
+        name: selectedAttribute.name,
+        value: selectedAttribute.value
       });
-      return;
+      clearErrors();
+      setEditingAttribute(selectedAttribute);
+      setIsEditing(true);
+    } else if (!selectedAttribute) {
+      // Nếu không có selectedAttribute (ví dụ sau khi thêm thành công), reset form về mặc định
+      reset({
+        name: "",
+        value: ""
+      });
+      clearErrors();
+      setEditingAttribute(null);
+      setIsEditing(false);
     }
-  
-    const newAttribute = {
-      id: selectedAttribute?.id, // Đảm bảo lấy đúng ID
-      name: attributeName,
-      value: attributeValue,
-    };
-  
+  }, [selectedAttribute, reset, clearErrors, editingAttribute]);
+
+  const onSubmit = async (data) => {
     setLoading(true);
-  
     try {
-      let data;
-      if (isEditing) {
-        if (!newAttribute.id) {
-          throw new Error("ID không hợp lệ khi cập nhật thuộc tính!");
-        }
-        data = await updateAttribute(newAttribute); // Gọi API update với ID đúng
+      const newAttribute = {
+        id: editingAttribute?.id,
+        name: data.name,
+        value: data.value
+      };
+
+      let result;
+      if (isEditing && editingAttribute?.id) {
+        result = await updateAttribute(newAttribute);
       } else {
-        data = await addAttribute(newAttribute); // Gọi API add nếu là mới
+        result = await addAttribute(newAttribute);
       }
-  
+
       Swal.fire({
         icon: "success",
         title: "Thành công!",
         text: isEditing
           ? "Cập nhật thuộc tính thành công!"
-          : "Thêm thuộc tính thành công!",
+          : "Thêm thuộc tính thành công!"
       });
-  
+
       if (typeof onAddAttribute === "function") {
-        onAddAttribute(data);
+        onAddAttribute(result);
       }
-  
-      // Reset form
-      setAttributeName("");
-      setAttributeValue("");
+
+      // Reset lại form và trạng thái sau khi thành công
+      reset({
+        name: "",
+        value: ""
+      });
+      clearErrors();
+      setEditingAttribute(null);
       setIsEditing(false);
     } catch (error) {
       console.error("Lỗi khi lưu thuộc tính:", error);
       Swal.fire({
         icon: "error",
         title: "Lỗi!",
-        text: "Không thể lưu thuộc tính.",
+        text: "Không thể lưu thuộc tính."
       });
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md w-80">
-      <div className="mb-3">
-        <Input
-          type="text"
-          label="Tên Thuộc Tính"
-          value={attributeName}
-          onChange={(e) => setAttributeName(e.target.value)}
-          placeholder="Nhập tên thuộc tính..."
-          className="w-full"
-          variant="bordered"
-        />
-      </div>
+    <div className="flex justify-center items-center">
+      <div className="p-6 bg-white rounded-lg shadow-md w-80">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="mb-3">
+            <Input
+              {...register("name")}
+              type="text"
+              label="Tên Thuộc Tính"
+              placeholder="Nhập tên thuộc tính..."
+              className="w-full"
+              variant="bordered"
+              isInvalid={!!errors.name}
+              errorMessage={errors.name?.message}
+            />
+          </div>
 
-      <div className="mb-4">
-        <Input
-          type="text"
-          label="Giá Trị Thuộc Tính"
-          value={attributeValue}
-          onChange={(e) => setAttributeValue(e.target.value)}
-          placeholder="Nhập giá trị thuộc tính..."
-          className="w-full"
-          variant="bordered"
-        />
-      </div>
+          <div className="mb-4">
+            <Input
+              {...register("value")}
+              type="text"
+              label="Giá Trị Thuộc Tính"
+              placeholder="Nhập giá trị thuộc tính..."
+              className="w-full"
+              variant="bordered"
+              isInvalid={!!errors.value}
+              errorMessage={errors.value?.message}
+            />
+          </div>
 
-      <Button
-        color="primary"
-        className="w-full"
-        onClick={handleSaveAttribute}
-        endContent={<FaPlus size={18} />}
-        isLoading={loading}
-      >
-        {loading
-          ? "Đang lưu..."
-          : isEditing
-          ? "Cập nhật Thuộc tính"
-          : "Thêm Thuộc tính"}
-      </Button>
+          <Button
+            type="submit"
+            color="primary"
+            className="w-full"
+            endContent={isEditing ? <FaEdit size={18} /> : <FaPlus size={18} />}
+            isLoading={loading}
+          >
+            {loading
+              ? "Đang lưu..."
+              : isEditing
+              ? "Cập nhật Thuộc tính"
+              : "Thêm Thuộc tính"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { getAllAttributes } from "../../../../services/AttributeService";
+import { FaEdit } from "react-icons/fa";
 
 const AttributesTable = ({ onEditAttribute }) => {
   const [attributes, setAttributes] = useState([]);
@@ -17,10 +18,19 @@ const AttributesTable = ({ onEditAttribute }) => {
     setLoading(false);
   };
 
+  // Update the handleEdit function to ensure immediate update
   const handleEdit = (row) => {
-    onEditAttribute(row); // Gửi dữ liệu sang AttributesInput
+    console.log("Editing attribute:", row);
+    if (onEditAttribute) {
+      onEditAttribute({
+        id: row.id,
+        name: row.name,
+        value: row.value
+      });
+    }
   };
 
+  // Keep the edit button styling consistent
   const columns = [
     {
       name: "Name",
@@ -38,10 +48,11 @@ const AttributesTable = ({ onEditAttribute }) => {
       name: "Actions",
       cell: (row) => (
         <button
-          className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-1"
           onClick={() => handleEdit(row)}
         >
-          Edit
+          <FaEdit className="w-4 h-4" />
+          <span>Sửa</span>
         </button>
       ),
       ignoreRowClick: true,

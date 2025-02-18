@@ -1,6 +1,5 @@
 package com.be.rep;
 
-import com.be.DTO.ProductVariantHomeDTO;
 import com.be.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,6 +27,21 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 """, nativeQuery = true)
     List<Object[]> findAllWithFirstImage();
 
+    @Query(value = """
+            SELECT pv.id, pv.name_variants, pv.price, pv.quantity, pv.status,
+           STRING_AGG(img.image, ',') WITHIN GROUP (ORDER BY img.id ASC) AS imageUrls,
+           a.id AS attributeId, a.name AS attributeName, a.value AS attributeValue
+    FROM product_variants pv
+    LEFT JOIN attributes_product_variants apv ON pv.id = apv.product_variant_id
+    LEFT JOIN attributes a ON apv.attribute_id = a.id
+    LEFT JOIN images img ON img.product_variant_id = pv.id
+    WHERE pv.product_id = :productId
+    GROUP BY pv.id, pv.name_variants, pv.price, pv.quantity, pv.status, a.id, a.name, a.value
+    ORDER BY pv.id ASC, a.id ASC;
+    
+    """, nativeQuery = true)
+    List<Object[]> findProductVariantsByProductId(@Param("productId") Long productId);
+
     @Query("SELECT a.id, " +
             "(SELECT b.image FROM Image b WHERE a.id = b.productVariant.id ORDER BY b.id ASC LIMIT 1) AS image, " +
             "a.nameVariants, a.price, a.product.id, a.quantity, a.status, " +
@@ -39,8 +53,6 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
             "ORDER BY a.id DESC")
     List<Object[]> findProductVariantsWithImageByBrand(@Param("brandId") Long brandId);
 
-
-
     @Query("SELECT a.id, " +
             "(SELECT b.image FROM Image b WHERE a.id = b.productVariant.id ORDER BY b.id ASC LIMIT 1) AS image, " +
             "a.nameVariants, a.price, a.product.id, a.quantity, a.status, " +
@@ -51,6 +63,4 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
             "WHERE d.id = :categoryId " +
             "ORDER BY a.id DESC")
     List<Object[]> findVariantsWithImageByCategory(@Param("categoryId") Long categoryId);
-
-
 }
