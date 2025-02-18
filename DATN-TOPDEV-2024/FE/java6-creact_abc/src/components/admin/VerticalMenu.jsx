@@ -31,15 +31,15 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
     const navigate = useNavigate(); // Initialize the navigate function
 
     const menuItems = [
-        { icon: <FaHome className="text-blue-500" />, label: 'Dashboard', link: '/admin/dash' },
-        { icon: <FaFirstOrder className="text-blue-500" />, label: 'Order', link: '/admin/order' },
-        { icon: <MdCategory className="text-red-500" />, label: 'Category', link: '/admin/category' },
-        { icon: <FaDisease className="text-red-500" />, label: 'Brand', link: '/admin/brand' },
-        { icon: <FaProductHunt className="text-orange-500" />, label: 'Product', link: '/admin/product' },
-        { icon: <FaUser className="text-pink-500" />, label: 'User', link: '/admin/user' },
-        { icon: <FaEnvelope className="text-purple-500" />, label: 'Email', link: '/admin/contact' },
-        { icon: <FaFileExcel className="text-purple-500" />, label: 'Driver Excel', link: '/admin/tplXlsx' },
-        { icon: <FaPencilAlt className="text-blue-500" />, label: 'Forms', link: '/admin/post' },
+        { icon: <FaHome className="text-blue-500" />, label: 'Thống kê', link: '/admin/dash' },
+        { icon: <FaFirstOrder className="text-blue-500" />, label: 'Quản lý hoá đơn', link: '/admin/order' },
+        { icon: <MdCategory className="text-red-500" />, label: 'Quản lý loại sản phẩm', link: '/admin/category' },
+        { icon: <FaDisease className="text-red-500" />, label: 'Quản lý thương hiệu', link: '/admin/brand' },
+        { icon: <FaProductHunt className="text-orange-500" />, label: 'Quản lý sản phẩm', link: '/admin/product' },
+        { icon: <FaUser className="text-pink-500" />, label: 'Quản lý người dùng', link: '/admin/user' },
+        { icon: <FaEnvelope className="text-purple-500" />, label: 'Quản lý phản hồi', link: '/admin/contact' },
+        { icon: <FaFileExcel className="text-purple-500" />, label: 'Excel', link: '/admin/tplXlsx' },
+        { icon: <FaPencilAlt className="text-blue-500" />, label: 'Bài viết', link: '/admin/post' },
         { icon: <FaPuzzlePiece className="text-pink-500" />, label: 'UI Elements', link: '/ui-elements' },
         { icon: <FaTable className="text-orange-500" />, label: 'Tables', hasArrow: true, subItems: [
                 { label: 'Basic Table', link: '/tables/basic' },
