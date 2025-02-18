@@ -178,7 +178,7 @@ const OrderList = () => {
             name: 'Tổng Tiền',
             selector: row => row.totalPrice,
             sortable: true,
-            cell: row => <span className="text-blue-500 font-bold">{row.totalPrice.toLocaleString()} VNĐ</span>
+            cell: row => <span className="text-red-500">{row.totalPrice.toLocaleString()} VNĐ</span>
         },
         {
             name: 'Ngày Đặt',
@@ -196,7 +196,7 @@ const OrderList = () => {
             name: 'Trạng thái thanh toán',
             selector: row => row.paymentStatus, // Kiểm tra API có trả về field này không
             cell: row => (
-                <span className={`font-medium ${row.paymentStatus ? 'text-green-500' : 'text-red-500'}`}>
+                <span className={`font-medium ${row.paymentStatus ? 'text-green-500' : 'text-blue-500'}`}>
             {row.paymentStatus ? 'Thanh toán online' : 'Thanh toán khi nhận hàng'}
         </span>
             ),
@@ -327,14 +327,14 @@ const OrderList = () => {
                                         </p>
                                         <p className="mb-2">
                                             <strong className="pr-2">Tổng Tiền:</strong>
-                                            <span className="ml-2 text-blue-500 font-medium">
+                                            <span className="ml-2 text-red-500 font-medium">
                                                 {selectedOrder.totalPrice.toLocaleString()} VNĐ
                                             </span>
                                         </p>
                                         <p className="mb-2">
                                             <strong className="pr-2">Trạng thái thanh toán:</strong>
                                             <span
-                                                className={`ml-2 font-medium ${selectedOrder.paymentStatus === 'Đã thanh toán' ? 'text-green-500' : 'text-red-500'}`}>
+                                                className={`ml-2 ${selectedOrder.paymentStatus === 'Đã thanh toán' ? 'text-green-500' : 'text-red-500'}`}>
                                                 {selectedOrder.paymentStatus || 'Chưa thanh toán'}
                                             </span>
                                         </p>

@@ -132,7 +132,6 @@ const AdminOrderManagement = () => {
     const [pendingOrders, setPendingOrders] = useState([]); // Lưu danh sách đơn hàng chờ xác nhận
 
     const tabs = [
-        { label: 'Tất cả', status: null },
         { label: 'Đã đặt hàng', status: 1 },
         { label: 'Chưa thanh toán', status: 2 },
         { label: 'Đã thanh toán', status: 3 },
@@ -218,31 +217,38 @@ const AdminOrderManagement = () => {
     const filteredOrders = activeTab === 'Tất cả'
         ? orders
         : orders.filter(order => order.status === tabs.find(tab => tab.label === activeTab)?.status);
+    console.log(orders);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
     const columns = [
-        { name: 'Mã hoá đơn', selector: row => row.id, sortable: true, center: true, width: '150px' },
+        { name: 'Mã hoá đơn', selector: row => row.orderNum, sortable: true, center: true, width: '150px' },
         { name: 'Tên khách hàng', selector: row => row.userName, sortable: true, center: true, width: '200px' },
-        {
-            name: 'Sản phẩm đã mua',
-            cell: row => (
-                <ProductList>
-                    {row.products && row.products.map((product, index) => (
-                        <ProductItem key={index}>
-                            <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover mr-2"/>
-                            <span>{product.name} (x{product.quantity}) - {product.price.toLocaleString()} VND</span>
-                        </ProductItem>
-                    ))}
-                </ProductList>
-            ),
-            sortable: false,
-            center: true,
-            minWidth: '300px',  // Ensure this column is wide enough
-            maxWidth: '500px',  // Set maximum width to avoid it expanding too much
-        },
-        { name: 'Tổng tiền', selector: row => `${row.totalPrice.toLocaleString()} VND`, sortable: true, right: true, center: true, width: '220px' },
+        // {
+        //     name: 'Sản phẩm đã mua',
+        //     cell: row => (
+        //         <ProductList>
+        //             {row.products && row.products.map((product, index) => (
+        //                 <ProductItem key={index}>
+        //                     <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover mr-2"/>
+        //                     <span>{product.name} (x{product.quantity}) - {product.price.toLocaleString()} VND</span>
+        //                 </ProductItem>
+        //             ))}
+        //         </ProductList>
+        //     ),
+        //     sortable: false,
+        //     center: true,
+        //     minWidth: '300px',  // Ensure this column is wide enough
+        //     maxWidth: '500px',  // Set maximum width to avoid it expanding too much
+        // },
+        { name: 'Tổng tiền', selector: row => `${row.totalPrice.toLocaleString()} VND`, sortable: true, right: true, center: true, width: '220px',
+            style: {
+                fontFamily: 'Arial, sans-serif',  // Thêm fontFamily
+                fontWeight: 'bold',  // Chữ in đậm
+                color: 'red',  // Thay '#FF5733' bằng màu bạn muốn (mã màu HEX, RGB, tên màu...)
+                fontSize: '14px',
+            }},
         { name: 'Ngày đặt hàng', selector: row => new Date(row.orderDate).toLocaleDateString(), sortable: true, center: true, width: '200px' },
         {
             name: 'Trạng thái',
@@ -335,7 +341,7 @@ const AdminOrderManagement = () => {
     );
 
     return (
-        <div className="container mx-auto p-4 max-w-full">
+        <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Quản lý đơn hàng</h1>
             <TabContainer>
                 {tabs.map(tab => (

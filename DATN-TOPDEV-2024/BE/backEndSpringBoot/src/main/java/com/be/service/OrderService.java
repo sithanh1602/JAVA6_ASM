@@ -47,6 +47,7 @@ public class OrderService {
 
             Map<String, Object> orderInfo = new HashMap<>();
             orderInfo.put("id", order.getId());
+            orderInfo.put("orderNum", order.getOrderNum());
             orderInfo.put("userName", user != null ? user.getFullName() : "Unknown");
             orderInfo.put("totalPrice", order.getTotalPrice());
             orderInfo.put("status", order.getStatus());

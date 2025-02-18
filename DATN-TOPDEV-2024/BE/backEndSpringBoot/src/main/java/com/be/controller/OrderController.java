@@ -25,10 +25,10 @@ public class OrderController {
     private OrderService orderService;
 
 
-//    @GetMapping("/all")
-//    public List<Map<String, Object>> getAllOrders() throws Exception {
-//        return orderService.getAllOrdersWithDetails();
-//    }
+    @GetMapping("/all")
+    public List<Map<String, Object>> getAllOrders() throws Exception {
+        return orderService.getAllOrdersWithDetails();
+    }
 
     // Endpoint to place an order
 
