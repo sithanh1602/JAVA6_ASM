@@ -3,22 +3,26 @@ import DataTable from 'react-data-table-component';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@nextui-org/react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import OrderService from "../../services/OrderSevice";
-import { faClipboardCheck, faTruck, faBoxOpen, faCheckCircle, faHandshake } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardCheck, faTruck, faBoxOpen, faCheckCircle, faHandshake, faExclamationCircle, faDollarSign, faCheckDouble, faTimesCircle, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import Cookies from "js-cookie";
 import {jwtDecode} from "jwt-decode";
+import Swal from 'sweetalert2';
 
 const getStatusInfo = (status) => {
     const statusMap = {
         1: { text: 'Đã đặt hàng', icon: faClipboardCheck, color: 'text-yellow-500', bgColor: 'bg-yellow-100' },
-        2: { text: 'Chờ xác nhận', icon: faClipboardCheck, color: 'text-yellow-500', bgColor: 'bg-yellow-100' },
-        3: { text: 'Đang xử lý', icon: faClipboardCheck, color: 'text-yellow-500', bgColor: 'bg-yellow-100' },
+        2: { text: 'Chưa thanh toán', icon: faExclamationCircle, color: 'text-red-500', bgColor: 'bg-red-100' },
+        3: { text: 'Đã thanh toán', icon: faDollarSign, color: 'text-green-500', bgColor: 'bg-green-100' },
         4: { text: 'Đã xác nhận', icon: faCheckCircle, color: 'text-blue-500', bgColor: 'bg-blue-100' },
-        5: { text: 'Đang vận chuyển', icon: faTruck, color: 'text-orange-500', bgColor: 'bg-orange-100' },
+        5: { text: 'Đang giao hàng', icon: faTruck, color: 'text-orange-500', bgColor: 'bg-orange-100' },
         6: { text: 'Đã giao hàng', icon: faBoxOpen, color: 'text-green-500', bgColor: 'bg-green-100' },
-        7: { text: 'Đã nhận hàng', icon: faHandshake, color: 'text-purple-500', bgColor: 'bg-purple-100' }
+        7: { text: 'Đã nhận hàng', icon: faHandshake, color: 'text-purple-500', bgColor: 'bg-purple-100' },
+        8: { text: 'Hoàn thành', icon: faCheckDouble, color: 'text-teal-500', bgColor: 'bg-teal-100' },
+        9: { text: 'Đã hủy', icon: faTimesCircle, color: 'text-gray-500', bgColor: 'bg-gray-100' }
     };
-    return statusMap[status] || { text: 'Không xác định', icon: null, color: 'text-gray-500', bgColor: 'bg-gray-100' };
+    return statusMap[status] || { text: 'Không xác định', icon: faQuestionCircle, color: 'text-gray-500', bgColor: 'bg-gray-100' };
 };
+
 
 const OrderList = () => {
     const [orders, setOrders] = useState([]);
@@ -83,24 +87,22 @@ const OrderList = () => {
         const userId = getUserIdFromToken();
         console.log("UserID:", userId);
 
+        // Tìm đơn hàng trong danh sách orders dựa trên orderId
+        const selectedOrder = orders.find(order => order.id === orderId);
+
+        if (!selectedOrder) {
+            alert("Không tìm thấy thông tin đơn hàng!");
+            console.error("Order not found for ID:", orderId);
+            return;
+        }
+
         if (!userId) {
             alert("Không thể xác định người dùng. Vui lòng đăng nhập lại!");
             return;
         }
 
-        if (!orderId) {
-            alert("Không tìm thấy ID đơn hàng!");
-            console.error("orderId is missing:", orderId);
-            return;
-        }
-
         try {
-            const response = await OrderService.placeOrderNosave(orders, userId, orderId);
-
-            console.log(orders);
-            console.log(userId);
-            console.log(orderId);
-
+            const response = await OrderService.placeOrderNosave(selectedOrder, userId, orderId);
             console.log("URL thanh toán nhận được:", response);
 
             if (response) {
@@ -116,17 +118,42 @@ const OrderList = () => {
     };
 
 
-
     const handleCancelOrder = async (orderId) => {
-        try {
-            await OrderService.updateOrderStatushuy(orderId);
-            const userId = localStorage.getItem("UserId");
-            const ordersData = await OrderService.getOrdersByUserId(userId);
-            setOrders(ordersData);
-        } catch (err) {
-            console.error("Lỗi hủy đơn hàng:", err);
+        // Hiển thị hộp thoại xác nhận hủy đơn hàng
+        const result = await Swal.fire({
+            title: 'Bạn có chắc muốn hủy đơn hàng này?',
+            text: "Hành động này không thể hoàn tác!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Hủy đơn hàng',
+            cancelButtonText: 'Quay lại'
+        });
+
+        // Nếu người dùng xác nhận hủy
+        if (result.isConfirmed) {
+            try {
+                await OrderService.updateOrderStatus(orderId, 9); // Truyền trạng thái 9 vào
+                const userId = localStorage.getItem("UserId");
+                const ordersData = await OrderService.getOrdersByUserId(userId);
+                setOrders(ordersData);
+                Swal.fire(
+                    'Hủy thành công!',
+                    'Đơn hàng của bạn đã được hủy.',
+                    'success'
+                );
+            } catch (err) {
+                console.error("Lỗi hủy đơn hàng:", err);
+                Swal.fire(
+                    'Lỗi!',
+                    'Đã xảy ra lỗi khi hủy đơn hàng. Vui lòng thử lại.',
+                    'error'
+                );
+            }
         }
     };
+
 
     const orderColumns = [
         {
@@ -170,7 +197,7 @@ const OrderList = () => {
             selector: row => row.paymentStatus, // Kiểm tra API có trả về field này không
             cell: row => (
                 <span className={`font-medium ${row.paymentStatus ? 'text-green-500' : 'text-red-500'}`}>
-            {row.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}
+            {row.paymentStatus ? 'Thanh toán online' : 'Thanh toán khi nhận hàng'}
         </span>
             ),
             sortable: true
