@@ -23,7 +23,28 @@ const addProductVariant = async (productVariantData) => {
   }
 };
 
+const getVariantsByBrand = async (brandId) => {
+  try {
+    const response = await axios.get(`${API_URL}/by-brand/${brandId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching product variants by brand:", error);
+    return [];
+  }
+};
+const getVariantsByCategory= async (categoryId) => {
+  try {
+    const response = await axios.get(`${API_URL}/by-category/${categoryId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching product variants by category:", error);
+    return [];
+  }
+}
+
 export default {
     getAllProductVariants,
     addProductVariant,
+    getVariantsByCategory,
+    getVariantsByBrand,
   };

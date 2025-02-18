@@ -50,6 +50,7 @@ public class OrderService {
             orderInfo.put("userName", user != null ? user.getFullName() : "Unknown");
             orderInfo.put("totalPrice", order.getTotalPrice());
             orderInfo.put("status", order.getStatus());
+            orderInfo.put("paymentStatus", order.isPaymentStatus());
             orderInfo.put("orderDate", order.getOrderDate());
             orderInfo.put("products", products);
 
@@ -140,17 +141,23 @@ public class OrderService {
         // Trả về danh sách các sản phẩm kèm theo số lượng
         List<Map<String, Object>> productsWithQuantity = new ArrayList<>();
         for (OrderDetail orderDetail : orderDetails) {
-            ProductVariant  productvariant = orderDetail.getProduct_variant_id();
-            Product product = orderDetail.getProduct_variant_id().getProduct();
+            ProductVariant productVariant = orderDetail.getProduct_variant_id();
+
+            // Lấy danh sách hình ảnh của biến thể sản phẩm
+            List<Image> images = productVariant.getImages();
+            String imageUrl = (images != null && !images.isEmpty()) ? images.get(0).getImage() : null;
+
             Map<String, Object> productInfo = new HashMap<>();
-            productInfo.put("name", product.getName());
-            productInfo.put("imageUrl", product.getImageUrl());
+            productInfo.put("name", productVariant.getNameVariants()); // Lấy tên của ProductVariant
+            productInfo.put("imageUrl", imageUrl); // Gán ảnh đầu tiên của ProductVariant
             productInfo.put("quantity", orderDetail.getQuantity());
-            productInfo.put("price", productvariant.getPrice());
+            productInfo.put("price", productVariant.getPrice());
+
             productsWithQuantity.add(productInfo);
         }
         return productsWithQuantity;
     }
+
 
     public String generateOrderNum() {
         // Lấy số lượng đơn hàng hiện tại trong cơ sở dữ liệu

@@ -1,27 +1,68 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate,useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiMenu } from "react-icons/fi";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar, Button } from "@nextui-org/react";
+import {
+    Navbar,
+    NavbarContent,
+    NavbarItem,
+    Dropdown,
+    DropdownTrigger,
+    DropdownMenu,
+    DropdownItem,
+    Avatar,
+    Button,
+    User
+} from "@nextui-org/react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import UserService from "../../services/UserService";
+import CategoryService from "../../services/CategoryService";
+import BrandService from "../../services/BrandService";
 
 const HeaderDownNavbar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState(null); // State lưu thông tin người dùng
-    const [loading, setLoading] = useState(true); // State để xử lý trạng thái loading
-    const [error, setError] = useState(""); // State để lưu lỗi
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
     const [isOpen, setIsOpen] = useState(false);
-    const location = useLocation(); // Lấy đường dẫn hiện tại
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState({});
+    const [hoveredCategory, setHoveredCategory] = useState(null);
+    const [loadingBrands, setLoadingBrands] = useState({});
+    const location = useLocation();
     const navigate = useNavigate();
 
-    // Check if token is present in localStorage and fetch user details
+    const handleCategoryClick = (categoryId) => {
+        navigate(`/products?category=${categoryId}`);
+        // Tải lại trang sau khi thay đổi URL
+        window.location.reload();
+    };
+
+    const handleBrandClick = (brandId) => {
+        navigate(`/products?brand=${brandId}`);
+        // Tải lại trang sau khi thay đổi URL
+        window.location.reload();
+    };
+
     useEffect(() => {
-        // Nếu không phải trang chủ thì ẩn menu
         if (location.pathname !== "/") {
             setIsOpen(false);
         }
-    }, [location.pathname]); // Chạy lại khi đường dẫn thay đổi
+    }, [location.pathname]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await CategoryService.getAllCategories();
+                console.log("Categories loaded:", data);
+                setCategories(data);
+            } catch (err) {
+                console.error("Error loading categories:", err);
+                setError("Không thể tải danh mục sản phẩm");
+            }
+        };
+        fetchCategories();
+    }, []);
 
     useEffect(() => {
         const userId = JSON.parse(localStorage.getItem("UserId"));
@@ -29,62 +70,56 @@ const HeaderDownNavbar = () => {
             UserService.getUserById(userId)
                 .then((data) => {
                     if (data) {
-                        setUser(data); // Lưu thông tin người dùng vào state
+                        setUser(data);
                         setIsLoggedIn(true);
-                    } else {
-                        setError("Không tìm thấy thông tin người dùng.");
                     }
                     setLoading(false);
                 })
                 .catch((err) => {
-                    console.error("Error fetching user:", err);
-                    setError("Không thể tải thông tin người dùng.");
+                    console.error("Error loading user:", err);
                     setLoading(false);
                 });
         } else {
-            setError("UserId không tồn tại trong localStorage.");
             setLoading(false);
         }
     }, []);
 
-    // Handle logout function
+    const handleCategoryHover = async (categoryId) => {
+        setHoveredCategory(categoryId);
+
+        if (!brands[categoryId] && !loadingBrands[categoryId]) {
+            setLoadingBrands(prev => ({ ...prev, [categoryId]: true }));
+            try {
+                const data = await BrandService.getBrandsByCategory(categoryId);
+                console.log(`Brands loaded for category ${categoryId}:`, data);
+                setBrands(prev => ({ ...prev, [categoryId]: data }));
+            } catch (error) {
+                console.error(`Error loading brands for category ${categoryId}:`, error);
+            } finally {
+                setLoadingBrands(prev => ({ ...prev, [categoryId]: false }));
+            }
+        }
+    };
+
     const handleLogout = () => {
-        // Remove the token from localStorage
         sessionStorage.removeItem('token');
         localStorage.removeItem('token');
         localStorage.removeItem('roles');
         localStorage.removeItem('UserId');
 
-        // Hiển thị thông báo SweetAlert
         Swal.fire({
             icon: 'success',
             title: 'Đăng xuất thành công!',
             showConfirmButton: false,
             timer: 1500
         }).then(() => {
-            // Chuyển hướng về trang chủ ("/") sau khi thông báo hiển thị xong
             navigate('/');
+            window.location.reload();
         });
-
-        // Reload the page
-        window.location.reload();
     };
 
-    const menuItems = [
-        { icon: "fas fa-laptop", text: "Thiết bị điện tử" },
-        { icon: "fas fa-headphones-alt", text: "Phụ kiện" },
-        { icon: "fas fa-tv", text: "TV & Đồ gia dụng" },
-        { icon: "fas fa-heartbeat", text: "Sức khỏe & Làm đẹp" },
-        { icon: "fas fa-baby", text: "Mẹ & Bé" },
-        { icon: "fas fa-tshirt", text: "Thời trang" },
-        { icon: "fas fa-home", text: "Nhà cửa & Đời sống" },
-        { icon: "fas fa-futbol", text: "Thể thao & Du lịch" },
-        { icon: "fas fa-futbol", text: "Thể thao & Du lịch" },
-        { icon: "fas fa-futbol", text: "Thể thao & Du lịch" },
-    ];
-
     return (
-        <Navbar className="bg-white text-black ">
+        <Navbar className="bg-white text-black">
             <div className="relative w-64">
                 <button
                     className="w-full capitalize text-white flex items-center px-4 py-4 border border-gray-300 shadow-sm bg-blue-800"
@@ -93,92 +128,116 @@ const HeaderDownNavbar = () => {
                     <FiMenu className="mr-2"/> Danh mục sản phẩm
                 </button>
 
+                {/* Menu chính */}
                 <motion.div
-                    initial={{opacity: 0, y: -10, height: 0}}
-                    animate={isOpen ? {opacity: 1, y: 0, height: "auto"} : {opacity: 0, y: -10, height: 0}}
-                    transition={{duration: 0.3, ease: "easeInOut"}}
-                    className="absolute left-0 w-full bg-white border border-gray-200 shadow-lg z-50 overflow-hidden"
+                    initial={{ opacity: 0, scaleY: 0 }}
+                    animate={{ opacity: isOpen ? 1 : 0, scaleY: isOpen ? 1 : 0 }}
+                    exit={{ opacity: 0, scaleY: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="absolute left-0 w-full bg-white border border-gray-200 shadow-lg z-40 origin-top"
                 >
-                    <ul className="divide-y divide-gray-200">
-                        {menuItems.map((item, index) => (
-                            <li key={index} className="flex items-center p-3 hover:bg-gray-100 cursor-pointer">
-                                <i className={`${item.icon} mr-3`}></i>
-                                <span className="flex-grow">{item.text}</span>
-                                <i className="fas fa-chevron-right"></i>
-                            </li>
-                        ))}
-                    </ul>
+                        <ul className="divide-y divide-gray-200">
+                            {categories.map((category) => (
+                                <li
+                                    key={category.id}
+                                    className="relative"
+                                    onMouseEnter={() => handleCategoryHover(category.id)}
+                                    onMouseLeave={() => setHoveredCategory(null)}
+                                >
+                                    <div className="flex items-center p-3 hover:bg-gray-100 cursor-pointer"
+                                         onClick={() => handleCategoryClick(category.id)}>
+                                        <span className="flex-grow">{category.name}</span>
+                                        <i className="fas fa-chevron-right"></i>
+                                    </div>
+
+                                    {hoveredCategory === category.id && (
+                                        <motion.div
+                                            initial={{opacity: 0, x: -10}}
+                                            animate={{opacity: 1, x: 0}}
+                                            exit={{opacity: 0, x: -10}}
+                                            transition={{duration: 0.2}}
+                                            className="absolute left-full top-0 w-56 bg-white border border-gray-200 shadow-lg z-50"
+                                            style={{minHeight: "100%"}}
+                                        >
+                                            <ul className="py-1">
+                                                <span className="pl-2 text-blue-900 font-bold">Thương hiệu</span>
+                                                {loadingBrands[category.id] ? (
+                                                    <li className="px-4 py-2">Đang tải...</li>
+                                                ) : Array.isArray(brands[category.id]) && brands[category.id].length > 0 ? (
+                                                    brands[category.id].map((brand) => {
+                                                        console.log("Brand object:", brand); // Kiểm tra dữ liệu brand
+                                                        return (
+                                                            <li
+                                                                key={brand.id}
+                                                                className="hover:bg-gray-100 cursor-pointer"
+                                                                onClick={() => handleBrandClick(brand.brandsId)}
+                                                            >
+                                                                <div className="block px-4 py-2">{brand.name}</div>
+                                                            </li>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <li className="px-4 py-2">Không có thương hiệu</li>
+                                                )}
+                                            </ul>
+                                        </motion.div>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
                 </motion.div>
             </div>
+
             <NavbarContent className="hidden sm:flex justify-center w-full gap-6 pl-20">
-                <NavbarItem>
-                    <Link color="foreground" className="hover:text-blue-500 hover:underline" to={"/"}>Trang chủ</Link>
-                </NavbarItem>
-                <NavbarItem>
-                    <Link aria-current="page" className="hover:text-blue-500 hover:underline" color="secondary" to={"/aboutUs"}>Giới
-                        thiệu</Link>
-                </NavbarItem>
-                <NavbarItem>
-                    <Link color="foreground" className="hover:text-blue-500 hover:underline" to={"/products"}>Sản phẩm</Link>
-                </NavbarItem>
-                <NavbarItem>
-                    <Link color="foreground" className="hover:text-blue-500 hover:underline" to={"/news"}>Tin tức</Link>
-                </NavbarItem>
-                <NavbarItem>
-                    <Link color="foreground" className="hover:text-blue-500 hover:underline" to={"/contact"}>Liên hệ</Link>
-                </NavbarItem>
+                <NavbarItem><Link to="/">Trang chủ</Link></NavbarItem>
+                <NavbarItem><Link to="/aboutUs">Giới thiệu</Link></NavbarItem>
+                <NavbarItem><Link to="/products">Sản phẩm</Link></NavbarItem>
+                <NavbarItem><Link to="/news">Tin tức</Link></NavbarItem>
+                <NavbarItem><Link to="/contact">Liên hệ</Link></NavbarItem>
             </NavbarContent>
 
-            <NavbarContent as="div" justify="end" className="flex items-center gap-2">
+            <NavbarContent justify="end">
                 {loading ? (
-                    <Button disabled>Đang tải...</Button> // Hiển thị khi đang tải thông tin
+                    <Button isLoading color="primary" variant="ghost">
+                        Đang tải...
+                    </Button>
                 ) : isLoggedIn && user ? (
-                    <Dropdown placement="bottom-end" backdrop="blur">
+                    <Dropdown placement="bottom-start">
                         <DropdownTrigger>
-                            <div className="flex items-center gap-2">
-                                <Avatar
-                                    isBordered
-                                    color="primary"
-                                    as="button"
-                                    className="transition-transform"
-                                    src={user.image} // Dùng ảnh từ API
-                                    name={user.name} // Dùng tên từ API
-                                    size="md"
-                                />
-                                <p className="text-sm">{user.fullName}!!</p> {/* Hiển thị họ tên */}
-                            </div>
+                            <User
+                                as="button"
+                                avatarProps={{
+                                    isBordered: true,
+                                    src: user.image
+                                }}
+                                className="transition-transform"
+                                description={user.phone}
+                                name={`Chào! ${user.fullName}`}
+                            />
                         </DropdownTrigger>
-                        <DropdownMenu aria-label="Profile Actions" variant="flat" radius="none">
-                            <DropdownItem>
-                                <p className="font-semibold text-md">{user.fullName}</p> {/* Hiển thị họ tên */}
-                                <p className="text-sm text-gray-500">{user.email}</p> {/* Hiển thị email */}
+                        <DropdownMenu aria-label="User Actions" variant="flat">
+                            <DropdownItem key="profile" className="h-14 gap-2">
+                                <p className="font-bold">{user.fullName}</p>
+                                <p className="font-bold">{user.email}</p>
+                                <p className="font-bold">{user.phone}</p>
                             </DropdownItem>
-                            <DropdownItem>
-                                <Link to="/profile" variant="outlined" color="secondary">
-                                    Hồ sơ
-                                </Link>
-                            </DropdownItem>
-                            <DropdownItem key="help_and_feedback">Hỗ trợ</DropdownItem>
+                            <DropdownItem key="settings">My Settings</DropdownItem>
+                            <DropdownItem key="team_settings">Team Settings</DropdownItem>
+                            <DropdownItem key="analytics">Analytics</DropdownItem>
+                            <DropdownItem key="system">System</DropdownItem>
+                            <DropdownItem key="configurations">Configurations</DropdownItem>
+                            <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
                             <DropdownItem key="logout" color="danger" onClick={handleLogout}>
-                                Đăng xuất
+                                Log Out
                             </DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
                 ) : (
-                    <div className="ml-auto">
-                        <Button
-                            color="primary"
-                            radius="none"
-                        >
-                            <Link to="/loginn" variant="outlined" color="secondary">
-                                Đăng nhập
-                            </Link>
-                        </Button>
-                    </div>
-                )}
-
-                {error && (
-                    <DropdownItem>{error}</DropdownItem> // Hiển thị lỗi nếu có
+                    <Button color="primary">
+                        <Link to="/loginn" className="text-white">
+                            Đăng nhập
+                        </Link>
+                    </Button>
                 )}
             </NavbarContent>
         </Navbar>

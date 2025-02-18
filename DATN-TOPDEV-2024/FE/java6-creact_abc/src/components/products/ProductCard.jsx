@@ -10,7 +10,7 @@ const formatPrice = (price) => {
 };
 
 const ProductCard = ({ variant, index }) => {
-    console.log('Product:', variant);
+    // console.log('Product:', variant.image);
     const navigate = useNavigate();
     const isOutOfStock = variant.quantity === 0;
 
@@ -77,14 +77,14 @@ const ProductCard = ({ variant, index }) => {
             className={`relative bg-white p-4 border shadow-md overflow-hidden group ${isOutOfStock ? 'opacity-50' : ''}`}>
             <div className="relative cursor-pointer" onClick={!isOutOfStock ? handleShowProductDetails : undefined}>
                 <img
-                    src={variant.image || `https://placehold.co/200x200?text=Variant+Image+${index + 1}`}
+                    src={variant.image ? variant.image : `https://placehold.co/200x200?text=Variant+Image+${index + 1}`}
                     alt={variant.name || `Variant Image ${index + 1}`}
                     className="h-64 w-full object-cover rounded-lg"
                 />
                 {isOutOfStock && (
                     <div
                         className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-red-800 font-bold text-lg">
-                        HẾT HÀNG
+                    HẾT HÀNG
                     </div>
                 )}
             </div>

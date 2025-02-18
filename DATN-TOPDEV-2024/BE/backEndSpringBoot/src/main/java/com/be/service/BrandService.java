@@ -47,4 +47,8 @@ public class BrandService {
         }
         brandRepository.deleteById(id);
     }
+
+    public List<Brand> getBrandsByCategory(Long categoryId) {
+        return brandRepository.findBrandsByCategoryId(categoryId);
+    }
 }

@@ -78,4 +78,14 @@ public class BrandController {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/by-category/{categoryId}")
+    public ResponseEntity<List<Brand>> getBrandsByCategory(@PathVariable("categoryId") Long categoryId) {
+        if (categoryId == null) {
+            throw new IllegalArgumentException("categoryId không được null!");
+        }
+        System.out.println("Nhận categoryId: " + categoryId); // Debug log
+        List<Brand> brands = brandService.getBrandsByCategory(categoryId);
+        return ResponseEntity.ok(brands);
+    }
+
 }

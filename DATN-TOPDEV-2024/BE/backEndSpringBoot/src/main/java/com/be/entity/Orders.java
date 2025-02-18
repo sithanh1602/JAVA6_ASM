@@ -29,6 +29,8 @@
 
         private int status;
 
+
+        @Column(name = "payment_status")
         private boolean paymentStatus;
 
         @Column(name = "full_address")

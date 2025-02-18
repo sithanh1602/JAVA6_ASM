@@ -61,5 +61,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE a.product_id = :productId AND a.status = 1",
             nativeQuery = true)
     List<Object[]> getProductVariants(@Param("productId") Long productId);
-
 }
