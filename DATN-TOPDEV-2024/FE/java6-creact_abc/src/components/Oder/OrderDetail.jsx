@@ -68,14 +68,14 @@ const OrderDetail = () => {
 
         if (!order?.id) {
             alert("Không tìm thấy ID đơn hàng!");
-            console.error("🚨 orderId is missing:", order);
+            console.error("orderId is missing:", order);
             return;
         }
 
         try {
             const response = await OrderService.placeOrderNosave(order, userId, order.id);
 
-            console.log("🔗 URL thanh toán nhận được:", response); // Kiểm tra URL thanh toán
+            console.log("URL thanh toán nhận được:", response); // Kiểm tra URL thanh toán
 
             if (response) {
                 window.location.href = response; // Chuyển hướng đến trang thanh toán
@@ -83,9 +83,9 @@ const OrderDetail = () => {
                 alert("Không nhận được URL thanh toán. Vui lòng thử lại.");
             }
         } catch (error) {
-            console.log("🚨 userId:", userId, "orderId:", order?.id);
+            console.log("userId:", userId, "orderId:", order?.id);
             alert("Thanh toán thất bại, vui lòng thử lại.");
-            console.error("❌ Lỗi khi thanh toán:", error.response?.data || error.message);
+            console.error("Lỗi khi thanh toán:", error.response?.data || error.message);
         }
     };
 

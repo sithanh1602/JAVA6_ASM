@@ -188,7 +188,7 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/statushuy")
-    public ResponseEntity<Orders> updateOrderStatushuy(@PathVariable Long orderId, @RequestBody Integer status) {
+    public ResponseEntity<Orders> updateOrderStatushuy(@PathVariable Long orderId, @RequestBody int status) {
         Orders updatedOrder = orderService.updateOrderStatushuy(orderId, status);
         return ResponseEntity.ok(updatedOrder); // Trả về trạng thái mã 200 và đơn hàng đã cập nhật
     }

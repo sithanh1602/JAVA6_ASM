@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Breadcrumb from '../components/products/Breadcrumb';
 import ProductFilter from '../components/products/ProductFilter';
 import ProductList from '../components/products/ProductList';
-import Pagination from '../components/products/Pagination';
+import PaginationComponent from '../components/products/Pagination'; // Đổi tên thành PaginationComponent
 import ProductService from '../services/ProductService';
 
 const App = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [productsPerPage] = useState(10);
+    const [productsPerPage] = useState(20);
     const [view, setView] = useState('grid');
     const [sortOption, setSortOption] = useState('default');
     const [selectedBrand, setSelectedBrand] = useState(null); // Chỉ chọn 1 thương hiệu
@@ -51,6 +51,26 @@ const App = () => {
     // Xử lý phân trang
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    // Lọc sản phẩm theo thương hiệu
+    const filteredProducts = selectedBrand
+        ? products.filter((product) => product.brand === selectedBrand)
+        : products;
+
+    // Sắp xếp sản phẩm theo sortOption
+    const sortedProducts = [...filteredProducts].sort((a, b) => {
+        switch (sortOption) {
+            case 'priceAsc':
+                return a.price - b.price;
+            case 'priceDesc':
+                return b.price - a.price;
+            default:
+                return 0;
+        }
+    });
+
+    // Lấy sản phẩm cần hiển thị dựa trên phân trang
+    const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
     return (
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-4">
@@ -89,10 +109,10 @@ const App = () => {
                     view={view}
                     sortOption={sortOption}
                     selectedBrand={selectedBrand} // Truyền thương hiệu đã chọn vào ProductList
-                    products={products} // Truyền danh sách sản phẩm vào ProductList
+                    products={currentProducts} // Truyền danh sách sản phẩm đã phân trang và sắp xếp vào ProductList
                 />
             </div>
-            <Pagination
+            <PaginationComponent
                 productsPerPage={productsPerPage}
                 totalProducts={totalProducts}
                 paginate={paginate}

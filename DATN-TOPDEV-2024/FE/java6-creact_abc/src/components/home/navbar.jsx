@@ -178,7 +178,7 @@ const Navbar = () => {
                                 {searchResults.map((variant) => (
                                     <Link
                                         key={variant.idVariants}
-                                        to={`/products/${variant.id}/productdetail`}
+                                        to={`/products/${variant.productId}/productdetail`}
                                         className="px-4 py-2 hover:bg-gray-100 flex items-center gap-3"
                                     >
                                         <img

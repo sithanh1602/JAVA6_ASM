@@ -1,25 +1,22 @@
 import React from 'react';
+import { Pagination } from '@nextui-org/react';
 
-const Pagination = ({ productsPerPage, totalProducts, paginate, currentPage }) => {
-    const pageNumbers = [];
-
-    for (let i = 1; i <= Math.ceil(totalProducts / productsPerPage); i++) {
-        pageNumbers.push(i);
-    }
+const PaginationComponent = ({ productsPerPage, totalProducts, paginate, currentPage }) => {
+    const totalPages = Math.ceil(totalProducts / productsPerPage);
 
     return (
-        <div className="flex justify-center mt-4">
-            {pageNumbers.map((page) => (
-                <button
-                    key={page}
-                    onClick={() => paginate(page)}
-                    className={`px-3 py-1 border rounded ${currentPage === page ? 'bg-gray-300' : 'bg-white'}`}
-                >
-                    {page}
-                </button>
-            ))}
+        <div className="flex justify-center mt-6">
+            <Pagination
+                loop
+                showControls
+                initialPage={currentPage} // Trang ban đầu
+                total={totalPages} // Tổng số trang
+                onChange={paginate} // Hàm điều khiển phân trang
+                color="primary" // Màu của các nút phân trang
+                size="md" // Kích thước của các nút phân trang
+            />
         </div>
     );
 };
 
-export default Pagination;
+export default PaginationComponent;

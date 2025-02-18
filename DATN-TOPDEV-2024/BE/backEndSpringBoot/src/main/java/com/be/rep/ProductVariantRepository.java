@@ -1,8 +1,10 @@
 package com.be.rep;
 
+import com.be.DTO.ProductVariantHomeDTO;
 import com.be.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,6 +28,29 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 """, nativeQuery = true)
     List<Object[]> findAllWithFirstImage();
 
+    @Query("SELECT a.id, " +
+            "(SELECT b.image FROM Image b WHERE a.id = b.productVariant.id ORDER BY b.id ASC LIMIT 1) AS image, " +
+            "a.nameVariants, a.price, a.product.id, a.quantity, a.status, " +
+            "c.name AS brandName " +
+            "FROM ProductVariant a " +
+            "JOIN a.product p " +
+            "JOIN p.brand c " +
+            "WHERE c.brandsId = :brandId " +
+            "ORDER BY a.id DESC")
+    List<Object[]> findProductVariantsWithImageByBrand(@Param("brandId") Long brandId);
+
+
+
+    @Query("SELECT a.id, " +
+            "(SELECT b.image FROM Image b WHERE a.id = b.productVariant.id ORDER BY b.id ASC LIMIT 1) AS image, " +
+            "a.nameVariants, a.price, a.product.id, a.quantity, a.status, " +
+            "d.name AS categoryName " +
+            "FROM ProductVariant a " +
+            "JOIN a.product p " +
+            "JOIN p.category d " +
+            "WHERE d.id = :categoryId " +
+            "ORDER BY a.id DESC")
+    List<Object[]> findVariantsWithImageByCategory(@Param("categoryId") Long categoryId);
 
 
 }

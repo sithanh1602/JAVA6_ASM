@@ -8,7 +8,7 @@ const BrandService = {
             const response = await axios.get(BASE_URL);
             return response.data;
         } catch (error) {
-            console.error('Failed to fetch brands:', error.response?.data || error.message);
+                console.error('Failed to fetch brands:', error.response?.data || error.message);
             throw error;
         }
     },
@@ -54,6 +54,16 @@ const BrandService = {
                 console.error(`Lỗi khi xóa thương hiệu với ID ${id}:`, error.message);
             }
             throw error;
+        }
+    },
+
+    getBrandsByCategory: async (categoryId) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/brands/by-category/${categoryId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách thương hiệu:", error);
+            return [];
         }
     },
 };
