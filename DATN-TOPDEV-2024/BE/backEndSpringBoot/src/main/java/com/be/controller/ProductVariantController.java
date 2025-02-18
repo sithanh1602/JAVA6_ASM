@@ -35,11 +35,6 @@ public class ProductVariantController {
         return ResponseEntity.ok(variants);
     }
 
-    @GetMapping("/search")
-    public List<ProductVariantDTO> searchProductVariants(@RequestParam String keyword) {
-        return productVariantService.searchProductVariantsByName(keyword);
-    }
-
     @PostMapping("/add")
     public ResponseEntity<ProductVariant> addProductVariant(@RequestBody ProductVariantRequest request) {
         ProductVariant savedVariant = productVariantService.addProductVariant(request);
@@ -48,7 +43,7 @@ public class ProductVariantController {
 
     @GetMapping("/by-brand/{brandId}")
     public ResponseEntity<List<ProductVariantHomeDTO>> getVariantsByBrand(@PathVariable Long brandId) {
-        List<Object[]> results = productVariantRepository. findProductVariantsWithImageByBrand(brandId);
+        List<Object[]> results = productVariantRepository.findProductVariantsWithImageByBrand(brandId);
 
         List<ProductVariantHomeDTO> variants = results.stream().map(row -> {
             ProductVariantHomeDTO dto = new ProductVariantHomeDTO();
@@ -84,6 +79,20 @@ public class ProductVariantController {
         }).collect(Collectors.toList());
 
         return variants.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(variants);
+    }
+
+
+    @PutMapping("/update/{variantId}")
+    public ResponseEntity<ProductVariant> updateProductVariant(@PathVariable Long variantId,
+                                                               @RequestBody ProductVariantRequest request) {
+        ProductVariant updatedVariant = productVariantService.updateProductVariant(variantId, request);
+        return ResponseEntity.ok(updatedVariant);
+    }
+
+    @GetMapping("/by-product/{productId}")
+    public ResponseEntity<List<ProductVariantDTO>> getProductVariantsByProductId(@PathVariable Long productId) {
+        List<ProductVariantDTO> variants = productVariantService.getProductVariantsByProductId(productId);
+        return ResponseEntity.ok(variants);
     }
 
 }

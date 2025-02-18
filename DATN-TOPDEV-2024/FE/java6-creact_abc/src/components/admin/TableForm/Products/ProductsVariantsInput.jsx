@@ -12,8 +12,24 @@ import {
 import { FaPlus, FaTrash, FaImage } from "react-icons/fa";
 import { getAllAttributes } from "../../../../services/AttributeService";
 import ProductVariantService from "../../../../services/ProductVariantService";
+import ProductVariantsTable from "./ProductVariantsTable";
+import { storage } from "../../../../firebase.config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import Swal from 'sweetalert2';
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
-const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận productId từ props
+const schema = yup.object().shape({
+  quantity: yup.number().required("Số lượng là bắt buộc").min(1, "Số lượng phải lớn hơn 0"),
+  price: yup.number().required("Giá là bắt buộc").min(0, "Giá phải lớn hơn hoặc bằng 0"),
+  status: yup.string().required("Trạng thái là bắt buộc"),
+  images: yup.array().min(1, "Phải thêm ít nhất một hình ảnh"),
+  attributes: yup.array().min(1, "Phải thêm ít nhất một thuộc tính"),
+});
+
+const ProductVariantsInput = ({ variant, onSave, productId }) => {
+  const [editingVariant, setEditingVariant] = useState(null);
   const [formData, setFormData] = useState({
     quantity: variant?.quantity || 1,
     images: variant?.images || [],
@@ -24,13 +40,16 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
 
   const [availableAttributes, setAvailableAttributes] = useState([]);
   const [attributeValues, setAttributeValues] = useState({});
-  const [selectedIds, setSelectedIds] = useState([]); // Lưu trữ các ID đã chọn
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const { control, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: formData,
+  });
 
   useEffect(() => {
     const fetchAttributes = async () => {
       const attributes = await getAllAttributes();
-      console.log("📌 Dữ liệu thuộc tính từ API:", attributes);
-
       const attributeMap = {};
       attributes.forEach((attr) => {
         if (!attributeMap[attr.name]) {
@@ -43,30 +62,79 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
         });
       });
 
-      setAvailableAttributes(Object.keys(attributeMap).map((name) => ({ name })));
+      setAvailableAttributes(
+        Object.keys(attributeMap).map((name) => ({ name }))
+      );
       setAttributeValues(attributeMap);
-      console.log("📌 attributeValues:", attributeMap);
     };
 
     fetchAttributes();
   }, []);
 
-  const handleImageChange = (e) => {
+  useEffect(() => {
+    if (editingVariant) {
+      const updatedFormData = {
+        quantity: editingVariant.stock || 1,
+        images: editingVariant.images || [],
+        status: editingVariant.status || "Available",
+        price: editingVariant.price || 0,
+        attributes: editingVariant.attributes || [],
+      };
+      setFormData(updatedFormData);
+      setSelectedIds(editingVariant.attributes?.map((attr) => attr.id) || []);
+      reset(updatedFormData);
+    }
+  }, [editingVariant, reset]);
+
+  const handleEditVariant = (variant) => {
+    setEditingVariant({
+      ...variant,
+      stock: variant.stock,
+      price: variant.price,
+      status: variant.status,
+      attributes: variant.attributes || [],
+      images: variant.images || []
+    });
+
+    const updatedFormData = {
+      quantity: variant.stock,
+      images: variant.images,
+      status: variant.status,
+      price: variant.price,
+      attributes: variant.attributes || []
+    };
+
+    setFormData(updatedFormData);
+    const attributeIds = variant.attributes?.map(attr => attr.id) || [];
+    setSelectedIds(attributeIds);
+    reset(updatedFormData);
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
-    const newImages = files.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
+    const uploadedImages = [];
+
+    for (const file of files) {
+      const storageRef = ref(
+        storage,
+        `product_variants/${file.name}-${Date.now()}`
+      );
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      uploadedImages.push({ preview: downloadURL });
+    }
+
+    setFormData((prevData) => ({
+      ...prevData,
+      images: [...prevData.images, ...uploadedImages],
     }));
-    setFormData({ ...formData, images: [...formData.images, ...newImages] });
   };
 
   const removeImage = (index) => {
     const updatedImages = formData.images.filter((_, i) => i !== index);
     setFormData({ ...formData, images: updatedImages });
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleAttributeChange = (index, field, value) => {
@@ -76,13 +144,13 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
       if (field === "name") {
         updatedAttributes[index] = {
           name: value,
-          value: "", // Reset giá trị khi thay đổi tên
-          id: null, // Reset ID
+          value: "",
+          id: null,
         };
       } else if (field === "value") {
-        const selectedAttribute = attributeValues[updatedAttributes[index].name]?.find(
-          (attr) => attr.value === value
-        );
+        const selectedAttribute = attributeValues[
+          updatedAttributes[index].name
+        ]?.find((attr) => attr.value === value);
 
         if (selectedAttribute) {
           updatedAttributes[index] = {
@@ -91,7 +159,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
             value: selectedAttribute.value,
           };
         } else {
-          console.warn("Không tìm thấy attribute value:", value, "cho thuộc tính", updatedAttributes[index].name);
           updatedAttributes[index] = {
             ...updatedAttributes[index],
             id: null,
@@ -102,17 +169,18 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
       return { ...prev, attributes: updatedAttributes };
     });
 
-    // Cập nhật selectedIds khi giá trị thay đổi
     const newSelectedIds = formData.attributes
-      .filter(attr => attr.id) // Lọc ra các thuộc tính đã có id (đã chọn giá trị)
-      .map(attr => attr.id);
+      .filter((attr) => attr.id)
+      .map((attr) => attr.id);
     setSelectedIds(newSelectedIds);
   };
 
   const addAttribute = () => {
-    console.log("ID đã chọn (khi thêm thuộc tính):", selectedIds);
     setFormData((prevFormData) => {
-      const newAttributes = [...prevFormData.attributes, { name: "", value: "" }];
+      const newAttributes = [
+        ...prevFormData.attributes,
+        { name: "", value: "" },
+      ];
       return {
         ...prevFormData,
         attributes: newAttributes,
@@ -125,42 +193,70 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
     setFormData({ ...formData, attributes: updatedAttributes });
   };
 
-  const handleSubmit = async () => {
-    const newSelectedIds = formData.attributes
-      .filter(attr => attr.id)
-      .map(attr => attr.id);
-
-    console.log("Dữ liệu chuẩn bị gửi:", {
-      productId: productId, 
-      quantity: parseInt(formData.quantity),
-      price: parseFloat(formData.price),
-      status: formData.status === "Available" ? 1 : 0,
-      attributeIds: newSelectedIds,
-      imageUrls: formData.images.map(img => img.preview)
-    });
-
+  const onSubmit = async (data) => {
     try {
-      const result = await ProductVariantService.addProductVariant({
-        productId: productId, // <-- Sử dụng productId từ props
-        quantity: parseInt(formData.quantity),
-        price: parseFloat(formData.price),
-        status: formData.status === "Available" ? 1 : 0,
+      const newSelectedIds = formData.attributes
+        .filter((attr) => attr.id)
+        .map((attr) => attr.id);
+
+      const submitData = {
+        productId: productId,
+        quantity: parseInt(data.quantity),
+        price: parseFloat(data.price),
+        status: data.status,
         attributeIds: newSelectedIds,
-        imageUrls: formData.images.map(img => img.preview),
-      });
-      console.log("Kết quả từ API:", result);
-      onSave(result);
-    } catch (error) {
-      console.error("Lỗi trong handleSubmit:", error);
-      if (error.response) {
-        console.error("Response data:", error.response.data); // Xem dữ liệu lỗi từ server
-        console.error("Response status:", error.response.status); // Xem status code từ server
+        imageUrls: formData.images.map((img) => img.preview),
+      };
+
+      let result;
+
+      if (editingVariant && editingVariant.idVariants) {
+        result = await ProductVariantService.updateProductVariant(editingVariant.idVariants, submitData);
+      } else {
+        result = await ProductVariantService.addProductVariant(submitData);
       }
+
+      if (onSave) {
+        onSave(result);
+      }
+
+      setFormData({
+        quantity: 1,
+        images: [],
+        status: "Available",
+        price: 0,
+        attributes: [],
+      });
+      setEditingVariant(null);
+      setSelectedIds([]);
+
+      await Swal.fire({
+        icon: 'success',
+        title: editingVariant?.idVariants ? 'Cập nhật thành công!' : 'Thêm mới thành công!',
+        text: editingVariant?.idVariants ? 'Biến thể đã được cập nhật.' : 'Biến thể mới đã được thêm.',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+      });
+
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Có lỗi xảy ra!',
+        text: 'Vui lòng thử lại sau.',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Đóng'
+      });
     }
   };
 
+  const submitButtonText =
+    editingVariant && editingVariant.idVariants
+      ? "Cập nhật biến thể"
+      : "Thêm biến thể mới";
+
   return (
-    <div className="w-[900px] max-w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-4">
         <p className="text-sm font-medium">Ảnh Biến Thể</p>
         <input
@@ -194,7 +290,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
                 </div>
               ))
             ) : (
-              // Khi chưa có ảnh, hiển thị FaImage
               <div className="w-full h-24 flex flex-col items-center justify-center bg-default-100 rounded-lg border-2 border-dashed border-default-300">
                 <FaImage className="w-8 h-8 text-default-400" />
                 <span className="mt-2 text-sm text-default-400">
@@ -204,37 +299,64 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
             )}
           </div>
         </label>
+        {errors.images && <p className="text-red-500 text-sm">{errors.images.message}</p>}
+
+        <div className="mt-4">
+          <ProductVariantsTable
+            productId={productId}
+            onEditVariant={handleEditVariant}
+          />
+        </div>
       </div>
+
       <div className="space-y-4">
-        <Input
-          label="Số Lượng"
+        <Controller
           name="quantity"
-          type="number"
-          value={formData.quantity}
-          onChange={handleChange}
-          variant="bordered"
+          control={control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Số Lượng"
+              type="number"
+              variant="bordered"
+              error={errors.quantity?.message}
+            />
+          )}
         />
-        <Input
-          label="Giá"
+        <Controller
           name="price"
-          type="number"
-          value={formData.price}
-          onChange={handleChange}
-          variant="bordered"
+          control={control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Giá"
+              type="number"
+              variant="bordered"
+              error={errors.price?.message}
+            />
+          )}
         />
-        <Select
-          label="Trạng Thái"
-          selectedKeys={[formData.status]}
-          onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-          variant="bordered"
-        >
-          <SelectItem key="Available" value="Available">
-            Còn Hoạt Động
-          </SelectItem>
-          <SelectItem key="Unavailable" value="Unavailable">
-            Hết Hoạt Động
-          </SelectItem>
-        </Select>
+        <Controller
+          name="status"
+          control={control}
+          render={({ field }) => (
+            <Select
+              {...field}
+              label="Trạng Thái"
+              variant="bordered"
+              error={errors.status?.message}
+              selectedKeys={[field.value]} // Ensure the selected value is set correctly
+              onChange={(e) => field.onChange(e.target.value)} // Handle the change event
+            >
+              <SelectItem key="Available" value="Available">
+                Còn Hoạt Động
+              </SelectItem>
+              <SelectItem key="Unavailable" value="Unavailable">
+                Hết Hoạt Động
+              </SelectItem>
+            </Select>
+          )}
+        />
         <div>
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium">Thuộc Tính Biến Thể</p>
@@ -269,8 +391,12 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
                   </Select>
                   <Select
                     label="Giá trị"
-                    selectedKeys={attr.value ? new Set([attr.value]) : new Set()} // Sử dụng value cho selectedKeys
-                    onChange={(e) => handleAttributeChange(index, "value", e.target.value)}
+                    selectedKeys={
+                      attr.value ? new Set([attr.value]) : new Set()
+                    }
+                    onChange={(e) =>
+                      handleAttributeChange(index, "value", e.target.value)
+                    }
                     variant="bordered"
                     size="sm"
                   >
@@ -293,11 +419,10 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => { // <-- Nhận
               ))}
             </div>
           </ScrollShadow>
+          {errors.attributes && <p className="text-red-500 text-sm">{errors.attributes.message}</p>}
         </div>
-        <Button color="primary" className="w-full mt-6" onClick={() => {
-          handleSubmit();
-        }}>
-          Lưu Biến Thể
+        <Button color="primary" className="w-full mt-6" onClick={handleSubmit(onSubmit)}>
+          {submitButtonText}
         </Button>
       </div>
     </div>
