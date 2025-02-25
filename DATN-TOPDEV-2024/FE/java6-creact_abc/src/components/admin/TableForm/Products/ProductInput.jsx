@@ -14,7 +14,6 @@ const checkUniqueName = async (name, productId) => {
         const allProducts = await ProductService.getAllProducts();
 
         if (productId) {
-            // Đang sửa: kiểm tra trùng với sản phẩm khác (không phải chính nó)
             return !allProducts.some(
                 product => product.name === name && product.id !== productId
             );

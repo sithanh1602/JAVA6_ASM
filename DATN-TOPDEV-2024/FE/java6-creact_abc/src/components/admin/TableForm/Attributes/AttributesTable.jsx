@@ -18,7 +18,6 @@ const AttributesTable = ({ onEditAttribute }) => {
     setLoading(false);
   };
 
-  // Update the handleEdit function to ensure immediate update
   const handleEdit = (row) => {
     console.log("Editing attribute:", row);
     if (onEditAttribute) {
@@ -62,9 +61,9 @@ const AttributesTable = ({ onEditAttribute }) => {
   ];
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg mt-6">
+    <div className="p-6 bg-white rounded-lg mt-6">
       <h2 className="text-xl font-semibold mb-4">Attributes List</h2>
-      <DataTable
+      <DataTable 
         columns={columns}
         data={attributes}
         pagination
@@ -73,7 +72,7 @@ const AttributesTable = ({ onEditAttribute }) => {
         highlightOnHover
         progressPending={loading}
         responsive
-        className="border rounded-lg"
+        className="border-1 border-gray-500 rounded-lg w-full"
       />
     </div>
   );

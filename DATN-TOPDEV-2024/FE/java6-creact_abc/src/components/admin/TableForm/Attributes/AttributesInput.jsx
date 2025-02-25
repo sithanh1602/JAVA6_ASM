@@ -110,15 +110,15 @@ const AttributesInput = ({ selectedAttribute, onAddAttribute }) => {
 
   return (
     <div className="flex justify-center items-center">
-      <div className="p-6 bg-white rounded-lg shadow-md w-80">
+      <div className="p-6 bg-white rounded-lg  w-80">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-3">
+
             <Input
               {...register("name")}
               type="text"
-              label="Tên Thuộc Tính"
-              placeholder="Nhập tên thuộc tính..."
               className="w-full"
+              label="Tên Thuộc Tính"
               variant="bordered"
               isInvalid={!!errors.name}
               errorMessage={errors.name?.message}
@@ -126,12 +126,12 @@ const AttributesInput = ({ selectedAttribute, onAddAttribute }) => {
           </div>
 
           <div className="mb-4">
+  
             <Input
               {...register("value")}
               type="text"
-              label="Giá Trị Thuộc Tính"
-              placeholder="Nhập giá trị thuộc tính..."
               className="w-full"
+              label="Giá Trị Thuộc Tính"
               variant="bordered"
               isInvalid={!!errors.value}
               errorMessage={errors.value?.message}

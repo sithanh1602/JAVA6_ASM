@@ -12,7 +12,6 @@ const ProductVariantsTable = ({ productId, onEditVariant }) => {
     const fetchVariants = async () => {
       try {
         const response = await ProductVariantService.getProductVariantsByProductId(productId);
-        // Xử lý dữ liệu để chỉ lấy ảnh đầu tiên cho hiển thị
         const processedVariants = response.map(variant => ({
           ...variant,
           displayImageUrl: variant.imageUrl.split(',')[0] // Chỉ lấy URL ảnh đầu tiên

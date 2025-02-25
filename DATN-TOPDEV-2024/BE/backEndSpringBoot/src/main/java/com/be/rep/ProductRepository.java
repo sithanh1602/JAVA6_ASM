@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(value = """
  SELECT
      p.name AS product_name,
-     p.description AS product_description,
+     pv.description AS product_description,
      pv.price AS product_price,
      (
          SELECT TOP 1 c.image
@@ -39,7 +39,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
  JOIN Attributes_Product_Variants apv ON apv.product_variant_id = pv.id
  JOIN Attributes a ON apv.attribute_id = a.id
  WHERE pv.product_id = :productId
- GROUP BY p.name, p.description, pv.price, pv.id, pv.quantity
+ GROUP BY p.name, pv.description, pv.price, pv.id, pv.quantity
 
 """, nativeQuery = true)
     List<Object[]> findProductById(@Param("productId") Long productId);
@@ -54,7 +54,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "    ) AS product_image,\n" +
             "    a.price, \n" +
             "    a.quantity, \n" +
-            "    b.description, \n" +
+            "    a.description, \n" +
             "    a.id AS id_Variants\n" +
             "FROM Product_Variants a\n" +
             "JOIN Products b ON a.product_id = b.id\n" +

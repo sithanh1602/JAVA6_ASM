@@ -25,7 +25,6 @@ const ProductTable = forwardRef((_, ref) => {
   const [isModalOpenVariants, setIsModalOpenVariants] = useState(false);
   const [isModalOpenAttributes, setIsModalOpenAttributes] = useState(false);
   const [selectedAttribute, setSelectedAttribute] = useState(null);
-  // const [selectedProduct, setSelectedProduct] = useState(null); // Removed this
   const [selectedProductId, setSelectedProductId] = useState(null); // Added this
   const [searchName, setSearchName] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -47,6 +46,13 @@ const ProductTable = forwardRef((_, ref) => {
     };
     initialize();
   }, []);
+  
+  useEffect(() => {
+    if (products.length > 0) {
+      fetchVariantCounts(products);
+    }
+  }, [products]);
+
 
   useImperativeHandle(ref, () => ({
     fetchProducts,
@@ -83,6 +89,9 @@ const ProductTable = forwardRef((_, ref) => {
     } catch (error) {
       console.error("Error fetching variant counts:", error);
     }
+  };
+  const handleVariantChange = () => {
+    fetchVariantCounts(products);
   };
 
   // Open modal for adding a product
@@ -183,7 +192,7 @@ const ProductTable = forwardRef((_, ref) => {
     setFilteredProducts(filtered);
   };
 
-  // Define columns for React Data Table Component
+
   const columns = [
     {
       name: "Tên sản phẩm",

@@ -1,6 +1,5 @@
 package com.be.rep;
 
-import com.be.DTO.CartDetailResponseDTO;
 import com.be.entity.CartDetail;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,7 +34,7 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
             cd.user_id,
             pv.id AS product_variant_id,
             cd.quantity,
-            p.name AS product_name,
+            pv.name_variants AS product_name,
             p.description AS product_description,
             pv.quantity AS product_variant_quantity,
             (

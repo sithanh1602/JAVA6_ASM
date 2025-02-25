@@ -2,7 +2,6 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/product-variants";
 
-// Get all product variants
 const getAllProductVariants = async () => {
   try {
     const response = await axios.get(API_URL);
@@ -12,8 +11,6 @@ const getAllProductVariants = async () => {
     return [];
   }
 };
-
-// Add a new product variant
 const addProductVariant = async (productVariantData) => {
   try {
     const response = await axios.post(`${API_URL}/add`, productVariantData);
@@ -23,8 +20,6 @@ const addProductVariant = async (productVariantData) => {
     return null;
   }
 };
-
-// Get product variants by product ID
 const getProductVariantsByProductId = async (productId) => {
   try {
     const response = await axios.get(`${API_URL}/by-product/${productId}`);
@@ -44,9 +39,7 @@ const updateProductVariant = async (variantId, productVariantData) => {
     console.error("Invalid data or variantId.");
     throw new Error("Missing required data");
   }
-
   try {
-    // Ensure the data structure matches the backend expectations
     const payload = {
       productId: parseInt(productVariantData.productId),
       quantity: parseInt(productVariantData.quantity),
@@ -54,19 +47,15 @@ const updateProductVariant = async (variantId, productVariantData) => {
       status: productVariantData.status,
       attributeIds: productVariantData.attributeIds.map((id) => parseInt(id)),
       imageUrls: productVariantData.imageUrls,
+      description: productVariantData.description
     };
-
-    // Log the formatted request data
     console.log("Updating variant with ID:", variantId);
     console.log("Update payload:", JSON.stringify(payload, null, 2));
-
     const response = await axios.put(`${API_URL}/update/${variantId}`, payload);
-
-    // Log successful response
     console.log("Update response:", response.data);
     return response.data;
   } catch (error) {
-    // Enhanced error logging
+
     console.error(`Error updating product variant with ID ${variantId}:`);
     if (error.response) {
       console.error("Server response:", {

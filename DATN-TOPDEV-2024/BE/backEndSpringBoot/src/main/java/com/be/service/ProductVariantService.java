@@ -15,7 +15,6 @@ import com.be.rep.ProductVariantRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -77,6 +76,7 @@ public class ProductVariantService {
         variant.setStatus(request.getStatus());
         variant.setAttributes(attributes);
         variant.setNameVariants(product.getName() + " (" + attributeNames + ")");
+        variant.setDescription(request.getDescription());
 
         ProductVariant savedVariant = productVariantRepository.save(variant);
 
@@ -116,9 +116,9 @@ public class ProductVariantService {
         variant.setStatus(request.getStatus());
         variant.setAttributes(attributes);
         variant.setNameVariants(product.getName() + " (" + attributeNames + ")");
+        variant.setDescription(request.getDescription());
 
         // Cập nhật ảnh
-        // Xóa tất cả ảnh cũ
         imageRepository.deleteByProductVariant(variant);
 
         // Thêm ảnh mới
