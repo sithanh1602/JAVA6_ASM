@@ -16,7 +16,6 @@ public class ProductVariant {
     @Column(name = "id")
     private Long id;
 
-    // Sử dụng đối tượng Product thay vì kiểu int cho khóa ngoại
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
@@ -26,9 +25,9 @@ public class ProductVariant {
 
     @Column(name = "quantity")
     private int quantity;
-//
-//    @Column(name = "image")
-//    private String image;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String description;
 
     @Column(name = "status")
     private String status;

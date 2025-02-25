@@ -122,9 +122,6 @@ public class OrderService {
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
             order.setStatus(status);  // Cập nhật trạng thái đơn hàng
-            // Thực hiện các thao tác khác nếu cần khi đơn hàng bị hủy (ví dụ, khôi phục lại số lượng hàng hóa)
-
-            // Lưu đơn hàng với trạng thái đã thay đổi
             return ordersRepository.save(order);
     }
 
@@ -194,7 +191,7 @@ public class OrderService {
         order.setStatus(1);  // Đơn hàng mới
         order.setFullAddress(orderRequest.getFullAddress());
         order.setPaymentStatus(true); // Trạng thái thanh toán là thành công
-        order.setOrderDate(new Date()); // Ngày tạo đơn hàng
+        order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
 
         // Kiểm tra xem có sử dụng voucher không
@@ -240,7 +237,6 @@ public class OrderService {
             }
             productVariant.setQuantity(newStock);
 
-            // Nếu số lượng còn lại là 0, thay đổi trạng thái thành "Out of Stock"
             if (newStock == 0) {
                 productVariant.setStatus("Out of Stock");
             }

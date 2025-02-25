@@ -13,4 +13,5 @@ public class ProductVariantRequest {
     private Double price;
     private List<String> imageUrls;
     private List<Long> attributeIds;
+    private String description;
 }

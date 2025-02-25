@@ -23,6 +23,8 @@ const ProductDetail = () => {
   const [category, setCategory] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [description, setDescription] = useState(selectedVariant?.description || "");
+
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -250,13 +252,14 @@ const ProductDetail = () => {
                   ))}
                 </div>
               )}
-
               <div className="bg-white border p-4">
                 <h2 className="text-lg font-bold mb-2">Mô tả sản phẩm</h2>
-                <p className="text-sm text-gray-600">
-                  {selectedVariant?.description || "Không có mô tả"}
-                </p>
+                <div
+                  className="text-sm text-gray-600"
+                  dangerouslySetInnerHTML={{ __html: selectedVariant?.description || "Không có mô tả" }}
+                ></div>
               </div>
+
             </div>
 
             {/* Right Column - Product Info */}
@@ -299,8 +302,8 @@ const ProductDetail = () => {
                           key={variant.variantId}
                           onClick={() => handleVariantSelect(variant)}
                           className={`p-3 border cursor-pointer transition-all ${selectedVariant?.variantId === variant.variantId
-                              ? "border-blue-500 bg-blue-50"
-                              : "hover:bg-gray-50"
+                            ? "border-blue-500 bg-blue-50"
+                            : "hover:bg-gray-50"
                             }`}
                         >
                           <img
