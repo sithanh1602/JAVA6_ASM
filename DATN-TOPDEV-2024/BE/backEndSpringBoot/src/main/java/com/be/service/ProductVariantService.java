@@ -153,7 +153,8 @@ public class ProductVariantService {
                         "Description here", // Nếu cần lấy từ SQL, bạn phải sửa lại câu query
                         idVariants,
                         row[4] != null ? (String) row[4] : "Unknown", // status
-                        new ArrayList<>() // Khởi tạo danh sách attributes rỗng
+                        new ArrayList<>() ,// Khởi tạo danh sách attributes rỗng
+                        null // productId
                 );
                 variantMap.put(idVariants, variantDTO);
             }

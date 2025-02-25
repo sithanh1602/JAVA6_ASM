@@ -47,13 +47,6 @@ const ProductTable = forwardRef((_, ref) => {
     initialize();
   }, []);
   
-  useEffect(() => {
-    if (products.length > 0) {
-      fetchVariantCounts(products);
-    }
-  }, [products]);
-
-
   useImperativeHandle(ref, () => ({
     fetchProducts,
   }));
@@ -77,21 +70,23 @@ const ProductTable = forwardRef((_, ref) => {
     }
   };
 
-  const fetchVariantCounts = async (productsToCount) => {
+  // Sửa lại hàm fetchVariantCounts để kiểm tra tham số đầu vào
+  const fetchVariantCounts = async (productsToCount = products) => {
     try {
+      if (!productsToCount || productsToCount.length === 0) {
+        console.log("No products to count variants for");
+        return;
+      }
+      
       const counts = {};
       for (const product of productsToCount) {
-        const variants =
-          await ProductVariantService.getProductVariantsByProductId(product.id);
+        const variants = await ProductVariantService.getProductVariantsByProductId(product.id);
         counts[product.id] = variants.length;
       }
       setVariantCounts(counts);
     } catch (error) {
       console.error("Error fetching variant counts:", error);
     }
-  };
-  const handleVariantChange = () => {
-    fetchVariantCounts(products);
   };
 
   // Open modal for adding a product
@@ -157,10 +152,13 @@ const ProductTable = forwardRef((_, ref) => {
     fetchProducts(); // Refresh product list after save
   };
 
+  // Sửa lại hàm handleModalCloseVariants
   const handleModalCloseVariants = async () => {
-    setIsModalOpenVariants(false); // Close modal
-    await fetchProducts(); // Refresh product list after save
-    await fetchVariantCounts(); // Update variant counts
+    setIsModalOpenVariants(false);
+    const updatedProducts = await fetchProducts(); // Lấy danh sách products mới nhất
+    if (updatedProducts && updatedProducts.length > 0) {
+      await fetchVariantCounts(updatedProducts);
+    }
   };
 
   const handleModalCloseAttribute = () => {

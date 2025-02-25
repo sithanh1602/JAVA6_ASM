@@ -191,7 +191,8 @@ public class ProductService {
                     (String) rawVariant[4],  // description
                     ((Number) rawVariant[5]).longValue(), // idVariants
                     (String) rawVariant[6],
-                    new ArrayList<>() // Danh sách attributes rỗng
+                    new ArrayList<>() ,// Danh sách attributes rỗng
+                    null
             );
             variantDTOs.add(dto);
         }
