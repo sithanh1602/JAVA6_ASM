@@ -4,6 +4,7 @@ import com.be.DTO.OrderRequest;
 import com.be.entity.*;
 import com.be.service.OrderService;
 import com.be.service.VNPayService;
+import com.be.service.ZaloPayService;
 import jakarta.persistence.criteria.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,6 +24,9 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private ZaloPayService zaloPayService;
 
 
     @GetMapping("/all")
@@ -193,4 +197,57 @@ public class OrderController {
         return ResponseEntity.ok(updatedOrder); // Trả về trạng thái mã 200 và đơn hàng đã cập nhật
     }
 
+    @PostMapping("/place-zalopay")
+    public ResponseEntity<?> placeOrderZaloPay(@RequestBody OrderRequest orderRequest) {
+        try {
+            if (orderRequest == null || orderRequest.getCartItems().isEmpty()) {
+                return ResponseEntity.badRequest().body("Order data is invalid.");
+            }
+
+            Orders savedOrder = orderService.saveOrder(orderRequest);
+
+            // Notify admin about new order
+            messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getId());
+
+            // Create ZaloPay payment URL
+            String urlPayment = zaloPayService.createZaloPayOrder(
+                    savedOrder.getTotalPrice(),
+                    "Thanh toán đơn hàng qua ZaloPay",
+                    "http://localhost:3000/payment",
+                    String.valueOf(savedOrder.getId())
+            ).toString();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(urlPayment);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while processing the order.");
+        }
+    }
+
+    @PostMapping("/zalopay-callback")
+    public ResponseEntity<?> zaloPayCallback(@RequestBody Map<String, String> callbackData) {
+        try {
+            if (zaloPayService.verifyCallback(callbackData)) {
+                // Update order status based on callback data
+                String appTransId = callbackData.get("app_trans_id");
+                String orderId = appTransId.split("_")[0];
+                int status = Integer.parseInt(callbackData.get("status"));
+
+                // Update order status
+                if (status == 1) { // Payment successful
+                    orderService.updateOrderStatus(Long.parseLong(orderId), 1);
+                    return ResponseEntity.ok().body("Payment processed successfully");
+                } else {
+                    orderService.updateOrderStatus(Long.parseLong(orderId), -1);
+                    return ResponseEntity.ok().body("Payment failed");
+                }
+            }
+            return ResponseEntity.badRequest().body("Invalid callback signature");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error processing callback");
+        }
+    }
 }

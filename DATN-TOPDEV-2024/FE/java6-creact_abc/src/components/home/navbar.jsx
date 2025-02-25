@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -31,57 +31,93 @@ const Navbar = () => {
             maximumFractionDigits: 0
         }).format(value).replace(/\s?₫/g, ' VND');
     };
-    console.log(cartItems);
 
-    // Load cart items on component mount
-    useEffect(() => {
+    // Fetch cart data function - made reusable
+    const fetchCart = useCallback(async () => {
         const storedUserId = JSON.parse(localStorage.getItem('UserId'));
-        if (storedUserId) {
-            const fetchCart = async () => {
-                try {
-                    const items = await getAllCartItemsForUser(storedUserId);
-                    if (items && items.length > 0) {
-                        setCartItems(items);
-                        setCartCount(items.length);
-                    } else {
-                        setCartItems([]);
-                        setCartCount(0);
-                    }
-                } catch (err) {
-                    toast.error('Không thể tải giỏ hàng.');
-                    setCartItems([]);
-                    setCartCount(0);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchCart();
-        } else {
+        if (!storedUserId) {
             setLoading(false);
             setError('Vui lòng đăng nhập để xem giỏ hàng');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const items = await getAllCartItemsForUser(storedUserId);
+            if (items && items.length > 0) {
+                setCartItems(items);
+                setCartCount(items.length);
+            } else {
+                setCartItems([]);
+                setCartCount(0);
+            }
+        } catch (err) {
+            console.error("Error fetching cart:", err);
+            toast.error('Không thể tải giỏ hàng.');
+            setCartItems([]);
+            setCartCount(0);
+        } finally {
+            setLoading(false);
         }
     }, []);
 
-    // Handle search functionality
+    // Load cart items on component mount and periodically
+    useEffect(() => {
+        fetchCart();
+
+        // Set up interval to poll for cart updates
+        const intervalId = setInterval(() => {
+            fetchCart();
+        }, 5000); // Poll every 5 seconds
+
+        // Custom event listener for cart updates
+        const handleCartUpdate = () => {
+            fetchCart();
+        };
+
+        // Add event listener for cart updates
+        window.addEventListener('cartUpdated', handleCartUpdate);
+
+        // Clean up on unmount
+        return () => {
+            clearInterval(intervalId);
+            window.removeEventListener('cartUpdated', handleCartUpdate);
+        };
+    }, [fetchCart]);
+
+    // Listen for storage changes (if another tab updates the cart)
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'cartItems' || e.key === 'cartUpdated') {
+                fetchCart();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, [fetchCart]);
+
     const handleSearch = async (query) => {
         setSearchQuery(query);
         setIsSearching(true);
 
         if (query.trim().length > 0) {
-            setTimeout(async () => {
-                try {
-                    const response = await axios.get("http://localhost:8080/api/product-variants");
-                    const filteredResults = response.data.filter(variant =>
-                        variant.nameVariants.toLowerCase().includes(query.toLowerCase())
-                    );
-                    setSearchResults(filteredResults);
-                } catch (error) {
-                    console.error("Lỗi khi tìm kiếm sản phẩm:", error);
-                    toast.error("Không thể tìm kiếm sản phẩm");
-                } finally {
-                    setIsSearching(false);
-                }
-            }, 1000);
+            try {
+                const response = await axios.get("http://localhost:8080/api/product-variants");
+                const filteredResults = response.data.filter(variant =>
+                    variant.nameVariants?.toLowerCase().includes(query.toLowerCase())
+                );
+                setSearchResults(filteredResults);
+            } catch (error) {
+                console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+                toast.error("Không thể tìm kiếm sản phẩm");
+                setSearchResults([]);
+            } finally {
+                setIsSearching(false);
+            }
         } else {
             setSearchResults([]);
             setIsSearching(false);
@@ -107,7 +143,14 @@ const Navbar = () => {
                 )
             );
 
+            // Dispatch custom event to notify other components
+            window.dispatchEvent(new Event('cartUpdated'));
+
+            // Update localStorage to notify other tabs
+            localStorage.setItem('cartUpdated', Date.now().toString());
+
             toast.success('Đã cập nhật số lượng sản phẩm.');
+            fetchCart(); // Refresh cart after update
         } catch (error) {
             toast.error('Không thể cập nhật số lượng sản phẩm.');
         }
@@ -128,7 +171,14 @@ const Navbar = () => {
             setCartItems(prevItems => prevItems.filter(item => item.product_variant_id !== productVariantId));
             setCartCount(prev => prev - 1);
 
+            // Dispatch custom event to notify other components
+            window.dispatchEvent(new Event('cartUpdated'));
+
+            // Update localStorage to notify other tabs
+            localStorage.setItem('cartUpdated', Date.now().toString());
+
             toast.success('Đã xóa sản phẩm khỏi giỏ hàng.');
+            fetchCart(); // Refresh cart after deletion
         } catch (error) {
             toast.error('Không thể xóa sản phẩm khỏi giỏ hàng.');
         }
@@ -275,7 +325,7 @@ const Navbar = () => {
                                             <span>Tổng cộng:</span>
                                             <span className="text-blue-600">
                                                 {formatCurrency(
-                                                    cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+                                                    cartItems.reduce((sum, item) => sum + (item.productPrice * item.quantity), 0)
                                                 )}
                                             </span>
                                         </div>

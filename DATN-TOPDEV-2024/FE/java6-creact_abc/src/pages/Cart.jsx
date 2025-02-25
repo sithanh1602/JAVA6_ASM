@@ -128,6 +128,7 @@ const CartPage = () => {
         }
         navigate('/orders', { state: { cartItems: selectedCartItems } });
     };
+    console.log(cartItems);
 
     return (
         <div className="flex justify-center">
