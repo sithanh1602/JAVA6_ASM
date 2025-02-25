@@ -23,6 +23,7 @@ import ProductDetail from "../components/products/productDetails/ProductDetail";
 import HeaderDownNavbar from "../components/home/headerDownNavbar";
 import AuthForm from "../components/account/AuthForm";
 import OrderDetail from "../components/Oder/OrderDetail";
+import FloatingChatbox from "../components/AI/ChatBot/FloatingChatbox";
 
 
 const HomePage = () => {
@@ -50,6 +51,7 @@ const HomePage = () => {
                     <Route path="/order-detail/:orderId" element={<OrderDetail />} />
                 </Routes>
             </div>
+            <FloatingChatbox></FloatingChatbox>
             <Footer className="mt-auto"/>
         </div>
     )

@@ -29,6 +29,7 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
         setQuantity(item.quantity);
     }, [item.quantity]);
 
+
     const handleQuantityChange = (newQuantity) => {
         if (productQuantity === null) {
             console.warn('Stock data is not loaded yet.');

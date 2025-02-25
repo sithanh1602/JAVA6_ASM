@@ -1,0 +1,100 @@
+{
+    "xin chào": [
+        "Chào bạn! Hôm nay bạn cần hỗ trợ gì?",
+        "Xin chào, mình có thể giúp gì cho bạn?",
+        "Hello! Rất vui được gặp bạn, bạn cần tìm gì hôm nay?",
+        "Chào mừng bạn đến với hệ thống hỗ trợ! Bạn cần tư vấn gì?",
+        "Chào bạn! Đừng ngại hỏi mình bất cứ điều gì nhé!"
+    ],
+    "bạn là ai": [
+        "Mình là trợ lý AI của bạn đây!",
+        "Bạn có thể gọi mình là chatbot hỗ trợ mua hàng!",
+        "Mình là AI chuyên tư vấn linh kiện, rất vui được giúp bạn!",
+        "Mình là trợ lý ảo của cửa hàng, sẵn sàng hỗ trợ bạn!",
+        "Bạn có thể gọi mình là Bot Hỗ Trợ!"
+    ],
+    "hôm nay thế nào": [
+        "Mình vẫn ổn, cảm ơn bạn đã hỏi! Còn bạn thì sao?",
+        "Mình đang sẵn sàng giúp bạn đây!",
+        "Cảm ơn bạn đã hỏi, mình luôn trong trạng thái tốt nhất để hỗ trợ bạn!",
+        "Hôm nay mình có rất nhiều thông tin hay ho để chia sẻ với bạn đấy!",
+        "Rất tuyệt! Còn bạn thì sao?"
+    ],
+    "Làm thế nào để liên hệ với tôi?": [
+        "Bạn có thể gọi đến số hotline 0907335002 hoặc gửi email đến accessnameit@gmail.com.",
+        "Liên hệ với chúng tôi qua email: accessnameit@gmail.com hoặc gọi 0907335002 nhé!",
+        "Bạn cần hỗ trợ? Gọi ngay 0907335002 hoặc email accessnameit@gmail.com để được tư vấn nhanh chóng.",
+        "Chúng tôi sẵn sàng hỗ trợ bạn qua số điện thoại 0907335002 hoặc email accessnameit@gmail.com.",
+        "Cần giúp đỡ? Gửi tin nhắn cho chúng tôi qua Facebook hoặc Zalo nhé!"
+    ],
+    "Địa chỉ cửa hàng ở đâu?": [
+        "Chúng tôi có cửa hàng tại 123 Đường ABC, Quận 1, TP.HCM.",
+        "Bạn có thể ghé showroom tại 456 Đường XYZ, Hà Nội để xem sản phẩm.",
+        "Cửa hàng chính ở Đà Nẵng tại 789 Đường LMN, mời bạn ghé thăm!",
+        "Hệ thống chi nhánh có mặt trên toàn quốc, bạn muốn đến khu vực nào?",
+        "Vui lòng truy cập website để xem danh sách cửa hàng gần bạn nhất."
+    ],
+    "giờ làm việc": [
+        "Chúng tôi mở cửa từ 8h sáng đến 8h tối, tất cả các ngày trong tuần.",
+        "Bạn có thể ghé từ 9h - 21h, trừ các ngày lễ lớn.",
+        "Shop hoạt động từ 8:00 - 20:00, đặt hàng online thì 24/7 nhé!",
+        "Chúng tôi phục vụ từ 7h sáng đến 10h tối, rất mong được đón tiếp bạn!",
+        "Nếu bạn cần đặt hàng ngoài giờ, hãy đặt trên website, chúng tôi sẽ xử lý ngay khi có thể!"
+    ],
+    "sản phẩm nào bán chạy": [
+        "Hiện tại, các sản phẩm hot nhất là Laptop Dell XPS, iPhone 15 Pro Max, và Samsung Galaxy S24 Ultra.",
+        "Bạn có thể tham khảo các sản phẩm bán chạy nhất trong danh mục trên website của chúng tôi!",
+        "Sản phẩm được ưa chuộng nhất tuần này là MacBook M3, hãy nhanh tay đặt hàng!",
+        "Nhiều khách hàng đang săn lùng tai nghe Sony WH-1000XM5, bạn có muốn thử không?",
+        "Sản phẩm bán chạy nhất hôm nay là bàn phím cơ Keychron K8!"
+    ],
+    "có giảm giá không": [
+        "Chúng tôi đang có chương trình giảm giá lên đến 50% cho nhiều sản phẩm!",
+        "Hiện tại có nhiều mã giảm giá hấp dẫn, bạn có muốn mình tư vấn thêm không?",
+        "Chúng tôi thường xuyên có khuyến mãi, hãy truy cập website để xem chi tiết!",
+        "Bạn có thể đăng ký thành viên để nhận ưu đãi độc quyền nhé!",
+        "Theo dõi fanpage để cập nhật các đợt sale hot nhất!"
+    ],
+    "Có ship toàn quốc không?": [
+        "Chúng tôi hỗ trợ giao hàng toàn quốc, bạn chỉ cần đặt hàng là có ship đến tận nơi!",
+        "Chắc chắn rồi! Bạn ở đâu chúng tôi cũng có thể gửi hàng đến!",
+        "Có ship COD và nhiều hình thức vận chuyển khác cho bạn lựa chọn!",
+        "Đơn hàng trên 1 triệu được miễn phí ship nội thành, bạn có muốn đặt không?",
+        "Chúng tôi giao hàng nhanh chóng và đảm bảo an toàn nhất!"
+    ],
+    "thời gian giao hàng bao lâu": [
+        "Thông thường từ 2-5 ngày tùy vào khu vực của bạn.",
+        "Nếu bạn ở thành phố lớn, đơn hàng có thể đến trong 24h!",
+        "Chúng tôi có dịch vụ giao hàng hỏa tốc trong 2-4h tại các thành phố lớn.",
+        "Khu vực nội thành: 1-2 ngày, ngoại thành: 3-5 ngày.",
+        "Bạn có muốn kiểm tra thời gian giao hàng theo địa chỉ cụ thể không?"
+    ],
+    "Dịch vụ bảo hành thế nào?": [
+        "Sản phẩm của chúng tôi được bảo hành chính hãng từ 6-24 tháng.",
+        "Bảo hành tại trung tâm ủy quyền, bạn có thể mang sản phẩm đến bất cứ đâu thuận tiện.",
+        "Đối với lỗi nhà sản xuất, chúng tôi sẽ đổi mới trong 7 ngày đầu tiên.",
+        "Bạn có thể tra cứu thời gian bảo hành theo mã sản phẩm trên website.",
+        "Nếu cần hỗ trợ bảo hành, vui lòng liên hệ hotline!"
+    ],
+    "có thể trả góp không": [
+        "Chúng tôi có hỗ trợ trả góp 0% qua thẻ tín dụng.",
+        "Bạn có thể mua trả góp qua Home Credit hoặc FE Credit.",
+        "Hỗ trợ trả góp với lãi suất thấp, chỉ cần CMND là có thể đăng ký.",
+        "Bạn muốn mua trả góp sản phẩm nào? Mình sẽ kiểm tra giúp bạn!",
+        "Có nhiều hình thức trả góp phù hợp với bạn, mình tư vấn thêm nhé!"
+    ],
+    "cách đặt hàng": [
+        "Bạn có thể đặt hàng trên website hoặc gọi hotline 0907335002.",
+        "Chỉ cần chọn sản phẩm, thêm vào giỏ hàng và thanh toán là xong!",
+        "Bạn cần hướng dẫn chi tiết không? Mình sẽ chỉ từng bước nhé!",
+        "Ngoài đặt hàng online, bạn có thể ghé cửa hàng để mua trực tiếp!",
+        "Chúng tôi có nhân viên hỗ trợ đặt hàng qua Zalo nếu bạn cần!"
+    ]
+    , "Cảm ơn bạn!": [
+        "Không có gì! Mình luôn sẵn sàng giúp bạn!",
+        "Rất vui vì có thể hỗ trợ bạn! Nếu cần gì cứ hỏi nhé!",
+        "Cảm ơn bạn đã tin tưởng! Chúc bạn một ngày tốt lành!", 
+        "Mình ở đây để giúp bạn, có gì bạn cứ liên hệ nhé!",
+        "Đừng ngại nếu bạn cần thêm thông tin, mình luôn sẵn sàng!"
+    ]
+}

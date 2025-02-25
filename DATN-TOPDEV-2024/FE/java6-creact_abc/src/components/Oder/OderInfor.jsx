@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import logoMomo from '../../assets/images/logoMomo.png';
+import logoZaloPay from '../../assets/images/zalopay.png';
 import logoVNP from '../../assets/images/logoVNP.jpg';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
@@ -13,7 +13,7 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setV
     const { cartItems = [] } = location.state || {};
 
     const [selectedPayment, setSelectedPayment] = useState('bank');
-    const [selectedLogo, setLocalSelectedLogo] = useState('');
+    const [selectedPaymentLogo, setSelectedPaymentLogo] = useState('');
     const [showVouchers, setShowVouchers] = useState(false);
     const [vouchers, setVouchers] = useState([]);
     const [selectedVoucher, setSelectedVoucher] = useState(null);
@@ -47,26 +47,31 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setV
     }, [showVouchers, fetchVouchers]);
 
     const formatCurrency = value => new Intl.NumberFormat('vi-VN', {
-        style: 'currency', currency: 'VND'
+        style: 'currency',
+        currency: 'VND'
     }).format(value);
 
     const handleLogoClick = (logo) => {
-        setLocalSelectedLogo(logo);
-        setSelectedLogo?.(logo);
+        setSelectedPaymentLogo(logo);
+        setSelectedLogo(logo);
+        setSelectedPayment('bank');
+        setPaymentMethod('bank');
     };
 
     const handlePaymentChange = (method) => {
         setSelectedPayment(method);
-        setPaymentMethod?.(method);
+        setPaymentMethod(method);
+        if (method === 'cash') {
+            setSelectedPaymentLogo('');
+            setSelectedLogo('');
+        }
     };
-
 
     const handleApplyVoucher = (voucher) => {
         setSelectedVoucher(voucher);
         setDiscountAmount(voucher.discount);
         setVoucherDiscount(voucher.discount);
         setVoucherCode(voucher.code);
-
 
         Swal.fire({
             title: 'Mã giảm giá áp dụng thành công!',
@@ -80,11 +85,6 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setV
 
     const totalAmount = cartItems.reduce((total, item) => total + item.productPrice * item.quantity, 0);
     const totalAfterDiscount = totalAmount - discountAmount;
-
-
-    useEffect(() => {
-        setPaymentMethod('bank');
-    }, [setPaymentMethod]);
 
     return (
         <div>
@@ -114,9 +114,10 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setV
                     </tfoot>
                 </table>
 
+                {/* Voucher Section */}
                 <button
                     onClick={() => setShowVouchers(prev => !prev)}
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md">
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                     {showVouchers ? "Ẩn mã giảm giá" : "Xem mã giảm giá"}
                 </button>
 
@@ -126,12 +127,12 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setV
                         {vouchers.filter(voucher => voucher.quantity > 0).length > 0 ? (
                             <ul>
                                 {vouchers
-                                    .filter(voucher => voucher.quantity > 0) // Lọc những voucher còn số lượng
+                                    .filter(voucher => voucher.quantity > 0)
                                     .map((voucher, index) => (
-                                        <li key={index} className="p-2 border-b flex justify-between">
+                                        <li key={index} className="p-2 border-b flex justify-between items-center">
                                             <span>Giảm {formatCurrency(voucher.discount)}</span>
                                             <button
-                                                className="px-2 py-1 bg-green-500 text-white rounded-md"
+                                                className="px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
                                                 onClick={() => handleApplyVoucher(voucher)}
                                             >
                                                 Sử dụng
@@ -145,6 +146,7 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setV
                     </div>
                 )}
 
+                {/* Payment Methods Section */}
                 <div className="mt-4">
                     <label className="flex items-center">
                         <input
@@ -156,29 +158,36 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setV
                         />
                         <span className="ml-2">Chuyển khoản ngân hàng</span>
                     </label>
+
                     {selectedPayment === 'bank' && (
-                        <div className="mt-2 p-2 border bg-gray-100 text-sm">
-                            Vui lòng chuyển khoản vào tài khoản ngân hàng của chúng tôi. Sử dụng mã đơn hàng làm nội dung thanh toán.
+                        <div className="mt-4 space-y-4">
+                            <div className="p-2 border bg-gray-100 text-sm rounded">
+                                Vui lòng chọn phương thức thanh toán bên dưới
+                            </div>
+
+                            <div className="flex space-x-4">
+                                {['vnp', 'zaloPay'].map((logo, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={classNames(
+                                            "flex items-center p-2 rounded cursor-pointer transition-all duration-200",
+                                            {
+                                                'border-2 border-orange-500 shadow-lg': selectedPaymentLogo === logo,
+                                                'border border-gray-300 hover:border-orange-300': selectedPaymentLogo !== logo
+                                            }
+                                        )}
+                                        onClick={() => handleLogoClick(logo)}
+                                    >
+                                        <img
+                                            src={logo === 'vnp' ? logoVNP : logoZaloPay}
+                                            alt={`${logo} Logo`}
+                                            className="h-12 w-12 object-contain"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
-
-                    <div className="mt-4 flex">
-                        {['vnp', 'momo'].map((logo, idx) => (
-                            <div
-                                key={idx}
-                                className={classNames("flex items-center mr-4 cursor-pointer", {
-                                    'border-2 border-orange-500 shadow-lg': selectedLogo === logo
-                                })}
-                                onClick={() => handleLogoClick(logo)}
-                            >
-                                <img
-                                    src={logo === 'vnp' ? logoVNP : logoMomo}
-                                    alt={`${logo} Logo`}
-                                    className="h-12 w-12"
-                                />
-                            </div>
-                        ))}
-                    </div>
 
                     <label className="flex items-center mt-4">
                         <input
@@ -190,10 +199,11 @@ const OrderInfo = ({ setPaymentMethod, setSelectedLogo, setVoucherDiscount, setV
                         />
                         <span className="ml-2">Trả tiền mặt khi nhận hàng</span>
                     </label>
-                    <p className="mt-2 text-sm">
-                        Dữ liệu cá nhân của bạn sẽ được sử dụng theo <a href="#" className="text-orange-600">chính sách riêng tư</a>.
-                    </p>
                 </div>
+
+                <p className="mt-4 text-sm text-gray-600">
+                    Dữ liệu cá nhân của bạn sẽ được sử dụng theo <a href="#" className="text-orange-600 hover:underline">chính sách riêng tư</a>.
+                </p>
             </div>
         </div>
     );

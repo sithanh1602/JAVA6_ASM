@@ -81,6 +81,8 @@ const getVariantsByBrand = async (brandId) => {
     return [];
   }
 };
+
+
 const getVariantsByCategory = async (categoryId) => {
   try {
     const response = await axios.get(`${API_URL}/by-category/${categoryId}`);

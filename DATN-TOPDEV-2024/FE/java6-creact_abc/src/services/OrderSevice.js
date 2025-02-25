@@ -137,6 +137,15 @@ const updateOrderStatushuy = async (orderId, status) => {
     }
 };
 
+const placeOrderZaloPay = async (orderData) => {
+    try {
+        const response = await axios.post(`${ORDER_API_URL}/place-zalopay`, orderData);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data || 'Lỗi khi tạo đơn hàng ZaloPay');
+    }
+};
+
 // Export các hàm API
 export default {
     getOrdersByUserId,
@@ -148,4 +157,5 @@ export default {
     placeOrderNosave,
     updateOrderStatushuy, // Kiểm tra lại xuất khẩu
     getOrderById,
+    placeOrderZaloPay
 };

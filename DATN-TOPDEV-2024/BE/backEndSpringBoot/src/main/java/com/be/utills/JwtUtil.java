@@ -21,6 +21,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .claim("roles", roles) // Thêm roles vào token
                 .claim("userId", userId)
+                .claim("username", username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(secretKey)

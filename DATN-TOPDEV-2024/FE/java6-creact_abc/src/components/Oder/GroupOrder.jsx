@@ -22,7 +22,8 @@ const GroupOrder = () => {
         fullAddress: '',
     });
     const [paymentMethod, setPaymentMethod] = useState('');
-    const [voucherDiscount, setVoucherDiscount] = useState(0); // Thêm state lưu giảm giá
+    const [selectedLogo, setSelectedLogo] = useState('');
+    const [voucherDiscount, setVoucherDiscount] = useState(0);
     const [voucherCode, setVoucherCode] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -77,13 +78,10 @@ const GroupOrder = () => {
         fetchUserInfo();
     }, [navigate]);
 
-    // Cập nhật logic tính tổng tiền (có trừ giảm giá)
     const calculateTotalPrice = () => {
         const total = cartItems.reduce((sum, item) => sum + item.productPrice * item.quantity, 0);
-        return Math.max(total - voucherDiscount, 0); // Đảm bảo không bị âm
+        return Math.max(total - voucherDiscount, 0);
     };
-
-    console.log("tổng tiền", voucherDiscount)
 
     const handlePlaceOrder = async () => {
         if (!paymentMethod) {
@@ -104,32 +102,56 @@ const GroupOrder = () => {
             return;
         }
 
+        if (paymentMethod === 'bank' && !selectedLogo) {
+            Swal.fire({
+                title: 'Lỗi',
+                text: 'Vui lòng chọn phương thức thanh toán (VNPay hoặc ZaloPay).',
+                icon: 'error',
+            });
+            return;
+        }
+
         setLoading(true);
 
         const orderData = {
             userId: userInfo.id,
+            fullName: userInfo.fullName,
             fullAddress: userInfo.fullAddress,
             phone: userInfo.phone,
+            email: userInfo.email,
             cartItems: cartItems.map((item) => ({
                 productVariantId: item.product_variant_id,
                 quantity: item.quantity,
                 productName: item.productName,
                 productPrice: item.productPrice,
+                size: item.size
             })),
             totalPrice: calculateTotalPrice(),
             paymentMethod,
             voucherDiscount,
             voucherCode,
+            status: 0
         };
+
         try {
             if (paymentMethod === 'bank') {
-                const response = await OrderService.placeOrder(orderData);
+                let response;
+                if (selectedLogo === 'zaloPay') {
+                    response = await OrderService.placeOrderZaloPay(orderData);
+                } else if (selectedLogo === 'vnp') {
+                    response = await OrderService.placeOrder(orderData);
+                }
+
                 Swal.fire({
                     title: 'Chuyển hướng...',
                     text: 'Đang chuyển đến cổng thanh toán.',
                     icon: 'info',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = response;
                 });
-                window.location.href = response;
             } else if (paymentMethod === 'cash') {
                 await OrderService.placeOrderNoVnpay(orderData);
 
@@ -143,25 +165,27 @@ const GroupOrder = () => {
                     title: 'Đặt hàng thành công!',
                     html: `
                         <p>Đơn hàng của bạn đã được ghi nhận.</p>
-                        <ul style="text-align: left;">${productDetails}</ul>
+                        <ul style="text-align: left; margin: 10px 0;">${productDetails}</ul>
                         <p><strong>Tổng tiền: ${calculateTotalPrice().toLocaleString()} VNĐ</strong></p>
+                        <p class="mt-2">Cảm ơn bạn đã mua hàng!</p>
                     `,
                     icon: 'success',
-                }).then(() => {
-                    navigate('/OrderUser');
-                });
-            } else {
-                Swal.fire({
-                    title: 'Lỗi',
-                    text: 'Phương thức thanh toán không hợp lệ.',
-                    icon: 'error',
+                    confirmButtonText: 'Xem đơn hàng',
+                    showCancelButton: true,
+                    cancelButtonText: 'Tiếp tục mua sắm'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate('/OrderUser');
+                    } else {
+                        navigate('/');
+                    }
                 });
             }
         } catch (error) {
             console.error('Lỗi khi đặt hàng:', error);
             Swal.fire({
                 title: 'Lỗi',
-                text: 'Đã xảy ra lỗi trong quá trình đặt hàng. Vui lòng thử lại.',
+                text: error.message || 'Đã xảy ra lỗi trong quá trình đặt hàng. Vui lòng thử lại.',
                 icon: 'error',
             });
         } finally {
@@ -174,12 +198,16 @@ const GroupOrder = () => {
             <OrderBr />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <BillingInfo setUserInfo={setUserInfo} userInfo={userInfo} />
-                {/* Truyền setVoucherDiscount vào OrderInfo */}
-                <OrderInfo setPaymentMethod={setPaymentMethod} setVoucherDiscount={setVoucherDiscount} setVoucherCode={setVoucherCode}/>
+                <OrderInfo
+                    setPaymentMethod={setPaymentMethod}
+                    setSelectedLogo={setSelectedLogo}
+                    setVoucherDiscount={setVoucherDiscount}
+                    setVoucherCode={setVoucherCode}
+                />
             </div>
             <button
                 onClick={handlePlaceOrder}
-                className="mt-4 w-full bg-orange-600 text-white py-2 rounded-md"
+                className="mt-4 w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 disabled={loading}
             >
                 {loading ? 'Đang xử lý...' : 'ĐẶT HÀNG'}
