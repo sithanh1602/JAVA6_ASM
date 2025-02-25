@@ -22,11 +22,11 @@ import * as yup from "yup";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";  // ✅ Đúng
 const schema = yup.object().shape({
-  // quantity: yup.number().required("Số lượng là bắt buộc").min(1, "Số lượng phải lớn hơn 0"),
-  // price: yup.number().required("Giá là bắt buộc").min(0, "Giá phải lớn hơn hoặc bằng 0"),
-  // status: yup.string().required("Trạng thái là bắt buộc"),
-  // images: yup.array().min(1, "Phải thêm ít nhất một hình ảnh"),
-  // attributes: yup.array().min(1, "Phải thêm ít nhất một thuộc tính"),
+  quantity: yup.number().required("Số lượng là bắt buộc").min(1, "Số lượng phải lớn hơn 0"),
+  price: yup.number().required("Giá là bắt buộc").min(0, "Giá phải lớn hơn hoặc bằng 0"),
+  status: yup.string().required("Trạng thái là bắt buộc"),
+  images: yup.array().min(1, "Phải thêm ít nhất một hình ảnh"),
+  attributes: yup.array().min(1, "Phải thêm ít nhất một thuộc tính"),
 });
 
 const ProductVariantsInput = ({ variant, onSave, productId }) => {
@@ -135,15 +135,20 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       uploadedImages.push({ preview: downloadURL });
     }
 
+    const newImages = [...formData.images, ...uploadedImages];
     setFormData((prevData) => ({
       ...prevData,
-      images: [...prevData.images, ...uploadedImages],
+      images: newImages,
     }));
+    // Cập nhật giá trị cho form
+    setValue('images', newImages);
   };
 
   const removeImage = (index) => {
     const updatedImages = formData.images.filter((_, i) => i !== index);
     setFormData({ ...formData, images: updatedImages });
+    // Cập nhật giá trị cho form
+    setValue('images', updatedImages);
   };
 
   const handleAttributeChange = (index, field, value) => {
@@ -175,6 +180,9 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
           };
         }
       }
+
+      // Cập nhật giá trị cho form
+      setValue('attributes', updatedAttributes);
       return { ...prev, attributes: updatedAttributes };
     });
 
@@ -190,6 +198,8 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         ...prevFormData.attributes,
         { name: "", value: "" },
       ];
+      // Cập nhật giá trị cho form
+      setValue('attributes', newAttributes);
       return {
         ...prevFormData,
         attributes: newAttributes,
@@ -200,6 +210,8 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
   const removeAttribute = (index) => {
     const updatedAttributes = formData.attributes.filter((_, i) => i !== index);
     setFormData({ ...formData, attributes: updatedAttributes });
+    // Cập nhật giá trị cho form
+    setValue('attributes', updatedAttributes);
   };
   const onVariantChange = (event) => {
     console.log("Variant changed:", event.target.value);

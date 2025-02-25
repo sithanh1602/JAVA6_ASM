@@ -9,6 +9,7 @@ import Header from '../components/home/header';
 import Conten from "./mainHome";
 import Products from "./products";
 import Cart from "./Cart";
+import Favorite from "./Favorite";
 import Footer from '../components/home/footer';
 import ProductPage from "../components/products/productDetails/ProductPageDetail";
 import AboutUs from "./mainAbout";
@@ -36,6 +37,7 @@ const HomePage = () => {
                     <Route path="/loginn" element={<AuthForm />} />
                     <Route path="/products" element={<Products/>}/>
                     <Route path="/cart" element={<Cart/>}/>
+                    <Route path="/wishlist" element={<Favorite/>}/>
                     <Route path="/product/:productId" element={<ProductPage/>}/>
                     <Route path="/products/:productId/productdetail" element={<ProductDetail />} />
                     <Route path="/aboutUs" element={<AboutUs/>}/>   

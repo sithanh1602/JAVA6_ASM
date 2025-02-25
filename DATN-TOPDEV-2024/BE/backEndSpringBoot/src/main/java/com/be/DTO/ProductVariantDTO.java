@@ -1,5 +1,6 @@
 package com.be.DTO;
 
+import com.be.entity.ProductVariant;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -15,8 +16,9 @@ public class ProductVariantDTO {
     private Long idVariants;
     private String status;
     private List<AttributeDTO> attributes;
+    private Long productId;
 
-    public ProductVariantDTO(String name, String imageUrl, double price, int stock, String description, Long idVariants,String status, List<AttributeDTO> attributes) {
+    public ProductVariantDTO(String name, String imageUrl, double price, int stock, String description, Long idVariants,String status, List<AttributeDTO> attributes, Long productId) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.price = price;
@@ -25,9 +27,11 @@ public class ProductVariantDTO {
         this.idVariants = idVariants;
         this.status = status;
         this.attributes = attributes;
+        this.productId = productId;
     }
 
-    public ProductVariantDTO(String name, String imageUrl, double price, int stock, String description, Long idVariants, String status) {
+    // Constructor dùng trong `ProductService` (không có attributes)
+    public ProductVariantDTO(String name, String imageUrl, double price, int stock, String description, Long idVariants, String status, Long productId) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.price = price;
@@ -36,5 +40,6 @@ public class ProductVariantDTO {
         this.idVariants = idVariants;
         this.status = status;
         this.attributes = new ArrayList<>();
+        this.productId = productId;
     }
 }
