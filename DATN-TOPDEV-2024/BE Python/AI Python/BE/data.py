@@ -90,9 +90,32 @@ class VectorizedChatbot:
                 "Có bán laptop không?",
                 "Giá cả các sản phẩm thế nào?"
             ],
-            "cam on": [
-                "Cảm ơn bạn!"
-            ]
+            "thai": [
+                "thằng thái ngu đúng ko ?",
+                "thái có phải là người thông minh không?",
+                "cho tôi biết về thái",
+                "thái là ai vậy?",
+                "tôi muốn biết thông tin về thái",
+                "thái có khả năng gì?",
+                "thái có học giỏi không?",
+                "thái làm việc ở đâu?",
+                "có ai tên thái không?",
+                "thái là người như thế nào?",
+                "nói cho tôi biết về thái",
+                "thái có phải là nhân viên không?",
+                "thái có làm ở đây không?",
+                "tên thái có phải là thằng ngốc không?",
+                "thái ngu học phải không?",
+                "thái dốt có đúng không?",
+                "thái thông minh không?",
+                "thái có năng lực không?",
+                "thái có tiến bộ không?",
+                "thái có biết lập trình không?",
+                "thái làm được việc gì?",
+                "thái có đang làm việc ở đây không?",
+                "thái là người quê ở đâu?",
+                "ai là người tên thái?"
+            ], 
         }
         
         # Thêm các câu ví dụ vào tập huấn luyện
@@ -259,7 +282,10 @@ if __name__ == "__main__":
         "Có bán linh kiện không?",
         "Tôi cần mua laptop",
         "Máy tính bị lỗi thì làm sao?",
-        "Tôi muốn biết vị trí cửa hàng"
+        "Tôi muốn biết vị trí cửa hàng",
+        "Thái là ai vậy?",
+        "Thái có thông minh không?",
+        "Thằng thái ngu lắm phải không?"
     ]
     
     print("=== KIỂM TRA DỰ ĐOÁN Ý ĐỊNH VỚI NHÚNG VECTOR ===")

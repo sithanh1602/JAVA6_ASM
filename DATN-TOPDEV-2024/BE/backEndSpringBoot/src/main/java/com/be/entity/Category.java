@@ -25,4 +25,7 @@ public class Category {
     @NotBlank(message = "Image URL is required")
     @NotNull(message = "Image URL cannot be null")
     private String image;
+
+    @Column(name = "id_build", nullable = false, columnDefinition = "int")
+    private int id_build;
 }

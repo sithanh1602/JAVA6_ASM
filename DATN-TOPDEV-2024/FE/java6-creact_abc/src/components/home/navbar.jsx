@@ -216,6 +216,10 @@ const Navbar = () => {
                                 {isSearching ? <Spinner size="sm" /> : <FiSearch className="text-lg"/>}
                             </button>
                         </div>
+                        <div className="pl-3 pt-2 text-sm text-gray-700 hover:text-blue-600">
+                            <Link to="/BuilderPC" className="p-2" >Build PC</Link>
+                        </div>
+
 
                         {/* Search Results Dropdown */}
                         {searchResults.length > 0 && (
