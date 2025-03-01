@@ -74,7 +74,7 @@ public class ProductVariantController {
             dto.setProductId(row[4] != null ? ((Number) row[4]).longValue() : null); // productId
             dto.setQuantity(row[5] != null ? ((Number) row[5]).intValue() : 0); // quantity
             dto.setStatus(row[6] != null ? (String) row[6] : "unknown");      // status
-            dto.setCategoryName(row[7] != null ? (String) row[8] : "Unknown"); // category_name
+            dto.setCategoryName(row[7] != null ? (String) row[7] : "Unknown"); // category_name
             return dto;
         }).collect(Collectors.toList());
 

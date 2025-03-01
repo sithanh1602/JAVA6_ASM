@@ -24,6 +24,7 @@ import HeaderDownNavbar from "../components/home/headerDownNavbar";
 import AuthForm from "../components/account/AuthForm";
 import OrderDetail from "../components/Oder/OrderDetail";
 import FloatingChatbox from "../components/AI/ChatBot/FloatingChatbox";
+import PCBuilderComponent from "../components/buildPC/PCBuilderComponent";
 
 
 const HomePage = () => {
@@ -49,6 +50,7 @@ const HomePage = () => {
                     <Route path="/OrderUser" element={<OrderList />} />
                     <Route path="/payment/vnpay-payment" element={<PaymentSuccess />} />
                     <Route path="/order-detail/:orderId" element={<OrderDetail />} />
+                    <Route path="/BuilderPC" element={<PCBuilderComponent />} />
                 </Routes>
             </div>
             <FloatingChatbox></FloatingChatbox>
