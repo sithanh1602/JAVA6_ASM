@@ -91,7 +91,6 @@ class VectorizedChatbot:
                 "Giá cả các sản phẩm thế nào?"
             ],
             "thai": [
-                "thằng thái ngu đúng ko ?",
                 "thái có phải là người thông minh không?",
                 "cho tôi biết về thái",
                 "thái là ai vậy?",
@@ -104,10 +103,6 @@ class VectorizedChatbot:
                 "nói cho tôi biết về thái",
                 "thái có phải là nhân viên không?",
                 "thái có làm ở đây không?",
-                "tên thái có phải là thằng ngốc không?",
-                "thái ngu học phải không?",
-                "thái dốt có đúng không?",
-                "thái thông minh không?",
                 "thái có năng lực không?",
                 "thái có tiến bộ không?",
                 "thái có biết lập trình không?",
@@ -204,7 +199,7 @@ class VectorizedChatbot:
             # Nếu có lỗi, huấn luyện lại mô hình
             self.train_model()
     
-    def predict_intent(self, user_input, threshold=0.3):
+    def predict_intent(self, user_input, threshold=0.6):
         """Dự đoán ý định từ câu nhập của người dùng"""
         # Chuẩn hóa câu nhập
         normalized_input = self.normalize_text(user_input)
