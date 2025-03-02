@@ -213,7 +213,7 @@ public class OrderService {
         order.setOrderNum(orderNum);
         order.setUser(user);
         order.setTotalPrice(orderRequest.getTotalPrice());
-        order.setStatus(1);  // Đơn hàng mới
+        order.setStatus(2);  // Đơn hàng mới
         order.setFullAddress(orderRequest.getFullAddress());
         order.setPaymentStatus(true); // Trạng thái thanh toán là thành công
         order.setOrderDate(new Date());
