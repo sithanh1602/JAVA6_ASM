@@ -17,8 +17,7 @@ public class VNPayService {
 
     public String createOrder(int total, String orderInfor, String urlReturn, String orderId) {
         // Bỏ qua orderId được truyền vào, tự sinh orderId ngẫu nhiên
-        String vnp_TxnRef = generateUniqueOrderId(); // Tạo orderId ngẫu nhiên
-
+        String vnp_TxnRef = orderId; // Tạo orderId ngẫu nhiên
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String vnp_IpAddr = "127.0.0.1";
