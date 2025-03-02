@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import OrderService from "../../services/OrderSevice";
 import { faClipboardCheck, faTruck, faBoxOpen, faCheckCircle, faHandshake, faExclamationCircle, faDollarSign, faCheckDouble, faTimesCircle, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import Swal from 'sweetalert2';
 
 const getStatusInfo = (status) => {
@@ -23,7 +23,6 @@ const getStatusInfo = (status) => {
     return statusMap[status] || { text: 'Không xác định', icon: faQuestionCircle, color: 'text-gray-500', bgColor: 'bg-gray-100' };
 };
 
-
 const OrderList = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -32,23 +31,54 @@ const OrderList = () => {
     const [orderProducts, setOrderProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Hàm lấy danh sách đơn hàng
+    const fetchOrders = async () => {
+        try {
+            const userId = localStorage.getItem("UserId");
+            if (!userId) throw new Error("Không tìm thấy UserId trong localStorage");
+            const ordersData = await OrderService.getOrdersByUserId(userId);
+            setOrders(ordersData);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    console.log(orders)
+    // Hàm gọi API cleanupUnpaidOrders
+    const cleanupUnpaidOrders = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/orders/cleanup-unpaid', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const result = await response.json();
+            if (response.ok) {
+                console.log(result.message);
+                // Sau khi xóa thành công, cập nhật lại danh sách đơn hàng
+                await fetchOrders();
+            } else {
+                console.error('Lỗi khi xóa đơn hàng:', result.error);
+            }
+        } catch (err) {
+            console.error('Không thể kết nối đến server:', err);
+        }
+    };
 
     useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const userId = localStorage.getItem("UserId");
-                if (!userId) throw new Error("Không tìm thấy UserId trong localStorage");
-                const ordersData = await OrderService.getOrdersByUserId(userId);
-                setOrders(ordersData);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+        // Gọi cleanupUnpaidOrders ngay lập tức khi vào trang
+        cleanupUnpaidOrders();
+
+        // Gọi fetchOrders lần đầu sau khi cleanup
         fetchOrders();
+
+        // Thiết lập interval để tự động gọi cleanupUnpaidOrders mỗi 5 phút
+        const cleanupInterval = setInterval(() => {
+            cleanupUnpaidOrders();
+        }, 5 * 60 * 1000); // 5 phút
+
+        // Dọn dẹp interval khi component unmount
+        return () => clearInterval(cleanupInterval);
     }, []);
 
     const openModal = async (order) => {
@@ -87,9 +117,7 @@ const OrderList = () => {
         const userId = getUserIdFromToken();
         console.log("UserID:", userId);
 
-        // Tìm đơn hàng trong danh sách orders dựa trên orderId
         const selectedOrder = orders.find(order => order.id === orderId);
-
         if (!selectedOrder) {
             alert("Không tìm thấy thông tin đơn hàng!");
             console.error("Order not found for ID:", orderId);
@@ -104,7 +132,6 @@ const OrderList = () => {
         try {
             const response = await OrderService.placeOrderNosave(selectedOrder, userId, orderId);
             console.log("URL thanh toán nhận được:", response);
-
             if (response) {
                 window.location.href = response;
             } else {
@@ -117,9 +144,7 @@ const OrderList = () => {
         }
     };
 
-
     const handleCancelOrder = async (orderId) => {
-        // Hiển thị hộp thoại xác nhận hủy đơn hàng
         const result = await Swal.fire({
             title: 'Bạn có chắc muốn hủy đơn hàng này?',
             text: "Hành động này không thể hoàn tác!",
@@ -131,36 +156,35 @@ const OrderList = () => {
             cancelButtonText: 'Quay lại'
         });
 
-        // Nếu người dùng xác nhận hủy
         if (result.isConfirmed) {
             try {
-                await OrderService.updateOrderStatus(orderId, 9); // Truyền trạng thái 9 vào
+                await OrderService.updateOrderStatus(orderId, 9);
                 const userId = localStorage.getItem("UserId");
                 const ordersData = await OrderService.getOrdersByUserId(userId);
                 setOrders(ordersData);
-                Swal.fire(
-                    'Hủy thành công!',
-                    'Đơn hàng của bạn đã được hủy.',
-                    'success'
-                );
+                Swal.fire('Hủy thành công!', 'Đơn hàng của bạn đã được hủy.', 'success');
             } catch (err) {
                 console.error("Lỗi hủy đơn hàng:", err);
-                Swal.fire(
-                    'Lỗi!',
-                    'Đã xảy ra lỗi khi hủy đơn hàng. Vui lòng thử lại.',
-                    'error'
-                );
+                Swal.fire('Lỗi!', 'Đã xảy ra lỗi khi hủy đơn hàng. Vui lòng thử lại.', 'error');
             }
         }
     };
 
+    const getTimeRemaining = (orderDate) => {
+        const orderTime = new Date(orderDate).getTime();
+        const currentTime = new Date().getTime();
+        const diffInMs = currentTime - orderTime;
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        const remainingMs = oneDayInMs - diffInMs;
+
+        if (remainingMs <= 0) return "Đã hết hạn";
+        const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+        const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+        return `${hours} giờ ${minutes} phút hết hạng thanh toán`;
+    };
 
     const orderColumns = [
-        {
-            name: 'Mã Đơn Hàng',
-            selector: row => row.orderNum,
-            sortable: true
-        },
+        { name: 'Mã Đơn Hàng', selector: row => row.orderNum, sortable: true },
         {
             name: 'Trạng thái',
             cell: row => {
@@ -169,6 +193,11 @@ const OrderList = () => {
                     <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${status.bgColor}`}>
                         <FontAwesomeIcon icon={status.icon} className={`${status.color}`} />
                         <span className={`${status.color} font-medium`}>{status.text}</span>
+                        {row.status === 2 && (
+                            <span className="text-xs text-red-500 ml-2">
+                                (Còn {getTimeRemaining(row.orderDate)})
+                            </span>
+                        )}
                     </div>
                 );
             },
@@ -190,15 +219,15 @@ const OrderList = () => {
             selector: row => row.fullAddress,
             wrap: true,
             sortable: true,
-            cell: row => <div style={{fontSize: '12px'}}>{row.fullAddress}</div>
+            cell: row => <div style={{ fontSize: '12px' }}>{row.fullAddress}</div>
         },
         {
             name: 'Trạng thái thanh toán',
-            selector: row => row.paymentStatus, // Kiểm tra API có trả về field này không
+            selector: row => row.paymentStatus,
             cell: row => (
                 <span className={`font-medium ${row.paymentStatus ? 'text-green-500' : 'text-blue-500'}`}>
-            {row.paymentStatus ? 'Thanh toán online' : 'Thanh toán khi nhận hàng'}
-        </span>
+                    {row.paymentStatus ? 'Thanh toán online' : 'Thanh toán khi nhận hàng'}
+                </span>
             ),
             sortable: true
         },
@@ -212,8 +241,7 @@ const OrderList = () => {
                     >
                         Xem Chi Tiết
                     </Button>
-
-                    {!row.paymentStatus && (row.status === 1 || row.status === 2) && (
+                    {row.paymentStatus && (row.status === 1 || row.status === 2) && (
                         <Button
                             onClick={() => handlePayment(row.id)}
                             className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 text-xs"
@@ -221,7 +249,6 @@ const OrderList = () => {
                             Thanh Toán
                         </Button>
                     )}
-
                     {[1, 2, 3].includes(row.status) && (
                         <Button
                             onClick={() => handleCancelOrder(row.id)}
@@ -236,18 +263,10 @@ const OrderList = () => {
     ];
 
     const productColumns = [
-        {
-            name: 'Ảnh',
-            cell: row => <img src={row.imageUrl} alt={row.name} className="w-16 h-16 object-cover rounded-md" />,
-        },
+        { name: 'Ảnh', cell: row => <img src={row.imageUrl} alt={row.name} className="w-16 h-16 object-cover rounded-md" /> },
         { name: 'Tên Sản Phẩm', selector: row => row.name, sortable: true },
         { name: 'Số Lượng', selector: row => row.quantity, sortable: true },
-        {
-            name: 'Giá',
-            selector: row => row.price,
-            sortable: true,
-            format: row => `${row.price.toLocaleString()} VNĐ`,
-        },
+        { name: 'Giá', selector: row => row.price, sortable: true, format: row => `${row.price.toLocaleString()} VNĐ` },
     ];
 
     const OrderProcessTimeline = ({ currentStatus }) => {
@@ -270,14 +289,11 @@ const OrderList = () => {
                             }}
                         />
                     </div>
-
                     {statuses.map((status) => (
                         <div key={status.id} className="flex flex-col items-center relative z-10">
                             <div
                                 className={`w-12 h-12 rounded-full flex items-center justify-center mb-2
-                                    ${currentStatus >= status.id
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-200 text-gray-400'}
+                                    ${currentStatus >= status.id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-400'}
                                     transition-all duration-300`}
                             >
                                 <FontAwesomeIcon icon={status.icon} className="text-xl" />
@@ -309,7 +325,6 @@ const OrderList = () => {
                 noDataComponent="Không có đơn hàng nào."
                 persistTableHead
             />
-
             <Modal isOpen={isModalOpen} onOpenChange={setIsModalOpen} size="4xl">
                 <ModalContent>
                     <ModalHeader className="text-xl font-bold">Chi Tiết Đơn Hàng</ModalHeader>
@@ -333,9 +348,8 @@ const OrderList = () => {
                                         </p>
                                         <p className="mb-2">
                                             <strong className="pr-2">Trạng thái thanh toán:</strong>
-                                            <span
-                                                className={`ml-2 ${selectedOrder.paymentStatus === 'Đã thanh toán' ? 'text-green-500' : 'text-red-500'}`}>
-                                                {selectedOrder.paymentStatus || 'Chưa thanh toán'}
+                                            <span className={`ml-2 ${selectedOrder.paymentStatus ? 'text-green-500' : 'text-red-500'}`}>
+                                                {selectedOrder.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}
                                             </span>
                                         </p>
                                     </div>
@@ -346,16 +360,14 @@ const OrderList = () => {
                                         </p>
                                         <p className="mb-2">
                                             <strong className="pr-2">Địa Chỉ:</strong>
-                                              {selectedOrder.fullAddress}
+                                            {selectedOrder.fullAddress}
                                         </p>
                                     </div>
                                 </div>
-
                                 <div className="mb-8">
                                     <h3 className="font-bold mb-4">Tiến Độ Đơn Hàng:</h3>
                                     <OrderProcessTimeline currentStatus={selectedOrder.status} />
                                 </div>
-
                                 <div>
                                     <h3 className="font-bold mb-4">Sản phẩm trong đơn hàng:</h3>
                                     <DataTable

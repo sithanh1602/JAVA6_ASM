@@ -20,8 +20,12 @@ public class AddressService {
     @Autowired
     private UserRepository userRepository;
 
+    public Address findById(Long id) {
+        return addressRepository.findById(id).orElse(null);
+    }
+
     // Thêm phương thức tìm địa chỉ theo id
-    public Address findById(Long idAddress) {
+    public Address findByIdAddress(Long idAddress) {
         return addressRepository.findById(idAddress).orElseThrow(() ->
                 new IllegalArgumentException("Không tìm thấy địa chỉ với ID: " + idAddress));
     }

@@ -1,40 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import UserAddressService from '../../services/UserAddressService';  // Import service
+import UserAddressService from '../../services/UserAddressService';
 import { FaCogs } from 'react-icons/fa';
-import DataTable from 'react-data-table-component';  // Import the DataTable
+import DataTable from 'react-data-table-component';
 import { Link } from 'react-router-dom';
 import ProvinceSelect from "../account/ProvinceSelect";
 
-const BillingInfo = () => {
+const BillingInfo = ({ setUserInfo, userInfo, setShippingFee, fetchShippingFee }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [userInfo, setUserInfo] = useState({
-        fullName: 'Chưa cập nhật',
-        phone: 'Chưa cập nhật',
-        fullAddress: 'Chưa có địa chỉ mặc định',
-        email: 'Chưa cập nhập',
-    });
     const [addresses, setAddresses] = useState([]);
-    const [selectedAddress, setSelectedAddress] = useState(null);  // Thêm state để lưu địa chỉ đã chọn
+    const [selectedAddress, setSelectedAddress] = useState(null);
 
     const handleModalToggle = () => {
         setIsModalOpen(!isModalOpen);
     };
 
     const handleSelectAddress = (address) => {
-        setSelectedAddress(address);  // Lưu địa chỉ được chọn
+        setSelectedAddress(address);
         setUserInfo((prevState) => ({
             ...prevState,
-            fullAddress: address.fullAddress,  // Cập nhật địa chỉ đã chọn vào userInfo
-            phone: address.phone,  // Cập nhật số điện thoại từ địa chỉ đã chọn
+            fullName: address.fullName || prevState.fullName,
+            phone: address.phone,
+            email: address.email || prevState.email,
+            fullAddress: address.fullAddress,
+            district: address.district, // Cập nhật district
+            ward: address.ward,         // Cập nhật ward
         }));
-        setIsModalOpen(false);  // Đóng modal sau khi chọn địa chỉ
+        setIsModalOpen(false);
+
+        // Gọi fetchShippingFee với địa chỉ vừa chọn
+        if (address.district && address.ward) {
+            fetchShippingFee(address);
+        }
     };
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
             console.log("Token không tồn tại hoặc đã hết hạn");
-            // Chuyển hướng người dùng về trang đăng nhập
             window.location.href = '/login';
         } else {
             UserAddressService.getDefaultUserInfo()
@@ -45,20 +47,19 @@ const BillingInfo = () => {
                             phone: data.phone || 'Chưa cập nhật',
                             fullAddress: data.fullAddress || 'Chưa có địa chỉ mặc định',
                             email: data.email || 'Chưa cập nhật',
+                            district: data.district, // Thêm district
+                            ward: data.ward,         // Thêm ward
                         });
                     }
                 })
                 .catch((error) => console.error('Lỗi khi lấy thông tin người dùng:', error));
 
-            // Fetch danh sách địa chỉ của người dùng
             UserAddressService.getAllAddresses()
                 .then((data) => setAddresses(data || []))
                 .catch((error) => console.error('Lỗi khi lấy danh sách địa chỉ:', error));
         }
-    }, []);
+    }, [setUserInfo]);
 
-
-    // Cấu hình cột cho DataTable
     const columns = [
         {
             name: 'Địa chỉ',
@@ -85,11 +86,10 @@ const BillingInfo = () => {
     ];
 
     return (
-        <div className="max-w-4xl ">
+        <div className="max-w-4xl">
             <h2 className="text-2xl font-bold mb-6">Thông tin thanh toán</h2>
             <div className="space-y-6">
                 <div className="space-y-6">
-                    {/* Họ tên */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Họ tên</label>
                         <input
@@ -99,8 +99,6 @@ const BillingInfo = () => {
                             readOnly
                         />
                     </div>
-
-                    {/* Số điện thoại */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
                         <input
@@ -110,8 +108,6 @@ const BillingInfo = () => {
                             readOnly
                         />
                     </div>
-
-                    {/* Số điện thoại */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Email</label>
                         <input
@@ -121,8 +117,6 @@ const BillingInfo = () => {
                             readOnly
                         />
                     </div>
-
-                    {/* Địa chỉ */}
                     <div className="flex items-center">
                         <div className="flex-grow">
                             <label className="block text-sm font-medium text-gray-700">Địa chỉ</label>
@@ -138,20 +132,17 @@ const BillingInfo = () => {
                             className="ml-2 p-1 text-gray-500 rounded-md hover:text-gray-600"
                             onClick={handleModalToggle}
                         >
-                            <FaCogs/>
+                            <FaCogs />
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* DataTable hiển thị tất cả địa chỉ */}
-            {/* DataTable hiển thị tất cả địa chỉ */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-4xl">
                         <h3 className="text-xl font-semibold mb-4">Tất cả Địa Chỉ</h3>
-                        <ProvinceSelect></ProvinceSelect>
-
+                        <ProvinceSelect />
                         <DataTable
                             columns={columns}
                             data={addresses}

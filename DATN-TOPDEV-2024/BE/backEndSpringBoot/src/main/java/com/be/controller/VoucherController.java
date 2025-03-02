@@ -18,9 +18,8 @@ public class VoucherController {
     @Autowired
     private VoucherService voucherService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Voucher>> getVouchersByUserId(@PathVariable Long userId) {
-        List<Voucher> vouchers = voucherService.getVouchersByUserId(userId);
-        return ResponseEntity.ok(vouchers);
+    @GetMapping
+    public List<Voucher> getAllVouchers() {
+        return voucherService.getAllVouchers();
     }
 }
