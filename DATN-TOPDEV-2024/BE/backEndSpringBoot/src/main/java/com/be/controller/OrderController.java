@@ -250,4 +250,18 @@ public class OrderController {
                     .body("Error processing callback");
         }
     }
+
+    // Endpoint mới để gọi thủ công cleanupUnpaidOrders
+    @PostMapping("/cleanup-unpaid")
+    public ResponseEntity<?> cleanupUnpaidOrders() {
+        try {
+            orderService.cleanupUnpaidOrders();
+            return ResponseEntity.ok(Map.of("message", "Đã xóa các đơn hàng chưa thanh toán quá 1 ngày."));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Có lỗi xảy ra khi xóa đơn hàng chưa thanh toán: " + e.getMessage()));
+        }
+    }
+
 }
