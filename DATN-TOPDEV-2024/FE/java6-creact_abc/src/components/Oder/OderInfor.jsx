@@ -1,67 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import axios from 'axios';
-import logoZaloPay from '../../assets/images/zalopay.png';
-import logoVNP from '../../assets/images/logoVNP.jpg';
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+import logoZaloPay from "../../assets/images/zalopay.png";
+import logoVNP from "../../assets/images/logoVNP.jpg";
 import OrderService from "../../services/OrderSevice";
-import Cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode';
-import classNames from 'classnames';
-import Swal from 'sweetalert2';
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import classNames from "classnames";
+import Swal from "sweetalert2";
 
-const OrderInfo = ({ setPaymentMethod, setVoucherDiscount, setVoucherCode, setVoucherid, shippingFee, setSelectedLogo }) => {
-    const location = useLocation();
-    const { cartItems = [] } = location.state || {};
-    const [selectedPayment, setSelectedPayment] = useState('bank');
-    const [selectedPaymentLogo, setSelectedPaymentLogo] = useState('');
-    const [showVouchers, setShowVouchers] = useState(false);
-    const [vouchers, setVouchers] = useState([]);
-    const [selectedVoucher, setSelectedVoucher] = useState(null);
-    const [discountAmount, setDiscountAmount] = useState(0);
-    const [userOrders, setUserOrders] = useState([]);
+const OrderInfo = ({
+  setPaymentMethod,
+  setVoucherDiscount,
+  setVoucherCode,
+  setVoucherid,
+  shippingFee,
+  setSelectedLogo,
+}) => {
+  const location = useLocation();
+  const { cartItems = [] } = location.state || {};
+  const [selectedPayment, setSelectedPayment] = useState("bank");
+  const [selectedPaymentLogo, setSelectedPaymentLogo] = useState("");
+  const [showVouchers, setShowVouchers] = useState(false);
+  const [vouchers, setVouchers] = useState([]);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [userOrders, setUserOrders] = useState([]);
 
-    // Hàm lấy userId từ token
-    const getUserIdFromToken = () => {
-        const token = Cookies.get("token");
-        if (token) {
-            try {
-                const decodedToken = jwtDecode(token);
-                return decodedToken.userId;
-            } catch (err) {
-                console.error("Token không hợp lệ:", err);
-                return null;
-            }
-        }
+  // Hàm lấy userId từ token
+  const getUserIdFromToken = () => {
+    const token = Cookies.get("token");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        return decodedToken.userId;
+      } catch (err) {
+        console.error("Token không hợp lệ:", err);
         return null;
-    };
+      }
+    }
+    return null;
+  };
 
-    // Hàm fetch danh sách đơn hàng theo user_id
-    const fetchUserOrders = async () => {
-        const userId = getUserIdFromToken();
-        if (!userId) return;
-        try {
-            const orders = await OrderService.getOrdersByUserId(userId);
-            setUserOrders(orders);
-        } catch (error) {
-            console.error('Lỗi khi lấy danh sách đơn hàng:', error);
-        }
-    };
+  // Hàm fetch danh sách đơn hàng theo user_id
+  const fetchUserOrders = async () => {
+    const userId = getUserIdFromToken();
+    if (!userId) return;
+    try {
+      const orders = await OrderService.getOrdersByUserId(userId);
+      setUserOrders(orders);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách đơn hàng:", error);
+    }
+  };
 
-    const fetchVouchers = async () => {
-        const userId = getUserIdFromToken();
-        if (!userId) return;
-        try {
-            const response = await axios.get(`http://localhost:8080/api/vouchers`);
-            setVouchers(response.data);
-        } catch (error) {
-            console.error('Lỗi khi lấy danh sách vouchers:', error);
-        }
-    };
+  const fetchVouchers = async () => {
+    const userId = getUserIdFromToken();
+    if (!userId) return;
+    try {
+      const response = await axios.get(`http://localhost:8080/api/vouchers`);
+      setVouchers(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách vouchers:", error);
+    }
+  };
 
-    useEffect(() => {
-        fetchUserOrders(); // Lấy danh sách đơn hàng khi component mount
-        if (showVouchers) fetchVouchers(); // Lấy danh sách voucher khi mở danh sách
-    }, [showVouchers]);
+  useEffect(() => {
+    fetchUserOrders(); // Lấy danh sách đơn hàng khi component mount
+    if (showVouchers) fetchVouchers(); // Lấy danh sách voucher khi mở danh sách
+  }, [showVouchers]);
 
   const formatCurrency = (value) =>
     new Intl.NumberFormat("vi-VN", {
@@ -85,24 +92,26 @@ const OrderInfo = ({ setPaymentMethod, setVoucherDiscount, setVoucherCode, setVo
     }
   };
 
-    const handleApplyVoucher = (voucher) => {
-        const isVoucherUsed = userOrders.some(order => order.voucher && order.voucher.id === voucher.id);
-        if (isVoucherUsed) {
-            Swal.fire({
-                title: 'Voucher đã sử dụng!',
-                text: 'Voucher này đã được sử dụng trong một đơn hàng trước đó. Vui lòng chọn voucher khác.',
-                icon: 'warning',
-                confirmButtonText: 'OK',
-            });
-            return;
-        }
+  const handleApplyVoucher = (voucher) => {
+    const isVoucherUsed = userOrders.some(
+      (order) => order.voucher && order.voucher.id === voucher.id
+    );
+    if (isVoucherUsed) {
+      Swal.fire({
+        title: "Voucher đã sử dụng!",
+        text: "Voucher này đã được sử dụng trong một đơn hàng trước đó. Vui lòng chọn voucher khác.",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
 
-        setSelectedVoucher(voucher);
-        setDiscountAmount(voucher.discount);
-        setVoucherDiscount(voucher.discount);
-        setVoucherCode(voucher.code);
-        setVoucherid(voucher.id);
-        console.log("Voucher applied:", voucher);
+    setSelectedVoucher(voucher);
+    setDiscountAmount(voucher.discount);
+    setVoucherDiscount(voucher.discount);
+    setVoucherCode(voucher.code);
+    setVoucherid(voucher.id);
+    console.log("Voucher applied:", voucher);
 
     Swal.fire({
       title: "Mã giảm giá áp dụng thành công!",
@@ -114,13 +123,19 @@ const OrderInfo = ({ setPaymentMethod, setVoucherDiscount, setVoucherCode, setVo
     });
   };
 
-    const totalAmount = cartItems.reduce((total, item) => total + item.productPrice * item.quantity, 0);
+  const totalAmount = cartItems.reduce(
+    (total, item) => total + item.productPrice * item.quantity,
+    0
+  );
 
-    const totalAfterDiscount = Math.max(totalAmount - discountAmount + shippingFee, 0);
+  const totalAfterDiscount = Math.max(
+    totalAmount - discountAmount + shippingFee,
+    0
+  );
 
-    useEffect(() => {
-        setPaymentMethod('bank');
-    }, [setPaymentMethod]);
+  useEffect(() => {
+    setPaymentMethod("bank");
+  }, [setPaymentMethod]);
 
   return (
     <div>
@@ -163,11 +178,14 @@ const OrderInfo = ({ setPaymentMethod, setVoucherDiscount, setVoucherCode, setVo
               <td>Tạm tính</td>
               <td>{formatCurrency(totalAmount)}</td>
             </tr>
+            <tr>
+              <td>Phí vận chuyển</td>
+              <td>{formatCurrency(shippingFee)}</td>
+            </tr>
             {discountAmount > 0 && (
               <tr>
                 <td>Giảm giá</td>
                 <td>{formatCurrency(discountAmount)}</td>
-                <td>Phí vận chuyển</td><td>{formatCurrency(shippingFee)}</td>
               </tr>
             )}
             <tr>
@@ -187,60 +205,74 @@ const OrderInfo = ({ setPaymentMethod, setVoucherDiscount, setVoucherCode, setVo
           {showVouchers ? "Ẩn mã giảm giá" : "Xem mã giảm giá"}
         </button>
 
-                {showVouchers && (
-                    <div className="mt-4 p-4 border rounded-md bg-gray-100">
-                        <h3 className="text-lg font-bold mb-2">Danh sách mã giảm giá</h3>
-                        {vouchers
-                            .filter(voucher => {
-                                const currentDate = new Date();
-                                const startDate = new Date(voucher.startDate);
-                                const endDate = new Date(voucher.endDate);
-                                return (
-                                    voucher.quantity > 0 &&
-                                    startDate <= currentDate &&
-                                    endDate > currentDate
-                                );
-                            })
-                            .length > 0 ? (
-                            <ul>
-                                {vouchers
-                                    .filter(voucher => {
-                                        const currentDate = new Date();
-                                        const startDate = new Date(voucher.startDate);
-                                        const endDate = new Date(voucher.endDate);
-                                        return (
-                                            voucher.quantity > 0 &&
-                                            startDate <= currentDate &&
-                                            endDate > currentDate
-                                        );
-                                    })
-                                    .map((voucher, index) => {
-                                        const isUsed = userOrders.some(order => order.voucher && order.voucher.id === voucher.id);
-                                        return (
-                                            <li key={index} className="p-2 border-b flex justify-between items-center">
-                                                <span>Giảm {formatCurrency(voucher.discount)}</span>
-                                                <button
-                                                    className={classNames(
-                                                        "px-2 py-1 text-white rounded-md",
-                                                        {
-                                                            "bg-green-500": !isUsed && selectedVoucher?.id !== voucher.id,
-                                                            "bg-gray-500": isUsed || selectedVoucher?.id === voucher.id
-                                                        }
-                                                    )}
-                                                    onClick={() => handleApplyVoucher(voucher)}
-                                                    disabled={isUsed || selectedVoucher?.id === voucher.id}
-                                                >
-                                                    {isUsed ? "Đã dùng" : selectedVoucher?.id === voucher.id ? "Đã áp dụng" : "Sử dụng"}
-                                                </button>
-                                            </li>
-                                        );
-                                    })}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-500">Bạn chưa có mã giảm giá nào hợp lệ.</p>
-                        )}
-                    </div>
-                )}
+        {showVouchers && (
+          <div className="mt-4 p-4 border rounded-md bg-gray-100">
+            <h3 className="text-lg font-bold mb-2">Danh sách mã giảm giá</h3>
+            {vouchers.filter((voucher) => {
+              const currentDate = new Date();
+              const startDate = new Date(voucher.startDate);
+              const endDate = new Date(voucher.endDate);
+              return (
+                voucher.quantity > 0 &&
+                startDate <= currentDate &&
+                endDate > currentDate
+              );
+            }).length > 0 ? (
+              <ul>
+                {vouchers
+                  .filter((voucher) => {
+                    const currentDate = new Date();
+                    const startDate = new Date(voucher.startDate);
+                    const endDate = new Date(voucher.endDate);
+                    return (
+                      voucher.quantity > 0 &&
+                      startDate <= currentDate &&
+                      endDate > currentDate
+                    );
+                  })
+                  .map((voucher, index) => {
+                    const isUsed = userOrders.some(
+                      (order) =>
+                        order.voucher && order.voucher.id === voucher.id
+                    );
+                    return (
+                      <li
+                        key={index}
+                        className="p-2 border-b flex justify-between items-center"
+                      >
+                        <span>Giảm {formatCurrency(voucher.discount)}</span>
+                        <button
+                          className={classNames(
+                            "px-2 py-1 text-white rounded-md",
+                            {
+                              "bg-green-500":
+                                !isUsed && selectedVoucher?.id !== voucher.id,
+                              "bg-gray-500":
+                                isUsed || selectedVoucher?.id === voucher.id,
+                            }
+                          )}
+                          onClick={() => handleApplyVoucher(voucher)}
+                          disabled={
+                            isUsed || selectedVoucher?.id === voucher.id
+                          }
+                        >
+                          {isUsed
+                            ? "Đã dùng"
+                            : selectedVoucher?.id === voucher.id
+                            ? "Đã áp dụng"
+                            : "Sử dụng"}
+                        </button>
+                      </li>
+                    );
+                  })}
+              </ul>
+            ) : (
+              <p className="text-gray-500">
+                Bạn chưa có mã giảm giá nào hợp lệ.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Payment Methods Section */}
         <div className="mt-4">
