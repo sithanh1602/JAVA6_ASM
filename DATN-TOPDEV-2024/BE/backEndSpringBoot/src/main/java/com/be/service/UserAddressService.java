@@ -38,7 +38,7 @@ public class UserAddressService {
         }
 
         Address address = addressOptional.get();
-        UserInfoDTO userInfoDTO = new UserInfoDTO(user.getFullName(), address.getPhone(), address.getFullAddress(),address.getIdAddress(),user.getEmail());
+        UserInfoDTO userInfoDTO = new UserInfoDTO(user.getFullName(), address.getPhone(), address.getFullAddress(),address.getIdAddress(),user.getEmail(),address.getWard(),address.getDistrict(),address.getProvince());
 
         return Optional.of(userInfoDTO);
     }

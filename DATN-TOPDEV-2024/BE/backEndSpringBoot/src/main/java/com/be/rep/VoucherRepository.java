@@ -12,9 +12,6 @@ import java.util.Optional;
 @Repository
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
 
-    @Query("SELECT v FROM Voucher v WHERE v.user.userId = :userId")
-    List<Voucher> findByUserId(@Param("userId") Long userId);
-
     @Query("SELECT v FROM Voucher v WHERE v.code = :code")
     Optional<Voucher> findByCode(@Param("code") String code);
 

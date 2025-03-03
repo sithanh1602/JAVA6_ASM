@@ -14,18 +14,25 @@ const GroupOrder = () => {
   const navigate = useNavigate();
   const { cartItems = [] } = location.state || {};
 
-  const [userInfo, setUserInfo] = useState({
-    id: "",
-    fullName: "",
-    phone: "",
-    email: "",
-    fullAddress: "",
-  });
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [selectedLogo, setSelectedLogo] = useState("");
-  const [voucherDiscount, setVoucherDiscount] = useState(0);
-  const [voucherCode, setVoucherCode] = useState(null);
-  const [loading, setLoading] = useState(false);
+    const [userInfo, setUserInfo] = useState({
+        id: '',
+        fullName: '',
+        phone: '',
+        email: '',
+        fullAddress: '',
+        district: '',
+        ward: '',
+    });
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const [selectedLogo, setSelectedLogo] = useState('');
+    const [voucherDiscount, setVoucherDiscount] = useState(0);
+    const [voucherCode, setVoucherCode] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [voucherId, setVoucherid] = useState(null);
+    const [shippingFee, setShippingFee] = useState(0);
+
+    const TOKEN = '138133d6-a702-11ef-8d10-46c07cb69264';
+    const SHOP_ID = '5468597';
 
   const getUserIdFromToken = () => {
     const token = Cookies.get("token");
@@ -55,36 +62,133 @@ const GroupOrder = () => {
         return;
       }
 
-      try {
-        const userData = await UserAddressService.getDefaultUserInfo(userId);
-        if (userData) {
-          setUserInfo({
-            id: userId,
-            fullName: userData.fullName,
-            phone: userData.phone,
-            email: userData.email,
-            fullAddress: userData.fullAddress,
-          });
-        }
-      } catch (error) {
-        console.error("Lỗi khi lấy thông tin người dùng:", error);
-        Swal.fire({
-          title: "Lỗi",
-          text: "Không thể tải thông tin người dùng.",
-          icon: "error",
-        });
-      }
-    };
-    fetchUserInfo();
-  }, [navigate]);
+            try {
+                const userData = await UserAddressService.getDefaultUserInfo(userId);
+                if (userData) {
+                    setUserInfo({
+                        id: userId,
+                        fullName: userData.fullName,
+                        phone: userData.phone,
+                        email: userData.email,
+                        fullAddress: userData.fullAddress,
+                        district: userData.district,
+                        ward: userData.ward,
+                    });
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin người dùng:', error);
+                Swal.fire({
+                    title: 'Lỗi',
+                    text: 'Không thể tải thông tin người dùng.',
+                    icon: 'error',
+                });
+            }
+        };
+        fetchUserInfo();
+    }, [navigate]);
 
-  const calculateTotalPrice = () => {
-    const total = cartItems.reduce(
-      (sum, item) => sum + item.productPrice * item.quantity,
-      0
-    );
-    return Math.max(total - voucherDiscount, 0);
-  };
+    const calculateTotalPrice = () => {
+        const total = cartItems.reduce((sum, item) => sum + item.productPrice * item.quantity, 0);
+        return Math.max(total - voucherDiscount + shippingFee, 0);
+    };
+
+    const fetchShippingFee = async (address) => {
+        console.log("Address used for shipping fee:", address);
+
+        const districtData = await fetchDistrictData();
+        if (!districtData || !Array.isArray(districtData)) {
+            console.error("districtData không hợp lệ:", districtData);
+            Swal.fire('Lỗi', 'Không thể lấy danh sách quận/huyện.', 'error');
+            return;
+        }
+
+        const district = districtData.find(d => d.DistrictName === address.district);
+        const districtID = district ? district.DistrictID : "";
+        if (!districtID) {
+            console.error("Không tìm thấy DistrictID cho:", address.district);
+            Swal.fire('Lỗi', 'Không tìm thấy quận/huyện phù hợp.', 'error');
+            return;
+        }
+
+        const wardData = await fetchWardData(districtID);
+        if (!wardData || !Array.isArray(wardData)) {
+            console.error("wardData không hợp lệ:", wardData);
+            Swal.fire('Lỗi', 'Không thể lấy danh sách xã/phường.', 'error');
+            return;
+        }
+
+        const ward = wardData.find(w => w.WardName === address.ward);
+        const wardCode = ward ? ward.WardCode : "";
+        if (!wardCode) {
+            console.error("Không tìm thấy WardCode cho:", address.ward);
+            Swal.fire('Lỗi', 'Không tìm thấy xã/phường phù hợp.', 'error');
+            return;
+        }
+
+        const payload = {
+            shop_id: SHOP_ID,
+            to_district_id: districtID,
+            to_ward_code: wardCode,
+            weight: 1000,
+            service_type_id: 2,
+        };
+
+        try {
+            const response = await fetch('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Token': TOKEN,
+                    'ShopId': SHOP_ID
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            if (data.code === 200) {
+                setShippingFee(data.data.total);
+            } else {
+                console.error("Lỗi lấy phí vận chuyển:", data);
+                Swal.fire('Lỗi', 'Không thể lấy phí vận chuyển.', 'error');
+            }
+        } catch (error) {
+            console.error("Lỗi khi gọi API GHN:", error);
+        }
+    };
+
+    const fetchDistrictData = async () => {
+        try {
+            const response = await fetch('https://online-gateway.ghn.vn/shiip/public-api/master-data/district', {
+                headers: { 'Token': TOKEN }
+            });
+            const data = await response.json();
+            console.log("districtData response:", data);
+            return data.data || [];
+        } catch (error) {
+            console.error("Lỗi khi lấy districtData:", error);
+            return [];
+        }
+    };
+
+    const fetchWardData = async (districtID) => {
+        try {
+            const response = await fetch(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${districtID}`, {
+                headers: { 'Token': TOKEN }
+            });
+            const data = await response.json();
+            console.log("wardData response:", data);
+            return data.data || [];
+        } catch (error) {
+            console.error("Lỗi khi lấy wardData:", error);
+            return [];
+        }
+    };
+
+    useEffect(() => {
+        if (userInfo.fullAddress && userInfo.district && userInfo.ward) {
+            fetchShippingFee(userInfo);
+        }
+    }, [userInfo]);
 
   const handlePlaceOrder = async () => {
     if (!paymentMethod) {
@@ -116,25 +220,27 @@ const GroupOrder = () => {
 
     setLoading(true);
 
-    const orderData = {
-      userId: userInfo.id,
-      fullName: userInfo.fullName,
-      fullAddress: userInfo.fullAddress,
-      phone: userInfo.phone,
-      email: userInfo.email,
-      cartItems: cartItems.map((item) => ({
-        productVariantId: item.product_variant_id,
-        quantity: item.quantity,
-        productName: `${item.nameVariants} (${item.productName})`, // Kết hợp cả nameVariants và productName
-        productPrice: item.productPrice,
-        size: item.size,
-      })),
-      totalPrice: calculateTotalPrice(),
-      paymentMethod,
-      voucherDiscount,
-      voucherCode,
-      status: 0,
-    };
+        const orderData = {
+            userId: userInfo.id,
+            fullName: userInfo.fullName,
+            fullAddress: userInfo.fullAddress,
+            phone: userInfo.phone,
+            email: userInfo.email,
+            cartItems: cartItems.map((item) => ({
+                productVariantId: item.product_variant_id,
+                quantity: item.quantity,
+                productName: `${item.nameVariants} (${item.productName})`,
+                productPrice: item.productPrice,
+                size: item.size
+            })),
+            totalPrice: calculateTotalPrice(),
+            paymentMethod,
+            voucherDiscount,
+            voucherCode,
+            status: 0,
+            voucherId,
+            shippingFee,
+        };
 
     try {
       if (paymentMethod === "bank") {
@@ -203,27 +309,30 @@ const GroupOrder = () => {
     }
   };
 
-  return (
-    <div className="container mx-auto p-4">
-      <OrderBr />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <BillingInfo setUserInfo={setUserInfo} userInfo={userInfo} />
-        <OrderInfo
-          setPaymentMethod={setPaymentMethod}
-          setSelectedLogo={setSelectedLogo}
-          setVoucherDiscount={setVoucherDiscount}
-          setVoucherCode={setVoucherCode}
-        />
-      </div>
-      <button
-        onClick={handlePlaceOrder}
-        className="mt-4 w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-        disabled={loading}
-      >
-        {loading ? "Đang xử lý..." : "ĐẶT HÀNG"}
-      </button>
-    </div>
-  );
+    return (
+        <div className="container mx-auto p-4">
+            <OrderBr />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <BillingInfo setUserInfo={setUserInfo} userInfo={userInfo}setShippingFee={setShippingFee}fetchShippingFee={fetchShippingFee} />
+                <OrderInfo
+                    setPaymentMethod={setPaymentMethod}
+                    setVoucherDiscount={setVoucherDiscount}
+                    setVoucherCode={setVoucherCode}
+                    setVoucherid={setVoucherid}
+                    shippingFee={shippingFee} // Truyền shippingFee vào OrderInfo
+                    setSelectedLogo={setSelectedLogo}
+                />
+            </div>
+
+            <button
+                onClick={handlePlaceOrder}
+                className="mt-4 w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled={loading}
+            >
+                {loading ? 'Đang xử lý...' : 'ĐẶT HÀNG'}
+            </button>
+        </div>
+    );
 };
 
 export default GroupOrder;

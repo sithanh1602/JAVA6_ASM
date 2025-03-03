@@ -6,6 +6,7 @@ import com.be.entity.*;
 import com.be.rep.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,6 +37,30 @@ public class OrderService {
     private ProductVariantRepository productVariantRepository;
     @Autowired
     private VoucherRepository voucherRepository;
+
+    // Scheduler chạy mỗi giờ để kiểm tra và xóa đơn hàng trạng thái 2
+    @Scheduled(fixedRate = 60 * 60 * 1000) // Chạy mỗi giờ (60 phút * 60 giây * 1000 ms)
+    @Transactional
+    public void cleanupUnpaidOrders() {
+        // Lấy danh sách đơn hàng ở trạng thái 2 (Chưa thanh toán)
+        List<Orders> unpaidOrders = ordersRepository.findByStatus(2);
+
+        Date currentDate = new Date();
+        for (Orders order : unpaidOrders) {
+            long diffInMillies = currentDate.getTime() - order.getOrderDate().getTime();
+            long diffInDays = diffInMillies / (1000 * 60 * 60 * 24); // Chuyển đổi sang ngày
+
+            // Nếu đơn hàng đã quá 1 ngày
+            if (diffInDays >= 1) {
+                // Xóa các mục trong OrderDetail trước
+                List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getId());
+                orderDetailRepository.deleteAll(orderDetails);
+
+                // Xóa đơn hàng
+                ordersRepository.delete(order);
+            }
+        }
+    }
 
     public List<Map<String, Object>> getAllOrdersWithDetails() throws Exception {
         List<Orders> orders = ordersRepository.findAll();
@@ -188,17 +213,21 @@ public class OrderService {
         order.setOrderNum(orderNum);
         order.setUser(user);
         order.setTotalPrice(orderRequest.getTotalPrice());
-        order.setStatus(1);  // Đơn hàng mới
+        order.setStatus(2);  // Đơn hàng mới
         order.setFullAddress(orderRequest.getFullAddress());
         order.setPaymentStatus(true); // Trạng thái thanh toán là thành công
         order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
+        order.setShipping_fee(orderRequest.getShippingFee());
 
         // Kiểm tra xem có sử dụng voucher không
         if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {
             // Tìm voucher theo mã
             Voucher voucher = voucherRepository.findByCode(orderRequest.getvoucherCode())
                     .orElseThrow(() -> new IllegalArgumentException("Voucher not found with code: " + orderRequest.getvoucherCode()));
+
+            // Gán voucher cho order
+            order.setVoucher(voucher);
 
             // Kiểm tra số lượng voucher còn lại
             if (voucher.getQuantity() <= 0) {
@@ -305,6 +334,7 @@ public class OrderService {
         order.setPaymentStatus(false); // Trạng thái thanh toán là thành công
         order.setOrderDate(new Date()); // Ngày tạo đơn hàng
         order.setPhone(orderRequest.getPhone());
+        order.setShipping_fee(orderRequest.getShippingFee());
 
         // Kiểm tra xem có sử dụng voucher không
         if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {

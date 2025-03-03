@@ -8,4 +8,5 @@ import java.util.List;
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
     // Tạo phương thức truy vấn đơn hàng theo orderId
     List<OrderDetail> findByOrderId(Long orderId);
+
 }

@@ -25,7 +25,4 @@ public class Voucher {
 
     private String status;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private User user;
 }

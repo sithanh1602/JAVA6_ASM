@@ -124,4 +124,6 @@ public class OrderRequest {
     public void setVoucherCode(String voucherCode) {
         this.voucherCode = voucherCode;
     }
+
+
 }

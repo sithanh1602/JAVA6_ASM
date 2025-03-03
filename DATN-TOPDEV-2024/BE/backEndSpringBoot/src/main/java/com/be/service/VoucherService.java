@@ -13,7 +13,7 @@ public class VoucherService {
     @Autowired
     private VoucherRepository voucherRepository;
 
-    public List<Voucher> getVouchersByUserId(Long userId) {
-        return voucherRepository.findByUserId(userId);
+    public List<Voucher> getAllVouchers() {
+        return voucherRepository.findAll();
     }
 }

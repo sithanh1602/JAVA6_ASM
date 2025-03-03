@@ -17,6 +17,15 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Address> getAddressByIdAddress(@PathVariable Long id) {
+        Address address = addressService.findByIdAddress(id);
+        if (address != null) {
+            return ResponseEntity.ok(address);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     // API lấy danh sách địa chỉ của người dùng
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getAddressesByUserId(@PathVariable Long userId) {

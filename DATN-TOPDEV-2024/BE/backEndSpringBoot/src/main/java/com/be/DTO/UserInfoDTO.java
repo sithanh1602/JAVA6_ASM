@@ -9,37 +9,22 @@ public class UserInfoDTO {
     private String fullAddress;
     private Long idaddress;
     private String email;
+    private String ward;
+    private String district;
+    private String province;
 
-    public UserInfoDTO(String fullName, String phone, String fullAddress, Long idaddress, String email) {
+    public UserInfoDTO(String fullName, String phone, String fullAddress, Long idAddress,
+                       String email, String ward, String district, String province) {
         this.fullName = fullName;
         this.phone = phone;
         this.fullAddress = fullAddress;
-        this.idaddress = idaddress;
+        this.idaddress = idAddress;
         this.email = email;
+        this.ward = ward;
+        this.district = district;
+        this.province = province;
     }
 
-//    // Getters và Setters
-//    public String getFullName() {return fullName;}
-//    public void setFullName(String fullName) {
-//        this.fullName = fullName;
-//    }
-//
-//    public String getPhone() {
-//        return phone;
-//    }
-//
-//    public void setPhone(String phone) {
-//        this.phone = phone;
-//    }
-//
-//    public String getFullAddress() {
-//        return fullAddress;
-//    }
-//
-//    public void setFullAddress(String fullAddress) {
-//        this.fullAddress = fullAddress;
-//    }
-//
-//    public Long getIdaddress() {return idaddress;}
+
 }
 
