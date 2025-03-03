@@ -11,9 +11,12 @@ import {
 } from "@nextui-org/react";
 import ComponentSelectionModal from "./ComponentSelectionModal";
 import CategoryService from "../../services/CategoryService";
-import { FaTrash } from "react-icons/fa"; // Import trash icon from react-icons
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import Swal from "sweetalert2"; // Import Swal for alerts (like in CartPage)
+import { FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import axios from "axios";
+
+const BASE_URL = "http://localhost:8080/api/products";
 
 const PCBuilderComponent = () => {
   const [categories, setCategories] = useState([]);
@@ -28,8 +31,31 @@ const PCBuilderComponent = () => {
     return savedQuantities ? JSON.parse(savedQuantities) : {};
   });
   const [totalPrice, setTotalPrice] = useState(0);
+  const [stockQuantities, setStockQuantities] = useState({});
 
-  const navigate = useNavigate(); // Initialize useNavigate for navigation
+  const navigate = useNavigate();
+
+  // Hàm kiểm tra số lượng hiện tại từ API
+  const checkVariantQuantity = async (variantId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/check-quantity/${variantId}`);
+      return response.data; // Giả định response.data là số lượng hiện tại trong db
+    } catch (error) {
+      console.error(`Error checking quantity for variant ID ${variantId}:`, error);
+      throw error;
+    }
+  };
+
+  // Lấy số lượng trong kho từ API
+  const fetchStockQuantity = async (variantId) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/variants/${variantId}`);
+      return response.data.quantity; // Giả định response.data.quantity là số lượng trong kho
+    } catch (error) {
+      console.error(`Error fetching stock for variant ID ${variantId}:`, error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -47,20 +73,27 @@ const PCBuilderComponent = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      "selectedComponents",
-      JSON.stringify(selectedComponents)
-    );
+    localStorage.setItem("selectedComponents", JSON.stringify(selectedComponents));
     localStorage.setItem("componentQuantities", JSON.stringify(quantities));
 
     let total = 0;
-    Object.entries(selectedComponents).forEach(([categoryId, component]) => {
-      if (component && component.price) {
-        const qty = quantities[categoryId] || 1;
-        total += component.price * qty;
+    const fetchAllStockQuantities = async () => {
+      const newStockQuantities = {};
+      for (const [categoryId, component] of Object.entries(selectedComponents)) {
+        const stockQty = await fetchStockQuantity(component.id);
+        newStockQuantities[categoryId] = stockQty !== null ? stockQty : component.quantity || 0;
+        console.log(
+          `${component.nameVariants}: Trong db = ${newStockQuantities[categoryId]}, Hiện tại = ${quantities[categoryId] || 1}`
+        );
+        if (component && component.price) {
+          total += component.price * (quantities[categoryId] || 1);
+        }
       }
-    });
-    setTotalPrice(total);
+      setStockQuantities(newStockQuantities);
+      setTotalPrice(total);
+    };
+
+    fetchAllStockQuantities();
   }, [selectedComponents, quantities]);
 
   const openModal = (categoryId) => {
@@ -79,18 +112,48 @@ const PCBuilderComponent = () => {
     }));
     setQuantities((prev) => ({
       ...prev,
-      [selectedCategory]: prev[selectedCategory] || 1,
+      [selectedCategory]: 1,
     }));
     closeModal();
   };
 
+  // Xử lý thay đổi số lượng với thông báo khi vượt quá
   const handleQuantityChange = (categoryId, change) => {
     setQuantities((prev) => {
       const currentQty = prev[categoryId] || 1;
-      const newQty = Math.max(1, currentQty + change); // Ensure minimum quantity is 1
+      const newQty = currentQty + change;
+      const stockQty = stockQuantities[categoryId];
+
+      if (stockQty === undefined || stockQty === null) {
+        console.warn(`Stock data for ${categoryId} is not loaded yet.`);
+        return prev;
+      }
+
+      // Kiểm tra khi cộng vượt quá số lượng trong kho
+      if (change > 0 && newQty > stockQty) {
+        Swal.fire({
+          icon: "warning",
+          title: "Số lượng vượt quá giới hạn!",
+          text: `Chỉ còn ${stockQty} sản phẩm trong kho.`,
+          confirmButtonText: "Đóng",
+        });
+        return prev; // Không thay đổi số lượng nếu vượt quá
+      }
+
+      // Kiểm tra số lượng tối thiểu
+      if (newQty < 1) {
+        Swal.fire({
+          icon: "warning",
+          title: "Số lượng không hợp lệ!",
+          text: "Số lượng tối thiểu là 1.",
+          confirmButtonText: "Đóng",
+        });
+        return prev;
+      }
+
       return {
         ...prev,
-        [categoryId]: newQty,
+        [categoryId]: newQty, // Cập nhật số lượng nếu hợp lệ
       };
     });
   };
@@ -112,7 +175,7 @@ const PCBuilderComponent = () => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
-  const handleProceedToCheckout = () => {
+  const handleProceedToCheckout = async () => {
     if (Object.keys(selectedComponents).length === 0) {
       Swal.fire({
         icon: "warning",
@@ -123,29 +186,69 @@ const PCBuilderComponent = () => {
       return;
     }
 
-    // Prepare cart items from selectedComponents and quantities
-    const buildCartItems = Object.entries(selectedComponents).map(
-      ([categoryId, component]) => {
-        console.log("Component being processed:", component); // Debug log to check component structure
-        return {
-          product_variant_id: component.id, // Assuming component.id is the product_variant_id
+    try {
+      const quantityChecks = await Promise.all(
+        Object.entries(selectedComponents).map(async ([categoryId, component]) => {
+          const currentQty = quantities[categoryId] || 1;
+          const latestQty = await checkVariantQuantity(component.id);
+          return { categoryId, component, currentQty, latestQty };
+        })
+      );
+
+      const invalidItems = quantityChecks.filter(
+        (item) => item.currentQty > item.latestQty
+      );
+
+      if (invalidItems.length > 0) {
+        const errorMessage = invalidItems
+          .map(
+            (item) =>
+              `${item.component.nameVariants}: Yêu cầu (${item.currentQty}) vượt quá kho (${item.latestQty})`
+          )
+          .join("\n");
+
+        Swal.fire({
+          icon: "error",
+          title: "Số lượng không hợp lệ",
+          text: errorMessage,
+          confirmButtonText: "OK",
+        });
+
+        setQuantities((prev) => {
+          const updatedQuantities = { ...prev };
+          invalidItems.forEach((item) => {
+            updatedQuantities[item.categoryId] = item.latestQty;
+          });
+          return updatedQuantities;
+        });
+        return;
+      }
+
+      const buildCartItems = Object.entries(selectedComponents).map(
+        ([categoryId, component]) => ({
+          product_variant_id: component.id,
           productPrice: component.price,
           quantity: quantities[categoryId] || 1,
-          nameVariants: component.nameVariants || "Không có tên", // Fallback if nameVariants is missing
-          image: component.image, // Include image for reference
-        };
-      }
-    );
+          nameVariants: component.nameVariants || "Không có tên",
+          image: component.image,
+        })
+      );
 
-    console.log("Build Cart Items:", buildCartItems); // Debug log to check final cart items
-
-    // Navigate to the checkout page with the build configuration
-    navigate("/orders", { state: { cartItems: buildCartItems } });
+      navigate("/orders", { state: { cartItems: buildCartItems } });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi khi kiểm tra số lượng",
+        text: "Không thể kiểm tra số lượng sản phẩm. Vui lòng thử lại sau.",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   const getComponentDetails = (component, categoryId) => {
     if (!component) return "Vui lòng chọn linh kiện";
     const qty = quantities[categoryId] || 1;
+    const stockQty = stockQuantities[categoryId] !== undefined ? stockQuantities[categoryId] : component.quantity || 0;
 
     return (
       <Card className="rounded-none shadow-none border p-3 w-full md:w-3/4 lg:w-4/5">
@@ -163,7 +266,7 @@ const PCBuilderComponent = () => {
               Tình trạng: {component.status || "Available"}
             </p>
             <p className="text-xs text-gray-500">
-              Số Lượng: {component.quantity || "Không có thông tin"}
+              Số Lượng Trong Kho: {stockQty}
             </p>
           </div>
           <div className="text-right min-w-32 flex items-center gap-2">
@@ -196,6 +299,7 @@ const PCBuilderComponent = () => {
                 size="sm"
                 onClick={() => handleQuantityChange(categoryId, 1)}
                 className="rounded-none p-1"
+                // Không cần disabled để thông báo luôn xuất hiện khi vượt quá
               >
                 +
               </Button>
@@ -213,25 +317,13 @@ const PCBuilderComponent = () => {
       </h1>
 
       <div className="flex flex-wrap gap-2 mb-6 items-center">
-        <Button
-          color="primary"
-          variant="solid"
-          className="font-medium rounded-none"
-        >
+        <Button color="primary" variant="solid" className="font-medium rounded-none">
           Cấu hình 1
         </Button>
-        <Button
-          color="default"
-          variant="flat"
-          className="font-medium rounded-none"
-        >
+        <Button color="default" variant="flat" className="font-medium rounded-none">
           Cấu hình 2
         </Button>
-        <Button
-          color="default"
-          variant="flat"
-          className="font-medium rounded-none"
-        >
+        <Button color="default" variant="flat" className="font-medium rounded-none">
           Cấu hình 3
         </Button>
 
@@ -295,10 +387,7 @@ const PCBuilderComponent = () => {
                 {category.name}
               </div>
               <div className="w-full md:w-3/4 text-gray-500 mb-2 md:mb-0">
-                {getComponentDetails(
-                  selectedComponents[category.id],
-                  category.id
-                )}
+                {getComponentDetails(selectedComponents[category.id], category.id)}
               </div>
               <div className="w-full md:w-1/6 flex justify-end">
                 <Button

@@ -296,8 +296,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
     }
   };
 
-
-
   const submitButtonText =
     editingVariant && editingVariant.idVariants
       ? "Cập nhật biến thể"
