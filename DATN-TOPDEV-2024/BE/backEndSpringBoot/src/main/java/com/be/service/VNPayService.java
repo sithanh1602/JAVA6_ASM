@@ -16,9 +16,7 @@ import java.util.*;
 public class VNPayService {
 
     public String createOrder(int total, String orderInfor, String urlReturn, String orderId) {
-        // Bỏ qua orderId được truyền vào, tự sinh orderId ngẫu nhiên
-        String vnp_TxnRef = generateUniqueOrderId(); // Tạo orderId ngẫu nhiên
-
+        String vnp_TxnRef = orderId; // Tạo orderId ngẫu nhiên
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String vnp_IpAddr = "127.0.0.1";
@@ -84,13 +82,6 @@ public class VNPayService {
         return paymentUrl;
     }
 
-    // Hàm sinh orderId ngẫu nhiên
-    private String generateUniqueOrderId() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS"); // Timestamp đến millisecond
-        String timestamp = sdf.format(new Date());
-        String randomNum = String.format("%04d", new Random().nextInt(10000)); // Số ngẫu nhiên 4 chữ số
-        return "ORD" + timestamp + randomNum; // Ví dụ: ORD202310251423450123
-    }
 
     public int orderReturn(HttpServletRequest request) {
         Map fields = new HashMap();
