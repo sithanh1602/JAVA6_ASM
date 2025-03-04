@@ -31,13 +31,40 @@ const OrderList = () => {
     const [orderProducts, setOrderProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Hàm lấy danh sách đơn hàng
+    // Hàm kiểm tra và cập nhật trạng thái đơn hàng từ 7 sang 8 nếu quá 7 ngày
+    const checkAndUpdateOrderStatus = async (order) => {
+        if (order.status === 7) {
+            const orderDate = new Date(order.orderDate).getTime();
+            const currentTime = new Date().getTime();
+            const diffInMs = currentTime - orderDate;
+            const oneWeekInMs = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng milliseconds
+
+            if (diffInMs > oneWeekInMs) {
+                try {
+                    await OrderService.updateOrderStatus(order.id, 8);
+                    console.log(`Đơn hàng ${order.orderNum} đã tự động chuyển sang trạng thái Hoàn thành`);
+                } catch (err) {
+                    console.error(`Lỗi khi tự động cập nhật trạng thái đơn hàng ${order.orderNum}:`, err);
+                }
+            }
+        }
+    };
+
+    // Hàm lấy danh sách đơn hàng và kiểm tra trạng thái
     const fetchOrders = async () => {
         try {
             const userId = localStorage.getItem("UserId");
             if (!userId) throw new Error("Không tìm thấy UserId trong localStorage");
             const ordersData = await OrderService.getOrdersByUserId(userId);
-            setOrders(ordersData);
+
+            // Kiểm tra từng đơn hàng và cập nhật trạng thái nếu cần
+            for (const order of ordersData) {
+                await checkAndUpdateOrderStatus(order);
+            }
+
+            // Lấy lại danh sách đơn hàng sau khi cập nhật
+            const updatedOrdersData = await OrderService.getOrdersByUserId(userId);
+            setOrders(updatedOrdersData);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -55,8 +82,7 @@ const OrderList = () => {
             const result = await response.json();
             if (response.ok) {
                 console.log(result.message);
-                // Sau khi xóa thành công, cập nhật lại danh sách đơn hàng
-                await fetchOrders();
+                await fetchOrders(); // Gọi lại fetchOrders để kiểm tra và cập nhật trạng thái
             } else {
                 console.error('Lỗi khi xóa đơn hàng:', result.error);
             }
@@ -66,23 +92,17 @@ const OrderList = () => {
     };
 
     useEffect(() => {
-        // Gọi cleanupUnpaidOrders ngay lập tức khi vào trang
         cleanupUnpaidOrders();
-
-        // Gọi fetchOrders lần đầu sau khi cleanup
         fetchOrders();
-
-        // Thiết lập interval để tự động gọi cleanupUnpaidOrders mỗi 5 phút
         const cleanupInterval = setInterval(() => {
             cleanupUnpaidOrders();
         }, 5 * 60 * 1000); // 5 phút
-
-        // Dọn dẹp interval khi component unmount
         return () => clearInterval(cleanupInterval);
     }, []);
 
     const openModal = async (order) => {
         setSelectedOrder(order);
+        console.log(order);
         setIsModalOpen(true);
         try {
             const products = await OrderService.getProductsByOrderId(order.id);
@@ -170,6 +190,32 @@ const OrderList = () => {
         }
     };
 
+    const handleConfirmReceived = async (orderId) => {
+        const result = await Swal.fire({
+            title: 'Bạn có chắc chắn đã nhận hàng?',
+            text: "Hành động này sẽ xác nhận đơn hàng hoàn thành!",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await OrderService.updateOrderStatus(orderId, 8);
+                const userId = localStorage.getItem("UserId");
+                const ordersData = await OrderService.getOrdersByUserId(userId);
+                setOrders(ordersData);
+                Swal.fire('Thành công!', 'Đơn hàng đã được xác nhận hoàn thành.', 'success');
+            } catch (err) {
+                console.error("Lỗi cập nhật trạng thái đơn hàng:", err);
+                Swal.fire('Lỗi!', 'Đã xảy ra lỗi khi xác nhận đơn hàng. Vui lòng thử lại.', 'error');
+            }
+        }
+    };
+
     const getTimeRemaining = (orderDate) => {
         const orderTime = new Date(orderDate).getTime();
         const currentTime = new Date().getTime();
@@ -180,7 +226,7 @@ const OrderList = () => {
         if (remainingMs <= 0) return "Đã hết hạn";
         const hours = Math.floor(remainingMs / (1000 * 60 * 60));
         const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-        return `${hours} giờ ${minutes} phút hết hạng thanh toán`;
+        return `${hours} giờ ${minutes} phút hết hạn thanh toán`;
     };
 
     const orderColumns = [
@@ -257,6 +303,14 @@ const OrderList = () => {
                             Hủy đơn hàng
                         </Button>
                     )}
+                    {row.status === 7 && (
+                        <Button
+                            onClick={() => handleConfirmReceived(row.id)}
+                            className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-1 px-2 text-xs"
+                        >
+                            Đã nhận hàng
+                        </Button>
+                    )}
                 </div>
             ),
         }
@@ -272,10 +326,14 @@ const OrderList = () => {
     const OrderProcessTimeline = ({ currentStatus }) => {
         const statuses = [
             { id: 1, icon: faClipboardCheck, text: 'Đã đặt hàng' },
+            { id: 2, icon: faExclamationCircle, text: 'Chưa thanh toán' },
+            { id: 3, icon: faDollarSign, text: 'Đã thanh toán' },
             { id: 4, icon: faCheckCircle, text: 'Đã xác nhận' },
-            { id: 5, icon: faTruck, text: 'Đang vận chuyển' },
+            { id: 5, icon: faTruck, text: 'Đang giao hàng' },
             { id: 6, icon: faBoxOpen, text: 'Đã giao hàng' },
-            { id: 7, icon: faHandshake, text: 'Đã nhận hàng' }
+            { id: 7, icon: faHandshake, text: 'Đã nhận hàng' },
+            { id: 8, icon: faCheckDouble, text: 'Hoàn thành' },
+            { id: 9, icon: faTimesCircle, text: 'Đã hủy' }
         ];
 
         return (
@@ -285,7 +343,9 @@ const OrderList = () => {
                         <div
                             className="h-full bg-blue-500 transition-all duration-500"
                             style={{
-                                width: `${(Math.max(0, statuses.findIndex(s => s.id === currentStatus)) / (statuses.length - 1)) * 100}%`
+                                width: `${
+                                    (Math.max(0, statuses.findIndex(s => s.id === currentStatus)) / (statuses.length - 1)) * 100
+                                }%`
                             }}
                         />
                     </div>
@@ -335,7 +395,7 @@ const OrderList = () => {
                                     <div>
                                         <p className="mb-2"><strong>Mã Đơn Hàng:</strong> {selectedOrder.orderNum}</p>
                                         <p className="mb-2">
-                                            <strong className="pr-2">Trạng Thái:</strong>
+                                            <strong className="pr-2">Trạng Thái đơn hàng:</strong>
                                             <span className={`ml-2 ${getStatusInfo(selectedOrder.status).color}`}>
                                                 {getStatusInfo(selectedOrder.status).text}
                                             </span>
@@ -347,9 +407,21 @@ const OrderList = () => {
                                             </span>
                                         </p>
                                         <p className="mb-2">
+                                            <strong className="pr-2">Phí vận chuyển:</strong>
+                                            <span className="ml-2 text-orange-500 font-medium">
+                                                {selectedOrder.shipping_fee ? selectedOrder.shipping_fee.toLocaleString() : '0'} VNĐ
+                                            </span>
+                                        </p>
+                                        <p className="mb-2">
+                                            <strong className="pr-2">Giảm giá:</strong>
+                                            <span className="ml-2 text-green-500 font-medium">
+                                                {selectedOrder.discountPrice ? selectedOrder.discountPrice.toLocaleString() : '0'} VNĐ
+                                            </span>
+                                        </p>
+                                        <p className="mb-2">
                                             <strong className="pr-2">Trạng thái thanh toán:</strong>
                                             <span className={`ml-2 ${selectedOrder.paymentStatus ? 'text-green-500' : 'text-red-500'}`}>
-                                                {selectedOrder.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                                {selectedOrder.paymentStatus ? 'Thanh toán online' : 'Thanh toán khi nhận hàng'}
                                             </span>
                                         </p>
                                     </div>
