@@ -3,6 +3,9 @@ import { getAddressesForUser, deleteAddress } from "../../services/AddressServic
 import { Link, useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2"; // Thêm import Swal
 
 const AddressList = () => {
     const [addresses, setAddresses] = useState([]);
@@ -10,11 +13,25 @@ const AddressList = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const userId = localStorage.getItem("UserId");
+    const getUserIdFromToken = () => {
+        const token = Cookies.get("token");
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                return decodedToken.userId;
+            } catch (err) {
+                console.error("Token không hợp lệ:", err);
+                return null;
+            }
+        }
+        return null;
+    };
+
+    const userId = getUserIdFromToken();
 
     useEffect(() => {
         if (!userId) {
-            setError("Không có userId trong localStorage.");
+            setError("Không thể xác định userId từ token.");
             setLoading(false);
             return;
         }
@@ -38,28 +55,57 @@ const AddressList = () => {
     }, [userId]);
 
     const handleDeleteAddressClick = async (idAddress) => {
-        // Hiển thị hộp thoại xác nhận
-        const isConfirmed = window.confirm("Bạn có chắc chắn muốn xóa địa chỉ này?");
-        if (!isConfirmed) {
-            return; // Nếu người dùng không xác nhận, dừng lại
+        // Sử dụng Swal để hiển thị hộp thoại xác nhận
+        const result = await Swal.fire({
+            title: "Xác nhận",
+            text: "Bạn có chắc chắn muốn xóa địa chỉ này không?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Có",
+            cancelButtonText: "Không",
+            buttonsStyling: true,
+            customClass: {
+                confirmButton: "bg-red-500 text-white px-4 py-2 rounded",
+                cancelButton: "bg-gray-500 text-white px-4 py-2 rounded mr-2",
+            },
+        });
+
+        if (!result.isConfirmed) {
+            console.log("Người dùng đã hủy xóa địa chỉ.");
+            return;
         }
 
         try {
-            // Tiến hành xóa nếu đã xác nhận
             await deleteAddress(idAddress);
             setAddresses((prevAddresses) =>
                 prevAddresses.filter((address) => address.idAddress !== idAddress)
             );
-            alert("Xóa địa chỉ thành công!");
+            Swal.fire({
+                title: "Thành công",
+                text: "Xóa địa chỉ thành công!",
+                icon: "success",
+                confirmButtonText: "OK",
+                customClass: {
+                    confirmButton: "bg-blue-500 text-white px-4 py-2 rounded",
+                },
+            });
         } catch (error) {
             console.error("Không thể xóa địa chỉ:", error);
-            alert("Có lỗi xảy ra khi xóa địa chỉ.");
+            Swal.fire({
+                title: "Lỗi",
+                text: "Có lỗi xảy ra khi xóa địa chỉ.",
+                icon: "error",
+                confirmButtonText: "OK",
+                customClass: {
+                    confirmButton: "bg-red-500 text-white px-4 py-2 rounded",
+                },
+            });
         }
     };
 
     const columns = [
         {
-            name: "#",
+            name: "",
             cell: (row, index) => index + 1,
             width: "50px",
         },
@@ -98,22 +144,21 @@ const AddressList = () => {
         },
     ];
 
-    // Custom styles for the table
     const customStyles = {
         rows: {
             style: {
-                fontSize: "16px", // Tăng kích thước font cho hàng
+                fontSize: "16px",
             },
         },
         headCells: {
             style: {
-                fontSize: "18px", // Tăng kích thước font cho header
-                fontWeight: "bold", // Làm đậm chữ trong header
+                fontSize: "18px",
+                fontWeight: "bold",
             },
         },
         cells: {
             style: {
-                fontSize: "16px", // Tăng kích thước font cho các ô
+                fontSize: "16px",
             },
         },
     };
@@ -139,10 +184,7 @@ const AddressList = () => {
             <DataTable
                 columns={columns}
                 data={addresses}
-                customStyles={customStyles} // Áp dụng custom styles
-                pagination
-                highlightOnHover
-                striped
+                customStyles={customStyles}
             />
         </div>
     );
