@@ -62,6 +62,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public List<Map<String, Object>> getAllOrdersWithDetails() throws Exception {
         List<Orders> orders = ordersRepository.findAll();
         List<Map<String, Object>> response = new ArrayList<>();
@@ -175,6 +176,7 @@ public class OrderService {
             productInfo.put("imageUrl", imageUrl); // Gán ảnh đầu tiên của ProductVariant
             productInfo.put("quantity", orderDetail.getQuantity());
             productInfo.put("price", productVariant.getPrice());
+            productInfo.put("OrderDetailId",orderDetail.getId());
 
             productsWithQuantity.add(productInfo);
         }

@@ -106,6 +106,7 @@ const OrderList = () => {
         setIsModalOpen(true);
         try {
             const products = await OrderService.getProductsByOrderId(order.id);
+            console.log("aaaaa",products)
             setOrderProducts(products);
         } catch (err) {
             console.error("Lỗi lấy danh sách sản phẩm:", err);
