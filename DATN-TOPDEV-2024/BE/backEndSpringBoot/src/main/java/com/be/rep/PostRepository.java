@@ -12,5 +12,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Query("SELECT p FROM Post p WHERE p.status = true ORDER BY p.createAt DESC")
     List<Post> findPublishedPosts();
+
+
 }
 

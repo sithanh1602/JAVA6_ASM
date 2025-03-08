@@ -1,11 +1,14 @@
 package com.be.service;
 
 import com.be.entity.Post;
+import com.be.entity.User;
 import com.be.rep.PostRepository;
+import com.be.rep.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +17,7 @@ public class PostService {
 
     @Autowired
     private PostRepository postRepository;
+
 
     // Lấy tất cả bài viết
     public List<Post> getAllPosts() {

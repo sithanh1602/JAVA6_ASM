@@ -4,6 +4,7 @@ import VerticalMenu from './VerticalMenu';
 import { motion } from 'framer-motion';
 import Users from "../../pages/admin/Users";
 import Products from "../../pages/admin/Products";
+import Posts from "../../pages/admin/Posts";
 import Categorys from "../../pages/admin/Categorys";
 import TemplateList from "../excel/TemplateList";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
@@ -72,6 +73,7 @@ const AdminLayout = () => {
                         <Route path="/category" element={<Categorys />} />
                         <Route path="/brand" element={<BrandTableWithBoundary />} />
                         <Route path="/product" element={<Products />} />
+                        <Route path="/post" element={<Posts />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/tk" element={<MonthlyProductionChart />} />
                         <Route path="/tplXlsx" element={<TemplateList />} />
