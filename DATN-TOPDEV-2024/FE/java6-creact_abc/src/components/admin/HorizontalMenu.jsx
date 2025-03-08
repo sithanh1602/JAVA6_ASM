@@ -56,6 +56,10 @@ const HorizontalMenu = ({ toggleMenu }) => {
                     <Link to="/admin/product">Product</Link>
                 </motion.li>
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">
+                    <Link to="/admin/post">Posts</Link>
+                </motion.li>
+
+                <motion.li className="hover:text-gray-500 cursor-pointer transition">
                     <Link to="/admin/category">Category</Link>
                 </motion.li>
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">Orders</motion.li>

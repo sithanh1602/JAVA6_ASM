@@ -192,7 +192,7 @@ const HeaderDownNavbar = () => {
                 <NavbarItem><Link to="/">Trang chủ</Link></NavbarItem>
                 <NavbarItem><Link to="/aboutUs">Giới thiệu</Link></NavbarItem>
                 <NavbarItem><Link to="/products">Sản phẩm</Link></NavbarItem>
-                <NavbarItem><Link to="/news">Tin tức</Link></NavbarItem>
+                <NavbarItem><Link to="/posts">Tin tức</Link></NavbarItem>
                 <NavbarItem><Link to="/contact">Liên hệ</Link></NavbarItem>
             </NavbarContent>
 
