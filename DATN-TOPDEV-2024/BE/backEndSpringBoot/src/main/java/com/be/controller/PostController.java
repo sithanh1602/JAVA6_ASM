@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +27,7 @@ public class PostController {
     @GetMapping
     public ResponseEntity<List<Post>> getAllPosts() {
         List<Post> posts = postService.getAllPosts();
+        System.out.println(posts);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
@@ -39,7 +41,7 @@ public class PostController {
 
     // Tạo bài viết mới
     @PostMapping
-    public ResponseEntity<Post> createPost(@Valid @RequestBody Post post) {
+    public ResponseEntity<Post> createPost(@RequestBody Post post) {
         Post createdPost = postService.createPost(post);
         return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
     }

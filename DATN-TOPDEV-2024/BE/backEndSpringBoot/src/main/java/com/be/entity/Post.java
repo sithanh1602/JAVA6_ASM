@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-@Entity
 @Data
+@Entity
 @Table(name = "Posts")
 public class Post {
     @Id
@@ -27,15 +27,19 @@ public class Post {
     private Boolean status = true; // Mặc định là bài viết đã được đăng
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "create_at", updatable = false)
-    private Date createAt;
+    @Column(name = "create_at", nullable = false)
+    private LocalDateTime createAt;
 
     @Column(name = "image", columnDefinition = "NVARCHAR(255)")
     private String image;
 
-    // Set thời gian mặc định khi tạo bài viết
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @PrePersist
     protected void onCreate() {
-        this.createAt = new Date();
+        this.createAt = LocalDateTime.now();
     }
+
 }
