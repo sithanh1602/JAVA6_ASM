@@ -15,15 +15,21 @@ import ProductVariantService from "../../../../services/ProductVariantService";
 import ProductVariantsTable from "./ProductVariantsTable";
 import { storage } from "../../../../firebase.config";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";  // ✅ Đúng
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic"; // ✅ Đúng
 const schema = yup.object().shape({
-  quantity: yup.number().required("Số lượng là bắt buộc").min(1, "Số lượng phải lớn hơn 0"),
-  price: yup.number().required("Giá là bắt buộc").min(0, "Giá phải lớn hơn hoặc bằng 0"),
+  quantity: yup
+    .number()
+    .required("Số lượng là bắt buộc")
+    .min(1, "Số lượng phải lớn hơn 0"),
+  price: yup
+    .number()
+    .required("Giá là bắt buộc")
+    .min(0, "Giá phải lớn hơn hoặc bằng 0"),
   status: yup.string().required("Trạng thái là bắt buộc"),
   images: yup.array().min(1, "Phải thêm ít nhất một hình ảnh"),
   attributes: yup.array().min(1, "Phải thêm ít nhất một thuộc tính"),
@@ -37,17 +43,22 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
     status: variant?.status || "Available",
     price: variant?.price || 0,
     attributes: variant?.attributes || [],
-    description: variant?.description || '',
+    description: variant?.description || "",
   });
 
   const [availableAttributes, setAvailableAttributes] = useState([]);
   const [attributeValues, setAttributeValues] = useState({});
   const [selectedIds, setSelectedIds] = useState([]);
 
-  const { control, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(schema),
     defaultValues: formData,
-
   });
 
   useEffect(() => {
@@ -82,7 +93,7 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         status: editingVariant.status || "Available",
         price: editingVariant.price || 0,
         attributes: editingVariant.attributes || [],
-        description: editingVariant.description || '',
+        description: editingVariant.description || "",
       };
       setFormData(updatedFormData);
       setSelectedIds(editingVariant.attributes?.map((attr) => attr.id) || []);
@@ -99,7 +110,7 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       status: variant.status,
       attributes: variant.attributes || [],
       images: variant.images || [],
-      description: variant.description || '',
+      description: variant.description || "",
     });
 
     const updatedFormData = {
@@ -108,18 +119,17 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       status: variant.status,
       price: variant.price,
       attributes: variant.attributes || [],
-      description: variant.description || '',  // Kiểm tra description
+      description: variant.description || "", // Kiểm tra description
     };
 
     console.log("Updated Form Data:", updatedFormData);
 
     setFormData(updatedFormData);
-    setSelectedIds(variant.attributes?.map(attr => attr.id) || []);
+    setSelectedIds(variant.attributes?.map((attr) => attr.id) || []);
     reset(updatedFormData);
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
 
   const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -141,14 +151,14 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       images: newImages,
     }));
     // Cập nhật giá trị cho form
-    setValue('images', newImages);
+    setValue("images", newImages);
   };
 
   const removeImage = (index) => {
     const updatedImages = formData.images.filter((_, i) => i !== index);
     setFormData({ ...formData, images: updatedImages });
     // Cập nhật giá trị cho form
-    setValue('images', updatedImages);
+    setValue("images", updatedImages);
   };
 
   const handleAttributeChange = (index, field, value) => {
@@ -182,7 +192,7 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       }
 
       // Cập nhật giá trị cho form
-      setValue('attributes', updatedAttributes);
+      setValue("attributes", updatedAttributes);
       return { ...prev, attributes: updatedAttributes };
     });
 
@@ -199,7 +209,7 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         { name: "", value: "" },
       ];
       // Cập nhật giá trị cho form
-      setValue('attributes', newAttributes);
+      setValue("attributes", newAttributes);
       return {
         ...prevFormData,
         attributes: newAttributes,
@@ -211,11 +221,11 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
     const updatedAttributes = formData.attributes.filter((_, i) => i !== index);
     setFormData({ ...formData, attributes: updatedAttributes });
     // Cập nhật giá trị cho form
-    setValue('attributes', updatedAttributes);
+    setValue("attributes", updatedAttributes);
   };
   const onVariantChange = (event) => {
     console.log("Variant changed:", event.target.value);
-  }
+  };
   const onSubmit = async (data) => {
     try {
       const newSelectedIds = formData.attributes
@@ -234,7 +244,10 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
 
       let result;
       if (editingVariant && editingVariant.idVariants) {
-        result = await ProductVariantService.updateProductVariant(editingVariant.idVariants, submitData);
+        result = await ProductVariantService.updateProductVariant(
+          editingVariant.idVariants,
+          submitData
+        );
       } else {
         result = await ProductVariantService.addProductVariant(submitData);
       }
@@ -250,24 +263,29 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         status: "Available",
         price: 0,
         attributes: [],
-        description: '',
+        description: "",
       });
       setEditingVariant(null);
       setSelectedIds([]);
 
       // ✅ Hiển thị thông báo thành công
       await Swal.fire({
-        icon: 'success',
-        title: editingVariant?.idVariants ? 'Cập nhật thành công!' : 'Thêm mới thành công!',
-        text: editingVariant?.idVariants ? 'Biến thể đã được cập nhật.' : 'Biến thể mới đã được thêm.',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'OK'
+        icon: "success",
+        title: editingVariant?.idVariants
+          ? "Cập nhật thành công!"
+          : "Thêm mới thành công!",
+        text: editingVariant?.idVariants
+          ? "Biến thể đã được cập nhật."
+          : "Biến thể mới đã được thêm.",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK",
       });
 
       // ✅ Thử cập nhật danh sách biến thể trong try-catch riêng
       try {
         console.log("Gọi API lấy danh sách biến thể...");
-        const newVariants = await ProductVariantService.getProductVariantsByProductId(productId);
+        const newVariants =
+          await ProductVariantService.getProductVariantsByProductId(productId);
         console.log("Danh sách biến thể mới:", newVariants);
 
         console.log("Cập nhật danh sách biến thể vào service...");
@@ -279,19 +297,17 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
           onVariantChange();
         }
         console.log("onVariantChange đã gọi xong!");
-
       } catch (error) {
         console.error("Lỗi khi cập nhật danh sách biến thể:", error);
       }
-
     } catch (error) {
       console.error("Lỗi trong handleSubmit:", error);
       await Swal.fire({
-        icon: 'error',
-        title: 'Có lỗi xảy ra!',
-        text: error.message || 'Vui lòng thử lại sau.',
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Đóng'
+        icon: "error",
+        title: "Có lỗi xảy ra!",
+        text: error.message || "Vui lòng thử lại sau.",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Đóng",
       });
     }
   };
@@ -320,7 +336,10 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
           <div className="w-full flex flex-wrap gap-2">
             {formData.images.length > 0 ? (
               formData.images.map((img, index) => (
-                <div key={index} className="relative w-32 h-32 flex items-center justify-center bg-gray-100 border rounded-lg overflow-hidden">
+                <div
+                  key={index}
+                  className="relative w-32 h-32 flex items-center justify-center bg-gray-100 border rounded-lg overflow-hidden"
+                >
                   <Image
                     src={img.preview}
                     alt="Preview"
@@ -344,9 +363,10 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
               </div>
             )}
           </div>
-
         </label>
-        {errors.images && <p className="text-red-500 text-sm">{errors.images.message}</p>}
+        {errors.images && (
+          <p className="text-red-500 text-sm">{errors.images.message}</p>
+        )}
 
         <div className="mt-4">
           <ProductVariantsTable
@@ -406,7 +426,9 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         />
 
         <div className="w-full border p-2">
-          <label className="block mb-2 text-sm font-medium text-gray-900">Mô Tả</label>
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            Mô Tả
+          </label>
           <Controller
             name="description"
             control={control}
@@ -444,7 +466,11 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
                     previewsInData: true, // Cho phép nhúng video từ link
                   },
                   image: {
-                    toolbar: ["imageTextAlternative", "imageStyle:full", "imageStyle:side"],
+                    toolbar: [
+                      "imageTextAlternative",
+                      "imageStyle:full",
+                      "imageStyle:side",
+                    ],
                   },
                 }}
                 onChange={(event, editor) => field.onChange(editor.getData())}
@@ -478,6 +504,13 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
                     }
                     variant="bordered"
                     size="sm"
+                    classNames={{
+                      listboxWrapper: "max-h-[200px]",
+                    }}
+                    listboxProps={{
+                      className: "overflow-auto",
+                      style: { maxHeight: "200px" },
+                    }}
                   >
                     {availableAttributes.map((option) => (
                       <SelectItem key={option.name} value={option.name}>
@@ -495,6 +528,13 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
                     }
                     variant="bordered"
                     size="sm"
+                    classNames={{
+                      listboxWrapper: "max-h-[200px]",
+                    }}
+                    listboxProps={{
+                      className: "overflow-auto",
+                      style: { maxHeight: "200px" },
+                    }}
                   >
                     {attributeValues[attr.name]?.map((attribute) => (
                       <SelectItem key={attribute.value} value={attribute.value}>
@@ -515,9 +555,15 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
               ))}
             </div>
           </ScrollShadow>
-          {errors.attributes && <p className="text-red-500 text-sm">{errors.attributes.message}</p>}
+          {errors.attributes && (
+            <p className="text-red-500 text-sm">{errors.attributes.message}</p>
+          )}
         </div>
-        <Button color="primary" className="w-full mt-6" onClick={handleSubmit(onSubmit)}>
+        <Button
+          color="primary"
+          className="w-full mt-6"
+          onClick={handleSubmit(onSubmit)}
+        >
           {submitButtonText}
         </Button>
       </div>

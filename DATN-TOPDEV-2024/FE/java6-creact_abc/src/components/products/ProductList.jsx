@@ -179,7 +179,6 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
             <div className="flex">
                 {/* Hiển thị sản phẩm ở đây */}
                 {/* Bộ lọc bên trái */}
-                {/* Chỉ hiển thị bộ lọc nếu đang ở trang /products */}
                 {isProductPage && (
                     <div className="w-1/6 p-4 border bg-white">
                         <h3 className="font-bold mb-2">THƯƠNG HIỆU</h3>
@@ -202,15 +201,22 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
                             <br/>
                             <label>
                                 <Checkbox type="checkbox" value="Samsung" onChange={handleBrandChange}/> Samsung
-                            </label><br/>
+                            </label>
+                            <br/>
                             <label>
-                                <Checkbox type="checkbox" value="HP" onChange={handleBrandChange}/> HP
-                            </label><br/>
+                                <Checkbox type="checkbox" value="MSI" onChange={handleBrandChange}/> MSI
+                            </label>
+                            <br/>
                             <label>
-                                <Checkbox type="checkbox" value="Asus" onChange={handleBrandChange}/> Asus
-                            </label><br/>
+                                <Checkbox type="checkbox" value="ASUS" onChange={handleBrandChange}/> ASUS
+                            </label>
+                            <br/>
                             <label>
-                                <Checkbox type="checkbox" value="AULA" onChange={handleBrandChange}/> AULA
+                                <Checkbox type="checkbox" value="Gigabyte" onChange={handleBrandChange}/> Gigabyte
+                            </label>
+                            <br/>
+                            <label>
+                                <Checkbox type="checkbox" value="Corsair" onChange={handleBrandChange}/> Corsair
                             </label>
                         </div>
                         <h3 className="font-bold mt-4 mb-2">LOẠI</h3>
@@ -233,15 +239,30 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
                             <br/>
                             <label>
                                 <Checkbox type="checkbox" value="SSD" onChange={handleCategoryChange}/> SSD
-                            </label><br/>
+                            </label>
+                            <br/>
                             <label>
-                                <Checkbox type="checkbox" value="Chuột" onChange={handleCategoryChange}/> Chuột
-                            </label><br/>
+                                <Checkbox type="checkbox" value="HDD" onChange={handleCategoryChange}/> HDD
+                            </label>
+                            <br/>
                             <label>
-                                <Checkbox type="checkbox" value="Màn hình" onChange={handleCategoryChange}/> Màn hình
-                            </label><br/>
+                                <Checkbox type="checkbox" value="Mouse" onChange={handleCategoryChange}/> Chuột
+                            </label>
+                            <br/>
                             <label>
-                                <Checkbox type="checkbox" value="Nguồn" onChange={handleCategoryChange}/> Nguồn
+                                <Checkbox type="checkbox" value="Keyboard" onChange={handleCategoryChange}/> Bàn phím
+                            </label>
+                            <br/>
+                            <label>
+                                <Checkbox type="checkbox" value="Monitor" onChange={handleCategoryChange}/> Màn hình
+                            </label>
+                            <br/>
+                            <label>
+                                <Checkbox type="checkbox" value="Case" onChange={handleCategoryChange}/> Vỏ Máy tính
+                            </label>
+                            <br/>
+                            <label>
+                                <Checkbox type="checkbox" value="Cooler" onChange={handleCategoryChange}/> Tản nhiệt
                             </label>
                         </div>
 

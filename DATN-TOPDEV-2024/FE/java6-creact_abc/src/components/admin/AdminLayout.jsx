@@ -10,6 +10,7 @@ import TemplateList from "../excel/TemplateList";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
 import Top3User from "../dashBoard/Top3User";
 import Contact from "../../pages/admin/Contact";
+import PCBuildsAdmin from "../../pages/admin/PCBuildsAdmin";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { ToastContainer, toast } from 'react-toastify';
@@ -78,6 +79,7 @@ const AdminLayout = () => {
                         <Route path="/tk" element={<MonthlyProductionChart />} />
                         <Route path="/tplXlsx" element={<TemplateList />} />
                         <Route path="/order" element={<AdminOrderManagement />} />
+                        <Route path="/pc-builds" element={<PCBuildsAdmin />} />
                     </Routes>
                 </motion.div>
             </div>
