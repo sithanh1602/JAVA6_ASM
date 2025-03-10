@@ -1,14 +1,13 @@
 package com.be.service;
 
 import com.be.entity.CartDetail;
-import com.be.entity.Product;
 import com.be.entity.ProductVariant;
 import com.be.entity.User;
 import com.be.rep.CartDetailRepository;
 import com.be.rep.ProductRepository;
 import com.be.rep.ProductVariantRepository;
 import com.be.rep.UserRepository;
-import com.be.DTO.CartDetailResponseDTO;
+import com.be.dto.CartDetailResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

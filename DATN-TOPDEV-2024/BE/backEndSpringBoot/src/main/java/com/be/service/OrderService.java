@@ -1,7 +1,7 @@
 package com.be.service;
 
-import com.be.DTO.OrderItem;
-import com.be.DTO.OrderRequest;
+import com.be.dto.OrderItem;
+import com.be.dto.OrderRequest;
 import com.be.entity.*;
 import com.be.rep.*;
 import jakarta.transaction.Transactional;

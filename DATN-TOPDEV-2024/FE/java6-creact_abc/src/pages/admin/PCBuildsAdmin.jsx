@@ -10,81 +10,15 @@ import {
   ModalHeader,
   ModalBody,
   Chip,
-  useDisclosure
+  useDisclosure,
 } from "@nextui-org/react";
 import DataTable from "react-data-table-component";
-import { FaEdit, FaTrash, FaPlus, FaSearch, FaSort } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSearch, FaSort, FaImage } from "react-icons/fa";
 import AdminPCBuilder from "../../components/admin/TableForm/PC-build/AdminPCBuilder";
 import Swal from "sweetalert2";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-
-// Mock data for PC builds
-const mockPCBuilds = [
-  {
-    id: 1,
-    name: "Gaming PC - Ultra",
-    description: "Cấu hình gaming cao cấp, chơi mọi game ở mức Ultra",
-    type: "GAMING",
-    status: "ACTIVE",
-    totalPrice: 47500000,
-    components: [
-      { categoryId: 1, variantId: 101, name: "Intel Core i9-13900K", price: 12500000 },
-      { categoryId: 2, variantId: 501, name: "NVIDIA RTX 4080", price: 25000000 },
-      { categoryId: 3, variantId: 301, name: "G.Skill Trident Z5 RGB 32GB", price: 3500000 },
-      { categoryId: 4, variantId: 201, name: "ASUS ROG Maximus Z790", price: 12000000 },
-      { categoryId: 5, variantId: 601, name: "Corsair RM850", price: 2500000 },
-      { categoryId: 6, variantId: 401, name: "Samsung 980 PRO 2TB", price: 3500000 },
-      { categoryId: 7, variantId: 701, name: "None", price: 0 },
-      { categoryId: 8, variantId: 801, name: "Cooler Master MasterBox TD500", price: 2000000 },
-      { categoryId: 9, variantId: 901, name: "NZXT Kraken X63", price: 2500000 }
-    ],
-    createdAt: "2025-02-15T10:30:00.000Z",
-    updatedAt: "2025-02-15T10:30:00.000Z"
-  },
-  {
-    id: 2,
-    name: "Office PC - Standard",
-    description: "Cấu hình PC văn phòng ổn định cho công việc hàng ngày",
-    type: "OFFICE",
-    status: "ACTIVE",
-    totalPrice: 15000000,
-    components: [
-      { categoryId: 1, variantId: 102, name: "Intel Core i5-13600K", price: 5500000 },
-      { categoryId: 2, variantId: 502, name: "None (Integrated GPU)", price: 0 },
-      { categoryId: 3, variantId: 302, name: "Corsair Vengeance 16GB", price: 1500000 },
-      { categoryId: 4, variantId: 202, name: "Gigabyte B760M DS3H", price: 2500000 },
-      { categoryId: 5, variantId: 601, name: "Corsair RM650", price: 1500000 },
-      { categoryId: 6, variantId: 402, name: "Crucial P3 1TB", price: 1500000 },
-      { categoryId: 7, variantId: 702, name: "Seagate Barracuda 2TB", price: 1500000 },
-      { categoryId: 8, variantId: 802, name: "Deepcool Matrexx 55", price: 1000000 },
-      { categoryId: 9, variantId: 902, name: "Stock Cooler", price: 0 }
-    ],
-    createdAt: "2025-02-20T14:20:00.000Z",
-    updatedAt: "2025-02-22T09:15:00.000Z"
-  },
-  {
-    id: 3,
-    name: "Workstation Pro",
-    description: "Dàn PC chuyên dụng cho công việc đồ họa, render và làm việc chuyên nghiệp",
-    type: "WORKSTATION",
-    status: "INACTIVE",
-    totalPrice: 75000000,
-    components: [
-      { categoryId: 1, variantId: 103, name: "AMD Ryzen Threadripper", price: 22000000 },
-      { categoryId: 2, variantId: 502, name: "NVIDIA RTX 4090", price: 35000000 },
-      { categoryId: 3, variantId: 303, name: "Kingston 64GB ECC", price: 8000000 },
-      { categoryId: 4, variantId: 203, name: "ASUS Pro WS", price: 15000000 },
-      { categoryId: 5, variantId: 602, name: "Seasonic Prime TX-1000", price: 4000000 },
-      { categoryId: 6, variantId: 403, name: "WD Black 4TB", price: 4000000 },
-      { categoryId: 7, variantId: 703, name: "Seagate IronWolf 4TB", price: 3000000 },
-      { categoryId: 8, variantId: 803, name: "Lian Li PC-O11 Dynamic", price: 3000000 },
-      { categoryId: 9, variantId: 903, name: "Noctua NH-D15", price: 3000000 }
-    ],
-    createdAt: "2025-01-10T08:45:00.000Z",
-    updatedAt: "2025-01-12T16:30:00.000Z"
-  }
-];
+import BuildPCService from "../../services/BuildPcService";
 
 const PCBuildsAdmin = () => {
   const [pcBuilds, setPcBuilds] = useState([]);
@@ -93,30 +27,63 @@ const PCBuildsAdmin = () => {
   const [selectedBuild, setSelectedBuild] = useState(null);
   const [buildName, setBuildName] = useState("");
   const [buildDescription, setBuildDescription] = useState("");
-  const [buildType, setBuildType] = useState("GAMING"); // Default value
-  const [buildStatus, setBuildStatus] = useState("ACTIVE"); // Default value
+  const [buildType, setBuildType] = useState("GAMING");
+  const [buildStatus, setBuildStatus] = useState("ACTIVE");
+  const [buildImages, setBuildImages] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editMode, setEditMode] = useState(false);
 
-  // Load mock data instead of fetching from API
-  useEffect(() => {
-    // Simulate API request delay
-    const timer = setTimeout(() => {
-      setPcBuilds(mockPCBuilds);
+  // Fetch PC Builds từ API
+  const fetchPCBuilds = async () => {
+    setIsLoading(true);
+    try {
+      const response = await BuildPCService.getAllBuildPC();
+      const apiData = response.data.map((build) => ({
+        id: build.buildId,
+        name: build.buildName,
+        description: build.description,
+        type: build.usagePurpose, // Ánh xạ usagePurpose thành type
+        status: build.status,
+        totalPrice: build.totalPrice,
+        components: build.buildPCProductVariants.map((variant) => ({
+          categoryId: null, // Không có categoryId từ API, có thể cần điều chỉnh backend
+          variantId: variant.productVariantId,
+          name: `Variant ${variant.productVariantId}`, // Tên giả định, cần bổ sung từ API nếu có
+          price: 0, // Giá cần được tính từ API nếu có
+          quantity: variant.variantQuantity,
+        })),
+        createdAt: build.createdDate,
+        updatedAt: build.createdDate, // Giả định updatedAt bằng createdDate nếu không có
+        image: build.image, // Ảnh đầu tiên
+        totalProducts: build.totalProducts,
+      }));
+      setPcBuilds(apiData);
+    } catch (error) {
+      console.error("Failed to fetch PC builds:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể tải danh sách cấu hình PC. Vui lòng thử lại sau.",
+        confirmButtonText: "OK",
+      });
+    } finally {
       setIsLoading(false);
-    }, 500);
-    
-    return () => clearTimeout(timer);
+    }
+  };
+
+  useEffect(() => {
+    fetchPCBuilds(); // Gọi API khi component mount
   }, []);
 
-  const fetchPCBuilds = () => {
-    setIsLoading(true);
-    // Simulate API request
-    setTimeout(() => {
-      setPcBuilds(mockPCBuilds);
-      setIsLoading(false);
-    }, 500);
-  };
+  useEffect(() => {
+    if (editMode && selectedBuild) {
+      setBuildName(selectedBuild.name);
+      setBuildDescription(selectedBuild.description);
+      setBuildType(selectedBuild.type);
+      setBuildStatus(selectedBuild.status);
+      setBuildImages(selectedBuild.image ? [{ preview: selectedBuild.image }] : []); // Chuyển image thành mảng preview
+    }
+  }, [editMode, selectedBuild]);
 
   const handleCreateBuild = () => {
     setEditMode(false);
@@ -125,6 +92,7 @@ const PCBuildsAdmin = () => {
     setBuildDescription("");
     setBuildType("GAMING");
     setBuildStatus("ACTIVE");
+    setBuildImages([]);
     onOpen();
   };
 
@@ -135,6 +103,7 @@ const PCBuildsAdmin = () => {
     setBuildDescription(build.description);
     setBuildType(build.type);
     setBuildStatus(build.status);
+    setBuildImages(build.image ? [{ preview: build.image }] : []);
     onOpen();
   };
 
@@ -150,8 +119,7 @@ const PCBuildsAdmin = () => {
     });
 
     if (result.isConfirmed) {
-      // Simulate API delete request (no actual API call)
-      setPcBuilds(pcBuilds.filter(build => build.id !== buildId));
+      setPcBuilds(pcBuilds.filter((build) => build.id !== buildId));
       Swal.fire({
         icon: "success",
         title: "Đã xóa",
@@ -162,13 +130,11 @@ const PCBuildsAdmin = () => {
 
   const handleToggleStatus = (buildId, currentStatus) => {
     const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-    
-    // Update status in the builds array
-    setPcBuilds(pcBuilds.map(build => 
-      build.id === buildId ? { ...build, status: newStatus } : build
-    ));
-    
-    // Show success message
+    setPcBuilds(
+      pcBuilds.map((build) =>
+        build.id === buildId ? { ...build, status: newStatus } : build
+      )
+    );
     Swal.fire({
       icon: "success",
       title: "Cập nhật thành công",
@@ -196,29 +162,34 @@ const PCBuildsAdmin = () => {
     }
 
     const pcBuildData = {
-      id: editMode ? selectedBuild.id : `${Date.now()}`, // Generate a mock ID for new builds
+      id: editMode ? selectedBuild.id : `${Date.now()}`,
       name: buildName,
       description: buildDescription,
       type: buildType,
       status: buildStatus,
+      image: buildImages.length > 0 ? buildImages[0].preview : null, // Lấy ảnh đầu tiên
       components: Object.entries(components).map(([categoryId, component]) => ({
         categoryId: categoryId,
         variantId: component.id || `${Date.now()}-${categoryId}`,
         name: component.nameVariants || "Component",
         price: component.price || 0,
-        quantity: 1
+        quantity: 1,
       })),
-      totalPrice: Object.values(components).reduce((sum, component) => sum + (component.price || 0), 0),
+      totalPrice: Object.values(components).reduce(
+        (sum, component) => sum + (component.price || 0),
+        0
+      ),
       createdAt: editMode ? selectedBuild.createdAt : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      totalProducts: Object.values(components).length, // Tính tổng số linh kiện
     };
 
     if (editMode) {
-      // Simulate update API call
-      setPcBuilds(pcBuilds.map(build => 
-        build.id === pcBuildData.id ? pcBuildData : build
-      ));
-      
+      setPcBuilds(
+        pcBuilds.map((build) =>
+          build.id === pcBuildData.id ? pcBuildData : build
+        )
+      );
       onClose();
       Swal.fire({
         icon: "success",
@@ -226,9 +197,7 @@ const PCBuildsAdmin = () => {
         text: "Cấu hình PC đã được cập nhật.",
       });
     } else {
-      // Simulate create API call
       setPcBuilds([...pcBuilds, pcBuildData]);
-      
       onClose();
       Swal.fire({
         icon: "success",
@@ -238,32 +207,37 @@ const PCBuildsAdmin = () => {
     }
   };
 
-  // Format price to VND
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " ₫";
   };
 
-  // Filter PC builds based on search term
-  const filteredBuilds = pcBuilds.filter(build => 
-    build.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    build.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBuilds = pcBuilds.filter(
+    (build) =>
+      build.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      build.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  // Define columns for DataTable
+
   const columns = [
     {
-      name: 'TÊN CẤU HÌNH',
-      selector: row => row.name,
+      name: "TÊN CẤU HÌNH",
+      selector: (row) => row.name,
       sortable: true,
       grow: 2,
     },
+ 
     {
-      name: 'LOẠI',
-      selector: row => row.type,
+      name: "LOẠI",
+      selector: (row) => row.type,
       sortable: true,
-      cell: row => (
-        <Chip 
-          color={row.type === "GAMING" ? "danger" : row.type === "OFFICE" ? "primary" : "secondary"}
+      cell: (row) => (
+        <Chip
+          color={
+            row.type === "GAMING"
+              ? "danger"
+              : row.type === "OFFICE"
+              ? "primary"
+              : "secondary"
+          }
           size="sm"
           variant="flat"
         >
@@ -272,11 +246,11 @@ const PCBuildsAdmin = () => {
       ),
     },
     {
-      name: 'TRẠNG THÁI',
-      selector: row => row.status,
+      name: "TRẠNG THÁI",
+      selector: (row) => row.status,
       sortable: true,
-      cell: row => (
-        <Chip 
+      cell: (row) => (
+        <Chip
           color={row.status === "ACTIVE" ? "success" : "default"}
           size="sm"
           variant="flat"
@@ -288,54 +262,55 @@ const PCBuildsAdmin = () => {
       ),
     },
     {
-      name: 'MÔ TẢ',
-      selector: row => row.description,
+      name: "Ảnh",
+      selector: (row) => row.image,
       sortable: false,
-      cell: row => (
-        <div 
-          className="truncate max-w-[200px]" 
-          title={row.description?.replace(/<[^>]*>/g, '') || "Không có mô tả"}
-          dangerouslySetInnerHTML={{ 
-            __html: row.description || "Không có mô tả" 
-          }}
-        />
+      cell: (row) => (
+        <div className=" w-16 h-16 flex items-center justify-center">
+          <img
+            src={row.image || "https://placehold.co/80x80?text=PC+Part"}
+            alt={row.name || "PC Image"}
+            className="w-full h-full object-contain rounded-mdS"
+          />
+        </div>
       ),
+      width: "100px", // Đặt chiều rộng cố định cho cột ảnh
     },
     {
-      name: 'GIÁ',
-      selector: row => row.totalPrice,
+      name: "GIÁ",
+      selector: (row) => row.totalPrice,
       sortable: true,
       right: true,
-      cell: row => <div>{formatPrice(row.totalPrice || 0)}</div>,
+      cell: (row) => <div>{formatPrice(row.totalPrice || 0)}</div>,
     },
     {
-      name: 'SỐ LINH KIỆN',
-      selector: row => row.components?.length || 0,
+      name: "SỐ LINH KIỆN",
+      selector: (row) => row.totalProducts || row.components?.length || 0,
       sortable: true,
       center: true,
     },
     {
-      name: 'NGÀY TẠO',
-      selector: row => row.createdAt,
+      name: "NGÀY TẠO",
+      selector: (row) => row.createdAt,
       sortable: true,
-      cell: row => new Date(row.createdAt).toLocaleDateString("vi-VN"),
+      cell: (row) => new Date(row.createdAt).toLocaleDateString("vi-VN"),
     },
     {
-      name: 'THAO TÁC',
-      cell: row => (
+      name: "THAO TÁC",
+      cell: (row) => (
         <div className="flex gap-2">
-          <Button 
-            isIconOnly 
-            color="primary" 
-            size="sm" 
+          <Button
+            isIconOnly
+            color="primary"
+            size="sm"
             onClick={() => handleEditBuild(row)}
             title="Chỉnh sửa"
           >
             <FaEdit />
           </Button>
-          <Button 
-            isIconOnly 
-            color="danger" 
+          <Button
+            isIconOnly
+            color="danger"
             size="sm"
             onClick={() => handleDeleteBuild(row.id)}
             title="Xóa"
@@ -347,39 +322,38 @@ const PCBuildsAdmin = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      width: '120px',
+      width: "120px",
     },
   ];
 
-  // Custom styles for DataTable
   const customStyles = {
     headRow: {
       style: {
-        backgroundColor: '#f9fafb',
-        color: '#374151',
-        fontWeight: 'bold',
-        borderBottom: '1px solid #e5e7eb',
-        fontSize: '0.875rem',
+        backgroundColor: "#f9fafb",
+        color: "#374151",
+        fontWeight: "bold",
+        borderBottom: "1px solid #e5e7eb",
+        fontSize: "0.875rem",
       },
     },
     rows: {
       style: {
-        fontSize: '0.875rem',
-        '&:nth-child(odd)': {
-          backgroundColor: '#f9fafb',
+        fontSize: "0.875rem",
+        "&:nth-child(odd)": {
+          backgroundColor: "#f9fafb",
         },
       },
       highlightOnHoverStyle: {
-        backgroundColor: '#f3f4f6',
+        backgroundColor: "#f3f4f6",
       },
     },
     pagination: {
       style: {
-        border: 'none',
-        backgroundColor: '#ffffff',
+        border: "none",
+        backgroundColor: "#ffffff",
       },
       pageButtonsStyle: {
-        borderRadius: '0',
+        borderRadius: "0",
       },
     },
   };
@@ -390,15 +364,15 @@ const PCBuildsAdmin = () => {
         <CardHeader className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Quản lý cấu hình PC</h2>
           <div className="flex gap-4">
-            <Input 
-              placeholder="Tìm kiếm cấu hình PC" 
+            <Input
+              placeholder="Tìm kiếm cấu hình PC"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               startContent={<FaSearch />}
               className="w-72 rounded-none"
             />
-            <Button 
-              color="primary" 
+            <Button
+              color="primary"
               startContent={<FaPlus />}
               onClick={handleCreateBuild}
               className="rounded-none"
@@ -416,8 +390,8 @@ const PCBuildsAdmin = () => {
             noDataComponent={<div className="p-4 text-center">Không có cấu hình PC nào.</div>}
             pagination
             paginationComponentOptions={{
-              rowsPerPageText: 'Số dòng mỗi trang:',
-              rangeSeparatorText: 'của',
+              rowsPerPageText: "Số dòng mỗi trang:",
+              rangeSeparatorText: "của",
             }}
             customStyles={customStyles}
             sortIcon={<FaSort />}
@@ -427,32 +401,32 @@ const PCBuildsAdmin = () => {
         </CardBody>
       </Card>
 
-      {/* Modal for creating/editing PC builds */}
-      <Modal 
-        isOpen={isOpen} 
-        onClose={onClose} 
+      {/* Modal với chiều cao tăng lên */}
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
         size="4xl"
         scrollBehavior="inside"
         classNames={{
-          base: "rounded-none",
+          base: "rounded-none max-h-[90vh]", // Giới hạn chiều cao Modal
           header: "border-b",
+          body: "overflow-y-auto", // Bật cuộn cho ModalBody
         }}
       >
         <ModalContent>
           <ModalHeader>
             {editMode ? "Chỉnh sửa cấu hình PC" : "Tạo cấu hình PC mới"}
           </ModalHeader>
-          <ModalBody>
+          <ModalBody className="max-h-[85vh] overflow-y-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <Input
                 label="Tên cấu hình PC"
-                placeholder="Nhập tên cấu hình PC"
                 value={buildName}
                 onChange={(e) => setBuildName(e.target.value)}
                 className="rounded-none"
                 isRequired
               />
-              <select 
+              <select
                 className="border p-2 rounded-none h-12"
                 value={buildType}
                 onChange={(e) => setBuildType(e.target.value)}
@@ -462,14 +436,71 @@ const PCBuildsAdmin = () => {
                 <option value="WORKSTATION">Workstation</option>
                 <option value="CUSTOM">Tùy chỉnh</option>
               </select>
-              <select 
+              <select
                 className="border p-2 rounded-none h-12"
                 value={buildStatus}
                 onChange={(e) => setBuildStatus(e.target.value)}
               >
-                <option value="Available">Đang hoạt động</option>
-                <option value="Unavailable">Hết hoạt động</option>
+                <option value="ACTIVE">Đang hoạt động</option>
+                <option value="INACTIVE">Hết hoạt động</option>
               </select>
+            </div>
+            <div className="mb-4">
+              <p className="text-sm font-medium mb-2">Ảnh cấu hình PC</p>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.target.files);
+                  const newImages = files.map((file) => ({
+                    file,
+                    preview: URL.createObjectURL(file),
+                  }));
+                  setBuildImages((prev) => [...prev, ...newImages]);
+                }}
+                className="hidden"
+                id="build-image-upload"
+              />
+              <label
+                htmlFor="build-image-upload"
+                className="cursor-pointer block w-full"
+              >
+                <div className="w-full flex flex-wrap gap-2">
+                  {buildImages.length > 0 ? (
+                    buildImages.map((img, index) => (
+                      <div
+                        key={index}
+                        className="relative w-32 h-32 flex items-center justify-center bg-gray-100 border rounded-lg overflow-hidden"
+                      >
+                        <img
+                          src={img.preview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full z-10"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setBuildImages((prev) =>
+                              prev.filter((_, i) => i !== index)
+                            );
+                          }}
+                        >
+                          <FaTrash className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+                      <FaImage className="w-8 h-8 text-gray-400" />
+                      <span className="mt-2 text-sm text-gray-400">
+                        Click để tải ảnh lên
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </label>
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -485,21 +516,24 @@ const PCBuildsAdmin = () => {
                   }}
                   config={{
                     toolbar: [
-                      'heading',
-                      '|',
-                      'bold', 'italic',
-                      '|',
-                      'link', 'bulletedList', 'numberedList',
-                      '|',
-                      'undo', 'redo'
+                      "heading",
+                      "|",
+                      "bold",
+                      "italic",
+                      "|",
+                      "link",
+                      "bulletedList",
+                      "numberedList",
+                      "|",
+                      "undo",
+                      "redo",
                     ],
-                    placeholder: "Nhập mô tả cho cấu hình PC",
                   }}
                 />
               </div>
             </div>
-            
-            <AdminPCBuilder 
+
+            <AdminPCBuilder
               initialComponents={editMode ? selectedBuild?.components : []}
               onSave={handleSaveBuild}
             />

@@ -1,4 +1,4 @@
-package com.be.DTO;
+package com.be.dto;
 
 public class OrderItem {
     private Long productVariantId;  // ID của biến thể sản phẩm

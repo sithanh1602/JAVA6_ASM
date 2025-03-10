@@ -1,4 +1,4 @@
-package com.be.DTO;
+package com.be.dto;
 
 public class PaymentResponse {
     private String paymentUrl;
