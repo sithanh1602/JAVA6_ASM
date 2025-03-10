@@ -1,7 +1,7 @@
 package com.be.controller;
 
 import com.be.entity.Address;
-import com.be.DTO.AddressDTO;
+import com.be.dto.AddressDTO;
 import com.be.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

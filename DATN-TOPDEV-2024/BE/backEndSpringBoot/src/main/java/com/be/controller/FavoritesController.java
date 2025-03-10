@@ -1,6 +1,6 @@
 package com.be.controller;
 
-import com.be.DTO.ProductVariantDTO;
+import com.be.dto.ProductVariantDTO;
 import com.be.entity.Favorite;
 import org.springframework.http.HttpStatus;
 import com.be.service.FavoritesService;

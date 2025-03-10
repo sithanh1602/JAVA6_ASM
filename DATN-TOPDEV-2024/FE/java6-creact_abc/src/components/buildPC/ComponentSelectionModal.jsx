@@ -17,7 +17,7 @@ import {
   Chip,
 } from "@nextui-org/react";
 import { FaSearch } from "react-icons/fa";
-import ProductVariantService from "../../services/ProductVariantService"; // Giả sử đây là đường dẫn tới file service
+import ProductVariantService from "../../services/ProductVariantService"; 
 
 const ComponentSelectionModal = ({
   isOpen,
@@ -41,7 +41,6 @@ const ComponentSelectionModal = ({
     }
   }, [selectedCategory, isOpen]);
 
-  // Sử dụng getVariantsByCategory từ ProductVariantService
   const fetchProductVariants = async (categoryId) => {
     try {
       const data = await ProductVariantService.getVariantsByCategory(
@@ -53,7 +52,6 @@ const ComponentSelectionModal = ({
       );
       setProducts(filteredProducts);
     } catch (error) {
-      // Lỗi đã được xử lý trong service, chỉ cần đặt products về mảng rỗng nếu cần
       setProducts([]);
     }
   };

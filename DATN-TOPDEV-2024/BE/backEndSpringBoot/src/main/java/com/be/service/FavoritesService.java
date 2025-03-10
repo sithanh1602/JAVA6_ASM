@@ -1,7 +1,7 @@
 package com.be.service;
 
-import com.be.DTO.AttributeDTO;
-import com.be.DTO.ProductVariantDTO;
+import com.be.dto.AttributeDTO;
+import com.be.dto.ProductVariantDTO;
 import com.be.entity.Favorite;
 import com.be.entity.ProductVariant;
 import com.be.entity.User;

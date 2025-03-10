@@ -1,7 +1,7 @@
 package com.be.service;
 
-import com.be.DTO.ProductDto;
-import com.be.DTO.ProductVariantDTO;
+import com.be.dto.ProductDto;
+import com.be.dto.ProductVariantDTO;
 import com.be.entity.*;
 import com.be.rep.*;
 import jakarta.validation.ValidationException;

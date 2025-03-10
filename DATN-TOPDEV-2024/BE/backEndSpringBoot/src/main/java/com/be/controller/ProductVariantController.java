@@ -1,8 +1,8 @@
 package com.be.controller;
 
-import com.be.DTO.ProductVariantDTO;
-import com.be.DTO.ProductVariantHomeDTO;
-import com.be.DTO.ProductVariantRequest;
+import com.be.dto.ProductVariantDTO;
+import com.be.dto.ProductVariantHomeDTO;
+import com.be.dto.ProductVariantRequest;
 import com.be.entity.ProductVariant;
 import com.be.rep.ProductVariantRepository;
 import com.be.service.ProductVariantService;

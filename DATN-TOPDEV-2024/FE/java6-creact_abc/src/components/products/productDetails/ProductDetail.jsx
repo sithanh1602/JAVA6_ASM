@@ -147,7 +147,6 @@ const ProductDetail = () => {
     }
   };
 
-  // Giải mã token và lấy userId từ cookie
   const getUserIdFromToken = () => {
     const token = Cookies.get("token"); // Lấy token từ cookie
     if (token) {
