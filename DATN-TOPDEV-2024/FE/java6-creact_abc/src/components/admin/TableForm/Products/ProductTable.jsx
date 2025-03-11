@@ -296,44 +296,27 @@ const ProductTable = forwardRef((_, ref) => {
     },
   ];
 
-  const exportToExcel = async () => {
+  const exportToExcel = () => {
     try {
-      // Tạo worksheet từ dữ liệu bảng
+      // Create worksheet from table data
       const worksheet = XLSX.utils.json_to_sheet(filteredProducts);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
 
-      // Chuyển workbook thành buffer
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-
-      // Chuyển buffer thành Blob
-      const blob = new Blob([excelBuffer], {
-        type: "application/octet-stream",
-      });
-
-      // Tạo FormData để gửi file
-      const formData = new FormData();
-      formData.append("file", new File([blob], "products.xlsx"));
-
-      // Gửi file lên backend qua API
-      await axios.post("http://localhost:8080/api/templates/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // Generate Excel file and trigger download
+      XLSX.writeFile(workbook, "products.xlsx");
 
       Swal.fire({
         icon: "success",
         title: "Thành công",
-        text: "Để tải vui lòng vào mục Drive Excel!",
+        text: "File Excel đã được tải xuống!",
       });
     } catch (error) {
-      console.error("Lỗi khi lưu file:", error);
+      console.error("Lỗi khi xuất file Excel:", error);
       Swal.fire({
         icon: "error",
         title: "Lỗi",
-        text: "Không thể lưu file vào cơ sở dữ liệu!",
+        text: "Không thể xuất file Excel!",
       });
     }
   };

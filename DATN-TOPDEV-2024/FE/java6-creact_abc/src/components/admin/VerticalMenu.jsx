@@ -14,7 +14,7 @@ import {
     FaProductHunt,
     FaUser,
     FaDisease,
-    FaFileExcel, FaFirstOrder
+    FaFirstOrder
 } from 'react-icons/fa';
 import { MdCategory } from 'react-icons/md';
 import Swal from 'sweetalert2';
@@ -38,7 +38,6 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         { icon: <FaProductHunt className="text-orange-500" />, label: 'Quản lý sản phẩm', link: '/admin/product' },
         { icon: <FaUser className="text-pink-500" />, label: 'Quản lý người dùng', link: '/admin/user' },
         { icon: <FaEnvelope className="text-purple-500" />, label: 'Quản lý phản hồi', link: '/admin/contact' },
-        { icon: <FaFileExcel className="text-purple-500" />, label: 'Excel', link: '/admin/tplXlsx' },
         { icon: <FaPencilAlt className="text-blue-500" />, label: 'Bài viết', link: '/admin/post' },
         { icon: <FaPuzzlePiece className="text-pink-500" />, label: 'UI Elements', link: '/ui-elements' },
         { icon: <FaTable className="text-orange-500" />, label: 'Tables', hasArrow: true, subItems: [

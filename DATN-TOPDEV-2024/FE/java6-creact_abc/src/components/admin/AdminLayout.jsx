@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import Users from "../../pages/admin/Users";
 import Products from "../../pages/admin/Products";
 import Categorys from "../../pages/admin/Categorys";
-import TemplateList from "../excel/TemplateList";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
 import Top3User from "../dashBoard/Top3User";
 import Contact from "../../pages/admin/Contact";
@@ -17,9 +16,10 @@ import MonthlyProductionChart from "./TableForm/DashB/RevenueChart";
 import AdminOrderManagement from "./TableForm/OrderStatusAdmin/AdminOrderManagement";
 
 const AdminLayout = () => {
-    const [isOpen, setIsOpen] = useState(true); // Mở menu dọc mặc định
+    const [isOpen, setIsOpen] = useState(true);
     const navigate = useNavigate();
     const [client, setClient] = useState(null);
+    const [lastMessageTime, setLastMessageTime] = useState(0); // Thời gian của thông báo cuối cùng
 
     useEffect(() => {
         const userRole = JSON.parse(localStorage.getItem('roles'));
@@ -27,28 +27,39 @@ const AdminLayout = () => {
         if (!userRole || userRole[0] !== 'ADMIN') {
             toast.error('Bạn không có quyền truy cập trang này.');
             navigate('/');
-        } else {
-            const socket = new SockJS('http://localhost:8080/ws');
-            const stompClient = new Client({
-                webSocketFactory: () => socket,
-                debug: (str) => {
-                    console.log(str);
-                },
-                onConnect: () => {
-                    stompClient.subscribe('/topic/orders', (message) => {
-                        toast.info(`Đơn hàng mới: ${message.body}`);
-                    });
-                },
-                onStompError: (frame) => {
-                    console.error('Broker reported error: ' + frame.headers['message']);
-                    console.error('Additional details: ' + frame.body);
-                },
-            });
-
-            stompClient.activate();
-            setClient(stompClient);
+            return;
         }
-    }, [navigate]);
+
+        const socket = new SockJS('http://localhost:8080/ws');
+        const stompClient = new Client({
+            webSocketFactory: () => socket,
+            debug: (str) => {
+                console.log(str);
+            },
+            onConnect: () => {
+                console.log('Connected to WebSocket');
+                stompClient.subscribe('/topic/orders', (message) => {
+                    const currentTime = new Date().getTime();
+                    // Chỉ hiện thông báo nếu đã qua 3 giây từ lần cuối
+                    if (currentTime - lastMessageTime >= 3000) {
+                        toast.info(`Đơn hàng mới: ${message.body}`);
+                        setLastMessageTime(currentTime);
+                    }
+                });
+            },
+            onStompError: (frame) => {
+                console.error('Broker reported error: ' + frame.headers['message']);
+                console.error('Additional details: ' + frame.body);
+            },
+        });
+
+        stompClient.activate();
+        setClient(stompClient);
+
+        return () => {
+            stompClient.deactivate();
+        };
+    }, [navigate, lastMessageTime]);
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -74,7 +85,6 @@ const AdminLayout = () => {
                         <Route path="/product" element={<Products />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/tk" element={<MonthlyProductionChart />} />
-                        <Route path="/tplXlsx" element={<TemplateList />} />
                         <Route path="/order" element={<AdminOrderManagement />} />
                     </Routes>
                 </motion.div>

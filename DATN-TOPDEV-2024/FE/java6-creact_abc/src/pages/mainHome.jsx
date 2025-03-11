@@ -20,7 +20,7 @@ const HomePage = () => {
                 <BannerPhu1/>
                 <CategoryOnlineShopping/>
                 <BannerPhu2/>
-                <SliderProductBottom/>
+                {/*<SliderProductBottom/>*/}
                 <BrandLogo/>
             </div>
         </div>

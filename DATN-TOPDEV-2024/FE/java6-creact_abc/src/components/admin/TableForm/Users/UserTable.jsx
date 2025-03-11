@@ -115,31 +115,41 @@ const UserTable = ({ users, onEditUser, onDeleteUser }) => {
             XLSX.utils.book_append_sheet(workbook, worksheet, 'users');
 
             // Chuyển workbook thành buffer
-            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
 
-            // Chuyển buffer thành Blob
-            const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+            // Chuyển dạng binary string sang ArrayBuffer
+            const buffer = new ArrayBuffer(excelBuffer.length);
+            const view = new Uint8Array(buffer);
+            for (let i = 0; i < excelBuffer.length; i++) {
+                view[i] = excelBuffer.charCodeAt(i) & 0xFF;
+            }
 
-            // Tạo FormData để gửi file
-            const formData = new FormData();
-            formData.append('file', new File([blob], 'users.xlsx'));
+            // Tạo Blob và tải xuống
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
 
-            // Gửi file lên backend qua API
-            await axios.post('http://localhost:8080/api/templates/upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            // Tạo link tải xuống
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'users.xlsx';
+            document.body.appendChild(a);
+            a.click();
+
+            // Cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
 
             Swal.fire({
                 icon: 'success',
                 title: 'Thành công',
-                text: 'Để tải vui lòng vào mục Drive Excel!',
+                text: 'File đã được tải xuống thành công!',
             });
         } catch (error) {
-            console.error('Lỗi khi lưu file:', error);
+            console.error('Lỗi khi xuất file Excel:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi',
-                text: 'Không thể lưu file vào cơ sở dữ liệu!',
+                text: 'Không thể xuất file Excel!',
             });
         }
     };

@@ -79,7 +79,7 @@ const ProfilePage = () => {
             </aside>
 
             <main className="flex flex-col w-full md:w-3/4 px-6">
-                <div className="bg-white rounded-lg p-6 mb-6 h-[700px]">
+                <div className="bg-white p-6 mb-6 h-[700px]">
                     <Routes>
                         <Route
                             path="/"

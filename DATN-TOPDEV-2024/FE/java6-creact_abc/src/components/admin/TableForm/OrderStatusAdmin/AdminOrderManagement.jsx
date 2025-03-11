@@ -184,28 +184,31 @@ const AdminOrderManagement = () => {
         try {
             const updatedOrder = await OrderSevice.updateOrderStatus(orderId, newStatus);
 
-            // If the order status is successfully updated to 'Đã xác nhận' (status 4), change the tab
+            // Nếu trạng thái là 'Đã xác nhận' (status 4), chuyển tab
             if (newStatus === 4) {
                 setActiveTab('Đã xác nhận');
             }
 
-            Swal.fire({
+            // Thông báo thành công
+            await Swal.fire({
                 icon: 'success',
                 title: 'Trạng thái đơn hàng đã được cập nhật',
-                text: `Đơn hàng ${updatedOrder.id} đã được chuyển sang trạng thái "${statusLabels[newStatus]}".`,
+                text: `Đơn hàng ${orderId} đã chuyển sang trạng thái "${statusLabels[newStatus]}".`,
             });
 
+            // Cập nhật lại danh sách đơn hàng
             setOrders(orders.map(order =>
                 order.id === orderId ? { ...order, status: newStatus } : order
             ));
         } catch (error) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Lỗi!',
                 text: 'Có lỗi xảy ra khi cập nhật trạng thái đơn hàng.',
             });
         }
     };
+
 
     const handlePendingOrdersClick = () => {
         // Khi nhấn vào nút "Đơn hàng chờ xác nhận", chuyển sang tab "Chưa thanh toán"
