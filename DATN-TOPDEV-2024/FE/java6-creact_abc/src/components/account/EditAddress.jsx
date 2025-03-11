@@ -2,13 +2,31 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { getAddressById, updateAddress } from "../../services/AddressService";
 import { useLocation, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2"; // Thêm import Swal
 
 const AddressForm = () => {
     const API_HOST = "https://provinces.open-api.vn/api/";
-    const userId = localStorage.getItem("UserId");
     const location = useLocation();
     const navigate = useNavigate();
     const addressId = location.state?.addressId;
+
+    const getUserIdFromToken = () => {
+        const token = Cookies.get("token");
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                return decodedToken.userId;
+            } catch (err) {
+                console.error("Token không hợp lệ:", err);
+                return null;
+            }
+        }
+        return null;
+    };
+
+    const userId = getUserIdFromToken();
 
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -22,7 +40,6 @@ const AddressForm = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
-    // Dùng useMemo để tính toán địa chỉ đầy đủ
     const fullAddress = useMemo(() => {
         const addressParts = [
             streetAddress,
@@ -33,7 +50,6 @@ const AddressForm = () => {
         return addressParts.filter(Boolean).join(", ");
     }, [selectedProvince, selectedDistrict, selectedWard, streetAddress, provinces, districts, wards]);
 
-    // Lấy danh sách tỉnh/thành phố
     useEffect(() => {
         const fetchProvinces = async () => {
             try {
@@ -46,7 +62,6 @@ const AddressForm = () => {
         fetchProvinces();
     }, []);
 
-    // Lấy thông tin địa chỉ chi tiết
     useEffect(() => {
         const fetchAddressDetails = async () => {
             if (addressId) {
@@ -87,7 +102,6 @@ const AddressForm = () => {
         }
     }, [addressId, provinces]);
 
-    // Lấy danh sách quận/huyện khi chọn tỉnh
     const fetchDistricts = async (provinceCode) => {
         try {
             const { data } = await axios.get(`${API_HOST}p/${provinceCode}?depth=2`);
@@ -97,7 +111,6 @@ const AddressForm = () => {
         }
     };
 
-    // Lấy danh sách phường/xã khi chọn quận
     const fetchWards = async (districtCode) => {
         try {
             const { data } = await axios.get(`${API_HOST}d/${districtCode}?depth=2`);
@@ -113,7 +126,7 @@ const AddressForm = () => {
         if (provinceCode) {
             fetchDistricts(provinceCode);
         }
-        setSelectedDistrict(""); // Không reset các giá trị khác
+        setSelectedDistrict("");
         setWards([]);
         setSelectedWard("");
     };
@@ -129,8 +142,12 @@ const AddressForm = () => {
 
     const handleSaveAddress = async () => {
         setErrorMessage("");
+        setSuccessMessage("");
 
-        setSuccessMessage(""); // Reset thông báo thành công
+        if (!userId) {
+            setErrorMessage("Không thể xác định userId từ token. Vui lòng đăng nhập lại.");
+            return;
+        }
 
         if (!phoneNumber || !/^\d{10,11}$/.test(phoneNumber)) {
             setErrorMessage("Số điện thoại không hợp lệ. Vui lòng nhập đúng.");
@@ -142,7 +159,6 @@ const AddressForm = () => {
             return;
         }
 
-        // Ensure selectedProvince, selectedDistrict, and selectedWard are defined before accessing them
         if (!provinces || !districts || !wards) {
             setErrorMessage("Dữ liệu không hợp lệ.");
             return;
@@ -159,10 +175,31 @@ const AddressForm = () => {
             fullAddress: fullAddress,
         };
 
+        // Sử dụng Swal để hiển thị hộp thoại xác nhận
+        const result = await Swal.fire({
+            title: "Xác nhận",
+            text: "Bạn có chắc chắn muốn sửa địa chỉ này không?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Có",
+            cancelButtonText: "Không",
+            buttonsStyling: true,
+            customClass: {
+                confirmButton: "bg-blue-500 text-white px-4 py-2 rounded",
+                cancelButton: "bg-gray-500 text-white px-4 py-2 rounded mr-2",
+            },
+        });
+
+        if (!result.isConfirmed) {
+            setSuccessMessage("Đã hủy cập nhật địa chỉ.");
+            console.log("Người dùng đã hủy cập nhật địa chỉ.");
+            return;
+        }
+
         try {
             await updateAddress(addressId, addressData);
-            setSuccessMessage("Cập nhật địa chỉ thành công!"); // Cập nhật thông báo thành công
-            setTimeout(() => navigate("/profile/address-list"), 2000); // Điều hướng sau 2 giây
+            setSuccessMessage("Cập nhật địa chỉ thành công!");
+            setTimeout(() => navigate("/profile/address-list"), 2000);
         } catch (error) {
             setErrorMessage("Lỗi khi lưu địa chỉ: " + error.message);
         }
@@ -259,7 +296,7 @@ const AddressForm = () => {
                 </div>
 
                 {errorMessage && <p id="error-message" className="text-red-500">{errorMessage}</p>}
-                {successMessage && <p id="success-message" className="text-green-500">{successMessage}</p>} {/* Hiển thị thông báo thành công */}
+                {successMessage && <p id="success-message" className="text-green-500">{successMessage}</p>}
                 <div className="flex justify-center space-x-4 mt-5">
                     <button onClick={handleSaveAddress} className="px-4 py-2 bg-blue-500 text-white rounded">
                         Cập nhật địa chỉ

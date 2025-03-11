@@ -4,10 +4,12 @@ import VerticalMenu from './VerticalMenu';
 import { motion } from 'framer-motion';
 import Users from "../../pages/admin/Users";
 import Products from "../../pages/admin/Products";
+import Posts from "../../pages/admin/Posts";
 import Categorys from "../../pages/admin/Categorys";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
 import Top3User from "../dashBoard/Top3User";
 import Contact from "../../pages/admin/Contact";
+import PCBuildsAdmin from "../../pages/admin/PCBuildsAdmin";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { ToastContainer, toast } from 'react-toastify';
@@ -83,9 +85,11 @@ const AdminLayout = () => {
                         <Route path="/category" element={<Categorys />} />
                         <Route path="/brand" element={<BrandTableWithBoundary />} />
                         <Route path="/product" element={<Products />} />
+                        <Route path="/post" element={<Posts />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/tk" element={<MonthlyProductionChart />} />
                         <Route path="/order" element={<AdminOrderManagement />} />
+                        <Route path="/pc-builds" element={<PCBuildsAdmin />} />
                     </Routes>
                 </motion.div>
             </div>

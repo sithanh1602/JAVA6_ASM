@@ -1,9 +1,9 @@
 package com.be.service;
 
-import com.be.DTO.AttributeDTO;
-import com.be.DTO.ProductVariantDTO;
-import com.be.DTO.ProductVariantHomeDTO;
-import com.be.DTO.ProductVariantRequest;
+import com.be.dto.AttributeDTO;
+import com.be.dto.ProductVariantDTO;
+import com.be.dto.ProductVariantHomeDTO;
+import com.be.dto.ProductVariantRequest;
 import com.be.entity.Attribute;
 import com.be.entity.Image;
 import com.be.entity.Product;

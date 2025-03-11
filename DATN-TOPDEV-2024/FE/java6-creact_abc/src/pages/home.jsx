@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
+
 import {
     BrowserRouter as Router,
     Routes,
@@ -17,6 +18,7 @@ import ProductPage from "../components/products/productDetails/ProductPageDetail
 import AboutUs from "./mainAbout";
 import Contact from "./mainContact";
 import News from "./mainNews";
+import BlogDetail from "../components/news/BlogDetail";
 import GroupOrder from "../components/Oder/GroupOrder";
 import ProfilePage from "../components/Profile/ProfilePage";
 import OrderList from "../components/Oder/OrderList";
@@ -130,7 +132,8 @@ const HomePage = () => {
                     <Route path="/products/:productId/productdetail" element={<ProductDetail />} />
                     <Route path="/aboutUs" element={<AboutUs/>}/>
                     <Route path="/contact" element={< Contact/>}/>
-                    <Route path="/news" element={< News/>}/>
+                    <Route path="/posts" element={< News/>}/>
+                    <Route path="/post/:id" element={<BlogDetail />} />
                     <Route path="/orders" element={< GroupOrder/>}/>
                     <Route path="/profile/*" element={<ProfilePage />} />
                     <Route path="/OrderUser" element={<OrderList />} />

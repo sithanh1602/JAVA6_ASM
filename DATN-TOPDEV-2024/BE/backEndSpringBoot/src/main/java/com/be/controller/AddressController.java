@@ -1,7 +1,7 @@
 package com.be.controller;
 
 import com.be.entity.Address;
-import com.be.DTO.AddressDTO;
+import com.be.dto.AddressDTO;
 import com.be.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -89,29 +89,18 @@ public class AddressController {
         }
     }
 
-//    // API lấy địa chỉ mặc định của người dùng
-//    @GetMapping("/{userId}/default")
-//    public ResponseEntity<?> getDefaultAddress(@PathVariable Long userId) {
+
+
+//    // API lấy địa chỉ theo ID
+//    @GetMapping("/{addressId}")
+//    public ResponseEntity<?> getAddressById(@PathVariable Long addressId) {
 //        try {
-//            Address defaultAddress = addressService.getDefaultAddress(userId);
-//            return ResponseEntity.ok(defaultAddress);
+//            Address address = addressService.getAddressById(addressId);
+//            return ResponseEntity.ok(address);
 //        } catch (RuntimeException e) {
-//            return ResponseEntity.status(404).body("Không tìm thấy địa chỉ mặc định.");
+//            return ResponseEntity.status(404).body("Không tìm thấy địa chỉ.");
 //        } catch (Exception e) {
-//            return ResponseEntity.status(500).body("Lỗi khi lấy địa chỉ mặc định.");
+//            return ResponseEntity.status(500).body("Lỗi khi lấy địa chỉ.");
 //        }
 //    }
-
-    // API lấy địa chỉ theo ID
-    @GetMapping("/{addressId}")
-    public ResponseEntity<?> getAddressById(@PathVariable Long addressId) {
-        try {
-            Address address = addressService.getAddressById(addressId);
-            return ResponseEntity.ok(address);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body("Không tìm thấy địa chỉ.");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Lỗi khi lấy địa chỉ.");
-        }
-    }
 }

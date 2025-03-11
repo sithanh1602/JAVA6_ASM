@@ -279,15 +279,28 @@ const GroupOrder = () => {
         await OrderService.placeOrderNoVnpay(orderData);
 
         const productDetails = cartItems
-          .map(
-            (item) =>
-              `<li>${item.nameVariants} (${item.productName}) - Số lượng: ${
-                item.quantity
-              } - Giá: ${(
-                item.productPrice * item.quantity
-              ).toLocaleString()} VNĐ</li>`
-          ) // Hiển thị cả nameVariants và productName
-          .join("");
+        .map((item) => {
+          // Tạo chuỗi mô tả sản phẩm dựa trên điều kiện
+          let description = "";
+          
+          // Nếu nameVariants tồn tại và không undefined, thêm vào chuỗi
+          if (item.nameVariants) {
+            description += `${item.nameVariants}`;
+          }
+          
+          // Nếu productName tồn tại và không undefined, thêm vào chuỗi với định dạng phù hợp
+          if (item.productName) {
+            description += description ? ` (${item.productName})` : item.productName;
+          }
+          
+          // Thêm thông tin số lượng và giá
+          description += ` - Số lượng: ${item.quantity} - Giá: ${(
+            item.productPrice * item.quantity
+          ).toLocaleString()} VNĐ`;
+          
+          return `<li>${description}</li>`;
+        })
+        .join("");
 
         Swal.fire({
           title: "Đặt hàng thành công!",

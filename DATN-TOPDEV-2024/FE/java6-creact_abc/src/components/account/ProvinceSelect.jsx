@@ -2,11 +2,28 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { createAddress } from "../../services/AddressService";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie"; // Thêm import Cookies
+import {jwtDecode} from "jwt-decode"; // Thêm import jwt-decode
 
 const App = () => {
     const API_HOST = "https://provinces.open-api.vn/api/";
-    const userId = localStorage.getItem("UserId");
     const navigate = useNavigate();
+
+    const getUserIdFromToken = () => {
+        const token = Cookies.get("token");
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                return decodedToken.userId;
+            } catch (err) {
+                console.error("Token không hợp lệ:", err);
+                return null;
+            }
+        }
+        return null;
+    };
+
+    const userId = getUserIdFromToken();
 
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -18,7 +35,7 @@ const App = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [isDefault, setIsDefault] = useState(false);
     const [fullAddress, setFullAddress] = useState("");
-    const [errorMessage, setErrorMessage] = useState(""); // Quản lý thông báo lỗi
+    const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
     const fullAddressText = useMemo(() => {
@@ -31,12 +48,10 @@ const App = () => {
         return addressParts.filter(Boolean).join(", ");
     }, [streetAddress, selectedProvince, selectedDistrict, selectedWard, wards, districts, provinces]);
 
-    // Cập nhật địa chỉ đầy đủ khi các thông tin thay đổi
     useEffect(() => {
         setFullAddress(fullAddressText || "Vui lòng nhập đầy đủ thông tin.");
     }, [fullAddressText]);
 
-    // Lấy danh sách tỉnh/thành phố
     useEffect(() => {
         axios
             .get(`${API_HOST}?depth=1`)
@@ -81,6 +96,11 @@ const App = () => {
     };
 
     const handleSaveAddress = async () => {
+        if (!userId) {
+            setErrorMessage("Không thể xác định userId từ token. Vui lòng đăng nhập lại.");
+            return;
+        }
+
         if (!phoneNumber || !/^\d{10,11}$/.test(phoneNumber)) {
             setErrorMessage("Số điện thoại không hợp lệ. Vui lòng nhập lại.");
             return;
@@ -106,7 +126,7 @@ const App = () => {
             await createAddress(address);
             setSuccessMessage("Lưu địa chỉ thành công!");
             setTimeout(() => {
-                navigate("/profile/address-list"); // Điều hướng sau 2 giây
+                navigate("/profile/address-list");
             }, 2000);
         } catch (error) {
             setErrorMessage("Đã xảy ra lỗi khi lưu địa chỉ: " + error.message);
@@ -191,7 +211,6 @@ const App = () => {
                 {successMessage && <div className="text-green-500 text-sm">{successMessage}</div>}
                 <button
                     onClick={handleSaveAddress}
-                    // disabled={!streetAddress || !selectedProvince || !selectedDistrict || !selectedWard || !phoneNumber}
                     className="w-full py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-md"
                 >
                     Lưu địa chỉ

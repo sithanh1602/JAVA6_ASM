@@ -26,7 +26,6 @@ export const getAddressesForUser = async (userId) => {
         if (!userId) {
             throw new Error('User ID không hợp lệ.');
         }
-
         const response = await axios.get(`${API_URL}/user/${userId}`);
         return response.data; // Trả về danh sách địa chỉ
     } catch (error) {
@@ -40,7 +39,6 @@ export const createAddress = async (address) => {
         if (!address || typeof address !== 'object') {
             throw new Error('Dữ liệu địa chỉ không hợp lệ.');
         }
-
         const response = await axios.post(`${API_URL}/save`, address);
         return response.data; // Trả về địa chỉ đã lưu
     } catch (error) {
@@ -48,17 +46,19 @@ export const createAddress = async (address) => {
     }
 };
 
-// Hàm để lấy địa chỉ theo ID
-export const getAddressById = async (addressId) => {
+// Hàm để lấy địa chỉ theo ID (đã tối ưu)
+export const getAddressById = async (id) => {
     try {
-        if (!addressId || typeof addressId !== 'number') {
+        if (!id || typeof id !== 'number') {
             throw new Error('ID địa chỉ không hợp lệ.');
         }
-
-        const response = await axios.get(`${API_URL}/${addressId}`);
+        console.log('Gửi yêu cầu lấy địa chỉ với ID:', id); // Thêm log để debug
+        const response = await axios.get(`${API_URL}/${id}`);
+        console.log('Phản hồi từ server:', response.data); // Log dữ liệu trả về
         return response.data; // Trả về địa chỉ
     } catch (error) {
         if (error.response && error.response.status === 404) {
+            console.error('Không tìm thấy địa chỉ với ID:', id);
             throw new Error('Không tìm thấy địa chỉ.');
         }
         handleError(error);
@@ -71,7 +71,6 @@ export const updateAddress = async (idAddress, updatedAddress) => {
         if (!idAddress || typeof idAddress !== 'number') {
             throw new Error('ID địa chỉ không hợp lệ.');
         }
-
         if (!updatedAddress || typeof updatedAddress !== 'object') {
             throw new Error('Dữ liệu cập nhật địa chỉ không hợp lệ.');
         }
@@ -87,30 +86,21 @@ export const updateAddress = async (idAddress, updatedAddress) => {
         // Đảm bảo rằng có tên trong địa chỉ, nếu không thì sử dụng tên mặc định
         updatedAddress.name = updatedAddress.name || 'Tên mặc định';
 
-        // Log dữ liệu của updatedAddress trước khi gửi yêu cầu PUT
         console.log('Dữ liệu cập nhật địa chỉ:', updatedAddress);
-
-        // Gửi yêu cầu PUT để cập nhật địa chỉ
         const response = await axios.put(`${API_URL}/${idAddress}`, updatedAddress);
-
-        // Log dữ liệu trả về từ API sau khi cập nhật
-        console.log('Dữ liệu trả về sau khi cập nhật địa chỉ:', response.data);
+        console.log('Dữ liệu trả về sau khi cập nhật:', response.data);
 
         return response.data; // Trả về địa chỉ đã cập nhật
     } catch (error) {
         if (error.response) {
-            // In ra lỗi chi tiết từ API
             console.error('Lỗi từ API:', error.response.data);
             throw new Error(error.response.data.message || 'Lỗi khi cập nhật địa chỉ');
         } else {
-            // Lỗi khác
             console.error('Lỗi không phải từ API:', error);
             throw new Error('Không thể kết nối đến API.');
         }
     }
 };
-
-
 
 // Hàm để xóa địa chỉ
 export const deleteAddress = async (addressId) => {
@@ -118,7 +108,6 @@ export const deleteAddress = async (addressId) => {
         if (!addressId || typeof addressId !== 'number') {
             throw new Error('ID địa chỉ không hợp lệ.');
         }
-
         const response = await axios.delete(`${API_URL}/${addressId}`);
         if (response.status === 204) {
             return addressId; // Trả về ID của địa chỉ đã xóa

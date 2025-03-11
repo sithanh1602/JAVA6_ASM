@@ -4,7 +4,7 @@ import com.be.entity.Address;
 import com.be.entity.User;
 import com.be.rep.AddressRepository;
 import com.be.rep.UserRepository;
-import com.be.DTO.AddressDTO;
+import com.be.dto.AddressDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.be.service;
 
-import com.be.DTO.OrderItem;
-import com.be.DTO.OrderRequest;
+import com.be.dto.OrderItem;
+import com.be.dto.OrderRequest;
 import com.be.entity.*;
 import com.be.rep.*;
 import jakarta.transaction.Transactional;
@@ -70,6 +70,7 @@ public class OrderService {
         }
     }
 
+    @Transactional
     public List<Map<String, Object>> getAllOrdersWithDetails() throws Exception {
         List<Orders> orders = ordersRepository.findAll();
         List<Map<String, Object>> response = new ArrayList<>();
@@ -224,6 +225,7 @@ public class OrderService {
             productInfo.put("imageUrl", imageUrl); // Gán ảnh đầu tiên của ProductVariant
             productInfo.put("quantity", orderDetail.getQuantity());
             productInfo.put("price", productVariant.getPrice());
+            productInfo.put("OrderDetailId",orderDetail.getId());
 
             productsWithQuantity.add(productInfo);
         }

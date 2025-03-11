@@ -1,6 +1,5 @@
-package com.be.DTO;
+package com.be.dto;
 
-import com.be.entity.ProductVariant;
 import lombok.Data;
 
 import java.util.ArrayList;
