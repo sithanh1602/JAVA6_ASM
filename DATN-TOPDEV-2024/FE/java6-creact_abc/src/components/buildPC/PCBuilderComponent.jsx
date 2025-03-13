@@ -23,25 +23,97 @@ const PCBuilderComponent = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedComponents, setSelectedComponents] = useState(() => {
-    const savedComponents = localStorage.getItem("selectedComponents");
-    return savedComponents ? JSON.parse(savedComponents) : {};
+  
+  // State cho nhiều cấu hình
+  const [currentConfigIndex, setCurrentConfigIndex] = useState(0);
+  const [configurations, setConfigurations] = useState(() => {
+    const savedConfigurations = localStorage.getItem("pcConfigurations");
+    if (savedConfigurations) {
+      return JSON.parse(savedConfigurations);
+    }
+    // Mặc định tạo 3 cấu hình trống
+    return [
+      { components: {}, quantities: {}, name: "Cấu hình 1" },
+      { components: {}, quantities: {}, name: "Cấu hình 2" },
+      { components: {}, quantities: {}, name: "Cấu hình 3" }
+    ];
   });
-  const [quantities, setQuantities] = useState(() => {
-    const savedQuantities = localStorage.getItem("componentQuantities");
-    return savedQuantities ? JSON.parse(savedQuantities) : {};
-  });
+  
+  // Lấy cấu hình hiện tại
+  const currentConfig = configurations[currentConfigIndex];
+  const [selectedComponents, setSelectedComponents] = useState(currentConfig.components || {});
+  const [quantities, setQuantities] = useState(currentConfig.quantities || {});
+  
   const [totalPrice, setTotalPrice] = useState(0);
   const [stockQuantities, setStockQuantities] = useState({});
   const printRef = useRef(null);
 
   const navigate = useNavigate();
 
-  // Hàm kiểm tra số lượng hiện tại từ API
+  // Cập nhật localStorage khi configurations thay đổi
+  useEffect(() => {
+    localStorage.setItem("pcConfigurations", JSON.stringify(configurations));
+  }, [configurations]);
+  
+  // Cập nhật cấu hình khi người dùng chuyển đổi giữa các cấu hình
+  useEffect(() => {
+    // Lưu cấu hình hiện tại trước khi chuyển
+    if (currentConfigIndex >= 0 && currentConfigIndex < configurations.length) {
+      setSelectedComponents(configurations[currentConfigIndex].components || {});
+      setQuantities(configurations[currentConfigIndex].quantities || {});
+    }
+  }, [currentConfigIndex, configurations]);
+
+  // Hàm xử lý khi chuyển đổi giữa các cấu hình
+  const switchConfiguration = (index) => {
+    // Lưu cấu hình hiện tại trước khi chuyển đổi
+    saveCurrentConfiguration();
+    
+    // Chuyển đến cấu hình mới
+    setCurrentConfigIndex(index);
+  };
+  
+  // Hàm lưu cấu hình hiện tại
+  const saveCurrentConfiguration = () => {
+    const updatedConfigurations = [...configurations];
+    updatedConfigurations[currentConfigIndex] = {
+      ...updatedConfigurations[currentConfigIndex],
+      components: selectedComponents,
+      quantities: quantities
+    };
+    setConfigurations(updatedConfigurations);
+  };
+
+  // Hàm xóa cấu hình hiện tại
+  const clearCurrentConfiguration = () => {
+    Swal.fire({
+      title: "Xóa cấu hình?",
+      text: `Bạn có chắc muốn xóa ${configurations[currentConfigIndex].name}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedConfigurations = [...configurations];
+        updatedConfigurations[currentConfigIndex] = {
+          ...updatedConfigurations[currentConfigIndex],
+          components: {},
+          quantities: {}
+        };
+        setConfigurations(updatedConfigurations);
+        setSelectedComponents({});
+        setQuantities({});
+        Swal.fire("Đã xóa!", "Cấu hình đã được xóa thành công.", "success");
+      }
+    });
+  };
+
+  // Kiểm tra số lượng hiện tại từ API
   const checkVariantQuantity = async (variantId) => {
     try {
       const response = await axios.get(`${BASE_URL}/check-quantity/${variantId}`);
-      return response.data; // Giả định response.data là số lượng hiện tại trong db
+      return response.data; 
     } catch (error) {
       console.error(`Error checking quantity for variant ID ${variantId}:`, error);
       throw error;
@@ -52,7 +124,7 @@ const PCBuilderComponent = () => {
   const fetchStockQuantity = async (variantId) => {
     try {
       const response = await axios.get(`${BASE_URL}/variants/${variantId}`);
-      return response.data.quantity; // Giả định response.data.quantity là số lượng trong kho
+      return response.data.quantity;
     } catch (error) {
       console.error(`Error fetching stock for variant ID ${variantId}:`, error);
       return null;
@@ -74,9 +146,10 @@ const PCBuilderComponent = () => {
     fetchCategories();
   }, []);
 
+  // Cập nhật tổng giá và số lượng trong kho
   useEffect(() => {
-    localStorage.setItem("selectedComponents", JSON.stringify(selectedComponents));
-    localStorage.setItem("componentQuantities", JSON.stringify(quantities));
+    // Lưu cấu hình hiện tại sau mỗi thay đổi
+    saveCurrentConfiguration();
 
     let total = 0;
     const fetchAllStockQuantities = async () => {
@@ -119,7 +192,7 @@ const PCBuilderComponent = () => {
     closeModal();
   };
 
-  // Xử lý thay đổi số lượng với thông báo khi vượt quá
+  // Xử lý thay đổi số lượng
   const handleQuantityChange = (categoryId, change) => {
     setQuantities((prev) => {
       const currentQty = prev[categoryId] || 1;
@@ -482,27 +555,29 @@ const PCBuilderComponent = () => {
         </h1>
 
         <div className="flex flex-wrap gap-2 mb-6 items-center">
-          <Button color="primary" variant="solid" className="font-medium rounded-none">
-            Cấu hình 1
-          </Button>
-          <Button color="default" variant="flat" className="font-medium rounded-none">
-            Cấu hình 2
-          </Button>
-          <Button color="default" variant="flat" className="font-medium rounded-none">
-            Cấu hình 3
-          </Button>
+          {configurations.map((config, index) => (
+            <Button 
+              key={index}
+              color={currentConfigIndex === index ? "primary" : "default"}
+              variant={currentConfigIndex === index ? "solid" : "flat"}
+              className="font-medium rounded-none"
+              onClick={() => switchConfiguration(index)}
+            >
+              {config.name}
+            </Button>
+          ))}
 
           <div className="ml-auto flex items-center gap-4">
             <div className="flex flex-col items-end">
               <span className="text-sm text-gray-500">Tổng tiền tạm tính:</span>
               <span className="text-lg font-bold text-red-600">
-              {formatPrice(totalPrice)}VND
-            </span>
+                {formatPrice(totalPrice)}VND
+              </span>
             </div>
             <Dropdown>
               <DropdownTrigger>
                 <Button variant="bordered" className="font-medium rounded-none">
-                  Tải cấu hình
+                  Tùy chọn
                   <svg
                       className="w-4 h-4 ml-2"
                       fill="none"
@@ -519,8 +594,8 @@ const PCBuilderComponent = () => {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="Tùy chọn tải" className="rounded-none">
-                <DropdownItem key="export" onClick={handleExportPDF}>Xuất file</DropdownItem>
-                <DropdownItem key="save">Lưu cấu hình</DropdownItem>
+                <DropdownItem key="clear" onClick={clearCurrentConfiguration}>Xóa cấu hình hiện tại</DropdownItem>
+                <DropdownItem key="export" onClick={handleExportPDF}>Xuất file PDF</DropdownItem>
                 <DropdownItem key="share">Chia sẻ</DropdownItem>
               </DropdownMenu>
             </Dropdown>
@@ -528,15 +603,16 @@ const PCBuilderComponent = () => {
         </div>
 
         <Card className="p-6 mb-4 shadow-md rounded-none">
-          <div className="flex">
-            <Button
-                className="rounded-none"
-                color="secondary"
-                onClick={handleProceedToCheckout}
-            >
-              Thêm vào trang thanh toán
-            </Button>
-            <div className="pl-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-medium">{configurations[currentConfigIndex].name}</h2>
+            <div className="flex gap-2">
+              <Button
+                  className="rounded-none"
+                  color="secondary"
+                  onClick={handleProceedToCheckout}
+              >
+                Thêm vào trang thanh toán
+              </Button>
               <Button className="rounded-none" color="success">
                 Nhận tư vấn từ AI
               </Button>
