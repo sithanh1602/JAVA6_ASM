@@ -87,6 +87,8 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
 
   useEffect(() => {
     if (editingVariant) {
+      console.log("EditingVariant description:", editingVariant.description);
+      
       const updatedFormData = {
         quantity: editingVariant.stock || 1,
         images: editingVariant.images || [],
@@ -95,14 +97,23 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         attributes: editingVariant.attributes || [],
         description: editingVariant.description || "",
       };
+      
       setFormData(updatedFormData);
       setSelectedIds(editingVariant.attributes?.map((attr) => attr.id) || []);
+      
+      // Đặt các giá trị form bao gồm description
       reset(updatedFormData);
+      
+      // Đảm bảo description được đặt đúng
+      setValue("description", editingVariant.description || "");
     }
-  }, [editingVariant, reset]);
+  }, [editingVariant, reset, setValue]);
+  
   const handleEditVariant = (variant) => {
     console.log("Editing Variant Data:", variant);
-
+    console.log("Variant description:", variant.description);
+  
+    // Đảm bảo description được truyền đúng
     setEditingVariant({
       ...variant,
       stock: variant.stock,
@@ -112,22 +123,28 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       images: variant.images || [],
       description: variant.description || "",
     });
-
+  
     const updatedFormData = {
       quantity: variant.stock,
       images: variant.images,
       status: variant.status,
       price: variant.price,
       attributes: variant.attributes || [],
-      description: variant.description || "", // Kiểm tra description
+      description: variant.description || "",
     };
-
+  
     console.log("Updated Form Data:", updatedFormData);
-
+    console.log("Description in form:", updatedFormData.description);
+  
     setFormData(updatedFormData);
     setSelectedIds(variant.attributes?.map((attr) => attr.id) || []);
+    
+    // Reset form với updatedFormData
     reset(updatedFormData);
-
+    
+    // Đặt riêng giá trị description để đảm bảo nó được cập nhật
+    setValue("description", variant.description || "");
+  
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -432,11 +449,10 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
           <Controller
             name="description"
             control={control}
-            defaultValue=""
             render={({ field }) => (
               <CKEditor
                 editor={ClassicEditor}
-                data={field.value ?? ""}
+                data={field.value || formData.description || ""}
                 config={{
                   toolbar: [
                     "heading",
@@ -462,18 +478,13 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
                     "undo",
                     "redo",
                   ],
-                  mediaEmbed: {
-                    previewsInData: true, // Cho phép nhúng video từ link
-                  },
-                  image: {
-                    toolbar: [
-                      "imageTextAlternative",
-                      "imageStyle:full",
-                      "imageStyle:side",
-                    ],
-                  },
                 }}
-                onChange={(event, editor) => field.onChange(editor.getData())}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  field.onChange(data);
+                  // Cập nhật cả formData để đảm bảo dữ liệu được giữ
+                  setFormData((prev) => ({ ...prev, description: data }));
+                }}
               />
             )}
           />

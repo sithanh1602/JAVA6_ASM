@@ -6,6 +6,7 @@ import com.be.entity.BuildPC;
 import com.be.entity.BuildPCImages;
 import com.be.entity.BuildPCProductVariant;
 import com.be.entity.ProductVariant;
+import com.be.entity.Category;
 import com.be.rep.BuildPCRepository;
 import com.be.rep.ProductVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,13 +100,32 @@ public class BuildPCService {
             List<BuildPCProductVariantDTO> variantDTOs = buildPC.getBuildPCProductVariants().stream()
                     .map(variant -> {
                         BuildPCProductVariantDTO variantDTO = new BuildPCProductVariantDTO();
-                        variantDTO.setProductVariantId(variant.getProductVariant().getId());
+                        ProductVariant productVariant = variant.getProductVariant();
+
+                        variantDTO.setProductVariantId(productVariant.getId());
                         variantDTO.setVariantQuantity(variant.getVariantQuantity());
+
+                        // Add the product variant's own quantity
+                        variantDTO.setQuantity(productVariant.getQuantity());
+
+                        // Thêm các thông tin chi tiết của variant
+                        variantDTO.setNameVariants(productVariant.getNameVariants());
+                        variantDTO.setPrice(productVariant.getPrice());
+                        variantDTO.setImage(productVariant.getImages() != null && !productVariant.getImages().isEmpty() ?
+                                productVariant.getImages().get(0).getImage() : null);
+                        variantDTO.setStatus(productVariant.getStatus());
+
+                        // Lấy thông tin về danh mục
+                        if (productVariant.getProduct() != null && productVariant.getProduct().getCategory() != null) {
+                            variantDTO.setCategoryId((long) productVariant.getProduct().getCategory().getId());
+                            variantDTO.setCategoryName(productVariant.getProduct().getCategory().getName());
+                        }
+
                         return variantDTO;
                     }).collect(Collectors.toList());
             dto.setBuildPCProductVariants(variantDTOs);
 
-            // 🔥 Tính tổng số sản phẩm
+            // Tính tổng số sản phẩm
             int totalProducts = variantDTOs.stream().mapToInt(BuildPCProductVariantDTO::getVariantQuantity).sum();
             dto.setTotalProducts(totalProducts);
 
@@ -176,6 +196,11 @@ public class BuildPCService {
         buildPCRepository.save(buildPC);
     }
 
-
+    public void updateBuildPCStatus(Long buildId, String status) {
+        BuildPC buildPC = buildPCRepository.findById(buildId)
+                .orElseThrow(() -> new RuntimeException("BuildPC not found with ID: " + buildId));
+        buildPC.setStatus(status);
+        buildPCRepository.save(buildPC);
+    }
 
 }

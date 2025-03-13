@@ -100,6 +100,7 @@ const ProductVariantsTable = ({ productId, onEditVariant }) => {
               price: row.price,
               status: row.status,
               attributes: row.attributes,
+              description: row.description || "",
               images: row.imageUrl.split(',').map(url => ({ preview: url }))
             };
             onEditVariant(processedVariant);
