@@ -273,7 +273,7 @@ const OrderList = () => {
             selector: row => row.paymentStatus,
             cell: row => (
                 <span className={`font-medium ${row.paymentStatus ? 'text-green-500' : 'text-blue-500'}`}>
-                    {row.paymentStatus ? 'Thanh toán online' : 'Thanh toán khi nhận hàng'}
+                    {row.paymentStatus ? 'Online' : 'COD'}
                 </span>
             ),
             sortable: true
@@ -386,8 +386,8 @@ const OrderList = () => {
                 noDataComponent="Không có đơn hàng nào."
                 persistTableHead
             />
-            <Modal isOpen={isModalOpen} onOpenChange={setIsModalOpen} size="4xl">
-                <ModalContent>
+            <Modal isOpen={isModalOpen} onOpenChange={setIsModalOpen} size="5xl">
+                <ModalContent className="rounded-none !border-radius-0">
                     <ModalHeader className="text-xl font-bold">Chi Tiết Đơn Hàng</ModalHeader>
                     <ModalBody>
                         {selectedOrder && (

@@ -52,8 +52,6 @@ const Navbar = () => {
                 setCartCount(0);
             }
         } catch (err) {
-            console.error("Error fetching cart:", err);
-            toast.error('Không thể tải giỏ hàng.');
             setCartItems([]);
             setCartCount(0);
         } finally {

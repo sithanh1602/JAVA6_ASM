@@ -9,7 +9,7 @@ const Sidebar = ({ user }) => {
     ];
 
     return (
-        <aside className="w-full md:w-4/4 bg-white p-6 rounded-lg ">
+        <aside className="w-full md:w-4/4 bg-white p-6">
             <div className="mb-6 text-center">
                 <img
                     src={user.image || "https://placehold.co/50x50"}

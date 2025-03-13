@@ -19,7 +19,6 @@ const HomePage = () => {
                 <HotProducts />
                 <NewProduct />
                 <ProductList />
-
             </div>
         </div>
     );

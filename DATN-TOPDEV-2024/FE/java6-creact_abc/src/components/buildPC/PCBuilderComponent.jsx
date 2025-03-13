@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Button,
   Card,
@@ -12,6 +12,7 @@ import {
 import ComponentSelectionModal from "./ComponentSelectionModal";
 import CategoryService from "../../services/CategoryService";
 import { FaTrash } from "react-icons/fa";
+import logo from '../../assets/images/cpu2.png';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -32,6 +33,7 @@ const PCBuilderComponent = () => {
   });
   const [totalPrice, setTotalPrice] = useState(0);
   const [stockQuantities, setStockQuantities] = useState({});
+  const printRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -62,7 +64,7 @@ const PCBuilderComponent = () => {
       try {
         const data = await CategoryService.getAllCategories();
         const filteredCategories = data.filter(
-          (category) => category.id_build === 2
+            (category) => category.id_build === 2
         );
         setCategories(filteredCategories);
       } catch (error) {
@@ -83,7 +85,7 @@ const PCBuilderComponent = () => {
         const stockQty = await fetchStockQuantity(component.id);
         newStockQuantities[categoryId] = stockQty !== null ? stockQty : component.quantity || 0;
         console.log(
-          `${component.nameVariants}: Trong db = ${newStockQuantities[categoryId]}, Hiện tại = ${quantities[categoryId] || 1}`
+            `${component.nameVariants}: Trong db = ${newStockQuantities[categoryId]}, Hiện tại = ${quantities[categoryId] || 1}`
         );
         if (component && component.price) {
           total += component.price * (quantities[categoryId] || 1);
@@ -188,24 +190,24 @@ const PCBuilderComponent = () => {
 
     try {
       const quantityChecks = await Promise.all(
-        Object.entries(selectedComponents).map(async ([categoryId, component]) => {
-          const currentQty = quantities[categoryId] || 1;
-          const latestQty = await checkVariantQuantity(component.id);
-          return { categoryId, component, currentQty, latestQty };
-        })
+          Object.entries(selectedComponents).map(async ([categoryId, component]) => {
+            const currentQty = quantities[categoryId] || 1;
+            const latestQty = await checkVariantQuantity(component.id);
+            return { categoryId, component, currentQty, latestQty };
+          })
       );
 
       const invalidItems = quantityChecks.filter(
-        (item) => item.currentQty > item.latestQty
+          (item) => item.currentQty > item.latestQty
       );
 
       if (invalidItems.length > 0) {
         const errorMessage = invalidItems
-          .map(
-            (item) =>
-              `${item.component.nameVariants}: Yêu cầu (${item.currentQty}) vượt quá kho (${item.latestQty})`
-          )
-          .join("\n");
+            .map(
+                (item) =>
+                    `${item.component.nameVariants}: Yêu cầu (${item.currentQty}) vượt quá kho (${item.latestQty})`
+            )
+            .join("\n");
 
         Swal.fire({
           icon: "error",
@@ -225,13 +227,13 @@ const PCBuilderComponent = () => {
       }
 
       const buildCartItems = Object.entries(selectedComponents).map(
-        ([categoryId, component]) => ({
-          product_variant_id: component.id,
-          productPrice: component.price,
-          quantity: quantities[categoryId] || 1,
-          nameVariants: component.nameVariants || "Không có tên",
-          image: component.image,
-        })
+          ([categoryId, component]) => ({
+            product_variant_id: component.id,
+            productPrice: component.price,
+            quantity: quantities[categoryId] || 1,
+            nameVariants: component.nameVariants || "Không có tên",
+            image: component.image,
+          })
       );
 
       navigate("/orders", { state: { cartItems: buildCartItems } });
@@ -251,167 +253,330 @@ const PCBuilderComponent = () => {
     const stockQty = stockQuantities[categoryId] !== undefined ? stockQuantities[categoryId] : component.quantity || 0;
 
     return (
-      <Card className="rounded-none shadow-none border p-3 w-full md:w-3/4 lg:w-4/5">
-        <CardBody className="flex flex-row items-center">
-          <div className="w-20 h-20 mr-4 flex-shrink-0">
-            <img
-              src={component.image || "/api/placeholder/80/80"}
-              alt={component.nameVariants}
-              className="object-contain w-full h-full"
-            />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-sm font-medium">{component.nameVariants}</h3>
-            <p className="text-xs text-gray-500">
-              Tình trạng: {component.status || "Available"}
-            </p>
-            <p className="text-xs text-gray-500">
-              Số Lượng Trong Kho: {stockQty}
-            </p>
-          </div>
-          <div className="text-right min-w-32 flex items-center gap-2">
-            <div>
-              <div className="text-primary font-medium">
-                {formatPrice(component.price * qty)} ₫
-              </div>
-              <div className="text-xs text-gray-500">
-                Đơn giá: {formatPrice(component.price)} ₫
-              </div>
+        <Card className="rounded-none shadow-none border p-3 w-full md:w-3/4 lg:w-4/5">
+          <CardBody className="flex flex-row items-center">
+            <div className="w-20 h-20 mr-4 flex-shrink-0">
+              <img
+                  src={component.image || "/api/placeholder/80/80"}
+                  alt={component.nameVariants}
+                  className="object-contain w-full h-full"
+              />
             </div>
-            <div className="flex items-center border rounded p-1">
-              <Button
-                isIconOnly
-                color="primary"
-                size="sm"
-                onClick={() =>
-                  qty === 1
-                    ? handleDeleteComponent(categoryId)
-                    : handleQuantityChange(categoryId, -1)
-                }
-                className="rounded-none p-1"
-              >
-                {qty === 1 ? <FaTrash size={14} /> : "-"}
-              </Button>
-              <span className="px-2 text-sm">{qty}</span>
-              <Button
-                isIconOnly
-                color="primary"
-                size="sm"
-                onClick={() => handleQuantityChange(categoryId, 1)}
-                className="rounded-none p-1"
-                // Không cần disabled để thông báo luôn xuất hiện khi vượt quá
-              >
-                +
-              </Button>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium">{component.nameVariants}</h3>
+              <p className="text-xs text-gray-500">
+                Tình trạng: {component.status || "Available"}
+              </p>
+              <p className="text-xs text-gray-500">
+                Số Lượng Trong Kho: {stockQty}
+              </p>
             </div>
-          </div>
-        </CardBody>
-      </Card>
-    );
-  };
-
-  return (
-    <div className="max-w-6xl mx-auto p-4">
-      <h1 className="text-2xl font-bold text-gray-700 mb-6">
-        Build PC - Xây dựng cấu hình máy tính
-      </h1>
-
-      <div className="flex flex-wrap gap-2 mb-6 items-center">
-        <Button color="primary" variant="solid" className="font-medium rounded-none">
-          Cấu hình 1
-        </Button>
-        <Button color="default" variant="flat" className="font-medium rounded-none">
-          Cấu hình 2
-        </Button>
-        <Button color="default" variant="flat" className="font-medium rounded-none">
-          Cấu hình 3
-        </Button>
-
-        <div className="ml-auto flex items-center gap-4">
-          <div className="flex flex-col items-end">
-            <span className="text-sm text-gray-500">Tổng tiền tạm tính:</span>
-            <span className="text-lg font-bold text-red-600">
-              {formatPrice(totalPrice)} ₫
-            </span>
-          </div>
-          <Dropdown>
-            <DropdownTrigger>
-              <Button variant="bordered" className="font-medium rounded-none">
-                Tải cấu hình
-                <svg
-                  className="w-4 h-4 ml-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Tùy chọn tải" className="rounded-none">
-              <DropdownItem key="export">Xuất file</DropdownItem>
-              <DropdownItem key="save">Lưu cấu hình</DropdownItem>
-              <DropdownItem key="share">Chia sẻ</DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </div>
-      </div>
-
-      <Card className="p-6 mb-4 shadow-md rounded-none">
-        <div className="flex">
-          <Button
-            className="rounded-none"
-            color="secondary"
-            onClick={handleProceedToCheckout}
-          >
-            Thêm vào trang thanh toán
-          </Button>
-          <div className="pl-4">
-            <Button className="rounded-none" color="success">
-              Nhận tư vấn từ AI
-            </Button>
-          </div>
-        </div>
-        <div className="relative">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className="border-b border-gray-200 py-6 flex flex-wrap md:flex-nowrap items-center"
-            >
-              <div className="w-full md:w-1/4 font-medium text-gray-700 mb-2 md:mb-0">
-                {category.name}
+            <div className="text-right min-w-32 flex items-center gap-2">
+              <div>
+                <div className="text-primary font-medium">
+                  {formatPrice(component.price * qty)} ₫
+                </div>
+                <div className="text-xs text-gray-500">
+                  Đơn giá: {formatPrice(component.price)} ₫
+                </div>
               </div>
-              <div className="w-full md:w-3/4 text-gray-500 mb-2 md:mb-0">
-                {getComponentDetails(selectedComponents[category.id], category.id)}
-              </div>
-              <div className="w-full md:w-1/6 flex justify-end">
+              <div className="flex items-center border rounded p-1">
                 <Button
-                  color="primary"
-                  className="font-medium rounded-none"
-                  onClick={() => openModal(category.id)}
+                    isIconOnly
+                    color="primary"
+                    size="sm"
+                    onClick={() =>
+                        qty === 1
+                            ? handleDeleteComponent(categoryId)
+                            : handleQuantityChange(categoryId, -1)
+                    }
+                    className="rounded-none p-1"
                 >
-                  {selectedComponents[category.id] ? "Thay đổi" : "Chọn"}
+                  {qty === 1 ? <FaTrash size={14} /> : "-"}
+                </Button>
+                <span className="px-2 text-sm">{qty}</span>
+                <Button
+                    isIconOnly
+                    color="primary"
+                    size="sm"
+                    onClick={() => handleQuantityChange(categoryId, 1)}
+                    className="rounded-none p-1"
+                    // Không cần disabled để thông báo luôn xuất hiện khi vượt quá
+                >
+                  +
                 </Button>
               </div>
             </div>
-          ))}
-        </div>
-      </Card>
+          </CardBody>
+        </Card>
+    );
+  };
 
-      <ComponentSelectionModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        selectedCategory={selectedCategory}
-        categories={categories}
-        onSelectComponent={handleComponentSelect}
-        selectedid={selectedComponents[selectedCategory]?.id}
-      />
-    </div>
+  // Hàm xuất file PDF
+  const handleExportPDF = () => {
+    if (Object.keys(selectedComponents).length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Chưa chọn sản phẩm",
+        text: "Vui lòng chọn ít nhất một linh kiện để xuất file.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    // Chuẩn bị trang in
+    const printContent = document.createElement('div');
+    printContent.className = 'print-content';
+
+    // Tạo CSS cho bản in
+    const printStyles = document.createElement('style');
+    printStyles.innerHTML = `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .print-content * {
+          visibility: visible;
+        }
+        .print-content {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        .no-print {
+          display: none !important;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 6px;
+          text-align: left;
+        }
+        th {
+          background-color: #f2f2f2;
+        }
+        .total-row {
+          font-weight: bold;
+        }
+        .header {
+          margin-bottom: 20px;
+          font-weight: bold;
+        }
+        .header .h5 {
+          margin-bottom: 20px;
+          font-weight: bold;
+          font-size: 50px;
+        }
+        .footer {
+          margin-top: 30px;
+          text-align: center;
+          font-style: italic;
+        }
+        .product-image {
+          width: 60px;
+          height: 60px;
+          object-fit: contain;
+        }
+        .component-cell {
+          display: flex;
+          align-items: center;
+        }
+        .component-info {
+          margin-left: 10px;
+        }
+      }
+    `;
+    document.head.appendChild(printStyles);
+
+    // Tạo nội dung cho bản in
+    const header = document.createElement('div');
+    header.className = 'header';
+    header.innerHTML = `
+       <h4 style="font-size: x-large; display: flex; align-items: center;"> 
+            <img src="${logo}" alt="TechMart Logo" style="width: 30px; height: auto; margin-right: 8px;">
+            TECHMART.VN
+       </h4>
+
+      <h1>Chi tiết cấu hình PC</h1>
+      <p>Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}</p>
+    `;
+    printContent.appendChild(header);
+
+    // Tạo bảng linh kiện có kèm hình ảnh
+    const table = document.createElement('table');
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Loại linh kiện</th>
+          <th>Hình ảnh & Thông tin sản phẩm</th>
+          <th>Số lượng</th>
+          <th>Đơn giá</th>
+          <th>Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Object.entries(selectedComponents).map(([categoryId, component], index) => {
+      const category = categories.find(cat => cat.id === parseInt(categoryId));
+      const qty = quantities[categoryId] || 1;
+      return `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${category ? category.name : 'Không xác định'}</td>
+              <td>
+                <div class="component-cell">
+                  <img class="product-image" src="${component.image || "/api/placeholder/80/80"}" alt="${component.nameVariants}">
+                  <div class="component-info">
+                    <div>${component.nameVariants}</div>
+                  </div>
+                </div>
+              </td>
+              <td>${qty}</td>
+              <td style="color: red;">${formatPrice(component.price)} VND</td>
+              <td style="color: purple;">${formatPrice(component.price * qty)} VND</td>
+            </tr>
+          `;
+    }).join('')}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="5" style="text-align: right;">Tổng tiền:</td>
+          <td style="color: green">${formatPrice(totalPrice)} VND</td>
+        </tr>
+      </tfoot>
+    `;
+    printContent.appendChild(table);
+
+    // Thêm footer
+    const footer = document.createElement('div');
+    footer.className = 'footer';
+    footer.innerHTML = `
+      <p>Cảm ơn bạn đã sử dụng dịch vụ xây dựng cấu hình PC của chúng tôi!</p>
+    `;
+    printContent.appendChild(footer);
+
+    // Thêm vào document để in
+    document.body.appendChild(printContent);
+
+    // Chờ đợi để đảm bảo hình ảnh đã được tải
+    setTimeout(() => {
+      // Thực hiện in
+      window.print();
+
+      // Xóa nội dung in và styles sau khi đã in xong
+      setTimeout(() => {
+        document.body.removeChild(printContent);
+        document.head.removeChild(printStyles);
+      }, 1000);
+    }, 300);
+  };
+
+  return (
+      <div className="max-w-6xl mx-auto p-4">
+        <h1 className="text-2xl font-bold text-gray-700 mb-6">
+          Build PC - Xây dựng cấu hình máy tính
+        </h1>
+
+        <div className="flex flex-wrap gap-2 mb-6 items-center">
+          <Button color="primary" variant="solid" className="font-medium rounded-none">
+            Cấu hình 1
+          </Button>
+          <Button color="default" variant="flat" className="font-medium rounded-none">
+            Cấu hình 2
+          </Button>
+          <Button color="default" variant="flat" className="font-medium rounded-none">
+            Cấu hình 3
+          </Button>
+
+          <div className="ml-auto flex items-center gap-4">
+            <div className="flex flex-col items-end">
+              <span className="text-sm text-gray-500">Tổng tiền tạm tính:</span>
+              <span className="text-lg font-bold text-red-600">
+              {formatPrice(totalPrice)}VND
+            </span>
+            </div>
+            <Dropdown>
+              <DropdownTrigger>
+                <Button variant="bordered" className="font-medium rounded-none">
+                  Tải cấu hình
+                  <svg
+                      className="w-4 h-4 ml-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                  >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Tùy chọn tải" className="rounded-none">
+                <DropdownItem key="export" onClick={handleExportPDF}>Xuất file</DropdownItem>
+                <DropdownItem key="save">Lưu cấu hình</DropdownItem>
+                <DropdownItem key="share">Chia sẻ</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        </div>
+
+        <Card className="p-6 mb-4 shadow-md rounded-none">
+          <div className="flex">
+            <Button
+                className="rounded-none"
+                color="secondary"
+                onClick={handleProceedToCheckout}
+            >
+              Thêm vào trang thanh toán
+            </Button>
+            <div className="pl-4">
+              <Button className="rounded-none" color="success">
+                Nhận tư vấn từ AI
+              </Button>
+            </div>
+          </div>
+          <div className="relative" ref={printRef}>
+            {categories.map((category) => (
+                <div
+                    key={category.id}
+                    className="border-b border-gray-200 py-6 flex flex-wrap md:flex-nowrap items-center"
+                >
+                  <div className="w-full md:w-1/4 font-medium text-gray-700 mb-2 md:mb-0">
+                    {category.name}
+                  </div>
+                  <div className="w-full md:w-3/4 text-gray-500 mb-2 md:mb-0">
+                    {getComponentDetails(selectedComponents[category.id], category.id)}
+                  </div>
+                  <div className="w-full md:w-1/6 flex justify-end no-print">
+                    <Button
+                        color="primary"
+                        className="font-medium rounded-none"
+                        onClick={() => openModal(category.id)}
+                    >
+                      {selectedComponents[category.id] ? "Thay đổi" : "Chọn"}
+                    </Button>
+                  </div>
+                </div>
+            ))}
+          </div>
+        </Card>
+
+        <ComponentSelectionModal
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            selectedCategory={selectedCategory}
+            categories={categories}
+            onSelectComponent={handleComponentSelect}
+            selectedid={selectedComponents[selectedCategory]?.id}
+        />
+      </div>
   );
 };
 

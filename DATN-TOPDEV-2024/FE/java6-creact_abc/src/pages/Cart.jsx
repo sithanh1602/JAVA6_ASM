@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { getAllCartItemsForUser, removeProductFromCart } from '../services/CartService';
 import Breadcrumb from '../components/cart/Breadcrumb';
 import CartItem from '../components/cart/CartItem';
-import CouponForm from '../components/cart/CouponForm';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
 import 'aos/dist/aos.css';
+
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -15,6 +15,7 @@ const CartPage = () => {
     const [error, setError] = useState(null);
     const [userId, setUserId] = useState(null);
     const [selectedItems, setSelectedItems] = useState({});
+    const [selectAll, setSelectAll] = useState(false);
 
     const navigate = useNavigate();
 
@@ -104,6 +105,22 @@ const CartPage = () => {
             [product_variant_id]: isSelected
         };
         setSelectedItems(updatedSelectedItems);
+
+        // Check if all items are selected and update selectAll state
+        const allSelected = cartItems.every(item => updatedSelectedItems[item.product_variant_id]);
+        setSelectAll(allSelected);
+    };
+
+    const handleSelectAllChange = () => {
+        const newSelectAll = !selectAll;
+        setSelectAll(newSelectAll);
+
+        // Update all checkboxes
+        const updatedSelectedItems = {};
+        cartItems.forEach(item => {
+            updatedSelectedItems[item.product_variant_id] = newSelectAll;
+        });
+        setSelectedItems(updatedSelectedItems);
     };
 
     const formatCurrency = (value) => {
@@ -128,57 +145,123 @@ const CartPage = () => {
         }
         navigate('/orders', { state: { cartItems: selectedCartItems } });
     };
-    console.log(cartItems);
 
     return (
-        <div className="flex justify-center">
-            <div className="container mt-4 max-w-4xl">
+        <div className="flex justify-center pb-20">
+            <div className="container mt-4 max-w-5xl">
                 <Breadcrumb />
-                <div className="border rounded-lg p-4 mb-4">
-                    <div className="grid grid-cols-7 gap-4 items-center">
-                        <div className="font-bold">Chọn</div>
-                        <div className="col-span-2 font-bold">SẢN PHẨM</div>
-                        <div className="font-bold">GIÁ</div>
-                        <div className="font-bold pl-5">SỐ LƯỢNG</div>
-                        <div className="font-bold pl-7">TẠM TÍNH</div>
-                        <div className="font-bold"></div>
-                    </div>
+                <div className="border p-4 mb-4">
                     {loading ? (
-                        <div>Đang tải...</div>
+                        <div className="text-center py-8">Đang tải...</div>
                     ) : error ? (
-                        <div>Không thể tải giỏ hàng</div>
+                        <div className="text-center py-8 text-red-500">Không thể tải giỏ hàng</div>
                     ) : cartItems.length > 0 ? (
-                        cartItems.map(item => (
-                            <CartItem
-                                key={item.product_variant_id}
-                                item={item}
-                                onDelete={handleDeleteItemFromCart}
-                                onUpdateQuantity={handleUpdateQuantity}
-                                onSelectChange={handleSelectChange}
-                                isSelected={selectedItems[item.product_variant_id]}
-                            />
-                        ))
+                        <table className="w-full border-collapse">
+                            <thead>
+                            <tr className="border-b">
+                                <th className="py-2 px-4 text-left w-16">
+                                    <div className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectAll}
+                                            onChange={handleSelectAllChange}
+                                            className="w-5 h-5 mr-2"
+                                        />
+                                        Chọn
+                                    </div>
+                                </th>
+                                <th className="py-2 px-4 text-left">SẢN PHẨM</th>
+                                <th className="py-2 px-4 text-left w-40">GIÁ</th>
+                                <th className="py-2 px-4 text-left w-32">SỐ LƯỢNG</th>
+                                <th className="py-2 px-4 text-left w-32">TẠM TÍNH</th>
+                                <th className="py-2 px-4 text-left w-16"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {cartItems.map(item => (
+                                <tr key={item.product_variant_id} className="border-b">
+                                    <td className="py-4 px-4">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems[item.product_variant_id] || false}
+                                            onChange={() => handleSelectChange(item.product_variant_id, !selectedItems[item.product_variant_id])}
+                                            className="w-5 h-5"
+                                        />
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <div className="flex items-center">
+                                            <img
+                                                src={item.productImageUrl || 'https://placehold.co/50x50'}
+                                                alt={item.productName}
+                                                className="w-12 h-12 mr-4 object-cover"
+                                            />
+                                            <span>{item.productName}</span>
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-4">{formatCurrency(item.productPrice || 0)}</td>
+                                    <td className="py-4 px-4">
+                                        <div className="flex items-center border rounded-md overflow-hidden shadow-sm">
+                                            <button
+                                                className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
+                                                onClick={() => handleUpdateQuantity(item.product_variant_id, item.quantity - 1)}
+                                            >
+                                                −
+                                            </button>
+                                            <input
+                                                type="text"
+                                                className="w-12 h-8 text-center border-none focus:outline-none"
+                                                value={item.quantity}
+                                                onChange={(e) => handleUpdateQuantity(item.product_variant_id, Number(e.target.value) || 1)}
+                                            />
+                                            <button
+                                                className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
+                                                onClick={() => handleUpdateQuantity(item.product_variant_id, item.quantity + 1)}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-4">{formatCurrency((item.productPrice || 0) * item.quantity)}</td>
+                                    <td className="py-4 px-4">
+                                        <button
+                                            onClick={() => handleDeleteItemFromCart(item.product_variant_id)}
+                                            className="text-red-600 hover:text-red-800"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <td colSpan="6" className="text-right py-4 px-4">
+                                    <p className="font-bold">Tổng tiền: {formatCurrency(calculateTotalPrice())}</p>
+                                </td>
+                            </tr>
+                            </tfoot>
+                        </table>
                     ) : (
                         <div className="flex justify-center items-center h-48 bg-gray-100 rounded-lg shadow-lg">
                             <p className="text-xl font-semibold text-gray-600">Giỏ hàng của bạn trống</p>
                         </div>
                     )}
-                    <div className="mt-4 text-right pr-12">
-                        <p className="font-bold">Tổng tiền: {formatCurrency(calculateTotalPrice())}</p>
-                    </div>
-
-                    <CouponForm />
                 </div>
                 <div className="flex justify-end mt-4">
                     <Link to="/products">
-                        <button className="bg-orange-200 text-orange-700 px-4 py-2 ml-3 mr-2">Tiếp tục mua hàng</button>
+                        <button className="bg-gray-300 px-4 py-2 ml-3 mr-2">
+                            Tiếp tục mua hàng
+                        </button>
                     </Link>
-                    <button onClick={handleProceedToCheckout} className="bg-orange-500 text-white px-6 py-2">
+                    <button
+                        onClick={handleProceedToCheckout}
+                        className="bg-blue-500 text-white px-6 py-2"
+                    >
                         TIẾN HÀNH THANH TOÁN
                     </button>
-
                 </div>
-
                 <ToastContainer />
             </div>
         </div>

@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import UserService from "../../services/UserService";
 import CategoryService from "../../services/CategoryService";
 import BrandService from "../../services/BrandService";
+import Cookies from "js-cookie";
 
 const HeaderDownNavbar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -106,7 +107,7 @@ const HeaderDownNavbar = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('roles');
         localStorage.removeItem('UserId');
-
+        Cookies.remove('token');
         Swal.fire({
             icon: 'success',
             title: 'Đăng xuất thành công!',
@@ -216,19 +217,10 @@ const HeaderDownNavbar = () => {
                             />
                         </DropdownTrigger>
                         <DropdownMenu aria-label="User Actions" variant="flat">
-                            <DropdownItem key="profile" className="h-14 gap-2">
-                                <p className="font-bold">{user.fullName}</p>
-                                <p className="font-bold">{user.email}</p>
-                                <p className="font-bold">{user.phone}</p>
-                            </DropdownItem>
-                            <DropdownItem key="settings">My Settings</DropdownItem>
-                            <DropdownItem key="team_settings">Team Settings</DropdownItem>
-                            <DropdownItem key="analytics">Analytics</DropdownItem>
-                            <DropdownItem key="system">System</DropdownItem>
-                            <DropdownItem key="configurations">Configurations</DropdownItem>
-                            <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
+                            <DropdownItem key="settings"><Link to="/profile/*">Thông tin tài khoản</Link></DropdownItem>
+                            <DropdownItem key="help_and_feedback">Hỗ trợ và đánh giá</DropdownItem>
                             <DropdownItem key="logout" color="danger" onClick={handleLogout}>
-                                Log Out
+                                Đăng xuất
                             </DropdownItem>
                         </DropdownMenu>
                     </Dropdown>

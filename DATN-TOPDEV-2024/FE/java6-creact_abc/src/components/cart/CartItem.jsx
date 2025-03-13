@@ -3,17 +3,13 @@ import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
-
 const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected }) => {
-
     const [quantity, setQuantity] = useState(item.quantity);
     const [productQuantity, setProductQuantity] = useState(null);
 
     useEffect(() => {
-
         const fetchProductQuantity = async () => {
             try {
-                // Thay {id} bằng item.product_variant_id
                 const response = await axios.get(`http://localhost:8080/api/products/variants/${item.product_variant_id}`);
                 setProductQuantity(response.data.quantity);
                 console.log(response.data);
@@ -28,7 +24,6 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
     useEffect(() => {
         setQuantity(item.quantity);
     }, [item.quantity]);
-
 
     const handleQuantityChange = (newQuantity) => {
         if (productQuantity === null) {
@@ -93,24 +88,27 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
             </div>
             <div>{formatCurrency(price)}</div>
             <div className="flex items-center">
-                <button
-                    className="px-3 py-1 bg-gray-300 text-gray-800 rounded-l-lg hover:bg-gray-400 focus:outline-none"
-                    onClick={() => handleQuantityChange(quantity - 1)}
-                >
-                    -
-                </button>
-                <input
-                    type="number"
-                    className="mx-2 w-16 text-center border border-gray-300 rounded-none"
-                    value={quantity}
-                    onChange={(e) => handleQuantityChange(Number(e.target.value))}
-                />
-                <button
-                    className="px-3 py-1 bg-gray-300 text-gray-800 rounded-r-lg hover:bg-gray-400 focus:outline-none"
-                    onClick={() => handleQuantityChange(quantity + 1)}
-                >
-                    +
-                </button>
+                {/* Updated quantity input component */}
+                <div className="flex items-center border rounded-md overflow-hidden shadow-sm">
+                    <button
+                        className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
+                        onClick={() => handleQuantityChange(quantity - 1)}
+                    >
+                        −
+                    </button>
+                    <input
+                        type="text"
+                        className="w-12 h-8 text-center border-none focus:outline-none"
+                        value={quantity}
+                        onChange={(e) => handleQuantityChange(Number(e.target.value) || 1)}
+                    />
+                    <button
+                        className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
+                        onClick={() => handleQuantityChange(quantity + 1)}
+                    >
+                        +
+                    </button>
+                </div>
             </div>
             <div className="pl-10 text-sm">{formatCurrency(price * quantity)}</div>
             <div>

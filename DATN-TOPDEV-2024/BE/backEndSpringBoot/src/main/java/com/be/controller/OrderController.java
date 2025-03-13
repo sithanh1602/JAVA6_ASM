@@ -80,7 +80,7 @@ public class OrderController {
             Orders savedOrder = orderService.saveOrder(orderRequest);
 
             // Gửi thông báo đến admin về đơn hàng mới
-            messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getId());
+            messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getOrderNum());
 
             // Tạo URL thanh toán VNPay
             String urlPayment = vnPayService.createOrder(
@@ -179,15 +179,31 @@ public class OrderController {
 
     // Endpoint cập nhật trạng thái đơn hàng
     @PutMapping("/{orderId}/status")
-    public ResponseEntity<?> updateOrderStatus(@PathVariable Long orderId, @RequestParam int status) {
+    public ResponseEntity<?> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam int status) {
         try {
-            orderService.updateOrderStatus(orderId, status);
-            return ResponseEntity.ok(Map.of("message", "Order status updated successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            Orders updatedOrder = orderService.updateOrderStatus(orderId, status);
+            String statusDescription = orderService.getStatusDescription(status);
+            Map<String, Object> response = Map.of(
+                    "message", "Cập nhật trạng thái đơn hàng thành công",
+                    "order", Map.of(
+                            "orderId", updatedOrder.getId(),
+                            "status", updatedOrder.getStatus(),
+                            "statusDescription", statusDescription,
+                            "userId", updatedOrder.getUser().getUserId()
+                    )
+            );
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng"));
         }
     }
+
 
     @PutMapping("/{orderId}/statushuy")
     public ResponseEntity<Orders> updateOrderStatushuy(@PathVariable Long orderId, @RequestBody int status) {

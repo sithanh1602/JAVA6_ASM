@@ -206,14 +206,14 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="bg-white shadow-lg p-6">
+    <div className="min-h-screen py-8 bg-white">
+      <div className="container mx-auto px-4 max-w-6xl  bg-white">
+        <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left Column - Images */}
             <div className="space-y-4">
               <div
-                className="relative w-full h-[400px] bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center">
+                className="relative w-full h-[400px] overflow-hidden flex items-center justify-center">
                 <img
                   src={mainImage || selectedVariant?.image || selectedVariant?.imageUrl}
                   alt={selectedVariant?.attributes || "Product image"}
@@ -221,13 +221,13 @@ const ProductDetail = () => {
                 />
                 <button
                   onClick={handlePreviousImage}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-800 hover:bg-white transition"
                 >
                   {"<"}
                 </button>
                 <button
                   onClick={handleNextImage}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-800 hover:bg-white transition"
                 >
                   {">"}
                 </button>
@@ -238,7 +238,7 @@ const ProductDetail = () => {
                   {images.map((image, index) => (
                     <div
                       key={image.id}
-                      className={`w-20 h-20 border rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform ${index === mainImageIndex ? "border-blue-500" : ""
+                      className={`w-20 h-20  overflow-hidden cursor-pointer hover:scale-105 transition-transform ${index === mainImageIndex ? "border-blue-500" : ""
                         }`}
                       onClick={() => handleImageChange(index)}
                     >
@@ -251,7 +251,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
               )}
-              <div className="bg-white border p-4">
+              <div className="border p-4">
                 <h2 className="text-lg font-bold mb-2">Mô tả sản phẩm</h2>
                 <div
                   className="text-sm text-gray-600"
@@ -262,7 +262,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Right Column - Product Info */}
-            <div className="bg-white rounded-lg">
+            <div className="rounded-lg">
               <div className="space-y-4">
                 <div className="border-b pb-4">
                   <h1 className="text-2xl font-bold mb-2">{productName}</h1>
