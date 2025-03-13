@@ -6,8 +6,10 @@ import HomePage from "../pages/home";
 import WebSocketNotification from "../components/account/WebSocketNotification";
 import {NextUIProvider} from "@nextui-org/react";
 import SmoothScroll from "../services/SmoothScroll";
+import {  ThemeProvider } from './ThemeContext';
 const App = () => {
     return (
+        <ThemeProvider>
         <SmoothScroll>
             <NextUIProvider>
                 <Router>
@@ -22,6 +24,7 @@ const App = () => {
                 </Router>
             </NextUIProvider>
         </SmoothScroll>
+        </ThemeProvider>
     );
 }
 

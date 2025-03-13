@@ -16,6 +16,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MonthlyProductionChart from "./TableForm/DashB/RevenueChart";
 import AdminOrderManagement from "./TableForm/OrderStatusAdmin/AdminOrderManagement";
+import { ThemeProvider } from '../../views/ThemeContext';
 
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true);
@@ -68,33 +69,46 @@ const AdminLayout = () => {
     };
 
     return (
-        <div className="w-full flex h-full">
-            <VerticalMenu isOpen={isOpen} toggleMenu={toggleMenu} />
-            <div className="flex-grow p-4 bg-gray-100">
-                <motion.div
-                    className="mt-4"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <Routes>
-                        <Route path="/" element={<Top3User />} />
-                        <Route path="/dash" element={<Top3User />} />
-                        <Route path="/user" element={<Users />} />
-                        <Route path="/category" element={<Categorys />} />
-                        <Route path="/brand" element={<BrandTableWithBoundary />} />
-                        <Route path="/product" element={<Products />} />
-                        <Route path="/post" element={<Posts />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/tk" element={<MonthlyProductionChart />} />
-                        <Route path="/order" element={<AdminOrderManagement />} />
-                        <Route path="/pc-builds" element={<PCBuildsAdmin />} />
-                    </Routes>
-                </motion.div>
+        <ThemeProvider>
+            <div className="w-full flex h-full dark:bg-gray-900">
+                <VerticalMenu isOpen={isOpen} toggleMenu={toggleMenu} />
+                <div className="flex-grow p-4 bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+                    <motion.div
+                        className="mt-4"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <Routes>
+                            <Route path="/" element={<Top3User />} />
+                            <Route path="/dash" element={<Top3User />} />
+                            <Route path="/user" element={<Users />} />
+                            <Route path="/category" element={<Categorys />} />
+                            <Route path="/brand" element={<BrandTableWithBoundary />} />
+                            <Route path="/product" element={<Products />} />
+                            <Route path="/post" element={<Posts />} />
+                            <Route path="/contact" element={<Contact />} />
+                            <Route path="/tk" element={<MonthlyProductionChart />} />
+                            <Route path="/order" element={<AdminOrderManagement />} />
+                            <Route path="/pc-builds" element={<PCBuildsAdmin />} />
+                        </Routes>
+                    </motion.div>
+                </div>
+                <ToastContainer
+                    theme="colored"
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
             </div>
-            <ToastContainer />
-        </div>
+        </ThemeProvider>
     );
 };
 

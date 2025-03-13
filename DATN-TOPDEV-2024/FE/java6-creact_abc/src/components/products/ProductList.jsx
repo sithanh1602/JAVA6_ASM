@@ -180,7 +180,7 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
                 {/* Hiển thị sản phẩm ở đây */}
                 {/* Bộ lọc bên trái */}
                 {isProductPage && (
-                    <div className="w-1/6 p-4 border bg-white">
+                    <div className="w-1/4 p-4 border bg-white">
                         <h3 className="font-bold mb-2">THƯƠNG HIỆU</h3>
                         <div>
                             <label>

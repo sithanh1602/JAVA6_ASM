@@ -88,7 +88,10 @@ public class OrderService {
             orderInfo.put("paymentStatus", order.isPaymentStatus());
             orderInfo.put("orderDate", order.getOrderDate());
             orderInfo.put("products", products);
-
+            orderInfo.put("shoping_Fee", order.getShipping_fee());
+            orderInfo.put("voucher", order.getVoucher());
+            orderInfo.put("fullAddress", order.getFullAddress());
+            orderInfo.put("phone", order.getPhone());
             response.add(orderInfo);
         }
 

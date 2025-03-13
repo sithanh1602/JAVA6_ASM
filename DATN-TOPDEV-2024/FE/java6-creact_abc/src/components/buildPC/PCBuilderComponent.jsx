@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Button,
   Card,
@@ -12,6 +12,7 @@ import {
 import ComponentSelectionModal from "./ComponentSelectionModal";
 import CategoryService from "../../services/CategoryService";
 import { FaTrash } from "react-icons/fa";
+import logo from '../../assets/images/cpu2.png';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -32,6 +33,7 @@ const PCBuilderComponent = () => {
   });
   const [totalPrice, setTotalPrice] = useState(0);
   const [stockQuantities, setStockQuantities] = useState({});
+  const printRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -310,6 +312,169 @@ const PCBuilderComponent = () => {
     );
   };
 
+  // Hàm xuất file PDF
+  const handleExportPDF = () => {
+    if (Object.keys(selectedComponents).length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Chưa chọn sản phẩm",
+        text: "Vui lòng chọn ít nhất một linh kiện để xuất file.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    // Chuẩn bị trang in
+    const printContent = document.createElement('div');
+    printContent.className = 'print-content';
+
+    // Tạo CSS cho bản in
+    const printStyles = document.createElement('style');
+    printStyles.innerHTML = `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .print-content * {
+          visibility: visible;
+        }
+        .print-content {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        .no-print {
+          display: none !important;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 6px;
+          text-align: left;
+        }
+        th {
+          background-color: #f2f2f2;
+        }
+        .total-row {
+          font-weight: bold;
+        }
+        .header {
+          margin-bottom: 20px;
+          font-weight: bold;
+        }
+        .header .h5 {
+          margin-bottom: 20px;
+          font-weight: bold;
+          font-size: 50px;
+        }
+        .footer {
+          margin-top: 30px;
+          text-align: center;
+          font-style: italic;
+        }
+        .product-image {
+          width: 60px;
+          height: 60px;
+          object-fit: contain;
+        }
+        .component-cell {
+          display: flex;
+          align-items: center;
+        }
+        .component-info {
+          margin-left: 10px;
+        }
+      }
+    `;
+    document.head.appendChild(printStyles);
+
+    // Tạo nội dung cho bản in
+    const header = document.createElement('div');
+    header.className = 'header';
+    header.innerHTML = `
+       <h4 style="font-size: x-large; display: flex; align-items: center;"> 
+            <img src="${logo}" alt="TechMart Logo" style="width: 30px; height: auto; margin-right: 8px;">
+            TECHMART.VN
+       </h4>
+
+      <h1>Chi tiết cấu hình PC</h1>
+      <p>Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}</p>
+    `;
+    printContent.appendChild(header);
+
+    // Tạo bảng linh kiện có kèm hình ảnh
+    const table = document.createElement('table');
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Loại linh kiện</th>
+          <th>Hình ảnh & Thông tin sản phẩm</th>
+          <th>Số lượng</th>
+          <th>Đơn giá</th>
+          <th>Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Object.entries(selectedComponents).map(([categoryId, component], index) => {
+      const category = categories.find(cat => cat.id === parseInt(categoryId));
+      const qty = quantities[categoryId] || 1;
+      return `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${category ? category.name : 'Không xác định'}</td>
+              <td>
+                <div class="component-cell">
+                  <img class="product-image" src="${component.image || "/api/placeholder/80/80"}" alt="${component.nameVariants}">
+                  <div class="component-info">
+                    <div>${component.nameVariants}</div>
+                  </div>
+                </div>
+              </td>
+              <td>${qty}</td>
+              <td style="color: red;">${formatPrice(component.price)} VND</td>
+              <td style="color: purple;">${formatPrice(component.price * qty)} VND</td>
+            </tr>
+          `;
+    }).join('')}
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="5" style="text-align: right;">Tổng tiền:</td>
+          <td style="color: green">${formatPrice(totalPrice)} VND</td>
+        </tr>
+      </tfoot>
+    `;
+    printContent.appendChild(table);
+
+    // Thêm footer
+    const footer = document.createElement('div');
+    footer.className = 'footer';
+    footer.innerHTML = `
+      <p>Cảm ơn bạn đã sử dụng dịch vụ xây dựng cấu hình PC của chúng tôi!</p>
+    `;
+    printContent.appendChild(footer);
+
+    // Thêm vào document để in
+    document.body.appendChild(printContent);
+
+    // Chờ đợi để đảm bảo hình ảnh đã được tải
+    setTimeout(() => {
+      // Thực hiện in
+      window.print();
+
+      // Xóa nội dung in và styles sau khi đã in xong
+      setTimeout(() => {
+        document.body.removeChild(printContent);
+        document.head.removeChild(printStyles);
+      }, 1000);
+    }, 300);
+  };
+
   return (
       <div className="max-w-6xl mx-auto p-4">
         <h1 className="text-2xl font-bold text-gray-700 mb-6">
@@ -331,7 +496,7 @@ const PCBuilderComponent = () => {
             <div className="flex flex-col items-end">
               <span className="text-sm text-gray-500">Tổng tiền tạm tính:</span>
               <span className="text-lg font-bold text-red-600">
-              {formatPrice(totalPrice)} ₫
+              {formatPrice(totalPrice)}VND
             </span>
             </div>
             <Dropdown>
@@ -354,7 +519,7 @@ const PCBuilderComponent = () => {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="Tùy chọn tải" className="rounded-none">
-                <DropdownItem key="export">Xuất file</DropdownItem>
+                <DropdownItem key="export" onClick={handleExportPDF}>Xuất file</DropdownItem>
                 <DropdownItem key="save">Lưu cấu hình</DropdownItem>
                 <DropdownItem key="share">Chia sẻ</DropdownItem>
               </DropdownMenu>
@@ -377,7 +542,7 @@ const PCBuilderComponent = () => {
               </Button>
             </div>
           </div>
-          <div className="relative">
+          <div className="relative" ref={printRef}>
             {categories.map((category) => (
                 <div
                     key={category.id}
@@ -389,7 +554,7 @@ const PCBuilderComponent = () => {
                   <div className="w-full md:w-3/4 text-gray-500 mb-2 md:mb-0">
                     {getComponentDetails(selectedComponents[category.id], category.id)}
                   </div>
-                  <div className="w-full md:w-1/6 flex justify-end">
+                  <div className="w-full md:w-1/6 flex justify-end no-print">
                     <Button
                         color="primary"
                         className="font-medium rounded-none"

@@ -37,23 +37,33 @@ const StatusButton = styled.button`
     background-color: ${props => props.color};
 `;
 
-const ProductList = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    padding: 5px;
-    min-width: 600px;  // Increased minimum width
-    max-width: 800px;  // Added maximum width
+// Replace the grid-based ProductList with a table
+const ProductTable = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    min-width: 600px;
 `;
 
-const ProductItem = styled.li`
-    display: flex;
-    align-items: center;
-    padding: 5px;
-    border: 1px solid #ddd;
-    margin-bottom: 5px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+const TableHeader = styled.th`
+    padding: 10px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+    background-color: #f5f5f5;
+    font-weight: bold;
+`;
+
+const TableCell = styled.td`
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+`;
+
+const ProductImage = styled.img`
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
 `;
 
 const OrderDetails = styled.div`
@@ -124,6 +134,15 @@ const PendingOrdersBadge = styled.div`
     border-radius: 50%;
 `;
 
+const PaymentStatusBadge = styled.span`
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    border-radius: 5px;
+    background-color: ${props => props.paid ? '#28a745' : '#dc3545'};
+`;
+
 const AdminOrderManagement = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -137,8 +156,10 @@ const AdminOrderManagement = () => {
         { label: 'Đã thanh toán', status: 3 },
         { label: 'Đã xác nhận', status: 4 },
         { label: 'Đang giao hàng', status: 5 },
-        { label: 'Đã hoàn thành', status: 6 },
-        { label: 'Đã hủy', status: 7 },
+        { label: 'Đã giao hàng', status: 6 },
+        { label: 'Đã nhận hàng', status: 7 },
+        { label: 'Hoàn thành', status: 8 },
+        { label: 'Đã hủy', status: 9 },
     ];
 
     const statusLabels = {
@@ -147,8 +168,10 @@ const AdminOrderManagement = () => {
         3: 'Đã thanh toán',
         4: 'Đã xác nhận',
         5: 'Đang giao hàng',
-        6: 'Đã hoàn thành',
-        7: 'Đã hủy',
+        6: 'Đã giao hàng',
+        7: 'Đã nhận hàng',
+        8: 'Hoàn thành',
+        9: 'Đã hủy',
     };
 
     const statusColors = {
@@ -159,7 +182,53 @@ const AdminOrderManagement = () => {
         5: '#fd7e14', // Warning
         6: '#20c997', // Success (light green)
         7: '#dc3545', // Danger (Red)
+        8: '#28a745', // Success
+        9: '#6c757d', // Secondary (Gray)
     };
+
+    const OrderInfoSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+`;
+
+    const OrderInfoGroup = styled.div`
+  background-color: #f5f7f9;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+`;
+
+    const OrderInfoTitle = styled.h4`
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+`;
+
+    const OrderInfoItem = styled.div`
+  display: flex;
+  margin-bottom: 8px;
+  align-items: center;
+`;
+
+    const OrderInfoLabel = styled.span`
+  font-weight: 500;
+  color: #555;
+  width: 40%;
+  flex-shrink: 0;
+`;
+
+    const OrderInfoValue = styled.span`
+  color: #333;
+  font-weight: ${props => props.highlight ? '600' : 'normal'};
+  color: ${props => props.highlight ? '#d32f2f' : '#333'};
+`;
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -187,6 +256,12 @@ const AdminOrderManagement = () => {
             // Nếu trạng thái là 'Đã xác nhận' (status 4), chuyển tab
             if (newStatus === 4) {
                 setActiveTab('Đã xác nhận');
+            }else if (newStatus === 5) {
+                setActiveTab('Đang giao hàng');
+            }else if (newStatus === 6) {
+                setActiveTab('Đã giao hàng');
+            }else if (newStatus === 7) {
+                setActiveTab('Đã nhận hàng');
             }
 
             // Thông báo thành công
@@ -228,23 +303,6 @@ const AdminOrderManagement = () => {
     const columns = [
         { name: 'Mã hoá đơn', selector: row => row.orderNum, sortable: true, center: true, width: '150px' },
         { name: 'Tên khách hàng', selector: row => row.userName, sortable: true, center: true, width: '200px' },
-        // {
-        //     name: 'Sản phẩm đã mua',
-        //     cell: row => (
-        //         <ProductList>
-        //             {row.products && row.products.map((product, index) => (
-        //                 <ProductItem key={index}>
-        //                     <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover mr-2"/>
-        //                     <span>{product.name} (x{product.quantity}) - {product.price.toLocaleString()} VND</span>
-        //                 </ProductItem>
-        //             ))}
-        //         </ProductList>
-        //     ),
-        //     sortable: false,
-        //     center: true,
-        //     minWidth: '300px',  // Ensure this column is wide enough
-        //     maxWidth: '500px',  // Set maximum width to avoid it expanding too much
-        // },
         { name: 'Tổng tiền', selector: row => `${row.totalPrice.toLocaleString()} VND`, sortable: true, right: true, center: true, width: '220px',
             style: {
                 fontFamily: 'Arial, sans-serif',  // Thêm fontFamily
@@ -265,10 +323,21 @@ const AdminOrderManagement = () => {
             width: '150px'
         },
         {
+            name: 'Trạng thái thanh toán',
+            selector: row => (
+                <PaymentStatusBadge paid={row.paymentStatus}>
+                    {row.paymentStatus ? 'Online' : 'COD'}
+                </PaymentStatusBadge>
+            ),
+            sortable: true,
+            center: true,
+            width: '150px'
+        },
+        {
             name: 'Hành động',
             cell: row => (
                 <div className="flex space-x-2 justify-center">
-                    {row.status === 1 && (
+                    {row.status === 1 && !row.paymentStatus && (
                         <button
                             onClick={() => handleChangeStatus(row.id, 4)}
                             className="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -276,7 +345,7 @@ const AdminOrderManagement = () => {
                             Xác nhận đơn hàng
                         </button>
                     )}
-                    {row.status === 3 && (
+                    {row.status === 3 && !row.paymentStatus && (
                         <button
                             onClick={() => handleChangeStatus(row.id, 4)}
                             className="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -297,7 +366,15 @@ const AdminOrderManagement = () => {
                             onClick={() => handleChangeStatus(row.id, 6)}
                             className="btn btn-success px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                         >
-                            Đã hoàn thành
+                            Đã giao hàng
+                        </button>
+                    )}
+                    {row.status === 6 && activeTab === 'Đã giao hàng' && (
+                        <button
+                            onClick={() => handleChangeStatus(row.id, 7)}
+                            className="btn btn-success px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                        >
+                            Đã nhận hàng
                         </button>
                     )}
                 </div>
@@ -311,30 +388,90 @@ const AdminOrderManagement = () => {
 
     const ExpandedComponent = ({ data }) => (
         <OrderDetails>
-            <p>Tên khách hàng: {data.userName}</p>
-            <p>Tổng tiền: {data.totalPrice.toLocaleString()} VND</p>
-            <p>Ngày đặt hàng: {new Date(data.orderDate).toLocaleDateString()}</p>
-            <h3 className="text-lg font-bold mt-4">Sản phẩm đã mua:</h3>
-            <ProductList>
+            <OrderInfoSection>
+                <OrderInfoGroup>
+                    <OrderInfoTitle>Thông tin đơn hàng</OrderInfoTitle>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Mã đơn hàng:</OrderInfoLabel>
+                        <OrderInfoValue>{data.orderNum}</OrderInfoValue>
+                    </OrderInfoItem>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Ngày đặt hàng:</OrderInfoLabel>
+                        <OrderInfoValue>{new Date(data.orderDate).toLocaleDateString()}</OrderInfoValue>
+                    </OrderInfoItem>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Tên khách hàng:</OrderInfoLabel>
+                        <OrderInfoValue>{data.userName}</OrderInfoValue>
+                    </OrderInfoItem>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Số điện thoại:</OrderInfoLabel>
+                        <OrderInfoValue>{data.phone}</OrderInfoValue>
+                    </OrderInfoItem>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Địa chỉ giao hàng:</OrderInfoLabel>
+                        <OrderInfoValue>{data.fullAddress}</OrderInfoValue>
+                    </OrderInfoItem>
+                </OrderInfoGroup>
+
+                <OrderInfoGroup>
+                    <OrderInfoTitle>Thông tin thanh toán</OrderInfoTitle>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Phương thức:</OrderInfoLabel>
+                        <OrderInfoValue>
+                            <PaymentStatusBadge paid={data.paymentStatus} style={{ fontSize: '11px', padding: '3px 8px' }}>
+                                {data.paymentStatus ? 'Online' : 'COD'}
+                            </PaymentStatusBadge>
+                        </OrderInfoValue>
+                    </OrderInfoItem>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Phí vận chuyển:</OrderInfoLabel>
+                        <OrderInfoValue>{data.shoping_Fee ? data.shoping_Fee.toLocaleString() : '0'} VNĐ</OrderInfoValue>
+                    </OrderInfoItem>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Giảm giá:</OrderInfoLabel>
+                        <OrderInfoValue>{data.voucher ? data.voucher.toLocaleString() : '0'} VNĐ</OrderInfoValue>
+                    </OrderInfoItem>
+                    <OrderInfoItem>
+                        <OrderInfoLabel>Tổng tiền:</OrderInfoLabel>
+                        <OrderInfoValue highlight>{data.totalPrice.toLocaleString()} VNĐ</OrderInfoValue>
+                    </OrderInfoItem>
+                </OrderInfoGroup>
+            </OrderInfoSection>
+            {/* Replace the ProductList grid with a table */}
+            <ProductTable>
+                <thead>
+                <tr>
+                    <TableHeader>Hình ảnh</TableHeader>
+                    <TableHeader>Tên sản phẩm</TableHeader>
+                    <TableHeader>Số lượng</TableHeader>
+                    <TableHeader>Giá</TableHeader>
+                </tr>
+                </thead>
+                <tbody>
                 {data.products && data.products.map((product, index) => (
-                    <ProductItem key={index} className="flex items-center">
-                        <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover mr-2"/>
-                        <span>{product.name} (x{product.quantity}) - {product.price.toLocaleString()} VND</span>
-                    </ProductItem>
+                    <tr key={index}>
+                        <TableCell>
+                            <ProductImage src={product.imageUrl} alt={product.name} />
+                        </TableCell>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>{product.quantity}</TableCell>
+                        <TableCell>{product.price.toLocaleString()} VNĐ</TableCell>
+                    </tr>
                 ))}
-            </ProductList>
+                </tbody>
+            </ProductTable>
             <h3 className="text-lg font-bold mt-4">Quá trình xử lý:</h3>
             <ProgressContainer>
                 {tabs.filter(tab => tab.status !== null).map(tab => (
                     <ProgressStep key={tab.status}>
                         <ProgressIcon active={data.status >= tab.status}>
-                            {tab.status === 1 && <FaClipboardList />}
-                            {tab.status === 2 && <FaDollarSign />}
-                            {tab.status === 3 && <FaDollarSign />}
-                            {tab.status === 4 && <FaCheckCircle />}
-                            {tab.status === 5 && <FaShippingFast />}
-                            {tab.status === 6 && <FaBoxOpen />}
-                            {tab.status === 7 && <FaTimesCircle />}
+                            {tab.status === 1 && <FaClipboardList/>}
+                            {tab.status === 2 && <FaDollarSign/>}
+                            {tab.status === 3 && <FaDollarSign/>}
+                            {tab.status === 4 && <FaCheckCircle/>}
+                            {tab.status === 5 && <FaShippingFast/>}
+                            {tab.status === 6 && <FaBoxOpen/>}
+                            {tab.status === 7 && <FaTimesCircle/>}
                         </ProgressIcon>
                         <ProgressLabel active={data.status >= tab.status}>{tab.label}</ProgressLabel>
                     </ProgressStep>

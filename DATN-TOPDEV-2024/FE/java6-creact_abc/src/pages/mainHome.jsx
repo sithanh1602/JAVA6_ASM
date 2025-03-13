@@ -12,7 +12,7 @@ const HomePage = () => {
     return (
         <div className="bg-gray-100 will-change-transform">
             <div className="container mx-auto p-4 w-[80%]">
-                {/*<BannerCarousel />*/}
+                <BannerCarousel />
                 <LogoMarquee />
                 <FeatureSection />
                 <CountdownSale />
