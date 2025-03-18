@@ -229,7 +229,6 @@ public class OrderService {
             productInfo.put("quantity", orderDetail.getQuantity());
             productInfo.put("price", productVariant.getPrice());
             productInfo.put("OrderDetailId",orderDetail.getId());
-
             productsWithQuantity.add(productInfo);
         }
         return productsWithQuantity;
