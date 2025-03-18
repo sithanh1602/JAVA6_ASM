@@ -18,7 +18,7 @@ import ProductPage from "../components/products/productDetails/ProductPageDetail
 import AboutUs from "./mainAbout";
 import Contact from "./mainContact";
 import News from "./mainNews";
-import BlogDetail from "../components/news/BlogDetail";
+import SinglePost from "../components/news/SinglePost";
 import GroupOrder from "../components/Oder/GroupOrder";
 import ProfilePage from "../components/Profile/ProfilePage";
 import OrderList from "../components/Oder/OrderList";
@@ -133,7 +133,7 @@ const HomePage = () => {
                     <Route path="/aboutUs" element={<AboutUs/>}/>
                     <Route path="/contact" element={< Contact/>}/>
                     <Route path="/posts" element={< News/>}/>
-                    <Route path="/post/:id" element={<BlogDetail />} />
+                    <Route path="/post/:id" element={<SinglePost />} />
                     <Route path="/orders" element={< GroupOrder/>}/>
                     <Route path="/profile/*" element={<ProfilePage />} />
                     <Route path="/OrderUser" element={<OrderList />} />
