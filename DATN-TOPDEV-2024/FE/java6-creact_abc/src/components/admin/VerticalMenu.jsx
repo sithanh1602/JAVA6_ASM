@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
     FaHome,
     FaEnvelope,
@@ -43,6 +43,11 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         { icon: <FaDisease className="text-red-500 dark:text-red-400" />, label: 'Quản lý thương hiệu', link: '/admin/brand' },
         { icon: <FaProductHunt className="text-orange-500 dark:text-orange-400" />, label: 'Quản lý sản phẩm', link: '/admin/product' },
         { icon: <FaDesktop className="text-green-500 dark:text-green-400" />, label: 'Cấu hình PC', link: '/admin/pc-builds' },
+        {
+          icon: <FaFileAlt className="text-pink-500" />,
+          label: "Quản lý đánh giá",
+          link: "/admin/reviews",
+        },
         { icon: <FaUser className="text-pink-500 dark:text-pink-400" />, label: 'Quản lý người dùng', link: '/admin/user' },
         { icon: <FaEnvelope className="text-purple-500 dark:text-purple-400" />, label: 'Quản lý phản hồi', link: '/admin/contact' },
         { icon: <FaPencilAlt className="text-blue-500 dark:text-blue-400" />, label: 'Bài viết', link: '/admin/post' },
@@ -68,68 +73,35 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         { icon: <FaUser className="text-red-500 dark:text-red-400" />, label: 'Logout', action: 'logout' }
     ];
 
-    useEffect(() => {
-        const userId = JSON.parse(localStorage.getItem("UserId"));
-        if (userId) {
-            UserService.getUserById(userId)
-                .then((data) => {
-                    if (data) {
-                        setUser(data);
-                    } else {
-                        setError("Không tìm thấy thông tin người dùng.");
-                    }
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error("Error fetching user:", err);
-                    setError("Không thể tải thông tin người dùng.");
-                    setLoading(false);
-                });
-        } else {
-            setError("UserId không tồn tại trong localStorage.");
-            setLoading(false);
-        }
-    }, []);
-
-    const toggleSubMenu = (index) => {
-        setOpenSubMenus((prev) => ({
-            ...prev,
-            [index]: !prev[index],
-        }));
-    };
-
-    const handleLogout = () => {
-        Swal.fire({
-            title: 'Xác nhận đăng xuất',
-            text: "Bạn có chắc chắn muốn đăng xuất không?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Đăng xuất',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('UserId');
-                localStorage.removeItem('roles');
-                sessionStorage.removeItem('token');
-                Cookies.remove('token');
-
-                toast.success('Đăng xuất thành công!', {
-                    position: 'top-right',
-                    autoClose: 3000,
-                });
-                navigate('/login');
-            }
+  useEffect(() => {
+    const userId = JSON.parse(localStorage.getItem("UserId"));
+    if (userId) {
+      UserService.getUserById(userId)
+        .then((data) => {
+          if (data) {
+            setUser(data);
+          } else {
+            setError("Không tìm thấy thông tin người dùng.");
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching user:", err);
+          setError("Không thể tải thông tin người dùng.");
+          setLoading(false);
         });
-    };
+    } else {
+      setError("UserId không tồn tại trong localStorage.");
+      setLoading(false);
+    }
+  }, []);
 
-    const handleMenuClick = (action) => {
-        if (action === 'logout') {
-            handleLogout();
-        }
-    };
+  const toggleSubMenu = (index) => {
+    setOpenSubMenus((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
 
     return (
         <div
@@ -254,6 +226,102 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
             </div>
         </div>
     );
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Xác nhận đăng xuất",
+      text: "Bạn có chắc chắn muốn đăng xuất không?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Đăng xuất",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("UserId");
+        localStorage.removeItem("roles");
+        sessionStorage.removeItem("token");
+        Cookies.remove("token");
+
+        toast.success("Đăng xuất thành công!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        navigate("/login");
+      }
+    });
+  };
+
+  const handleMenuClick = (action) => {
+    if (action === "logout") {
+      handleLogout();
+    }
+  };
+
+  return (
+    <div
+      className={`h-screen bg-white transition-width duration-300 ${
+        isOpen ? "w-64" : "w-34"
+      }`}>
+      <div className="flex items-center justify-between h-16 border-b px-4">
+        {user && user.image && (
+          <img
+            src={user.image}
+            alt="Adminator Logo"
+            className={`rounded-full h-10 w-10 ${isOpen ? "" : "hidden"}`}
+          />
+        )}
+        {isOpen && user && user.fullName && (
+          <span className="ml-2 text-xl font-bold">{user.fullName}</span>
+        )}
+        <FaBars className="cursor-pointer text-gray-600" onClick={toggleMenu} />
+      </div>
+
+      <ul className="mt-4">
+        {menuItems.map((item, index) => (
+          <li key={index} className="flex flex-col">
+            <div
+              className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                if (item.hasArrow) {
+                  toggleSubMenu(index);
+                } else if (item.action) {
+                  handleMenuClick(item.action);
+                }
+              }}>
+              {item.icon}
+              {isOpen && (
+                <Link to={item.link} className="ml-2">
+                  {item.label}
+                </Link>
+              )}
+              {item.hasArrow && isOpen && (
+                <FaChevronRight
+                  className={`ml-auto transition-transform ${
+                    openSubMenus[index] ? "rotate-90" : ""
+                  }`}
+                />
+              )}
+            </div>
+            {item.subItems && openSubMenus[index] && (
+              <ul className="ml-8 mt-2 space-y-2">
+                {item.subItems.map((subItem, subIndex) => (
+                  <li key={subIndex}>
+                    <Link
+                      to={subItem.link}
+                      className="text-gray-600 hover:text-blue-500">
+                      {subItem.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 };
 
 export default VerticalMenu;
