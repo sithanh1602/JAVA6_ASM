@@ -18,6 +18,7 @@ import ProductPage from "../components/products/productDetails/ProductPageDetail
 import AboutUs from "./mainAbout";
 import Contact from "./mainContact";
 import News from "./mainNews";
+import PCBuildsPage from './PCBuildsPage';
 import BlogDetail from "../components/news/BlogDetail";
 import GroupOrder from "../components/Oder/GroupOrder";
 import ProfilePage from "../components/Profile/ProfilePage";
@@ -139,6 +140,7 @@ const HomePage = () => {
                     <Route path="/OrderUser" element={<OrderList />} />
                     <Route path="/payment/vnpay-payment" element={<PaymentSuccess />} />
                     <Route path="/order-detail/:orderId" element={<OrderDetail />} />
+                    <Route path="/PC" element={<PCBuildsPage />} />
                     <Route path="/BuilderPC" element={<PCBuilderComponent />} />
                 </Routes>
             </div>

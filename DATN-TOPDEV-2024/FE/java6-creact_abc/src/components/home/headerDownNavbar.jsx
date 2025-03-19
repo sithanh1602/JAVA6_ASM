@@ -189,10 +189,11 @@ const HeaderDownNavbar = () => {
                 </motion.div>
             </div>
 
-            <NavbarContent className="hidden sm:flex justify-center w-full gap-6 pl-20">
+            <NavbarContent className="hidden sm:flex justify-center w-full gap-4 pl-20">
                 <NavbarItem><Link to="/">Trang chủ</Link></NavbarItem>
                 <NavbarItem><Link to="/aboutUs">Giới thiệu</Link></NavbarItem>
                 <NavbarItem><Link to="/products">Sản phẩm</Link></NavbarItem>
+                <NavbarItem><Link to="/PC">PC</Link></NavbarItem>
                 <NavbarItem><Link to="/posts">Tin tức</Link></NavbarItem>
                 <NavbarItem><Link to="/contact">Liên hệ</Link></NavbarItem>
             </NavbarContent>
