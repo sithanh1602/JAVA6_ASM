@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Breadcrumb from "../components/products/Breadcrumb";
+import Breadcrumb from "../components/buildPC/Breadcrumb";
 import PCBuildList from "../components/buildPC/PCBuildList";
 import PaginationComponent from "../components/products/Pagination";
 import BuildPCService from "../services/BuildPcService";
@@ -9,7 +9,7 @@ const PCBuildsPage = () => {
   const [buildsPerPage] = useState(9);
   const [view, setView] = useState("grid");
   const [sortOption, setSortOption] = useState("default");
-  const [selectedPurpose, setSelectedPurpose] = useState(null);
+  const [selectedPurposes, setSelectedPurposes] = useState([]);
   const [pcBuilds, setPcBuilds] = useState([]);
   const [totalBuilds, setTotalBuilds] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -39,8 +39,8 @@ const PCBuildsPage = () => {
     totalBuilds
   )} của ${totalBuilds} cấu hình PC`;
 
-  const handlePurposeFilterChange = (purpose) => {
-    setSelectedPurpose(purpose);
+  const handlePurposeFilterChange = (purposes) => {
+    setSelectedPurposes(purposes);
     setCurrentPage(1);
   };
 
@@ -54,9 +54,9 @@ const PCBuildsPage = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Lọc cấu hình theo mục đích sử dụng
-  const filteredBuilds = selectedPurpose
-    ? pcBuilds.filter((build) => build.usagePurpose === selectedPurpose)
+  // Lọc cấu hình theo mục đích sử dụng (nhiều mục đích)
+  const filteredBuilds = selectedPurposes.length > 0
+    ? pcBuilds.filter((build) => selectedPurposes.includes(build.usagePurpose))
     : pcBuilds;
 
   // Sắp xếp các cấu hình
@@ -87,7 +87,7 @@ const PCBuildsPage = () => {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
-      <Breadcrumb pageName="Máy tính có sẵn" />
+      <Breadcrumb/>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-600">{displayRange}</span>
           <button
@@ -124,7 +124,7 @@ const PCBuildsPage = () => {
           buildsPerPage={buildsPerPage}
           view={view}
           sortOption={sortOption}
-          selectedPurpose={selectedPurpose}
+          selectedPurposes={selectedPurposes}
           builds={currentBuilds}
           onPurposeChange={handlePurposeFilterChange}
         />

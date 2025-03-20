@@ -26,6 +26,10 @@ class BuildPCService {
     updateBuildPCStatus(buildId, status) {
         return axios.put(`${BASE_URL}/update-status/${buildId}`, { status });
     }
+
+    getBuildPCById(buildId) {
+        return axios.get(`${BASE_URL}/details/${buildId}`);
+    }
 }
 
 export default new BuildPCService();

@@ -1,23 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PCBuildCard from "./PCBuildCard";
 import { Spinner, Checkbox, Input, Slider } from "@nextui-org/react";
 import { FaSearch } from "react-icons/fa";
 
-const PCBuildList = ({ view, builds, onPurposeChange }) => {
+const PCBuildList = ({ view, builds, onPurposeChange, selectedPurposes = [] }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFiltering, setIsFiltering] = useState(false);
-  const [selectedPurposes, setSelectedPurposes] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 20000000]); // Phạm vi giá
+  const [localSelectedPurposes, setLocalSelectedPurposes] = useState(selectedPurposes);
+  const [priceRange, setPriceRange] = useState([0, 20000000]);
   const [filteredBuilds, setFilteredBuilds] = useState(builds);
 
-  // Danh sách các mục đích sử dụng PC
-  const purposes = ["Gaming", "Streaming", "Workstation", "Office"];
+  const purposes = [
+    "Gaming",
+    "Streaming",
+    "Văn phòng",
+    "Office",
+    "Workstation",
+    "Lập trình",
+    "Tuỳ chỉnh",
+  ];
 
-  // Xử lý tìm kiếm và lọc
+  // Xử lý tìm kiếm
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-    applyFilters(query, selectedPurposes, priceRange);
+    applyFilters(query, localSelectedPurposes, priceRange);
   };
 
   // Xử lý thay đổi mục đích sử dụng
@@ -26,28 +33,26 @@ const PCBuildList = ({ view, builds, onPurposeChange }) => {
 
     let newSelectedPurposes;
     if (checked) {
-      newSelectedPurposes = [...selectedPurposes, value];
+      newSelectedPurposes = [...localSelectedPurposes, value];
     } else {
-      newSelectedPurposes = selectedPurposes.filter(
+      newSelectedPurposes = localSelectedPurposes.filter(
         (purpose) => purpose !== value
       );
     }
 
-    setSelectedPurposes(newSelectedPurposes);
+    setLocalSelectedPurposes(newSelectedPurposes);
     applyFilters(searchQuery, newSelectedPurposes, priceRange);
 
-    // Gọi callback để cập nhật filter ở component cha
+    // Gọi callback để cập nhật filter ở component cha - luôn gửi toàn bộ mảng
     if (onPurposeChange) {
-      onPurposeChange(
-        newSelectedPurposes.length === 1 ? newSelectedPurposes[0] : null
-      );
+      onPurposeChange(newSelectedPurposes);
     }
   };
 
   // Xử lý thay đổi phạm vi giá
   const handlePriceChange = (value) => {
     setPriceRange(value);
-    applyFilters(searchQuery, selectedPurposes, value);
+    applyFilters(searchQuery, localSelectedPurposes, value);
   };
 
   // Áp dụng tất cả các bộ lọc
@@ -64,7 +69,7 @@ const PCBuildList = ({ view, builds, onPurposeChange }) => {
         );
       }
 
-      // Lọc theo mục đích sử dụng
+      // Lọc theo mục đích sử dụng, nếu không có mục đích nào được chọn thì không lọc
       if (purposes.length > 0) {
         filtered = filtered.filter((build) =>
           purposes.includes(build.usagePurpose)
@@ -81,8 +86,21 @@ const PCBuildList = ({ view, builds, onPurposeChange }) => {
     }, 300);
   };
 
-  React.useEffect(() => {
+  // Cập nhật localSelectedPurposes khi selectedPurposes thay đổi từ props
+  useEffect(() => {
+    setLocalSelectedPurposes(selectedPurposes);
+  }, [selectedPurposes]);
+
+  // Cập nhật filteredBuilds khi builds thay đổi
+  useEffect(() => {
     setFilteredBuilds(builds);
+    // Nếu không có bộ lọc nào đang áp dụng, hiển thị toàn bộ danh sách
+    if (!searchQuery && localSelectedPurposes.length === 0) {
+      applyFilters("", [], priceRange);
+    } else {
+      // Nếu đã có bộ lọc, thì áp dụng lại với danh sách mới
+      applyFilters(searchQuery, localSelectedPurposes, priceRange);
+    }
   }, [builds]);
 
   return (
@@ -90,7 +108,6 @@ const PCBuildList = ({ view, builds, onPurposeChange }) => {
       <div className="flex mb-6">
         {/* Bộ lọc bên trái */}
         <div className="w-1/4 p-4 border bg-white">
-
           <h3 className="font-bold mb-2">MỤC ĐÍCH SỬ DỤNG</h3>
           <div className="mb-4">
             {purposes.map((purpose) => (
@@ -99,7 +116,7 @@ const PCBuildList = ({ view, builds, onPurposeChange }) => {
                   <Checkbox
                     value={purpose}
                     onChange={handlePurposeChange}
-                    isSelected={selectedPurposes.includes(purpose)}
+                    isSelected={localSelectedPurposes.includes(purpose)}
                   />
                   <span className="ml-2">{purpose}</span>
                 </label>

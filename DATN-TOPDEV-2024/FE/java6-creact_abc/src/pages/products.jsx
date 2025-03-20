@@ -68,7 +68,7 @@ const App = () => {
     return (
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-4">
-            <Breadcrumb pageName="Sản phẩm" />
+            <Breadcrumb/>
                 <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-600">{displayRange}</span>
                     <button

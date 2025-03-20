@@ -49,7 +49,7 @@ const PCBuildCard = ({ build, index }) => {
   const isOutOfStock = build.status !== "Available";
 
   const handleViewDetails = () => {
-    navigate(`/build-pc/details/${build.buildId}`);
+    navigate(`/details/${build.buildId}`);
   };
 
   const handleAddAllToCart = async () => {

@@ -40,4 +40,10 @@ public class BuildPCController {
         buildPCService.updateBuildPCStatus(id, status);
         return ResponseEntity.ok("Build PC status updated successfully!");
     }
+
+    @GetMapping("/details/{buildId}")
+    public ResponseEntity<BuildPCResponseDTO> getBuildPCById(@PathVariable Long buildId) {
+        BuildPCResponseDTO response = buildPCService.getBuildPCById(buildId);
+        return ResponseEntity.ok(response);
+    }
 }

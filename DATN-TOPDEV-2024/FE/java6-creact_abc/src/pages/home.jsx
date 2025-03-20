@@ -30,6 +30,7 @@ import AuthForm from "../components/account/AuthForm";
 import OrderDetail from "../components/Oder/OrderDetail";
 import FloatingChatbox from "../components/AI/ChatBot/FloatingChatbox";
 import PCBuilderComponent from "../components/buildPC/PCBuilderComponent";
+import PCBuildDetail from "../components/buildPC/DetailPC/PCBuildDetail";
 import SockJS from "sockjs-client";
 import { Client } from '@stomp/stompjs';
 import { jwtDecode } from 'jwt-decode';
@@ -142,6 +143,7 @@ const HomePage = () => {
                     <Route path="/order-detail/:orderId" element={<OrderDetail />} />
                     <Route path="/PC" element={<PCBuildsPage />} />
                     <Route path="/BuilderPC" element={<PCBuilderComponent />} />
+                    <Route path="/details/:buildId" element={<PCBuildDetail />} />
                 </Routes>
             </div>
             <FloatingChatbox />
