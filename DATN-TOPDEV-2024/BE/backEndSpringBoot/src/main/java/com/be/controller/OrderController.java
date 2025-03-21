@@ -207,8 +207,9 @@ public class OrderController {
 
     @PutMapping("/{orderId}/statushuy")
     public ResponseEntity<Orders> updateOrderStatushuy(@PathVariable Long orderId, @RequestBody int status) {
+        System.out.println("Received request to update order " + orderId + " to status " + status); // Debug
         Orders updatedOrder = orderService.updateOrderStatushuy(orderId, status);
-        return ResponseEntity.ok(updatedOrder); // Trả về trạng thái mã 200 và đơn hàng đã cập nhật
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @PostMapping("/place-zalopay")

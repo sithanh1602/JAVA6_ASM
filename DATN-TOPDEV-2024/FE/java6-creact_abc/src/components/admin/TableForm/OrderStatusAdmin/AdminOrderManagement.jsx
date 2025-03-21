@@ -284,14 +284,6 @@ const AdminOrderManagement = () => {
         }
     };
 
-
-    const handlePendingOrdersClick = () => {
-        // Khi nhấn vào nút "Đơn hàng chờ xác nhận", chuyển sang tab "Chưa thanh toán"
-        setActiveTab('Đã thanh toán');
-    };
-
-
-
     const filteredOrders = activeTab === 'Tất cả'
         ? orders
         : orders.filter(order => order.status === tabs.find(tab => tab.label === activeTab)?.status);
