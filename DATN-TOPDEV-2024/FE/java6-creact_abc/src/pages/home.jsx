@@ -110,8 +110,10 @@ const HomePage = () => {
             case 3: return "Đã thanh toán";
             case 4: return "Đã xác nhận";
             case 5: return "Đang giao hàng";
-            case 6: return "Đã hoàn thành";
-            case 7: return "Đã hủy";
+            case 6: return "Đã giao hàng";
+            case 7: return "Đã nhận hàng";
+            case 8: return "Đã hoàn thành";
+            case 9: return "Đã huỷ";
             default: return "Trạng thái không xác định";
         }
     };

@@ -130,10 +130,19 @@ const updateOrderStatus = async (orderId, status) => {
 // API cập nhật trạng thái đơn hàng thành "hủy"
 const updateOrderStatushuy = async (orderId, status) => {
     try {
-        const response = await axios.put(`${ORDER_API_URL}/${orderId}/statushuy`, { status });
-        return response.data; // Trả về đơn hàng đã được cập nhật
+        const response = await axios.put(`${ORDER_API_URL}/${orderId}/statushuy`, status, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log('Order status updated:', response.data); // Debug log
+        return response.data; // Return the updated order
     } catch (err) {
-        throw new Error(`Error updating order status: ${err.message}`);
+        const errorMessage = err.response
+            ? `Error ${err.response.status}: ${err.response.data}`
+            : `Error updating order status: ${err.message}`;
+        console.error(errorMessage); // Debug log
+        throw new Error(errorMessage);
     }
 };
 

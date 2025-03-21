@@ -13,7 +13,7 @@ import FavoriteService from "../../services/FavoriteService";
 
 
 const formatPrice = (price) => {
-  return new Intl.NumberFormat("vi-VN").format(price) + " VND";
+  return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
 };
 
 const ProductCard = ({ variant, index }) => {

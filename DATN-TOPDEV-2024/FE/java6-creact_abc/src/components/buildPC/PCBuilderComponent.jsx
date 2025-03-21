@@ -436,8 +436,8 @@ const PCBuilderComponent = () => {
                 </div>
               </td>
               <td>${qty}</td>
-              <td style="color: red;">${formatPrice(component.price)} VND</td>
-              <td style="color: purple;">${formatPrice(component.price * qty)} VND</td>
+              <td style="color: red;">${formatPrice(component.price)} VNĐ</td>
+              <td style="color: purple;">${formatPrice(component.price * qty)} VNDĐ/td>
             </tr>
           `;
     }).join('')}
@@ -496,7 +496,7 @@ const PCBuilderComponent = () => {
             <div className="flex flex-col items-end">
               <span className="text-sm text-gray-500">Tổng tiền tạm tính:</span>
               <span className="text-lg font-bold text-red-600">
-              {formatPrice(totalPrice)}VND
+              {formatPrice(totalPrice)}VNĐ
             </span>
             </div>
             <Dropdown>
