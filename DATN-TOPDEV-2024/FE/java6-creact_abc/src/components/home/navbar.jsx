@@ -10,7 +10,6 @@ import { getAllCartItemsForUser } from "../../services/CartService";
 import { toast } from "react-toastify";
 
 const Navbar = () => {
-    // State definitions
     const [cartItems, setCartItems] = useState([]);
     const [cartCount, setCartCount] = useState(0);
     const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -22,7 +21,6 @@ const Navbar = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Format currency function
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -32,7 +30,6 @@ const Navbar = () => {
         }).format(value).replace(/\s?₫/g, ' VND');
     };
 
-    // Fetch cart data function - made reusable
     const fetchCart = useCallback(async () => {
         const storedUserId = JSON.parse(localStorage.getItem('UserId'));
         if (!storedUserId) {
@@ -59,40 +56,30 @@ const Navbar = () => {
         }
     }, []);
 
-    // Load cart items on component mount and periodically
     useEffect(() => {
         fetchCart();
-
-        // Set up interval to poll for cart updates
         const intervalId = setInterval(() => {
             fetchCart();
-        }, 5000); // Poll every 5 seconds
+        }, 5000);
 
-        // Custom event listener for cart updates
         const handleCartUpdate = () => {
             fetchCart();
         };
-
-        // Add event listener for cart updates
         window.addEventListener('cartUpdated', handleCartUpdate);
 
-        // Clean up on unmount
         return () => {
             clearInterval(intervalId);
             window.removeEventListener('cartUpdated', handleCartUpdate);
         };
     }, [fetchCart]);
 
-    // Listen for storage changes (if another tab updates the cart)
     useEffect(() => {
         const handleStorageChange = (e) => {
             if (e.key === 'cartItems' || e.key === 'cartUpdated') {
                 fetchCart();
             }
         };
-
         window.addEventListener('storage', handleStorageChange);
-
         return () => {
             window.removeEventListener('storage', handleStorageChange);
         };
@@ -122,61 +109,53 @@ const Navbar = () => {
         }
     };
 
-    // Handle quantity update
-    const handleQuantityChange = async (productVariantId, newQuantity) => {
+    const handleQuantityChange = async (productVariantId, newQuantity, buildId = null) => {
         if (newQuantity < 1) return;
 
         try {
             const storedUserId = JSON.parse(localStorage.getItem('UserId'));
             await axios.put(`http://localhost:8080/api/carts/user/${storedUserId}/product/${productVariantId}`, {
-                quantity: newQuantity
+                quantity: newQuantity,
+                buildId: buildId // Nếu có BuildPC
             });
 
-            // Update local cart state
             setCartItems(prevItems =>
                 prevItems.map(item =>
-                    item.product_variant_id === productVariantId
-                        ? {...item, quantity: newQuantity}
+                    item.product_variant_id === productVariantId && (!buildId || item.buildPC?.buildId === buildId)
+                        ? { ...item, quantity: newQuantity }
                         : item
                 )
             );
 
-            // Dispatch custom event to notify other components
             window.dispatchEvent(new Event('cartUpdated'));
-
-            // Update localStorage to notify other tabs
             localStorage.setItem('cartUpdated', Date.now().toString());
-
             toast.success('Đã cập nhật số lượng sản phẩm.');
-            fetchCart(); // Refresh cart after update
+            fetchCart();
         } catch (error) {
             toast.error('Không thể cập nhật số lượng sản phẩm.');
         }
     };
 
-    // Handle delete item
-    const handleDelete = async (productVariantId) => {
+    const handleDelete = async (productVariantId, buildId = null) => {
         try {
             const storedUserId = JSON.parse(localStorage.getItem('UserId'));
             await axios.delete(`http://localhost:8080/api/carts/remove`, {
                 params: {
                     userId: storedUserId,
-                    productVariantId: productVariantId
+                    productVariantId: productVariantId,
+                    buildId: buildId // Nếu có BuildPC
                 }
             });
 
-            // Update local cart state
-            setCartItems(prevItems => prevItems.filter(item => item.product_variant_id !== productVariantId));
+            setCartItems(prevItems => prevItems.filter(item => 
+                item.product_variant_id !== productVariantId || (buildId && item.buildPC?.buildId !== buildId)
+            ));
             setCartCount(prev => prev - 1);
 
-            // Dispatch custom event to notify other components
             window.dispatchEvent(new Event('cartUpdated'));
-
-            // Update localStorage to notify other tabs
             localStorage.setItem('cartUpdated', Date.now().toString());
-
             toast.success('Đã xóa sản phẩm khỏi giỏ hàng.');
-            fetchCart(); // Refresh cart after deletion
+            fetchCart();
         } catch (error) {
             toast.error('Không thể xóa sản phẩm khỏi giỏ hàng.');
         }
@@ -214,9 +193,6 @@ const Navbar = () => {
                                 {isSearching ? <Spinner size="sm" /> : <FiSearch className="text-lg"/>}
                             </button>
                         </div>
-
-
-                        {/* Search Results Dropdown */}
                         {searchResults.length > 0 && (
                             <div className="absolute left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md mt-1 max-h-60 overflow-y-auto">
                                 {searchResults.map((variant) => (
@@ -259,83 +235,132 @@ const Navbar = () => {
                         </Link>
 
                         {/* Cart Dropdown */}
-                        <div className="absolute right-0 mt-2 w-[32rem] bg-white shadow-lg border rounded-lg hidden group-hover:block">
-                            <div className="p-6">
-                                <h3 className="text-lg font-medium mb-4">Giỏ hàng của bạn ({cartCount} sản phẩm)</h3>
-                                {loading ? (
-                                    <div className="flex justify-center py-6">
-                                        <Spinner size="md" />
-                                    </div>
-                                ) : error ? (
-                                    <p className="text-center text-red-500 py-4">{error}</p>
-                                ) : (
-                                    <div className="max-h-[32rem] overflow-y-auto">
-                                        {cartItems.length > 0 ? (
-                                            cartItems.map((item) => (
-                                                <div key={item.product_variant_id}
-                                                     className="flex items-center gap-4 py-4 border-b">
-                                                    <img src={item.productImageUrl}
-                                                         className="w-16 h-16 object-cover rounded"
-                                                         alt={item.productName}
-                                                    />
-                                                    <div className="flex-1">
-                                                        <p className="text-base font-medium">{item.productName}</p>
-                                                        <div className="flex items-center justify-between mt-3">
-                                                            <div className="flex items-center">
-                                                                <button
-                                                                    className="px-3 py-1.5 bg-gray-200 rounded-l hover:bg-gray-300"
-                                                                    onClick={() => handleQuantityChange(item.product_variant_id, item.quantity - 1)}
-                                                                >
-                                                                    -
-                                                                </button>
-                                                                <span className="px-4 py-1.5 bg-white border-t border-b">
-                                                                    {item.quantity}
-                                                                </span>
-                                                                <button
-                                                                    className="px-3 py-1.5 bg-gray-200 rounded-r hover:bg-gray-300"
-                                                                    onClick={() => handleQuantityChange(item.product_variant_id, item.quantity + 1)}
-                                                                >
-                                                                    +
-                                                                </button>
-                                                            </div>
-                                                            <span className="text-base font-medium text-blue-600">
-                                                                {formatCurrency(item.productPrice
-                                                                    * item.quantity)}
-                                                            </span>
-                                                            <button
-                                                                onClick={() => handleDelete(item.product_variant_id)}
-                                                                className="text-red-500 hover:text-red-700 p-2"
-                                                            >
-                                                                <FaTrash size={16}/>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-center text-gray-500 py-4">Giỏ hàng trống</p>
-                                        )}
-                                    </div>
-                                )}
-
-                                {cartItems.length > 0 && (
-                                    <div className="mt-4 pt-4 border-t">
-                                        <div className="flex justify-between font-medium text-lg">
-                                            <span>Tổng cộng:</span>
-                                            <span className="text-blue-600">
-                                                {formatCurrency(
-                                                    cartItems.reduce((sum, item) => sum + (item.productPrice * item.quantity), 0)
-                                                )}
-                                            </span>
+                        <div className="absolute right-0 mt-0 pt-2 w-[32rem] hidden group-hover:block z-50">
+                            <div className="bg-white shadow-lg border rounded-lg">
+                                <div className="p-6">
+                                    <h3 className="text-lg font-medium mb-4">Giỏ hàng của bạn ({cartCount} sản phẩm)</h3>
+                                    {loading ? (
+                                        <div className="flex justify-center py-6">
+                                            <Spinner size="md" />
                                         </div>
-                                        <Link
-                                            to="/cart"
-                                            className="block text-center py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-md mt-4 text-base"
-                                        >
-                                            Xem giỏ hàng
-                                        </Link>
-                                    </div>
-                                )}
+                                    ) : error ? (
+                                        <p className="text-center text-red-500 py-4">{error}</p>
+                                    ) : (
+                                        <div className="max-h-[32rem] overflow-y-auto">
+                                            {cartItems.length > 0 ? (
+                                                cartItems.map((item, index) => (
+                                                    item.buildPC ? (
+                                                        <div key={`build-${item.buildPC.buildId}-${index}`} className="flex items-center gap-4 py-4 border-b">
+                                                            <img 
+                                                                src={item.buildPC.image || 'https://placehold.co/50x50'} 
+                                                                className="w-16 h-16 object-cover rounded" 
+                                                                alt={item.buildPC.buildName} 
+                                                            />
+                                                            <div className="flex-1">
+                                                                <p className="text-base font-medium">{item.buildPC.buildName}</p>
+                                                                <p className="text-sm text-gray-500">Mục đích: {item.buildPC.usagePurpose}</p>
+                                                                <p className="text-sm text-gray-500">Số linh kiện: {item.buildPC.totalProducts}</p>
+                                                                <div className="flex items-center justify-between mt-3">
+                                                                    <div className="flex items-center">
+                                                                        <button
+                                                                            className="px-3 py-1.5 bg-gray-200 rounded-l hover:bg-gray-300"
+                                                                            onClick={() => handleQuantityChange(null, item.quantity - 1, item.buildPC.buildId)}
+                                                                        >
+                                                                            -
+                                                                        </button>
+                                                                        <span className="px-4 py-1.5 bg-white border-t border-b">
+                                                                            {item.quantity}
+                                                                        </span>
+                                                                        <button
+                                                                            className="px-3 py-1.5 bg-gray-200 rounded-r hover:bg-gray-300"
+                                                                            onClick={() => handleQuantityChange(null, item.quantity + 1, item.buildPC.buildId)}
+                                                                        >
+                                                                            +
+                                                                        </button>
+                                                                    </div>
+                                                                    <span className="text-base font-medium text-blue-600">
+                                                                        {formatCurrency(item.buildPC.totalPrice * item.quantity)}
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={() => handleDelete(null, item.buildPC.buildId)}
+                                                                        className="text-red-500 hover:text-red-700 p-2"
+                                                                    >
+                                                                        <FaTrash size={16}/>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div key={item.product_variant_id} className="flex items-center gap-4 py-4 border-b">
+                                                            <img 
+                                                                src={item.productImageUrl || 'https://placehold.co/50x50'} 
+                                                                className="w-16 h-16 object-cover rounded" 
+                                                                alt={item.productName} 
+                                                            />
+                                                            <div className="flex-1">
+                                                                <p className="text-base font-medium">{item.productName}</p>
+                                                                <div className="flex items-center justify-between mt-3">
+                                                                    <div className="flex items-center">
+                                                                        <button
+                                                                            className="px-3 py-1.5 bg-gray-200 rounded-l hover:bg-gray-300"
+                                                                            onClick={() => handleQuantityChange(item.product_variant_id, item.quantity - 1)}
+                                                                        >
+                                                                            -
+                                                                        </button>
+                                                                        <span className="px-4 py-1.5 bg-white border-t border-b">
+                                                                            {item.quantity}
+                                                                        </span>
+                                                                        <button
+                                                                            className="px-3 py-1.5 bg-gray-200 rounded-r hover:bg-gray-300"
+                                                                            onClick={() => handleQuantityChange(item.product_variant_id, item.quantity + 1)}
+                                                                        >
+                                                                            +
+                                                                        </button>
+                                                                    </div>
+                                                                    <span className="text-base font-medium text-blue-600">
+                                                                        {formatCurrency(item.productPrice * item.quantity)}
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={() => handleDelete(item.product_variant_id)}
+                                                                        className="text-red-500 hover:text-red-700 p-2"
+                                                                    >
+                                                                        <FaTrash size={16}/>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                ))
+                                            ) : (
+                                                <p className="text-center text-gray-500 py-4">Giỏ hàng trống</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {cartItems.length > 0 && (
+                                        <div className="mt-4 pt-4 border-t">
+                                            <div className="flex justify-between font-medium text-lg">
+                                                <span>Tổng cộng:</span>
+                                                <span className="text-blue-600">
+                                                    {formatCurrency(
+                                                        cartItems.reduce((sum, item) => 
+                                                            item.buildPC 
+                                                                ? sum + (item.buildPC.totalPrice * item.quantity)
+                                                                : sum + (item.productPrice * item.quantity), 
+                                                            0
+                                                        )
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <Link
+                                                to="/cart"
+                                                className="block text-center py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-md mt-4 text-base"
+                                            >
+                                                Xem giỏ hàng
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -21,7 +21,7 @@ public class CartDetailControllerBE {
 @GetMapping("/user/{userId}")
 public ResponseEntity<List<CartDetailResponseDTO>> getCartDetailsByUserId(@PathVariable Long userId) {
     // Lấy thông tin giỏ hàng của người dùng theo userId
-    List<CartDetailResponseDTO> responseDTOs = cartDetailService.getCartDetailsWithProductInfo(userId);
+    List<CartDetailResponseDTO> responseDTOs = cartDetailService.getCartDetailsByUserId(userId);
 
     // Kiểm tra nếu giỏ hàng rỗng
     if (responseDTOs.isEmpty()) {
@@ -44,15 +44,27 @@ public ResponseEntity<List<CartDetailResponseDTO>> getCartDetailsByUserId(@PathV
             return ResponseEntity.badRequest().body(null);
         }
     }
+    @PostMapping("/add_pc")
+    public ResponseEntity<CartDetail> addPcToCart(@RequestParam Long userId,
+                                                  @RequestParam Long buildId,
+                                                  @RequestParam Integer quantity) {
+        try {
+            CartDetail cartDetail = cartDetailService.addPcToCart(userId, buildId, quantity);
+            return ResponseEntity.ok(cartDetail);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<?> removeProduct(@RequestParam Long userId, @RequestParam Long productVariantId) {
+    public ResponseEntity<?> removeProduct(@RequestParam Long userId,
+                                           @RequestParam(required = false) Long productVariantId,
+                                           @RequestParam(required = false) Long buildId) {
         try {
-            // Gọi service để xóa sản phẩm khỏi giỏ hàng
-            cartDetailService.removeProduct(userId, productVariantId);
-            return ResponseEntity.ok().body("Sản phẩm đã được xóa khỏi giỏ hàng");
+            cartDetailService.removeProduct(userId, productVariantId, buildId);
+            return ResponseEntity.ok().body("Mục đã được xóa khỏi giỏ hàng");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Không thể xóa sản phẩm khỏi giỏ hàng");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Không thể xóa mục khỏi giỏ hàng: " + e.getMessage());
         }
     }
 

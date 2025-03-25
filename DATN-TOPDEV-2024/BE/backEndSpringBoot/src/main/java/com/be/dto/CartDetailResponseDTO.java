@@ -17,9 +17,9 @@ public class CartDetailResponseDTO {
     private String productDescription; // Mô tả sản phẩm
     private Integer productQuantity; // Số lượng còn lại của sản phẩm trong kho
     private String productImageUrl; // URL hình ảnh của sản phẩm
-    private Date productCreatedAt; // Ngày tạo sản phẩm
     private Integer productPrice; // Giá của sản phẩm
     private String productStatus; // Trạng thái sản phẩm (ví dụ: "Còn hàng", "Hết hàng")
+    private BuildPCResponseDTO buildPC;
 
 
 }

@@ -8,7 +8,7 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { addProductToCart } from "../../services/CartService";
+import { addPcToCart } from "../../services/CartService"; // Thay đổi từ addProductToCart thành addPcToCart
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN").format(price) + " VND";
@@ -82,27 +82,19 @@ const PCBuildCard = ({ build, index }) => {
       // Hiển thị loading
       Swal.fire({
         title: "Đang xử lý...",
-        text: "Đang thêm các linh kiện vào giỏ hàng",
+        text: "Đang thêm BuildPC vào giỏ hàng",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
         },
       });
 
-      // Thêm tất cả linh kiện vào giỏ hàng
-      const addPromises = build.buildPCProductVariants.map((variant) =>
-        addProductToCart(
-          userId,
-          variant.productVariantId,
-          variant.variantQuantity
-        )
-      );
-
-      await Promise.all(addPromises);
+      // Thêm BuildPC vào giỏ hàng với số lượng mặc định là 1
+      await addPcToCart(userId, build.buildId, 1);
 
       Swal.fire({
         title: "Thành công",
-        text: "Đã thêm tất cả linh kiện vào giỏ hàng!",
+        text: "Đã thêm BuildPC vào giỏ hàng!",
         icon: "success",
         showCancelButton: true,
         confirmButtonText: "Xem giỏ hàng",
@@ -113,7 +105,7 @@ const PCBuildCard = ({ build, index }) => {
         }
       });
     } catch (error) {
-      Swal.fire("Lỗi", "Có lỗi xảy ra khi thêm vào giỏ hàng", "error");
+      Swal.fire("Lỗi", "Có lỗi xảy ra khi thêm BuildPC vào giỏ hàng", "error");
     }
   };
 

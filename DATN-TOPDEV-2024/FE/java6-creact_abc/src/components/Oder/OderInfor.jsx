@@ -27,7 +27,6 @@ const OrderInfo = ({
   const [discountAmount, setDiscountAmount] = useState(0);
   const [userOrders, setUserOrders] = useState([]);
 
-  // Hàm lấy userId từ token
   const getUserIdFromToken = () => {
     const token = Cookies.get("token");
     if (token) {
@@ -42,7 +41,6 @@ const OrderInfo = ({
     return null;
   };
 
-  // Hàm fetch danh sách đơn hàng theo user_id
   const fetchUserOrders = async () => {
     const userId = getUserIdFromToken();
     if (!userId) return;
@@ -66,8 +64,8 @@ const OrderInfo = ({
   };
 
   useEffect(() => {
-    fetchUserOrders(); // Lấy danh sách đơn hàng khi component mount
-    if (showVouchers) fetchVouchers(); // Lấy danh sách voucher khi mở danh sách
+    fetchUserOrders();
+    if (showVouchers) fetchVouchers();
   }, [showVouchers]);
 
   const formatCurrency = (value) =>
@@ -137,6 +135,58 @@ const OrderInfo = ({
     setPaymentMethod("bank");
   }, [setPaymentMethod]);
 
+  // Nhóm các sản phẩm theo buildId và xử lý dữ liệu từ CartPage/GroupOrder
+  const groupedItems = () => {
+    const result = {};
+
+    cartItems.forEach((item) => {
+      if (item.buildId) {
+        // Trường hợp BuildPC
+        const key = `build-${item.buildId}`;
+        if (!result[key]) {
+          result[key] = {
+            buildId: item.buildId,
+            buildName: item.buildName || "BuildPC không tên",
+            items: [],
+          };
+        }
+        // Tạo danh sách linh kiện từ buildPCProductVariants nếu có, hoặc dùng dữ liệu từ item
+        if (item.buildPC && item.buildPC.buildPCProductVariants) {
+          item.buildPC.buildPCProductVariants.forEach((variant) => {
+            result[key].items.push({
+              productVariantId: variant.productVariantId,
+              quantity: variant.variantQuantity * item.quantity,
+              productName: variant.nameVariants,
+              productPrice: variant.price,
+            });
+          });
+        } else {
+          result[key].items.push({
+            productVariantId: item.product_variant_id || item.productVariantId,
+            quantity: item.quantity,
+            productName: item.nameVariants || item.productName || "Linh kiện không xác định",
+            productPrice: item.productPrice,
+          });
+        }
+      } else {
+        // Trường hợp sản phẩm đơn lẻ
+        const key = `single-${item.product_variant_id || item.productVariantId}`;
+        result[key] = {
+          buildId: null,
+          buildName: null,
+          items: [{
+            productVariantId: item.product_variant_id || item.productVariantId,
+            quantity: item.quantity,
+            productName: item.productName || item.nameVariants || "Linh kiện không xác định",
+            productPrice: item.productPrice,
+          }],
+        };
+      }
+    });
+
+    return result;
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Thông tin đơn hàng</h2>
@@ -149,29 +199,25 @@ const OrderInfo = ({
             </tr>
           </thead>
           <tbody>
-            {cartItems.map((item, index) => {
-              // Build product name dynamically, excluding empty/missing fields
-              let productNameDisplay = [];
-              if (item.nameVariants && item.nameVariants.trim()) {
-                productNameDisplay.push(item.nameVariants);
-              }
-              if (item.productName && item.productName.trim()) {
-                productNameDisplay.push(`(${item.productName})`);
-              }
-              const finalProductName =
-                productNameDisplay.length > 0
-                  ? productNameDisplay.join(" ")
-                  : "Không có tên";
-
-              return (
-                <tr key={index}>
-                  <td>
-                    {finalProductName} × {item.quantity}
-                  </td>
-                  <td>{formatCurrency(item.productPrice * item.quantity)}</td>
-                </tr>
-              );
-            })}
+            {Object.values(groupedItems()).map((group, index) => (
+              <React.Fragment key={index}>
+                {group.buildId && (
+                  <tr>
+                    <td colSpan="2" className="font-semibold text-blue-600 py-2">
+                      BuildPC: {group.buildName}
+                    </td>
+                  </tr>
+                )}
+                {group.items.map((item, idx) => (
+                  <tr key={idx} className={group.buildId ? "pl-4" : ""}>
+                    <td>
+                    {group.buildId && "↳ "} {item.productName} × <span className="font-semibold text-red-600 py-2">{item.quantity}</span>
+                    </td>
+                    <td>{formatCurrency(item.productPrice * item.quantity)}</td>
+                  </tr>
+                ))}
+              </React.Fragment>
+            ))}
           </tbody>
           <tfoot>
             <tr>
@@ -190,9 +236,7 @@ const OrderInfo = ({
             )}
             <tr>
               <td className="font-bold">Tổng</td>
-              <td className="font-bold">
-                {formatCurrency(totalAfterDiscount)}
-              </td>
+              <td className="font-bold">{formatCurrency(totalAfterDiscount)}</td>
             </tr>
           </tfoot>
         </table>

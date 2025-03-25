@@ -14,6 +14,7 @@ const GroupOrder = () => {
   const navigate = useNavigate();
   const { cartItems = [] } = location.state || {};
 
+
   const [userInfo, setUserInfo] = useState({
     id: "",
     fullName: "",
@@ -206,30 +207,30 @@ const GroupOrder = () => {
 
   const handlePlaceOrder = async () => {
     if (!paymentMethod) {
-      Swal.fire({
-        title: "Lỗi",
-        text: "Vui lòng chọn phương thức thanh toán.",
-        icon: "error",
-      });
-      return;
+        Swal.fire({
+            title: "Lỗi",
+            text: "Vui lòng chọn phương thức thanh toán.",
+            icon: "error",
+        });
+        return;
     }
 
     if (!userInfo.fullAddress) {
-      Swal.fire({
-        title: "Lỗi",
-        text: "Vui lòng cung cấp địa chỉ giao hàng.",
-        icon: "error",
-      });
-      return;
+        Swal.fire({
+            title: "Lỗi",
+            text: "Vui lòng cung cấp địa chỉ giao hàng.",
+            icon: "error",
+        });
+        return;
     }
 
     if (paymentMethod === "bank" && !selectedLogo) {
-      Swal.fire({
-        title: "Lỗi",
-        text: "Vui lòng chọn phương thức thanh toán (VNPay hoặc ZaloPay).",
-        icon: "error",
-      });
-      return;
+        Swal.fire({
+            title: "Lỗi",
+            text: "Vui lòng chọn phương thức thanh toán (VNPay hoặc ZaloPay).",
+            icon: "error",
+        });
+        return;
     }
 
     setLoading(true);
@@ -241,11 +242,13 @@ const GroupOrder = () => {
       phone: userInfo.phone,
       email: userInfo.email,
       cartItems: cartItems.map((item) => ({
-        productVariantId: item.product_variant_id,
-        quantity: item.quantity,
-        productName: `${item.nameVariants} (${item.productName})`,
-        productPrice: item.productPrice,
-        size: item.size,
+          productVariantId: item.productVariantId || item.product_variant_id,
+          quantity: item.quantity,
+          productName: item.buildId ? item.nameVariants : item.productName,
+          productPrice: item.productPrice,
+          buildId: item.buildId || null,
+          buildName: item.buildName || null,
+          size: item.size || null,
       })),
       totalPrice: calculateTotalPrice(),
       paymentMethod,
@@ -254,87 +257,100 @@ const GroupOrder = () => {
       status: 0,
       voucherId,
       shippingFee,
-    };
+  };
+  
+  console.log("📤 Dữ liệu gửi lên backend:", JSON.stringify(orderData, null, 2));
 
     try {
-      if (paymentMethod === "bank") {
-        let response;
-        if (selectedLogo === "zaloPay") {
-          response = await OrderService.placeOrderZaloPay(orderData);
-        } else if (selectedLogo === "vnp") {
-          response = await OrderService.placeOrder(orderData);
+        if (paymentMethod === "bank") {
+            let response;
+            if (selectedLogo === "zaloPay") {
+                response = await OrderService.placeOrderZaloPay(orderData);
+            } else if (selectedLogo === "vnp") {
+                response = await OrderService.placeOrder(orderData);
+            }
+            Swal.fire({
+                title: "Chuyển hướng...",
+                text: "Đang chuyển đến cổng thanh toán.",
+                icon: "info",
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            }).then(() => {
+                window.location.href = response;
+            });
+        } else if (paymentMethod === "cash") {
+            await OrderService.placeOrderNoVnpay(orderData);
+
+        // Nhóm các sản phẩm theo buildId giống OrderInfo
+        const groupedItems = cartItems.reduce((acc, item) => {
+          const key = item.buildId ? `build-${item.buildId}` : `single-${item.productVariantId || item.product_variant_id}`;
+          if (!acc[key]) {
+              acc[key] = {
+                  buildId: item.buildId || null,
+                  buildName: item.buildName || null,
+                  items: [],
+              };
+          }
+          acc[key].items.push(item);
+          return acc;
+      }, {});
+
+      // Tạo danh sách sản phẩm chi tiết
+      const productDetails = Object.values(groupedItems)
+          .map((group) => {
+              let groupHtml = '';
+              if (group.buildId) {
+                  groupHtml += `<li style="font-weight: bold; color: #1e90ff; margin-bottom: 5px;">BuildPC: ${group.buildName}</li>`;
+              }
+              const itemsHtml = group.items
+                  .map((item) => {
+                      // Sửa logic description: linh kiện BuildPC dùng nameVariants, sản phẩm thường dùng cả productName và nameVariants
+                      let description = item.buildId 
+                          ? (item.nameVariants || "Linh kiện không tên") 
+                          : `${item.productName || ""}${item.nameVariants ? ` (${item.nameVariants})` : ""}` || "Sản phẩm không tên";
+                      const itemTotal = (item.productPrice * item.quantity).toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                      });
+                      return `<li style="margin-left: ${group.buildId ? '20px' : '0'}; list-style-type: ${group.buildId ? "'↳ '" : "'- '"}">${description} × ${item.quantity} - ${itemTotal}</li>`;
+                  })
+                  .join('');
+              return groupHtml + itemsHtml;
+          })
+          .join('');
+
+            Swal.fire({
+                title: "Đặt hàng thành công!",
+                html: `
+                    <p>Đơn hàng của bạn đã được ghi nhận.</p>
+                    <ul style="text-align: left; margin: 10px 0;">${productDetails}</ul>
+                    <p><strong>Tổng tiền: ${calculateTotalPrice().toLocaleString()} VNĐ</strong></p>
+                    <p class="mt-2">Cảm ơn bạn đã mua hàng!</p>
+                `,
+                icon: "success",
+                confirmButtonText: "Xem đơn hàng",
+                showCancelButton: true,
+                cancelButtonText: "Tiếp tục mua sắm",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate("/OrderUser");
+                } else {
+                    navigate("/");
+                }
+            });
         }
-
-        Swal.fire({
-          title: "Chuyển hướng...",
-          text: "Đang chuyển đến cổng thanh toán.",
-          icon: "info",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        }).then(() => {
-          window.location.href = response;
-        });
-      } else if (paymentMethod === "cash") {
-        await OrderService.placeOrderNoVnpay(orderData);
-
-        const productDetails = cartItems
-        .map((item) => {
-          // Tạo chuỗi mô tả sản phẩm dựa trên điều kiện
-          let description = "";
-          
-          // Nếu nameVariants tồn tại và không undefined, thêm vào chuỗi
-          if (item.nameVariants) {
-            description += `${item.nameVariants}`;
-          }
-          
-          // Nếu productName tồn tại và không undefined, thêm vào chuỗi với định dạng phù hợp
-          if (item.productName) {
-            description += description ? ` (${item.productName})` : item.productName;
-          }
-          
-          // Thêm thông tin số lượng và giá
-          description += ` - Số lượng: ${item.quantity} - Giá: ${(
-            item.productPrice * item.quantity
-          ).toLocaleString()} VNĐ`;
-          
-          return `<li>${description}</li>`;
-        })
-        .join("");
-
-        Swal.fire({
-          title: "Đặt hàng thành công!",
-          html: `
-                        <p>Đơn hàng của bạn đã được ghi nhận.</p>
-                        <ul style="text-align: left; margin: 10px 0;">${productDetails}</ul>
-                        <p><strong>Tổng tiền: ${calculateTotalPrice().toLocaleString()} VNĐ</strong></p>
-                        <p class="mt-2">Cảm ơn bạn đã mua hàng!</p>
-                    `,
-          icon: "success",
-          confirmButtonText: "Xem đơn hàng",
-          showCancelButton: true,
-          cancelButtonText: "Tiếp tục mua sắm",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate("/OrderUser");
-          } else {
-            navigate("/");
-          }
-        });
-      }
     } catch (error) {
-      console.error("Lỗi khi đặt hàng:", error);
-      Swal.fire({
-        title: "Lỗi",
-        text:
-          error.message ||
-          "Đã xảy ra lỗi trong quá trình đặt hàng. Vui lòng thử lại.",
-        icon: "error",
-      });
+        console.error("Lỗi khi đặt hàng:", error);
+        Swal.fire({
+            title: "Lỗi",
+            text: error.message || "Đã xảy ra lỗi trong quá trình đặt hàng. Vui lòng thử lại.",
+            icon: "error",
+        });
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <div className="container mx-auto p-4">

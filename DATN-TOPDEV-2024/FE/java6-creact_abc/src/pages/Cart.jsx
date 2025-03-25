@@ -8,7 +8,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
 import 'aos/dist/aos.css';
 
-
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,12 +35,16 @@ const CartPage = () => {
                 } else {
                     const initialSelectedState = {};
                     items.forEach(item => {
-                        initialSelectedState[item.product_variant_id] = false;
+                        // Sử dụng buildId hoặc product_variant_id làm key tùy thuộc vào loại mục
+                        const key = item.buildPC ? item.buildPC.buildId : item.product_variant_id;
+                        initialSelectedState[key] = false;
                     });
                     setSelectedItems(initialSelectedState);
                     setCartItems(items.map(item => ({
                         ...item,
-                        quantity: item.quantity || 1
+                        quantity: item.quantity || 1,
+                        // Xác định loại mục (product hoặc buildPC)
+                        type: item.buildPC ? 'buildPC' : 'product'
                     })));
                 }
             } catch (err) {
@@ -55,17 +58,22 @@ const CartPage = () => {
     }, []);
 
     useEffect(() => {
-        // Đồng bộ hóa giỏ hàng với localStorage
         localStorage.setItem('cartItems', JSON.stringify(cartItems));
         localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
     }, [cartItems, selectedItems]);
 
-    const handleDeleteItemFromCart = async (product_variant_id) => {
+    const handleDeleteItemFromCart = async (item) => {
         try {
-            await removeProductFromCart(userId, product_variant_id);
-            setCartItems(cartItems.filter(item => item.product_variant_id !== product_variant_id));
+            // Xóa dựa trên buildId hoặc product_variant_id
+            const idToRemove = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+            await removeProductFromCart(userId, item.type === 'buildPC' ? null : idToRemove, item.type === 'buildPC' ? idToRemove : null);
+            setCartItems(cartItems.filter(cartItem => 
+                cartItem.type === 'buildPC' 
+                    ? cartItem.buildPC.buildId !== idToRemove 
+                    : cartItem.product_variant_id !== idToRemove
+            ));
             const newSelectedItems = { ...selectedItems };
-            delete newSelectedItems[product_variant_id];
+            delete newSelectedItems[idToRemove];
             setSelectedItems(newSelectedItems);
 
             Swal.fire({
@@ -85,29 +93,34 @@ const CartPage = () => {
 
     const calculateTotalPrice = () => {
         return cartItems.reduce((total, item) => {
-            if (selectedItems[item.product_variant_id]) {
-                return total + (item.productPrice * item.quantity);
+            const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+            if (selectedItems[key]) {
+                const price = item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice;
+                return total + (price * item.quantity);
             }
             return total;
         }, 0);
     };
 
-    const handleUpdateQuantity = (product_variant_id, newQuantity) => {
-        const updatedCartItems = cartItems.map(item =>
-            item.product_variant_id === product_variant_id ? { ...item, quantity: newQuantity } : item
-        );
+    const handleUpdateQuantity = (key, newQuantity) => {
+        const updatedCartItems = cartItems.map(item => {
+            const itemKey = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+            return itemKey === key ? { ...item, quantity: newQuantity } : item;
+        });
         setCartItems(updatedCartItems);
     };
 
-    const handleSelectChange = (product_variant_id, isSelected) => {
+    const handleSelectChange = (key, isSelected) => {
         const updatedSelectedItems = {
             ...selectedItems,
-            [product_variant_id]: isSelected
+            [key]: isSelected
         };
         setSelectedItems(updatedSelectedItems);
 
-        // Check if all items are selected and update selectAll state
-        const allSelected = cartItems.every(item => updatedSelectedItems[item.product_variant_id]);
+        const allSelected = cartItems.every(item => {
+            const itemKey = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+            return updatedSelectedItems[itemKey];
+        });
         setSelectAll(allSelected);
     };
 
@@ -115,10 +128,10 @@ const CartPage = () => {
         const newSelectAll = !selectAll;
         setSelectAll(newSelectAll);
 
-        // Update all checkboxes
         const updatedSelectedItems = {};
         cartItems.forEach(item => {
-            updatedSelectedItems[item.product_variant_id] = newSelectAll;
+            const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+            updatedSelectedItems[key] = newSelectAll;
         });
         setSelectedItems(updatedSelectedItems);
     };
@@ -132,19 +145,53 @@ const CartPage = () => {
         }).format(value).replace(/\s?₫/g, ' VND');
     };
 
-    const handleProceedToCheckout = () => {
-        const selectedCartItems = cartItems.filter(item => selectedItems[item.product_variant_id]);
-        if (selectedCartItems.length === 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Chưa chọn sản phẩm',
-                text: 'Vui lòng chọn ít nhất một sản phẩm để tiến hành thanh toán.',
-                confirmButtonText: 'OK'
-            });
-            return;
+const handleProceedToCheckout = () => {
+    const selectedCartItems = cartItems.filter(item => {
+        const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+        return selectedItems[key];
+    });
+
+    if (selectedCartItems.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Chưa chọn sản phẩm',
+            text: 'Vui lòng chọn ít nhất một sản phẩm để tiến hành thanh toán.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    const checkoutItems = selectedCartItems.flatMap(item => {
+        if (item.type === 'buildPC' && item.buildPC && item.buildPC.buildPCProductVariants) {
+            return item.buildPC.buildPCProductVariants.map(variant => ({
+                productVariantId: variant.productVariantId,
+                quantity: variant.variantQuantity * item.quantity,
+                productName: variant.nameVariants,
+                productPrice: variant.price,
+                productImageUrl: variant.image,
+                productStatus: variant.status,
+                buildId: item.buildPC.buildId,
+                buildName: item.buildPC.buildName,
+                nameVariants: variant.nameVariants, 
+            }));
+        } else {
+            return [{
+                productVariantId: item.product_variant_id,
+                quantity: item.quantity,
+                productName: item.productName,
+                productPrice: item.productPrice,
+                productImageUrl: item.productImageUrl,
+                productStatus: item.productStatus,
+                buildId: null,
+                buildName: null,
+                nameVariants: item.nameVariants || null,
+            }];
         }
-        navigate('/orders', { state: { cartItems: selectedCartItems } });
-    };
+    });
+
+    console.log("📤 Dữ liệu truyền sang GroupOrder:", JSON.stringify(checkoutItems, null, 2));
+    navigate('/orders', { state: { cartItems: checkoutItems } });
+};
 
     return (
         <div className="flex justify-center pb-20">
@@ -178,62 +225,78 @@ const CartPage = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {cartItems.map(item => (
-                                <tr key={item.product_variant_id} className="border-b">
-                                    <td className="py-4 px-4">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedItems[item.product_variant_id] || false}
-                                            onChange={() => handleSelectChange(item.product_variant_id, !selectedItems[item.product_variant_id])}
-                                            className="w-5 h-5"
-                                        />
-                                    </td>
-                                    <td className="py-4 px-4">
-                                        <div className="flex items-center">
-                                            <img
-                                                src={item.productImageUrl || 'https://placehold.co/50x50'}
-                                                alt={item.productName}
-                                                className="w-12 h-12 mr-4 object-cover"
-                                            />
-                                            <span>{item.productName}</span>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-4">{formatCurrency(item.productPrice || 0)}</td>
-                                    <td className="py-4 px-4">
-                                        <div className="flex items-center border rounded-md overflow-hidden shadow-sm">
-                                            <button
-                                                className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
-                                                onClick={() => handleUpdateQuantity(item.product_variant_id, item.quantity - 1)}
-                                            >
-                                                −
-                                            </button>
+                            {cartItems.map(item => {
+                                const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+                                return (
+                                    <tr key={key} className="border-b">
+                                        <td className="py-4 px-4">
                                             <input
-                                                type="text"
-                                                className="w-12 h-8 text-center border-none focus:outline-none"
-                                                value={item.quantity}
-                                                onChange={(e) => handleUpdateQuantity(item.product_variant_id, Number(e.target.value) || 1)}
+                                                type="checkbox"
+                                                checked={selectedItems[key] || false}
+                                                onChange={() => handleSelectChange(key, !selectedItems[key])}
+                                                className="w-5 h-5"
                                             />
+                                        </td>
+                                        <td className="py-4 px-4">
+                                            <div className="flex items-center">
+                                                <img
+                                                    src={item.type === 'buildPC' ? item.buildPC.image : item.productImageUrl || 'https://placehold.co/50x50'}
+                                                    alt={item.type === 'buildPC' ? item.buildPC.buildName : item.productName}
+                                                    className="w-12 h-12 mr-4 object-cover"
+                                                />
+                                                <div>
+                                                    <span>{item.type === 'buildPC' ? item.buildPC.buildName : item.productName}</span>
+                                                    {item.type === 'buildPC' && (
+                                                        <div className="text-sm text-gray-600">
+                                                            <p>Mục đích: {item.buildPC.usagePurpose}</p>
+                                                            <p>Số linh kiện: {item.buildPC.totalProducts}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-4">
+                                            {formatCurrency(item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice || 0)}
+                                        </td>
+                                        <td className="py-4 px-4">
+                                            <div className="flex items-center border rounded-md overflow-hidden shadow-sm">
+                                                <button
+                                                    className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
+                                                    onClick={() => handleUpdateQuantity(key, item.quantity - 1)}
+                                                    disabled={item.quantity <= 1}
+                                                >
+                                                    −
+                                                </button>
+                                                <input
+                                                    type="text"
+                                                    className="w-12 h-8 text-center border-none focus:outline-none"
+                                                    value={item.quantity}
+                                                    onChange={(e) => handleUpdateQuantity(key, Number(e.target.value) || 1)}
+                                                />
+                                                <button
+                                                    className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
+                                                    onClick={() => handleUpdateQuantity(key, item.quantity + 1)}
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-4">
+                                            {formatCurrency((item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice || 0) * item.quantity)}
+                                        </td>
+                                        <td className="py-4 px-4">
                                             <button
-                                                className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
-                                                onClick={() => handleUpdateQuantity(item.product_variant_id, item.quantity + 1)}
+                                                onClick={() => handleDeleteItemFromCart(item)}
+                                                className="text-red-600 hover:text-red-800"
                                             >
-                                                +
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
                                             </button>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-4">{formatCurrency((item.productPrice || 0) * item.quantity)}</td>
-                                    <td className="py-4 px-4">
-                                        <button
-                                            onClick={() => handleDeleteItemFromCart(item.product_variant_id)}
-                                            className="text-red-600 hover:text-red-800"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                             </tbody>
                             <tfoot>
                             <tr>

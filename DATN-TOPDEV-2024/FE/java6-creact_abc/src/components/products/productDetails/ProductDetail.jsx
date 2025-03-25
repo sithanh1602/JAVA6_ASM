@@ -5,7 +5,6 @@ import {
   addProductToCart,
   getAllCartItemsForUser,
   removeProductFromCart,
-  updateCartItemQuantity,
 } from "../../../services/CartService";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";

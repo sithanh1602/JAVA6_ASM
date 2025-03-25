@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import BuildPCService from "../../../services/BuildPcService";
-import { addProductToCart } from "../../../services/CartService";
+import { addPcToCart } from "../../../services/CartService"; // Thay đổi từ addProductToCart thành addPcToCart
 import Swal from "sweetalert2";
 
 const PCBuildDetail = () => {
@@ -21,28 +21,28 @@ const PCBuildDetail = () => {
         const response = await BuildPCService.getBuildPCById(buildId);
         console.log("Dữ liệu từ API:", response.data);
         setBuild(response.data);
-        
+
         // Initialize images array with all available images
         if (response.data) {
           let imagesList = [];
-          
+
           // Add main image first if it exists
           if (response.data.image) {
             imagesList.push({ id: 0, image: response.data.image });
           }
-          
+
           // Add all additional images from imageUrls array if it exists
           if (response.data.imageUrls && Array.isArray(response.data.imageUrls)) {
             // Skip the first image if it's the same as the main image to avoid duplication
             const additionalImages = response.data.imageUrls.filter(
               (url) => url !== response.data.image
             );
-            
+
             additionalImages.forEach((imageUrl, index) => {
               imagesList.push({ id: index + 1, image: imageUrl });
             });
           }
-          
+
           // If we have at least one image, set the main image and update the images array
           if (imagesList.length > 0) {
             setImages(imagesList);
@@ -108,26 +108,23 @@ const PCBuildDetail = () => {
     try {
       Swal.fire({
         title: "Đang xử lý...",
-        text: "Đang thêm các linh kiện vào giỏ hàng",
+        text: "Đang thêm BuildPC vào giỏ hàng",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
         },
       });
 
-      if (!build || !build.buildPCProductVariants || !Array.isArray(build.buildPCProductVariants)) {
-        throw new Error("Không tìm thấy thông tin linh kiện");
+      if (!build || !build.buildId) {
+        throw new Error("Không tìm thấy thông tin BuildPC");
       }
 
-      const addPromises = build.buildPCProductVariants.map((variant) =>
-        addProductToCart(userId, variant.productVariantId, variant.variantQuantity)
-      );
-
-      await Promise.all(addPromises);
+      // Thêm BuildPC vào giỏ hàng với số lượng mặc định là 1
+      await addPcToCart(userId, build.buildId, 1);
 
       Swal.fire({
         title: "Thành công",
-        text: "Đã thêm tất cả linh kiện vào giỏ hàng!",
+        text: "Đã thêm BuildPC vào giỏ hàng!",
         icon: "success",
         showCancelButton: true,
         confirmButtonText: "Xem giỏ hàng",
@@ -138,7 +135,7 @@ const PCBuildDetail = () => {
         }
       });
     } catch (error) {
-      Swal.fire("Lỗi", "Có lỗi xảy ra khi thêm vào giỏ hàng", "error");
+      Swal.fire("Lỗi", "Có lỗi xảy ra khi thêm BuildPC vào giỏ hàng", "error");
     }
   };
 
