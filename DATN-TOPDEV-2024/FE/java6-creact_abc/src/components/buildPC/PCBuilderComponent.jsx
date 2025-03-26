@@ -510,7 +510,7 @@ const PCBuilderComponent = () => {
               </td>
               <td>${qty}</td>
               <td style="color: red;">${formatPrice(component.price)} VNĐ</td>
-              <td style="color: purple;">${formatPrice(component.price * qty)} VNDĐ/td>
+              <td style="color: purple;">${formatPrice(component.price * qty)} VNĐ</td>
             </tr>
           `;
     }).join('')}

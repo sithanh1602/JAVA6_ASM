@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -39,9 +38,8 @@ public class SecurityConfig {
                         .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN") // USER và ADMIN
                         .requestMatchers("/api/users/**","/api/categories/**").authenticated() // Yêu cầu xác thực
                         .anyRequest().authenticated() // Mọi yêu cầu khác cần xác thực
-                ) .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
-                        jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 )
+
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
@@ -54,10 +52,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    private JwtAuthenticationConverter jwtAuthenticationConverter() {
-        return new JwtAuthenticationConverter();
     }
 
 

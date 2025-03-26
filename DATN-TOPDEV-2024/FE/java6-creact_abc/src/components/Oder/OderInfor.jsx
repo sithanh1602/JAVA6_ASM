@@ -72,7 +72,9 @@ const OrderInfo = ({
     new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(value);
+    })
+    .format(value)
+    .replace("₫", "VNĐ");
 
   const handleLogoClick = (logo) => {
     setSelectedPaymentLogo(logo);
@@ -204,7 +206,7 @@ const OrderInfo = ({
                 {group.buildId && (
                   <tr>
                     <td colSpan="2" className="font-semibold text-blue-600 py-2">
-                      BuildPC: {group.buildName}
+                      PC: {group.buildName}
                     </td>
                   </tr>
                 )}
