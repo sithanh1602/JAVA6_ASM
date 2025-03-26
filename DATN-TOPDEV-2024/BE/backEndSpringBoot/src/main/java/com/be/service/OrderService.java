@@ -172,35 +172,116 @@ public class OrderService {
             case 3: return "Đã thanh toán";
             case 4: return "Đã xác nhận";
             case 5: return "Đang giao hàng";
-            case 6: return "Đã hoàn thành";
-            case 7: return "Đã hủy";
+            case 6: return "Đã giao hàng";
+            case 7: return "Đã nhận hàng";
+            case 8: return "Hoàn thành";
+            case 9: return "Đã huỷ";
             default: return "Không xác định";
         }
     }
-
-
-
-//    public void updateOrderStatus(Long orderId, int status) {
-//        Orders order = ordersRepository.findById(orderId)
-//                .orElseThrow(() -> new RuntimeException("Order not found"));
-//
-//        order.setStatus(status); // Đảm bảo trường `status` tồn tại trong entity Orders
-//
-//        ordersRepository.save(order);
-//    }
-
-
+    
     public Orders getOrderById(Long orderId) {
         return ordersRepository.findById(orderId)
                 .orElseThrow();
     }
 
-    public Orders updateOrderStatushuy(Long orderId, Integer status) {
-        // Tìm kiếm đơn hàng theo ID
+    @Transactional
+    public Orders updateOrderStatushuy(Long orderId, int status) {
         Orders order = ordersRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
-            order.setStatus(status);  // Cập nhật trạng thái đơn hàng
-            return ordersRepository.save(order);
+                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+
+        int oldStatus = order.getStatus();
+        order.setStatus(status);
+        Orders updatedOrder = ordersRepository.save(order);
+
+        String statusDescription = getStatusDescription(status);
+
+        Notification notification = new Notification();
+        notification.setUser(updatedOrder.getUser());
+        notification.setOrder(updatedOrder);
+        notification.setContent("Đơn hàng " + updatedOrder.getOrderNum() +
+                " của bạn đang ở trạng thái " + statusDescription);
+        notificationRepository.save(notification);
+
+        if (status == 9) {
+            System.out.println("Order " + orderId + " canceled, attempting to send email"); // Debug
+            sendOrderCancellationEmail(updatedOrder);
+        }
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("orderId", updatedOrder.getId());
+        message.put("orderNum", updatedOrder.getOrderNum());
+        message.put("status", updatedOrder.getStatus());
+        message.put("userId", updatedOrder.getUser().getUserId());
+        messagingTemplate.convertAndSend("/topic/status", message);
+
+        return updatedOrder;
+    }
+
+    private void sendOrderCancellationEmail(Orders order) {
+        User user = order.getUser();
+        if (user == null || user.getEmail() == null) {
+            System.err.println("Cannot send email: No user or email for order " + order.getOrderNum());
+            return;
+        }
+
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<html>");
+            sb.append("<head>");
+            sb.append("<style>");
+            sb.append("body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }");
+            sb.append(".container { max-width: 800px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }");
+            sb.append(".header { text-align: center; padding-bottom: 20px; }");
+            sb.append(".header h2 { color: #ff6b6b; }");
+            sb.append(".order-info { margin: 20px 0; padding: 15px; background-color: #f9f9f9; border-radius: 5px; }");
+            sb.append(".footer { margin-top: 30px; text-align: center; color: #888; }");
+            sb.append("</style>");
+            sb.append("</head>");
+            sb.append("<body>");
+            sb.append("<div class='container'>");
+            sb.append("<div class='header'>");
+            sb.append("<h2>Đơn hàng đã được hủy</h2>");
+            sb.append("</div>");
+            sb.append("<p>Kính gửi ").append(user.getFullName()).append(",</p>");
+            sb.append("<p>Đơn hàng <strong>").append(order.getOrderNum()).append("</strong> của bạn đã được hủy thành công.</p>");
+
+            sb.append("<div class='order-info'>");
+            sb.append("<h3>Thông tin đơn hàng:</h3>");
+            sb.append("<p><strong>Mã đơn hàng:</strong> ").append(order.getOrderNum()).append("</p>");
+            sb.append("<p><strong>Ngày đặt hàng:</strong> ").append(order.getOrderDate()).append("</p>");
+            sb.append("<p><strong>Tổng giá trị:</strong> ").append(String.format("%,.0f", (double) order.getTotalPrice())).append(" VND</p>");
+            sb.append("<p><strong>Địa chỉ giao hàng:</strong> ").append(order.getFullAddress()).append("</p>");
+            sb.append("</div>");
+
+            if (order.isPaymentStatus()) {
+                sb.append("<p>Vì đơn hàng của bạn đã được thanh toán, chúng tôi sẽ tiến hành hoàn tiền cho bạn. Để quá trình hoàn tiền diễn ra nhanh chóng, vui lòng cung cấp các thông tin sau:</p>");
+                sb.append("<ol>");
+                sb.append("<li>Tên chủ tài khoản ngân hàng</li>");
+                sb.append("<li>Số tài khoản</li>");
+                sb.append("<li>Tên ngân hàng</li>");
+                sb.append("</ol>");
+                sb.append("<p>Bạn có thể phản hồi trực tiếp email này với các thông tin trên.</p>");
+            }
+
+            sb.append("<p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email hoặc hotline.</p>");
+            sb.append("<div class='footer'>");
+            sb.append("<p>Trân trọng,</p>");
+            sb.append("<p>Đội ngũ hỗ trợ khách hàng Tech Mart</p>");
+            sb.append("</div>");
+            sb.append("</div>");
+            sb.append("</body>");
+            sb.append("</html>");
+
+            emailService.sendEmail(
+                    user.getEmail(),
+                    "Thông báo hủy đơn hàng " + order.getOrderNum(),
+                    sb.toString()
+            );
+            System.out.println("Email sent successfully to " + user.getEmail()); // Debug
+        } catch (Exception e) {
+            System.err.println("Error sending cancellation email for order " + order.getOrderNum() + ": " + e.getMessage());
+        }
     }
 
     public List<Orders> getOrdersByUserId(Long userId) {
@@ -229,7 +310,6 @@ public class OrderService {
             productInfo.put("quantity", orderDetail.getQuantity());
             productInfo.put("price", productVariant.getPrice());
             productInfo.put("OrderDetailId",orderDetail.getId());
-
             productsWithQuantity.add(productInfo);
         }
         return productsWithQuantity;

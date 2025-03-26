@@ -20,6 +20,7 @@ import Contact from "./mainContact";
 import News from "./mainNews";
 import PCBuildsPage from './PCBuildsPage';
 import BlogDetail from "../components/news/BlogDetail";
+import SinglePost from "../components/news/SinglePost";
 import GroupOrder from "../components/Oder/GroupOrder";
 import ProfilePage from "../components/Profile/ProfilePage";
 import OrderList from "../components/Oder/OrderList";
@@ -112,8 +113,10 @@ const HomePage = () => {
             case 3: return "Đã thanh toán";
             case 4: return "Đã xác nhận";
             case 5: return "Đang giao hàng";
-            case 6: return "Đã hoàn thành";
-            case 7: return "Đã hủy";
+            case 6: return "Đã giao hàng";
+            case 7: return "Đã nhận hàng";
+            case 8: return "Đã hoàn thành";
+            case 9: return "Đã huỷ";
             default: return "Trạng thái không xác định";
         }
     };
@@ -135,7 +138,7 @@ const HomePage = () => {
                     <Route path="/aboutUs" element={<AboutUs/>}/>
                     <Route path="/contact" element={< Contact/>}/>
                     <Route path="/posts" element={< News/>}/>
-                    <Route path="/post/:id" element={<BlogDetail />} />
+                    <Route path="/post/:id" element={<SinglePost />} />
                     <Route path="/orders" element={< GroupOrder/>}/>
                     <Route path="/profile/*" element={<ProfilePage />} />
                     <Route path="/OrderUser" element={<OrderList />} />

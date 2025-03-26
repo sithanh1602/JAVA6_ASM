@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ProductService from "../../../services/ProductService";
+import ProductRating from "./ProductRating";
 import {
   addProductToCart,
   getAllCartItemsForUser,
@@ -8,7 +9,7 @@ import {
 } from "../../../services/CartService";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { Toaster, toast } from 'sonner'
+import { Toaster, toast } from "sonner";
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -22,8 +23,9 @@ const ProductDetail = () => {
   const [category, setCategory] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [description, setDescription] = useState(selectedVariant?.description || "");
-
+  const [description, setDescription] = useState(
+    selectedVariant?.description || ""
+  );
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -176,14 +178,20 @@ const ProductDetail = () => {
       // Kiểm tra nếu hết hàng
       if (actualStock === 0) {
         alert("Sản phẩm đã hết hàng!");
-        setSelectedVariant(prev => ({ ...prev, quantity: 0, stock: 0 }));
+        setSelectedVariant((prev) => ({ ...prev, quantity: 0, stock: 0 }));
         return;
       }
 
       // Kiểm tra nếu không đủ số lượng
       if (quantity > actualStock) {
-        alert(`Chỉ còn ${actualStock} sản phẩm trong kho. Vui lòng giảm số lượng.`);
-        setSelectedVariant(prev => ({ ...prev, quantity: actualStock, stock: actualStock }));
+        alert(
+          `Chỉ còn ${actualStock} sản phẩm trong kho. Vui lòng giảm số lượng.`
+        );
+        setSelectedVariant((prev) => ({
+          ...prev,
+          quantity: actualStock,
+          stock: actualStock,
+        }));
         setQuantity(actualStock);
         return;
       }
@@ -195,12 +203,18 @@ const ProductDetail = () => {
         quantity: quantity,
       };
 
-      await addProductToCart(cartItem.userId, cartItem.productVariantId, cartItem.quantity);
+      await addProductToCart(
+        cartItem.userId,
+        cartItem.productVariantId,
+        cartItem.quantity
+      );
       toast.success("Sản phẩm đã được thêm vào giỏ hàng thành công.");
-
     } catch (error) {
       console.error("Lỗi:", error);
-      toast.error(error.message || "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau.");
+      toast.error(
+        error.message ||
+          "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau."
+      );
     }
   };
 
@@ -211,23 +225,24 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left Column - Images */}
             <div className="space-y-4">
-              <div
-                className="relative w-full h-[400px] overflow-hidden flex items-center justify-center">
+              <div className="relative w-full h-[400px] bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center">
                 <img
-                  src={mainImage || selectedVariant?.image || selectedVariant?.imageUrl}
+                  src={
+                    mainImage ||
+                    selectedVariant?.image ||
+                    selectedVariant?.imageUrl
+                  }
                   alt={selectedVariant?.attributes || "Product image"}
                   className="h-full w-full object-contain transition-transform duration-300 hover:scale-105"
                 />
                 <button
                   onClick={handlePreviousImage}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-800 hover:bg-white transition"
-                >
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition">
                   {"<"}
                 </button>
                 <button
                   onClick={handleNextImage}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-800 hover:bg-white transition"
-                >
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition">
                   {">"}
                 </button>
               </div>
@@ -254,10 +269,10 @@ const ProductDetail = () => {
                 <h2 className="text-lg font-bold mb-2">Mô tả sản phẩm</h2>
                 <div
                   className="text-sm text-gray-600"
-                  dangerouslySetInnerHTML={{ __html: selectedVariant?.description || "Không có mô tả" }}
-                ></div>
+                  dangerouslySetInnerHTML={{
+                    __html: selectedVariant?.description || "Không có mô tả",
+                  }}></div>
               </div>
-
             </div>
 
             {/* Right Column - Product Info */}
@@ -275,53 +290,56 @@ const ProductDetail = () => {
                 <div className="space-y-2 py-4">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">Thương hiệu:</span>
-                    <span className="text-gray-600">{brand?.name || "Không rõ"}</span>
+                    <span className="text-gray-600">
+                      {brand?.name || "Không rõ"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">Danh mục:</span>
-                    <span className="text-gray-600">{category?.name || "Không rõ"}</span>
+                    <span className="text-gray-600">
+                      {category?.name || "Không rõ"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">Kho:</span>
                     <span className="text-gray-600">
-                      {selectedVariant?.quantity || selectedVariant?.stock || 0} sản phẩm
+                      {selectedVariant?.quantity || selectedVariant?.stock || 0}{" "}
+                      sản phẩm
                     </span>
                   </div>
                 </div>
 
-                {variants.length > 0 && selectedVariant?.attributes?.length > 0 && (
-                  <div className="border-t py-4">
-                    <h2 className="text-lg font-bold mb-4">Chọn sản phẩm</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      {variants.map((variant) => (
-
-                        <div
-
-                          key={variant.variantId}
-                          onClick={() => handleVariantSelect(variant)}
-                          className={`p-3 border cursor-pointer transition-all ${selectedVariant?.variantId === variant.variantId
-                            ? "border-blue-500 bg-blue-50"
-                            : "hover:bg-gray-50"
-                            }`}
-                        >
-                          <img
-                            src={variant.image}
-                            console={variant}
-                            alt={variant.attributes || "Variant"}
-                            className="w-16 h-16 object-cover mx-auto mb-2"
-
-                          />
-                        </div>
-
-                      ))}
+                {variants.length > 0 &&
+                  selectedVariant?.attributes?.length > 0 && (
+                    <div className="border-t py-4">
+                      <h2 className="text-lg font-bold mb-4">Chọn sản phẩm</h2>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {variants.map((variant) => (
+                          <div
+                            key={variant.variantId}
+                            onClick={() => handleVariantSelect(variant)}
+                            className={`p-3 border cursor-pointer transition-all ${
+                              selectedVariant?.variantId === variant.variantId
+                                ? "border-blue-500 bg-blue-50"
+                                : "hover:bg-gray-50"
+                            }`}>
+                            <img
+                              src={variant?.image}
+                              console={variant}
+                              alt={variant.attributes || "Variant"}
+                              className="w-16 h-16 object-cover mx-auto mb-2"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2 mt-6">
+                        <span className="font-semibold">{productName}</span>
+                        <span className="text-gray-600">
+                          {selectedVariant.attributes}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-6">
-                      <span className="font-semibold">{productName}</span>
-                      <span className="text-gray-600">{selectedVariant.attributes}</span>
-                    </div>
-
-                  </div>
-                )}
+                  )}
 
                 <div className="border-t pt-4 space-y-4">
                   <div className="flex items-center gap-4">
@@ -329,8 +347,11 @@ const ProductDetail = () => {
                     <div className="flex items-center border rounded-lg">
                       <button
                         className="px-3 py-1 border-r hover:bg-gray-50"
-                        onClick={() => handleQuantityChange({ target: { value: quantity - 1 } })}
-                      >
+                        onClick={() =>
+                          handleQuantityChange({
+                            target: { value: quantity - 1 },
+                          })
+                        }>
                         -
                       </button>
                       <input
@@ -342,22 +363,23 @@ const ProductDetail = () => {
                       />
                       <button
                         className="px-3 py-1 border-l hover:bg-gray-50"
-                        onClick={() => handleQuantityChange({ target: { value: quantity + 1 } })}
-                      >
+                        onClick={() =>
+                          handleQuantityChange({
+                            target: { value: quantity + 1 },
+                          })
+                        }>
                         +
                       </button>
                     </div>
                   </div>
 
                   <div className="space-y-3 pt-4">
-                    <button
-                      className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg shadow hover:bg-blue-700 transition">
+                    <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg shadow hover:bg-blue-700 transition">
                       Mua ngay
                     </button>
                     <button
                       onClick={handleAddToCart}
-                      className="w-full text-blue-600 border border-blue-600 py-3 px-6 rounded-lg shadow hover:bg-blue-50 transition"
-                    >
+                      className="w-full text-blue-600 border border-blue-600 py-3 px-6 rounded-lg shadow hover:bg-blue-50 transition">
                       Thêm vào giỏ hàng
                     </button>
                   </div>
@@ -367,6 +389,9 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
+      <ProductRating productDetailsId={productId} />
+
       <Toaster richColors position="top-center" />
     </div>
   );

@@ -285,10 +285,4 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đã xảy ra lỗi: " + e.getMessage());
         }
     }
-
-    @GetMapping("/google-success")
-    public Map<String, Object> currentUser(OAuth2AuthenticationToken oAuth2AuthenticationToken){
-        return oAuth2AuthenticationToken.getPrincipal().getAttributes();
-    }
-
 }

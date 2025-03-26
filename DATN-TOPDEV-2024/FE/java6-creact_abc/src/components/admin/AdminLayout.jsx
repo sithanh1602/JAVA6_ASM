@@ -9,6 +9,7 @@ import Categorys from "../../pages/admin/Categorys";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
 import Top3User from "../dashBoard/Top3User";
 import Contact from "../../pages/admin/Contact";
+import Reviews from "../../pages/admin/Reviews";
 import PCBuildsAdmin from "../../pages/admin/PCBuildsAdmin";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -89,6 +90,7 @@ const AdminLayout = () => {
                             <Route path="/product" element={<Products />} />
                             <Route path="/post" element={<Posts />} />
                             <Route path="/contact" element={<Contact />} />
+                            <Route path="/reviews" element={<Reviews />} />
                             <Route path="/tk" element={<MonthlyProductionChart />} />
                             <Route path="/order" element={<AdminOrderManagement />} />
                             <Route path="/pc-builds" element={<PCBuildsAdmin />} />
