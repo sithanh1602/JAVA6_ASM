@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/buildPC")
@@ -33,4 +34,16 @@ public class BuildPCController {
         return ResponseEntity.ok("Build PC updated successfully!");
     }
 
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<String> updateBuildPCStatus(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        String status = request.get("status");
+        buildPCService.updateBuildPCStatus(id, status);
+        return ResponseEntity.ok("Build PC status updated successfully!");
+    }
+
+    @GetMapping("/details/{buildId}")
+    public ResponseEntity<BuildPCResponseDTO> getBuildPCById(@PathVariable Long buildId) {
+        BuildPCResponseDTO response = buildPCService.getBuildPCById(buildId);
+        return ResponseEntity.ok(response);
+    }
 }

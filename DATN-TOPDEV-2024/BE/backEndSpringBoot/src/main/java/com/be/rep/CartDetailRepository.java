@@ -22,11 +22,21 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
     @Query(value = "SELECT * FROM cart_detail cd WHERE cd.user_id = :userId AND cd.product_variant_id = :productVariantId", nativeQuery = true)
     Optional<CartDetail> findByUserIdAndProductVariantId(@Param("userId") Long userId, @Param("productVariantId") Long productVariantId);
 
+    @Query(value = "SELECT * FROM cart_detail cd WHERE cd.user_id = :userId AND cd.build_id = :buildId", nativeQuery = true)
+    Optional<CartDetail> findByUserIdAndBuildId(@Param("userId") Long userId, @Param("buildId") Long buildId);
+
     // Xóa chi tiết giỏ hàng của người dùng và sản phẩm biến thể
     @Transactional
     @Modifying
     @Query(value = "DELETE FROM cart_detail WHERE user_id = :userId AND product_variant_id = :productVariantId", nativeQuery = true)
     void deleteByUserIdAndproductVariantId(@Param("userId") Long userId, @Param("productVariantId") Long productVariantId);
+
+    // Query xóa CartDetail theo userId và buildId
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM cart_detail WHERE user_id = :userId AND build_id = :buildId", nativeQuery = true)
+    void deleteByUserIdAndBuildId(@Param("userId") Long userId, @Param("buildId") Long buildId);
+
 
     @Query(value = """
         SELECT
@@ -57,4 +67,6 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
     @Transactional
     @Query("DELETE FROM CartDetail c WHERE c.userId.userId = :userId AND c.product_variant_id.id = :productVariantId")
     void deleteByUserIdAndProductId(@Param("userId") Long userId, @Param("productVariantId") Long productVariantId);
+
+    List<CartDetail> findByUserIdUserId(Long userId);
 }

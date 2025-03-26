@@ -428,7 +428,10 @@ public class OrderService {
             orderDetailRepository.save(orderDetail);
 
             // Xóa mục khỏi CartDetail
-            cartDetailRepository.deleteByUserIdAndProductId(orderRequest.getUserId(), item.getProductVariantId());
+            cartDetailRepository.deleteByUserIdAndproductVariantId(orderRequest.getUserId(), item.getProductVariantId());
+
+            cartDetailRepository.deleteByUserIdAndBuildId(orderRequest.getUserId(), item.getBuildId());
+
         }
 
         return savedOrder;
@@ -542,7 +545,10 @@ public class OrderService {
             orderDetailRepository.save(orderDetail);
 
             // Xóa mục khỏi CartDetail
-            cartDetailRepository.deleteByUserIdAndProductId(orderRequest.getUserId(), item.getProductVariantId());
+            cartDetailRepository.deleteByUserIdAndproductVariantId(orderRequest.getUserId(), item.getProductVariantId());
+            // Xóa buildpc nếu có buildId liên quan
+            cartDetailRepository.deleteByUserIdAndBuildId(orderRequest.getUserId(), item.getBuildId());
+
         }
         // Gửi email xác nhận đơn hàng
         String emailContent = buildEmailContent(user, orderRequest);

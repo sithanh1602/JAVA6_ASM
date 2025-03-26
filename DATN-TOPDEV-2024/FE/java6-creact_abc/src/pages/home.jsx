@@ -18,6 +18,8 @@ import ProductPage from "../components/products/productDetails/ProductPageDetail
 import AboutUs from "./mainAbout";
 import Contact from "./mainContact";
 import News from "./mainNews";
+import PCBuildsPage from './PCBuildsPage';
+import BlogDetail from "../components/news/BlogDetail";
 import SinglePost from "../components/news/SinglePost";
 import GroupOrder from "../components/Oder/GroupOrder";
 import ProfilePage from "../components/Profile/ProfilePage";
@@ -29,6 +31,7 @@ import AuthForm from "../components/account/AuthForm";
 import OrderDetail from "../components/Oder/OrderDetail";
 import FloatingChatbox from "../components/AI/ChatBot/FloatingChatbox";
 import PCBuilderComponent from "../components/buildPC/PCBuilderComponent";
+import PCBuildDetail from "../components/buildPC/DetailPC/PCBuildDetail";
 import SockJS from "sockjs-client";
 import { Client } from '@stomp/stompjs';
 import { jwtDecode } from 'jwt-decode';
@@ -141,7 +144,9 @@ const HomePage = () => {
                     <Route path="/OrderUser" element={<OrderList />} />
                     <Route path="/payment/vnpay-payment" element={<PaymentSuccess />} />
                     <Route path="/order-detail/:orderId" element={<OrderDetail />} />
+                    <Route path="/PC" element={<PCBuildsPage />} />
                     <Route path="/BuilderPC" element={<PCBuilderComponent />} />
+                    <Route path="/details/:buildId" element={<PCBuildDetail />} />
                 </Routes>
             </div>
             <FloatingChatbox />

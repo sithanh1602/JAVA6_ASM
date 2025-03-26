@@ -150,7 +150,7 @@ public class ProductVariantService {
                         row[5] != null ? (String) row[5] : "default.jpg", // imageUrl
                         row[2] != null ? ((Number) row[2]).doubleValue() : 0.0, // price
                         row[3] != null ? ((Number) row[3]).intValue() : 0, // quantity
-                        "Description here", // Nếu cần lấy từ SQL, bạn phải sửa lại câu query
+                        row[9] != null ? (String) row[9] : "", // Mô tả
                         idVariants,
                         row[4] != null ? (String) row[4] : "Unknown", // status
                         new ArrayList<>() ,// Khởi tạo danh sách attributes rỗng

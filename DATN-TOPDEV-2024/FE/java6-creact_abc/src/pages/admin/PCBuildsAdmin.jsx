@@ -9,62 +9,104 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
+  ModalFooter,
   Chip,
   useDisclosure,
+  Textarea,
+  Select,
+  SelectItem,
+  Spinner,
 } from "@nextui-org/react";
 import DataTable from "react-data-table-component";
-import { FaEdit, FaTrash, FaPlus, FaSearch, FaSort, FaImage } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrash,
+  FaPlus,
+  FaSearch,
+  FaSort,
+  FaImage,
+} from "react-icons/fa";
 import AdminPCBuilder from "../../components/admin/TableForm/PC-build/AdminPCBuilder";
 import Swal from "sweetalert2";
+import BuildPCService from "../../services/BuildPcService";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import BuildPCService from "../../services/BuildPcService";
+// Import Sonner Toast
+import { Toaster, toast } from "sonner";
+// Import Firebase Storage
+import { storage } from "../../firebase.config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const PCBuildsAdmin = () => {
   const [pcBuilds, setPcBuilds] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [selectedBuild, setSelectedBuild] = useState(null);
   const [buildName, setBuildName] = useState("");
   const [buildDescription, setBuildDescription] = useState("");
-  const [buildType, setBuildType] = useState("GAMING");
-  const [buildStatus, setBuildStatus] = useState("ACTIVE");
+  const [buildType, setBuildType] = useState("Gaming"); // Mục đích sử dụng
+  const [buildStatus, setBuildStatus] = useState("Available"); // Status là Available/Unavailable
   const [buildImages, setBuildImages] = useState([]);
+  const [isUploading, setIsUploading] = useState(false); // Trạng thái đang tải ảnh
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editMode, setEditMode] = useState(false);
+  const [selectedComponents, setSelectedComponents] = useState(null);
 
-  // Fetch PC Builds từ API
+  // Cập nhật hàm fetchPCBuilds để chuyển đổi dữ liệu đúng format cho AdminPCBuilder
   const fetchPCBuilds = async () => {
     setIsLoading(true);
     try {
       const response = await BuildPCService.getAllBuildPC();
-      const apiData = response.data.map((build) => ({
-        id: build.buildId,
-        name: build.buildName,
-        description: build.description,
-        type: build.usagePurpose, // Ánh xạ usagePurpose thành type
-        status: build.status,
-        totalPrice: build.totalPrice,
-        components: build.buildPCProductVariants.map((variant) => ({
-          categoryId: null, // Không có categoryId từ API, có thể cần điều chỉnh backend
-          variantId: variant.productVariantId,
-          name: `Variant ${variant.productVariantId}`, // Tên giả định, cần bổ sung từ API nếu có
-          price: 0, // Giá cần được tính từ API nếu có
-          quantity: variant.variantQuantity,
-        })),
-        createdAt: build.createdDate,
-        updatedAt: build.createdDate, // Giả định updatedAt bằng createdDate nếu không có
-        image: build.image, // Ảnh đầu tiên
-        totalProducts: build.totalProducts,
-      }));
+      const apiData = response.data.map((build) => {
+        // Chuyển đổi buildPCProductVariants thành đối tượng với key là categoryId
+        const components = {};
+
+        if (build.buildPCProductVariants) {
+          build.buildPCProductVariants.forEach((variant) => {
+            if (variant.categoryId) {
+              components[variant.categoryId] = {
+                id: variant.productVariantId,
+                nameVariants: variant.nameVariants || "Unknown",
+                price: variant.price || 0,
+                image: variant.image || null,
+                quantity: variant.quantity || 0,
+                variantQuantity: variant.variantQuantity || 1,
+                status: variant.status || "Available",
+                categoryId: variant.categoryId,
+              };
+            }
+          });
+        }
+
+        return {
+          id: build.buildId,
+          name: build.buildName,
+          description: build.description,
+          type: build.usagePurpose,
+          status: build.status,
+          totalPrice: build.totalPrice,
+          // Lưu cả hai dạng dữ liệu của components
+          components: components, // Đối tượng với key là categoryId
+          componentsArray: build.buildPCProductVariants || [], // Mảng gốc từ API
+          createdAt: build.createdDate,
+          updatedAt: build.createdDate,
+          image:
+            build.image ||
+            (build.imageUrls && build.imageUrls.length > 0
+              ? build.imageUrls[0]
+              : null),
+          imageUrls: build.imageUrls || [],
+          totalProducts: build.totalProducts,
+        };
+      });
       setPcBuilds(apiData);
+      console.log("Processed API data:", apiData);
     } catch (error) {
       console.error("Failed to fetch PC builds:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: "Không thể tải danh sách cấu hình PC. Vui lòng thử lại sau.",
-        confirmButtonText: "OK",
+      toast.error("Không thể tải danh sách cấu hình PC", {
+        description: "Vui lòng thử lại sau.",
+        duration: 3000,
       });
     } finally {
       setIsLoading(false);
@@ -79,9 +121,20 @@ const PCBuildsAdmin = () => {
     if (editMode && selectedBuild) {
       setBuildName(selectedBuild.name);
       setBuildDescription(selectedBuild.description);
-      setBuildType(selectedBuild.type);
-      setBuildStatus(selectedBuild.status);
-      setBuildImages(selectedBuild.image ? [{ preview: selectedBuild.image }] : []); // Chuyển image thành mảng preview
+      setBuildType(selectedBuild.type || "Gaming");
+      setBuildStatus(selectedBuild.status || "Available");
+
+      // Xử lý imageUrls
+      if (selectedBuild.imageUrls && selectedBuild.imageUrls.length > 0) {
+        const imageObjects = selectedBuild.imageUrls.map((url) => ({
+          preview: url,
+        }));
+        setBuildImages(imageObjects);
+      } else if (selectedBuild.image) {
+        setBuildImages([{ preview: selectedBuild.image }]);
+      } else {
+        setBuildImages([]);
+      }
     }
   }, [editMode, selectedBuild]);
 
@@ -90,9 +143,10 @@ const PCBuildsAdmin = () => {
     setSelectedBuild(null);
     setBuildName("");
     setBuildDescription("");
-    setBuildType("GAMING");
-    setBuildStatus("ACTIVE");
+    setBuildType("Gaming");
+    setBuildStatus("Available");
     setBuildImages([]);
+    setSelectedComponents(null);
     onOpen();
   };
 
@@ -101,109 +155,208 @@ const PCBuildsAdmin = () => {
     setSelectedBuild(build);
     setBuildName(build.name);
     setBuildDescription(build.description);
-    setBuildType(build.type);
-    setBuildStatus(build.status);
-    setBuildImages(build.image ? [{ preview: build.image }] : []);
+    setBuildType(build.type || "Gaming");
+    setBuildStatus(build.status || "Available");
+
+    // Xử lý imageUrls
+    if (build.imageUrls && build.imageUrls.length > 0) {
+      const imageObjects = build.imageUrls.map((url) => ({
+        preview: url,
+      }));
+      setBuildImages(imageObjects);
+    } else if (build.image) {
+      setBuildImages([{ preview: build.image }]);
+    } else {
+      setBuildImages([]);
+    }
+
+    // Check if components is actually an array instead of object
+    if (build.components && Array.isArray(build.components)) {
+      const componentsObj = {};
+
+      // Convert components array to object structure required by AdminPCBuilder
+      build.components.forEach((comp) => {
+        if (comp.categoryId) {
+          componentsObj[comp.categoryId] = {
+            id: comp.variantId,
+            nameVariants: comp.name || "Unknown",
+            price: comp.price || 0,
+            image: comp.image || null,
+            quantity: comp.quantity || 1,
+            status: comp.status || "Available",
+          };
+        }
+      });
+
+      setSelectedComponents(componentsObj);
+      console.log("Converted components:", componentsObj);
+    } else {
+      // If it's already in the correct format
+      setSelectedComponents(build.components);
+      console.log("Using existing components format:", build.components);
+    }
+
     onOpen();
   };
 
-  const handleDeleteBuild = async (buildId) => {
-    const result = await Swal.fire({
-      icon: "warning",
-      title: "Xác nhận xóa",
-      text: "Bạn có chắc chắn muốn xóa cấu hình PC này không?",
-      showCancelButton: true,
-      confirmButtonText: "Xóa",
-      cancelButtonText: "Hủy",
-      confirmButtonColor: "#dc3545",
-    });
 
-    if (result.isConfirmed) {
-      setPcBuilds(pcBuilds.filter((build) => build.id !== buildId));
-      Swal.fire({
-        icon: "success",
-        title: "Đã xóa",
-        text: "Cấu hình PC đã được xóa thành công.",
-      });
-    }
-  };
-
-  const handleToggleStatus = (buildId, currentStatus) => {
-    const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-    setPcBuilds(
-      pcBuilds.map((build) =>
-        build.id === buildId ? { ...build, status: newStatus } : build
-      )
-    );
-    Swal.fire({
-      icon: "success",
-      title: "Cập nhật thành công",
-      text: `Trạng thái đã được chuyển thành ${newStatus === "ACTIVE" ? "Đang kích hoạt" : "Vô hiệu hóa"}.`,
-    });
-  };
-
-  const handleSaveBuild = (components) => {
-    if (!buildName.trim()) {
-      Swal.fire({
-        icon: "error",
-        title: "Thiếu thông tin",
-        text: "Vui lòng nhập tên cho cấu hình PC.",
-      });
-      return;
-    }
-
-    if (Object.keys(components).length === 0) {
-      Swal.fire({
-        icon: "error",
-        title: "Thiếu thông tin",
-        text: "Vui lòng chọn ít nhất một linh kiện cho cấu hình PC.",
-      });
-      return;
-    }
-
-    const pcBuildData = {
-      id: editMode ? selectedBuild.id : `${Date.now()}`,
-      name: buildName,
-      description: buildDescription,
-      type: buildType,
-      status: buildStatus,
-      image: buildImages.length > 0 ? buildImages[0].preview : null, // Lấy ảnh đầu tiên
-      components: Object.entries(components).map(([categoryId, component]) => ({
-        categoryId: categoryId,
-        variantId: component.id || `${Date.now()}-${categoryId}`,
-        name: component.nameVariants || "Component",
-        price: component.price || 0,
-        quantity: 1,
-      })),
-      totalPrice: Object.values(components).reduce(
-        (sum, component) => sum + (component.price || 0),
-        0
-      ),
-      createdAt: editMode ? selectedBuild.createdAt : new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      totalProducts: Object.values(components).length, // Tính tổng số linh kiện
-    };
-
-    if (editMode) {
+  const handleToggleStatus = async (buildId, currentStatus) => {
+    const newStatus = currentStatus === "Available" ? "Unavailable" : "Available";
+    try {
+      // Gọi API chỉ cập nhật trạng thái
+      await BuildPCService.updateBuildPCStatus(buildId, newStatus);
+      
+      // Cập nhật UI
       setPcBuilds(
         pcBuilds.map((build) =>
-          build.id === pcBuildData.id ? pcBuildData : build
+          build.id === buildId ? { ...build, status: newStatus } : build
         )
       );
-      onClose();
-      Swal.fire({
-        icon: "success",
-        title: "Cập nhật thành công",
-        text: "Cấu hình PC đã được cập nhật.",
+      
+      toast.success("Cập nhật thành công", {
+        description: `Trạng thái đã được chuyển thành ${newStatus}.`,
+        duration: 2000
       });
-    } else {
-      setPcBuilds([...pcBuilds, pcBuildData]);
-      onClose();
-      Swal.fire({
-        icon: "success",
-        title: "Tạo mới thành công",
-        text: "Cấu hình PC mới đã được tạo.",
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast.error("Không thể cập nhật trạng thái", { 
+        description: "Vui lòng thử lại sau.",
+        duration: 3000
       });
+    }
+  };
+
+  // Xử lý tải ảnh lên Firebase với Sonner Toast
+  const handleImageChange = async (e) => {
+    try {
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+
+      setIsUploading(true);
+      const uploadedImages = [];
+
+      // Hiển thị thông báo đang tải với Sonner Toast
+      const toastId = toast.loading("Đang tải ảnh lên...");
+
+      for (const file of files) {
+        try {
+          // Tạo tham chiếu đến Firebase Storage với tên file duy nhất
+          const storageRef = ref(
+            storage,
+            `build_pc_images/${buildName || "unnamed"}-${
+              file.name
+            }-${Date.now()}`
+          );
+
+          // Tải file lên Firebase Storage
+          await uploadBytes(storageRef, file);
+
+          // Lấy URL của file đã tải lên
+          const downloadURL = await getDownloadURL(storageRef);
+
+          // Thêm URL vào danh sách ảnh đã tải
+          uploadedImages.push({ preview: downloadURL });
+        } catch (error) {
+          console.error(`Lỗi khi tải file ${file.name}:`, error);
+        }
+      }
+
+      // Cập nhật danh sách ảnh
+      setBuildImages([...buildImages, ...uploadedImages]);
+
+      if (uploadedImages.length > 0) {
+        // Cập nhật thông báo thành công với Sonner
+        toast.success(`Đã tải lên ${uploadedImages.length} ảnh thành công`, {
+          id: toastId,
+          duration: 2000,
+        });
+      } else {
+        // Cập nhật thông báo lỗi với Sonner
+        toast.error("Không thể tải ảnh lên. Vui lòng thử lại sau.", {
+          id: toastId,
+          duration: 2000,
+        });
+      }
+    } catch (error) {
+      console.error("Lỗi khi xử lý ảnh:", error);
+      toast.error("Có lỗi xảy ra khi tải ảnh lên. Vui lòng thử lại sau.", {
+        duration: 2000,
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeImage = (index) => {
+    setBuildImages(buildImages.filter((_, i) => i !== index));
+  };
+
+  const handleSaveBuild = async (componentData) => {
+    if (!buildName.trim()) {
+      toast.error("Thiếu thông tin", {
+        description: "Vui lòng nhập tên cho cấu hình PC.",
+        duration: 3000
+      });
+      return;
+    }
+  
+    if (!componentData || !componentData.buildPCProductVariants || componentData.buildPCProductVariants.length === 0) {
+      toast.error("Thiếu thông tin", {
+        description: "Vui lòng chọn ít nhất một linh kiện cho cấu hình PC.",
+        duration: 3000
+      });
+      return;
+    }
+  
+    if (buildImages.length === 0) {
+      toast.error("Thiếu thông tin", {
+        description: "Vui lòng thêm ít nhất một hình ảnh cho cấu hình PC.",
+        duration: 3000
+      });
+      return;
+    }
+  
+    setIsSaving(true);
+    console.log("Component data received from AdminPCBuilder:", componentData);
+  
+    try {
+      // Chuẩn bị dữ liệu cho API
+      const buildPCDto = {
+        buildId: editMode ? selectedBuild.id : null,
+        buildName: buildName,
+        totalPrice: componentData.totalPrice,
+        usagePurpose: buildType,
+        description: buildDescription,
+        status: buildStatus,
+        imageUrls: buildImages.map(img => img.preview), // Lấy tất cả URL ảnh
+        buildPCProductVariants: componentData.buildPCProductVariants
+      };
+  
+      console.log("Data sending to API:", buildPCDto);
+  
+      let response;
+      if (editMode) {
+        response = await BuildPCService.updateBuildPC(selectedBuild.id, buildPCDto);
+      } else {
+        response = await BuildPCService.createBuildPC(buildPCDto);
+      }
+  
+      // Refresh danh sách sau khi lưu thành công
+      await fetchPCBuilds();
+      
+      onClose();
+      toast.success(editMode ? "Cập nhật thành công" : "Tạo mới thành công", {
+        description: editMode ? "Cấu hình PC đã được cập nhật." : "Cấu hình PC mới đã được tạo.",
+        duration: 3000
+      });
+    } catch (error) {
+      console.error(editMode ? "Failed to update PC build:" : "Failed to create PC build:", error);
+      toast.error("Lỗi", { 
+        description: `Không thể ${editMode ? "cập nhật" : "tạo"} cấu hình PC. ${error.response?.data?.message || "Vui lòng thử lại sau."}`,
+        duration: 3000
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -214,7 +367,7 @@ const PCBuildsAdmin = () => {
   const filteredBuilds = pcBuilds.filter(
     (build) =>
       build.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      build.description.toLowerCase().includes(searchTerm.toLowerCase())
+      build.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const columns = [
@@ -224,24 +377,25 @@ const PCBuildsAdmin = () => {
       sortable: true,
       grow: 2,
     },
- 
+
     {
-      name: "LOẠI",
+      name: "MỤC ĐÍCH",
       selector: (row) => row.type,
       sortable: true,
       cell: (row) => (
         <Chip
           color={
-            row.type === "GAMING"
+            row.type?.toLowerCase().includes("gaming")
               ? "danger"
-              : row.type === "OFFICE"
+              : row.type?.toLowerCase().includes("office") ||
+                row.type?.toLowerCase().includes("văn phòng")
               ? "primary"
               : "secondary"
           }
           size="sm"
           variant="flat"
         >
-          {row.type}
+          {row.type || "Chưa xác định"}
         </Chip>
       ),
     },
@@ -251,13 +405,13 @@ const PCBuildsAdmin = () => {
       sortable: true,
       cell: (row) => (
         <Chip
-          color={row.status === "ACTIVE" ? "success" : "default"}
+          color={row.status === "Available" ? "success" : "default"}
           size="sm"
           variant="flat"
           className="cursor-pointer"
           onClick={() => handleToggleStatus(row.id, row.status)}
         >
-          {row.status === "ACTIVE" ? "Đang kích hoạt" : "Vô hiệu hóa"}
+          {row.status || "Unavailable"}
         </Chip>
       ),
     },
@@ -266,7 +420,7 @@ const PCBuildsAdmin = () => {
       selector: (row) => row.image,
       sortable: false,
       cell: (row) => (
-        <div className=" w-16 h-16 flex items-center justify-center">
+        <div className="w-16 h-16 flex items-center justify-center">
           <img
             src={row.image || "https://placehold.co/80x80?text=PC+Part"}
             alt={row.name || "PC Image"}
@@ -274,7 +428,7 @@ const PCBuildsAdmin = () => {
           />
         </div>
       ),
-      width: "100px", // Đặt chiều rộng cố định cho cột ảnh
+      width: "100px",
     },
     {
       name: "GIÁ",
@@ -293,7 +447,10 @@ const PCBuildsAdmin = () => {
       name: "NGÀY TẠO",
       selector: (row) => row.createdAt,
       sortable: true,
-      cell: (row) => new Date(row.createdAt).toLocaleDateString("vi-VN"),
+      cell: (row) =>
+        row.createdAt
+          ? new Date(row.createdAt).toLocaleDateString("vi-VN")
+          : "Chưa xác định",
     },
     {
       name: "THAO TÁC",
@@ -307,15 +464,6 @@ const PCBuildsAdmin = () => {
             title="Chỉnh sửa"
           >
             <FaEdit />
-          </Button>
-          <Button
-            isIconOnly
-            color="danger"
-            size="sm"
-            onClick={() => handleDeleteBuild(row.id)}
-            title="Xóa"
-          >
-            <FaTrash />
           </Button>
         </div>
       ),
@@ -360,6 +508,10 @@ const PCBuildsAdmin = () => {
 
   return (
     <div className="w-full">
+      {/* Thêm Toaster component vào ứng dụng */}
+      <Toaster position="top-right" richColors />
+
+      {/* Phần code hiện tại giữ nguyên... */}
       <Card className="shadow-md rounded-none">
         <CardHeader className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Quản lý cấu hình PC</h2>
@@ -386,8 +538,12 @@ const PCBuildsAdmin = () => {
             columns={columns}
             data={filteredBuilds}
             progressPending={isLoading}
-            progressComponent={<div className="p-4 text-center">Đang tải dữ liệu...</div>}
-            noDataComponent={<div className="p-4 text-center">Không có cấu hình PC nào.</div>}
+            progressComponent={
+              <div className="p-4 text-center">Đang tải dữ liệu...</div>
+            }
+            noDataComponent={
+              <div className="p-4 text-center">Không có cấu hình PC nào.</div>
+            }
             pagination
             paginationComponentOptions={{
               rowsPerPageText: "Số dòng mỗi trang:",
@@ -404,7 +560,9 @@ const PCBuildsAdmin = () => {
       {/* Modal với chiều cao tăng lên */}
       <Modal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={() => {
+          if (!isSaving && !isUploading) onClose();
+        }}
         size="4xl"
         scrollBehavior="inside"
         classNames={{
@@ -426,24 +584,47 @@ const PCBuildsAdmin = () => {
                 className="rounded-none"
                 isRequired
               />
-              <select
-                className="border p-2 rounded-none h-12"
-                value={buildType}
+              <Select
+                label="Mục đích sử dụng"
+                selectedKeys={[buildType]}
                 onChange={(e) => setBuildType(e.target.value)}
+                className="rounded-none"
               >
-                <option value="GAMING">Gaming</option>
-                <option value="OFFICE">Văn phòng</option>
-                <option value="WORKSTATION">Workstation</option>
-                <option value="CUSTOM">Tùy chỉnh</option>
-              </select>
-              <select
-                className="border p-2 rounded-none h-12"
-                value={buildStatus}
+                <SelectItem key="Gaming" value="Gaming">
+                  Gaming
+                </SelectItem>
+                <SelectItem key="Office" value="Office">
+                  Văn phòng
+                </SelectItem>
+                <SelectItem key="Design" value="Design">
+                  Đồ họa/Thiết kế
+                </SelectItem>
+                <SelectItem key="Workstation" value="Workstation">
+                  Workstation
+                </SelectItem>
+                <SelectItem key="Programming" value="Programming">
+                  Lập trình
+                </SelectItem>
+                <SelectItem key="Streaming" value="Streaming">
+                  Streaming
+                </SelectItem>
+                <SelectItem key="Custom" value="Custom">
+                  Tùy chỉnh
+                </SelectItem>
+              </Select>
+              <Select
+                label="Trạng thái"
+                selectedKeys={[buildStatus]}
                 onChange={(e) => setBuildStatus(e.target.value)}
+                className="rounded-none"
               >
-                <option value="ACTIVE">Đang hoạt động</option>
-                <option value="INACTIVE">Hết hoạt động</option>
-              </select>
+                <SelectItem key="Available" value="Available">
+                  Available
+                </SelectItem>
+                <SelectItem key="Unavailable" value="Unavailable">
+                  Unavailable
+                </SelectItem>
+              </Select>
             </div>
             <div className="mb-4">
               <p className="text-sm font-medium mb-2">Ảnh cấu hình PC</p>
@@ -451,20 +632,16 @@ const PCBuildsAdmin = () => {
                 type="file"
                 accept="image/*"
                 multiple
-                onChange={(e) => {
-                  const files = Array.from(e.target.files);
-                  const newImages = files.map((file) => ({
-                    file,
-                    preview: URL.createObjectURL(file),
-                  }));
-                  setBuildImages((prev) => [...prev, ...newImages]);
-                }}
+                onChange={handleImageChange}
                 className="hidden"
                 id="build-image-upload"
+                disabled={isUploading}
               />
               <label
                 htmlFor="build-image-upload"
-                className="cursor-pointer block w-full"
+                className={`cursor-pointer block w-full ${
+                  isUploading ? "opacity-50" : ""
+                }`}
               >
                 <div className="w-full flex flex-wrap gap-2">
                   {buildImages.length > 0 ? (
@@ -477,15 +654,18 @@ const PCBuildsAdmin = () => {
                           src={img.preview}
                           alt="Preview"
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src =
+                              "https://placehold.co/300x200?text=Error+loading+image";
+                          }}
                         />
                         <button
                           className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full z-10"
                           onClick={(e) => {
                             e.preventDefault();
-                            setBuildImages((prev) =>
-                              prev.filter((_, i) => i !== index)
-                            );
+                            removeImage(index);
                           }}
+                          disabled={isUploading}
                         >
                           <FaTrash className="w-4 h-4" />
                         </button>
@@ -495,7 +675,9 @@ const PCBuildsAdmin = () => {
                     <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
                       <FaImage className="w-8 h-8 text-gray-400" />
                       <span className="mt-2 text-sm text-gray-400">
-                        Click để tải ảnh lên
+                        {isUploading
+                          ? "Đang tải ảnh lên..."
+                          : "Click để tải ảnh lên"}
                       </span>
                     </div>
                   )}
@@ -520,11 +702,22 @@ const PCBuildsAdmin = () => {
                       "|",
                       "bold",
                       "italic",
-                      "|",
                       "link",
                       "bulletedList",
                       "numberedList",
                       "|",
+                      "insertTable",
+                      "tableColumn",
+                      "tableRow",
+                      "mergeTableCells",
+                      "|",
+                      "alignment:left",
+                      "alignment:center",
+                      "alignment:right",
+                      "alignment:justify",
+                      "|",
+                      "insertImage",
+                      "mediaEmbed",
                       "undo",
                       "redo",
                     ],
@@ -533,9 +726,13 @@ const PCBuildsAdmin = () => {
               </div>
             </div>
 
+            <p className="text-lg font-semibold mb-2">Chọn linh kiện</p>
             <AdminPCBuilder
-              initialComponents={editMode ? selectedBuild?.components : []}
+              initialComponents={
+                editMode && selectedBuild ? selectedComponents : {}
+              }
               onSave={handleSaveBuild}
+              buildPCData={editMode ? selectedBuild : null}
             />
           </ModalBody>
         </ModalContent>
