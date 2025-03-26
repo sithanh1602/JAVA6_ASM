@@ -469,7 +469,7 @@ public class OrderService {
         order.setStatus(1);  // Đơn hàng mới
         order.setFullAddress(orderRequest.getFullAddress());
         order.setPaymentStatus(false); // Trạng thái thanh toán là thành công
-        order.setOrderDate(new Date()); // Ngày tạo đơn hàng
+        order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
 
@@ -478,6 +478,9 @@ public class OrderService {
             // Tìm voucher theo mã
             Voucher voucher = voucherRepository.findByCode(orderRequest.getvoucherCode())
                     .orElseThrow(() -> new IllegalArgumentException("Voucher not found with code: " + orderRequest.getvoucherCode()));
+
+            // Gán voucher cho order
+            order.setVoucher(voucher);
 
             // Kiểm tra số lượng voucher còn lại
             if (voucher.getQuantity() <= 0) {
@@ -516,7 +519,6 @@ public class OrderService {
             }
             productVariant.setQuantity(newStock);
 
-            // Nếu số lượng còn lại là 0, thay đổi trạng thái thành "Out of Stock"
             if (newStock == 0) {
                 productVariant.setStatus("Out of Stock");
             }
@@ -546,7 +548,7 @@ public class OrderService {
 
             // Xóa mục khỏi CartDetail
             cartDetailRepository.deleteByUserIdAndproductVariantId(orderRequest.getUserId(), item.getProductVariantId());
-            // Xóa buildpc nếu có buildId liên quan
+
             cartDetailRepository.deleteByUserIdAndBuildId(orderRequest.getUserId(), item.getBuildId());
 
         }

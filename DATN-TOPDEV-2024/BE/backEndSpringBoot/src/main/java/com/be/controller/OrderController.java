@@ -122,7 +122,7 @@ public class OrderController {
             System.out.println("📥 Nhận request thanh toán: " + orderRequest); // Debug log
             Orders orderPreview = orderService.createOrderPreview(orderRequest);
 
-            String urlPayment = vnPayService.createOrder(
+            String urlPayment = vnPayService.createOrderNoSave(
                     orderPreview.getTotalPrice(),
                     "Thanh toán cho đơn hàng",
                     "http://localhost:3000/payment",

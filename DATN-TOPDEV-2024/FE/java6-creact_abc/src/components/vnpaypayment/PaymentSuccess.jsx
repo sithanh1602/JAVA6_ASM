@@ -12,11 +12,13 @@ const PaymentSuccess = () => {
     console.log(orderId);
 
     useEffect(() => {
-        // Nếu thanh toán thất bại (status khác 00) hoặc có orderId
+        // Kiểm tra nếu orderId có dấu '_'
         if (orderId) {
+            const cleanedOrderId = orderId.split('_')[0];  // Lấy phần trước dấu '_'
+            
             let newStatus = transactionStatus === "00" ? 3 : 2; // Thành công -> status = 3, Thất bại -> status = 2
-
-            fetch(`http://localhost:8080/api/orders/${orderId}/status?status=${newStatus}`, {
+    
+            fetch(`http://localhost:8080/api/orders/${cleanedOrderId}/status?status=${newStatus}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

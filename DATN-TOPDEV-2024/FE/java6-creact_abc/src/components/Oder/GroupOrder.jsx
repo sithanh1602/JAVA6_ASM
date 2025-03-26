@@ -312,7 +312,8 @@ const GroupOrder = () => {
                       const itemTotal = (item.productPrice * item.quantity).toLocaleString('vi-VN', {
                           style: 'currency',
                           currency: 'VND',
-                      });
+                      })
+                      .replace("₫", "VNĐ");
                       return `<li style="margin-left: ${group.buildId ? '20px' : '0'}; list-style-type: ${group.buildId ? "'↳ '" : "'- '"}">${description} × ${item.quantity} - ${itemTotal}</li>`;
                   })
                   .join('');
