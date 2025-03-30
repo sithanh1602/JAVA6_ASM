@@ -40,4 +40,9 @@ public class ReviewController {
         reviewService.deleteReview(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/average/{productId}")
+    public ResponseEntity<Double> getAverageRating(@PathVariable Long productId) {
+        Double averageRating = reviewService.getAverageRatingByProductId(productId);
+        return ResponseEntity.ok(averageRating != null ? averageRating : 0.0);
+    }
 }
