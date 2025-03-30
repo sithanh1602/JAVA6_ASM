@@ -1,38 +1,78 @@
-import React from 'react';
-import { FaShippingFast } from "react-icons/fa";
-const HotProducts = () => {
+import React, { useEffect, useState } from "react";
+import ProductCardNew from "../products/ProductCardNew";
+import ProductService from "../../services/ProductVariantService";
+import { FaFire ,FaChevronDown, FaChevronUp } from "react-icons/fa";
 
-    return (
+const HotProducts = ({ view }) => {
+  const [bestSellingProducts, setBestSellingProducts] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(5); 
+  const [expanded, setExpanded] = useState(false); 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await ProductService.getTopBestSellingVariants();
+        setBestSellingProducts(data);
+      } catch (error) {
+        console.error("Lỗi khi lấy sản phẩm bán chạy:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const toggleShowMore = () => {
+    if (expanded) {
+      setVisibleCount(5); 
+    } else {
+      setVisibleCount(bestSellingProducts.length); 
+    }
+    setExpanded(!expanded);
+  };
+
+  return (
+    <div className="container mx-auto">
+      <div className="flex justify-between items-center mt-10 mb-4">
+        <h2 className="text-3xl font-bold flex items-center gap-2">
+          <FaFire className="text-red-500" />
+          Sản phẩm bán chạy
+        </h2>
+      </div>
+      <div className="min-h-[400px]">
+        <div
+          className={`grid ${
+            view === "grid" ? "grid-cols-2" : "grid-cols-1"
+          } sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4`}
+        >
+          {bestSellingProducts.length > 0 ? (
+            bestSellingProducts.slice(0, visibleCount).map((product, index) => (
+              <ProductCardNew key={product.id} variant={product} index={index} />
+            ))
+          ) : (
+            <p>Không có sản phẩm bán chạy.</p>
+          )}
+        </div>
+      </div>
+      {bestSellingProducts.length > 5 && (
+  <div className="flex justify-center mt-4">
+    <button
+      className="text-blue-400 px-4 py-2 rounded-md hover:text-blue-600 flex items-center gap-2"
+      onClick={toggleShowMore}
+    >
+      {expanded ? (
         <>
-            {/* Start product hot  */}
-            <div className="h-[59px] relative border-b mb-4  border-[#e1e1e1]">
-                <div className="absolute left-[20px] top-1/2 transform -translate-y-1/2 flex items-center">
-                    <FaShippingFast className="text-black text-[28px] mr-[10px]"/>
-                    <div
-                        className="w-[244.09px] h-[33px] text-black text-[28px] font-semibold font-['Work Sans'] leading-7">
-                        Sản phẩm hot
-                    </div>
-                </div>
-            </div>
-
-            {/* Danh sách sản phẩm */}
-            <div className="grid grid-cols-4 gap-4 mt-4 mb-10">
-                {[
-                    {name: "Bộ kit Camera Vantech 450CVI+ 4 Camera", price: "2,150,000đ"},
-                    {name: "Camera Hành trình YI Dash Camera - Dark grey 2K", price: "1,110,000đ"},
-                    {name: "Camera Xiaomi Yi - Cloud Dome 1080P", price: "1,250,000đ"},
-                    {name: "Camera IP không dây Dahua IPC-C35P 3.0Mp", price: "1,550,000đ"},
-                ].map((product, index) => (
-                    <div key={index} className="bg-white shadow-md rounded-lg p-4 text-center">
-                        <div className="h-32 bg-gray-300 rounded-lg mb-2"></div>
-                        <h4 className="text-sm font-semibold">{product.name}</h4>
-                        <span className="block text-red-500 font-bold">{product.price}</span>
-                    </div>
-                ))}
-            </div>
-            {/* End product hot */}
-
+          Ẩn bớt <FaChevronUp />
         </>
-    );
-}
+      ) : (
+        <>
+          Xem thêm <FaChevronDown />
+        </>
+      )}
+    </button>
+  </div>
+)}
+
+    </div>
+  );
+};
+
 export default HotProducts;

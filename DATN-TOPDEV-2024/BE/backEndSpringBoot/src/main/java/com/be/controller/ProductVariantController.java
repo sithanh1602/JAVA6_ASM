@@ -7,6 +7,8 @@ import com.be.entity.ProductVariant;
 import com.be.rep.ProductVariantRepository;
 import com.be.service.ProductVariantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +26,10 @@ public class ProductVariantController {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
-//    @GetMapping
-//    public List<ProductVariant> getAllProductVariants() {
-//                return productVariantService.getAllProductVariants();
-//    }
+    @GetMapping("/all")
+    public List<ProductVariant> getAllVariants() {
+        return productVariantRepository.findAll();
+    }
 
     @GetMapping
     public ResponseEntity<List<ProductVariantHomeDTO>> getAllProductVariantsWithFirstImage() {
@@ -92,6 +94,19 @@ public class ProductVariantController {
     @GetMapping("/by-product/{productId}")
     public ResponseEntity<List<ProductVariantDTO>> getProductVariantsByProductId(@PathVariable Long productId) {
         List<ProductVariantDTO> variants = productVariantService.getProductVariantsByProductId(productId);
+        return ResponseEntity.ok(variants);
+    }
+
+    @GetMapping("/best-sellers")
+    public ResponseEntity<List<ProductVariant>> getTopBestSellingVariants() {
+        List<ProductVariant> variants = productVariantService.getBestSellingProductVariants();
+        return ResponseEntity.ok(variants);
+    }
+
+
+    @GetMapping("/newest")
+    public ResponseEntity<List<ProductVariant>> getTopNewestVariants() {
+        List<ProductVariant> variants = productVariantService.getNewProductVariants();
         return ResponseEntity.ok(variants);
     }
 

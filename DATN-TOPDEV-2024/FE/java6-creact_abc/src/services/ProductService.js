@@ -129,6 +129,27 @@ class ProductService {
         }
     }
 
+    // Lấy danh sách sản phẩm theo danh mục
+    async getNewProductsByCategory(categoryId) {
+        try {
+            const response = await axios.get(`${BASE_URL}/new?categoryId=${categoryId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Lỗi khi tải sản phẩm theo danh mục:", error);
+            throw error;
+        }
+    }
+
+    async getDiscountedProduct() {
+        try {
+            const response = await axios.get(`${BASE_URL}/discounted`);
+            return response.data;
+        } catch (error) {
+            console.error("Lỗi khi tải sản phẩm giảm giá:", error);
+            throw error;
+        }
+    }
+
 }
 
 export default new ProductService();

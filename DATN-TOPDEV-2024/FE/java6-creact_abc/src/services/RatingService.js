@@ -78,6 +78,15 @@ class RatingService {
             throw error;
         }
     }
+    async getAverageRating(productId) {
+        try {
+          const response = await axios.get(`${API_URL}/average/${productId}`);
+          return response.data; 
+        } catch (error) {
+          console.error("Lỗi khi lấy đánh giá trung bình:", error);
+          return 0;
+        }
+      }
 }
 
 export default new RatingService();
