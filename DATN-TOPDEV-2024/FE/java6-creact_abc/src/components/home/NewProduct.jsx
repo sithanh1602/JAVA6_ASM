@@ -1,173 +1,149 @@
-import React ,{useState}from 'react';
-import Bg150 from '../../assets/images/imageBanner/150x150.png';
-import {  FaShoppingCart, FaSearch, FaHeart } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import ProductCardNew from "../products/ProductCardNew";
+import ProductVariantService from "../../services/ProductVariantService";
+import CategoryService from "../../services/CategoryService";
+import {
+  MdFiberNew,
+  MdKeyboardDoubleArrowDown,
+  MdKeyboardDoubleArrowUp,
+} from "react-icons/md";
 
-const NewProduct = () => {
-    const productsBanChay = [
-        {
-            id: 1,
-            imageUrl: Bg150,
-            discount: '-15%',
-            name: 'MacBook Air 2018 128GB (Open Box)',
-            currentPrice: '27,500,000₫',
-            originalPrice: '32,500,000₫',
-            category: 'Laptop',
-        },
-        {
-            id: 2,
-            imageUrl: Bg150,
-            discount: '-20%',
-            name: 'iPhone 12 Pro Max 256GB',
-            currentPrice: '30,000,000₫',
-            originalPrice: '37,000,000₫',
-            category: 'Điện thoại',
-        },
-        {
-            id: 3,
-            imageUrl: Bg150,
-            discount: '-10%',
-            name: 'Samsung Galaxy S21 Ultra',
-            currentPrice: '22,000,000₫',
-            originalPrice: '24,500,000₫',
-            category: 'Điện thoại',
-        },
-        {
-            id: 4,
-            imageUrl: Bg150,
-            discount: '-25%',
-            name: 'Sony WH-1000XM4',
-            currentPrice: '7,500,000₫',
-            originalPrice: '10,000,000₫',
-            category: 'Tablet',
-        },
-        {
-            id: 5,
-            imageUrl: Bg150,
-            discount: '-30%',
-            name: 'Apple Watch Series 6',
-            currentPrice: '10,500,000₫',
-            originalPrice: '15,000,000₫',
-            category: 'Điện thoại',
-        },
-        {
-            id: 6,
-            imageUrl: Bg150,
-            discount: '-15%',
-            name: 'MacBook Air 2018 128GB (Open Box)',
-            currentPrice: '27,500,000₫',
-            originalPrice: '32,500,000₫',
-            category: 'Laptop',
-        },
-        {
-            id: 7,
-            imageUrl: Bg150,
-            discount: '-15%',
-            name: 'MacBook Air 2018 128GB (Open Box)',
-            currentPrice: '27,500,000₫',
-            originalPrice: '32,500,000₫',
-            category: 'Laptop',
-        },
-        {
-            id: 8,
-            imageUrl: Bg150,
-            discount: '-15%',
-            name: 'MacBook Air 2018 128GB (Open Box)',
-            currentPrice: '27,500,000₫',
-            originalPrice: '32,500,000₫',
-            category: 'Laptop',
-        },
-        {
-            id: 9,
-            imageUrl: Bg150,
-            discount: '-15%',
-            name: 'MacBook Air 2018 128GB (Open Box)',
-            currentPrice: '27,500,000₫',
-            originalPrice: '32,500,000₫',
-            category: 'Laptop',
-        },
+const NewProduct = ({ view }) => {
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [newProducts, setNewProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [error, setError] = useState("");
+  const [expanded, setExpanded] = useState(false); // Trạng thái xem thêm / ẩn bớt
+  const [visibleCount, setVisibleCount] = useState(5); // Hiển thị 5 sản phẩm ban đầu
 
-    ];
-    const [selectedCategory, setSelectedCategory] = useState('Điện thoại');
-    const filteredProducts = productsBanChay.filter(
-        (product) => product.category === selectedCategory
-    );
-    const ProductCard = ({ product }) => (
-        <div className="w-[226px] h-[348.56px] relative border border-[#e1e1e1] rounded-lg shadow-md overflow-hidden group">
-            <img className="w-full h-[184px] object-cover" src={product.imageUrl} alt={product.name} />
-            <div className="absolute top-4 right-4 bg-[#f14705] rounded-[3px]">
-                <div className="px-2 py-1 text-center text-white text-sm font-semibold font-['Work Sans']">
-                    {product.discount}
-                </div>
-            </div>
-            <div className="w-full h-[36px] absolute bottom-[65px] left-0 px-4 text-[#0066cc] text-sm font-normal font-['Work Sans']">
-                {product.name}
-            </div>
-            <div className="absolute bottom-[24px] left-4 text-[#ff3300] text-base font-normal font-['Work Sans']">
-                {product.currentPrice}
-            </div>
-            <div className="absolute bottom-[4px] left-4 text-[#999999] text-sm font-normal font-['Work Sans'] line-through">
-                {product.originalPrice}
-            </div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="flex justify-between gap-4">
-                    <button className="bg-[#f1f1f1] p-2 rounded-full text-[#333] hover:bg-yellow-400">
-                        <FaShoppingCart />
-                    </button>
-                    <button className="bg-[#f1f1f1] p-2 rounded-full text-[#333] hover:bg-yellow-400">
-                        <FaSearch />
-                    </button>
-                    <button className="bg-[#f1f1f1] p-2 rounded-full text-[#333] hover:bg-yellow-400">
-                        <FaHeart />
-                    </button>
-                </div>
-            </div>
+  // Lấy danh sách danh mục
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await CategoryService.getAllCategories();
+        setCategories(data || []);
+      } catch (err) {
+        console.error("Error loading categories:", err);
+        setError("Không thể tải danh mục sản phẩm");
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Lấy danh sách sản phẩm mới
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await ProductVariantService.getTopNewestVariants();
+        setNewProducts(data || []);
+        // Ban đầu hiển thị tất cả sản phẩm
+        setFilteredProducts(data || []);
+      } catch (error) {
+        console.error("Lỗi khi lấy sản phẩm:", error);
+        setNewProducts([]);
+        setFilteredProducts([]);
+      }
+    };
+    fetchData();
+  }, []); // Chỉ chạy 1 lần khi component mount
+
+  // Lọc sản phẩm khi danh mục thay đổi
+  useEffect(() => {
+    if (selectedCategory === "all") {
+      setFilteredProducts(newProducts);
+    } else {
+      const filtered = newProducts.filter(
+        (product) => product.product.category.id === selectedCategory
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [selectedCategory, newProducts]);
+
+  const handleCategoryClick = (categoryId) => {
+    setSelectedCategory(categoryId);
+  };
+  const toggleShowMore = () => {
+    if (expanded) {
+      setVisibleCount(5); 
+    } else {
+      setVisibleCount(newProducts.length); 
+    }
+    setExpanded(!expanded);
+  };
+
+  return (
+    <div className="container mx-auto">
+      <h2 className="text-3xl font-bold mt-10 mb-4 flex items-center gap-2">
+        <MdFiberNew className="text-red-500" /> Sản phẩm mới
+      </h2>
+
+      <div className="flex space-x-4 overflow-x-auto pb-2 border-b">
+        <button
+          className={`px-4 py-2 text-sm font-semibold transition-all ${
+            selectedCategory === "all"
+              ? "text-red-500 border-b-2 border-red-500"
+              : "text-gray-600 hover:text-red-500"
+          }`}
+          onClick={() => handleCategoryClick("all")}>
+          Tất cả
+        </button>
+
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            className={`px-4 py-2 text-sm font-semibold transition-all ${
+              selectedCategory === category.id
+                ? "text-red-500 border-b-2 border-red-500"
+                : "text-gray-600 hover:text-red-500"
+            }`}
+            onClick={() => handleCategoryClick(category.id)}>
+            {category.name}
+          </button>
+        ))}
+      </div>
+
+      {error && <p className="text-red-500 mt-4">{error}</p>}
+
+      <div className="min-h-[400px]">
+        <div
+          className={`grid ${
+            view === "grid" ? "grid-cols-2" : "grid-cols-1"
+          } sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4`}>
+          {filteredProducts.length > 0 ? (
+            filteredProducts
+              .slice(0, expanded ? filteredProducts.length : 5) // Hiển thị tất cả hoặc 5 sản phẩm
+              .map((product, index) => (
+                <ProductCardNew
+                  key={product.id}
+                  variant={product}
+                  index={index}
+                />
+              ))
+          ) : (
+            <p>Không có sản phẩm.</p>
+          )}
         </div>
-    );
-    return(
-        <>
-            {/* Start sản phẩm mới */}
-            <div className="h-[87.39px] relative border-b border-[#e3e3e3]">
-                <div className="w-[270.23px] h-[33px] left-0 top-[18.19px] absolute text-black text-[28px] font-semibold font-['Work Sans'] leading-7">
-                    Sản phẩm mới
-                </div>
-                <div className="w-[305.64px] h-[70.39px] left-[864.36px] top-0 absolute">
-                    <div
-                        className={`w-[101.88px] h-[38.39px] left-0 top-[16px] absolute rounded-[50px] cursor-pointer ${selectedCategory === 'Điện thoại' ? 'bg-[#000000]' : ''}`}
-                        onClick={() => setSelectedCategory('Điện thoại')}
-                    >
-                        <div className={`w-[70.19px] h-4 left-[16px] top-[11px] absolute text-center ${selectedCategory === 'Điện thoại' ? 'text-white' : 'text-[#666666]'} text-sm font-normal font-['Work Sans'] leading-snug`}>
-                            Điện thoại
-                        </div>
-                    </div>
+      </div>
+      {newProducts.length > 5 && (
+        <div className="flex justify-center mt-4">
+          <button
+            className="text-blue-400 px-4 py-2 rounded-md hover:text-blue-600 flex items-center gap-2"
+            onClick={toggleShowMore}>
+            {expanded ? (
+              <>
+                Ẩn bớt <MdKeyboardDoubleArrowUp />
+              </>
+            ) : (
+              <>
+                Xem thêm <MdKeyboardDoubleArrowDown />
+              </>
+            )}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
-                    <div
-                        className={`w-20 h-[38.39px] left-[126.87px] top-[16px] absolute rounded-[50px] cursor-pointer ${selectedCategory === 'Laptop' ? 'bg-[#000000]' : ''}`}
-                        onClick={() => setSelectedCategory('Laptop')}
-                    >
-                        <div className={`w-[48.35px] h-4 left-[16px] top-[11px] absolute text-center ${selectedCategory === 'Laptop' ? 'text-white' : 'text-[#666666]'} text-sm font-normal font-['Work Sans'] leading-snug`}>
-                            Laptop
-                        </div>
-                    </div>
-
-                    <div
-                        className={`w-[73.77px] h-[38.39px] left-[231.87px] top-[16px] absolute rounded-[50px] cursor-pointer ${selectedCategory === 'Tablet' ? 'bg-[#000000]' : ''}`}
-                        onClick={() => setSelectedCategory('Tablet')}
-                    >
-                        <div className={`w-[42.10px] h-4 left-[16px] top-[11px] absolute text-center ${selectedCategory === 'Tablet' ? 'text-white' : 'text-[#666666]'} text-sm font-normal font-['Work Sans'] leading-snug`}>
-                            Tablet
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="grid mt-3 mb-16 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {filteredProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                ))}
-            </div>
-            {/* End sản phẩm mới */}
-
-        </>
-
-    )
-}
 export default NewProduct;

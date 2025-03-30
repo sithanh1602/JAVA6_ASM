@@ -4,7 +4,8 @@ import RatingService from "../../../services/RatingService";
 
 const ProductRating = ({ productDetailsId }) => {
   const [reviews, setReviews] = useState([]);
-  console.log(productDetailsId);
+  const [averageRating, setAverageRating] = useState(0);
+
 
   const fetchRating = async () => {
     try {
@@ -42,12 +43,20 @@ const ProductRating = ({ productDetailsId }) => {
     }
   });
 
-  const averageRating = totalReviews
-    ? (
-        reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews
-      ).toFixed(1)
-    : 0;
-
+  const fetchAverageRating = async () => {
+    try {
+      const response = await RatingService.getAverageRating(productDetailsId);
+      setAverageRating(response);
+    } catch (error) {
+      console.error("Lỗi khi lấy đánh giá trung bình:", error);
+      setAverageRating(0);
+    }
+  };
+  
+  useEffect(() => {
+    fetchAverageRating();
+  }, [productDetailsId]);
+  
   const formatTotalReviews =
     totalReviews >= 1000
       ? `${(totalReviews / 1000).toFixed(1)}K`
@@ -112,7 +121,7 @@ const ProductRating = ({ productDetailsId }) => {
                               </h2>
                               <div className="flex items-center gap-3 mb-4">
                                 <h2 className="font-manrope font-bold text-2xl pt-4 text-black text-center mb-4">
-                                  {averageRating}
+                                {averageRating ? averageRating.toFixed(1) : "0.0"}
                                 </h2>
                                 <div className="flex items-center">
                                   {[...Array(5)].map((_, index) => {

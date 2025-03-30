@@ -93,6 +93,28 @@ const getVariantsByCategory = async (categoryId) => {
   }
 };
 
+ // Lấy top 10 sản phẩm bán chạy
+ const getTopBestSellingVariants= async () =>  {
+  try {
+      const response = await axios.get(`${API_URL}/best-sellers`);
+      return response.data;
+  } catch (error) {
+      console.error("Error fetching best-selling products:", error);
+      throw error;
+  }
+}
+
+// Lấy top 10 sản phẩm mới
+const getTopNewestVariants= async () =>  {
+  try {
+      const response = await axios.get(`${API_URL}/newest`);
+      return response.data;
+  } catch (error) {
+      console.error("Error fetching new products:", error);
+      throw error;
+  }
+}
+
 export default {
   getAllProductVariants,
   addProductVariant,
@@ -100,4 +122,8 @@ export default {
   getVariantsByBrand,
   getProductVariantsByProductId,
   updateProductVariant,
+  getTopBestSellingVariants,
+  getTopNewestVariants
 };
+
+

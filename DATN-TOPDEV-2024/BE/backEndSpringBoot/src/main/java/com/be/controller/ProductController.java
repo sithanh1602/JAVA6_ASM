@@ -117,4 +117,12 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // Lấy danh sách sản phẩm giảm giá
+    @GetMapping("/discounted")
+    public ResponseEntity<List<ProductVariant>> getDiscountedProducts() {
+        List<ProductVariant> discountedProducts = productService.getDiscountedProducts();
+        return ResponseEntity.ok(discountedProducts);
+    }
+
 }

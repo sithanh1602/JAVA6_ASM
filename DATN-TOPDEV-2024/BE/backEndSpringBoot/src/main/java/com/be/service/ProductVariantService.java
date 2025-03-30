@@ -14,6 +14,7 @@ import com.be.rep.ProductRepository;
 import com.be.rep.ProductVariantRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -171,6 +172,14 @@ public class ProductVariantService {
         }
 
         return new ArrayList<>(variantMap.values());
+    }
+
+    public List<ProductVariant> getBestSellingProductVariants() {
+        return productVariantRepository.findTopBestSellingProductVariants(PageRequest.of(0, 10));
+    }
+
+    public List<ProductVariant> getNewProductVariants() {
+        return productVariantRepository.findTopNewestProductVariants(PageRequest.of(0, 10));
     }
 
 }

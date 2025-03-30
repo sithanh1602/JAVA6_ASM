@@ -8,6 +8,7 @@ import jakarta.validation.ValidationException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -216,6 +217,11 @@ public class ProductService {
         ProductVariant variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new RuntimeException("Product variant not found"));
         return variant.getQuantity();
+    }
+
+    // Lấy danh sách sản phẩm đang giảm giá
+    public List<ProductVariant> getDiscountedProducts() {
+        return productVariantRepository.findByDiscountPriceLessThanOriginalPrice();
     }
 
 }
