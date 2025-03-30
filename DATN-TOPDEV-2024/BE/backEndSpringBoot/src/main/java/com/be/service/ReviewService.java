@@ -1,27 +1,17 @@
 package com.be.service;
-import com.be.entity.OrderDetail;
-import com.be.entity.Review;
-import com.be.entity.User;
-import com.be.rep.OrderDetailRepository;
-import com.be.rep.ReviewRepository;
-import com.be.rep.UserRepository;
+import com.be.dto.ReviewDTO;
+import com.be.entity.*;
+import com.be.rep.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
 
     @Autowired
     private ReviewRepository reviewRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private OrderDetailRepository orderDetailRepository;
 
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
@@ -50,5 +40,9 @@ public class ReviewService {
 
     public void deleteReview(long id) {
         reviewRepository.deleteById(id);
+    }
+
+    public Double getAverageRatingByProductId(Long productId) {
+        return reviewRepository.getAverageRatingByProductId(productId);
     }
 }
