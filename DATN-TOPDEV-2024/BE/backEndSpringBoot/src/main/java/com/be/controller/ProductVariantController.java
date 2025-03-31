@@ -7,8 +7,6 @@ import com.be.entity.ProductVariant;
 import com.be.rep.ProductVariantRepository;
 import com.be.service.ProductVariantService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -107,6 +105,13 @@ public class ProductVariantController {
     @GetMapping("/newest")
     public ResponseEntity<List<ProductVariant>> getTopNewestVariants() {
         List<ProductVariant> variants = productVariantService.getNewProductVariants();
+        return ResponseEntity.ok(variants);
+    }
+
+
+    @GetMapping("/outstanding")
+    public ResponseEntity<List<ProductVariant>> getTopRatedProductsVariants() {
+        List<ProductVariant> variants = productVariantService.getTopRatedProductsVariants();
         return ResponseEntity.ok(variants);
     }
 

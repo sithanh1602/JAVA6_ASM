@@ -7,7 +7,7 @@ import CountdownSale from "../components/home/CountdownSale";
 import ProductList from "../components/home/ProductList";
 import HotProducts from "../components/home/HotProducts";
 import NewProduct from "../components/home/NewProduct";
-
+import TopRatedProducts from "../components/home/TopRatedProducts";
 const HomePage = () => {
     return (
         <div className="bg-gray-100 will-change-transform">
@@ -17,6 +17,7 @@ const HomePage = () => {
                 <FeatureSection />
                 <CountdownSale />
                 <HotProducts />
+                <TopRatedProducts/>
                 <NewProduct />
                 <ProductList />
             </div>

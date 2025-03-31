@@ -182,4 +182,7 @@ public class ProductVariantService {
         return productVariantRepository.findTopNewestProductVariants(PageRequest.of(0, 10));
     }
 
+    public List<ProductVariant> getTopRatedProductsVariants() {
+        return productVariantRepository.findTopRatedProductsVariants(PageRequest.of(0, 10));
+    }
 }
