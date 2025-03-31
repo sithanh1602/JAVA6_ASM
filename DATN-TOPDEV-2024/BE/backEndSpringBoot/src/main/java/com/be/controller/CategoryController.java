@@ -52,4 +52,10 @@ public class CategoryController {
         boolean isDeleted = categoryService.deleteCategory(id);
         return isDeleted ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @GetMapping("/TopCategories")
+     public ResponseEntity<List<Category>> getTop5Categoriesy(@RequestParam(defaultValue = "5") int limit) {
+        List<Category> categories = categoryService.getTopCategories(limit);
+        return ResponseEntity.ok(categories);
+    }
 }

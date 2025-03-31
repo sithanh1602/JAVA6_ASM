@@ -57,6 +57,16 @@ class CategoryService {
             throw error; // Propagate error
         }
     }
+
+    async getTop5Categories() {
+        try {
+            const response = await axios.get(`${BASE_URL}/TopCategories`);
+        return response.data;
+        } catch (error) {
+            console.error(`Error get Top Categories:`, error);
+            throw error; // Propagate error
+        }
+    }
 }
 
 export default new CategoryService();

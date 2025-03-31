@@ -115,6 +115,16 @@ const getTopNewestVariants= async () =>  {
   }
 }
 
+const getTopRatedProductsVariants= async () =>  {
+  try {
+      const response = await axios.get(`${API_URL}/outstanding`);
+      return response.data;
+  } catch (error) {
+      console.error("Error fetching outstanding products:", error);
+      throw error;
+  }
+}
+
 export default {
   getAllProductVariants,
   addProductVariant,
@@ -123,7 +133,8 @@ export default {
   getProductVariantsByProductId,
   updateProductVariant,
   getTopBestSellingVariants,
-  getTopNewestVariants
+  getTopNewestVariants,
+  getTopRatedProductsVariants
 };
 
 

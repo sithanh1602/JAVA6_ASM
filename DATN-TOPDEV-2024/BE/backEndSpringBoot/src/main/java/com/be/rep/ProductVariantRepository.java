@@ -83,4 +83,17 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
             """)
     List<ProductVariant> findTopNewestProductVariants(Pageable pageable);
 
+
+//    Sản phẩm nào có nhiều lượt thích hơn sẽ được ưu tiên.
+//    Nếu hai sản phẩm có cùng lượt thích, sản phẩm có điểm đánh giá cao hơn sẽ được ưu tiên.
+    @Query("""
+    SELECT pv FROM ProductVariant pv
+    LEFT JOIN Favorite f ON pv.id = f.productVariantId
+    LEFT JOIN Review r ON pv.id = r.orderDetail.product_variant_id.id
+    GROUP BY pv.id, pv.description, pv.discountPercentage, pv.discountPrice,
+             pv.nameVariants, pv.price, pv.product.id, pv.quantity, pv.status
+    ORDER BY COUNT(f.id) DESC, AVG(r.rating) DESC
+""")
+    List<ProductVariant> findTopRatedProductsVariants(Pageable pageable);
+
 }
