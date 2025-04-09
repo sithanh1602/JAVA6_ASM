@@ -143,11 +143,42 @@ const PaymentStatusBadge = styled.span`
     background-color: ${props => props.paid ? '#28a745' : '#dc3545'};
 `;
 
+const PaymentMethodTabContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    padding: 5px;
+`;
+
+const PaymentMethodTab = styled.button`
+    padding: 12px 30px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: ${props => props.active ? '#007bff' : 'transparent'};
+    color: ${props => props.active ? 'white' : '#333'};
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: ${props => props.active ? '#007bff' : '#e0e0e0'};
+    }
+
+    &:focus {
+        outline: none;
+    }
+`;
+
 const AdminOrderManagement = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('Tất cả');
+    const [activePaymentMethodTab, setActivePaymentMethodTab] = useState('Tất cả');
     const [pendingOrders, setPendingOrders] = useState([]); // Lưu danh sách đơn hàng chờ xác nhận
 
     const tabs = [
@@ -160,6 +191,12 @@ const AdminOrderManagement = () => {
         { label: 'Đã nhận hàng', status: 7 },
         { label: 'Hoàn thành', status: 8 },
         { label: 'Đã hủy', status: 9 },
+    ];
+
+    const paymentMethodTabs = [
+        { label: 'Tất cả', value: null },
+        { label: 'COD', value: false },
+        { label: 'Online', value: true }
     ];
 
     const statusLabels = {
@@ -187,48 +224,48 @@ const AdminOrderManagement = () => {
     };
 
     const OrderInfoSection = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 25px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0;
-`;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e0e0e0;
+    `;
 
     const OrderInfoGroup = styled.div`
-  background-color: #f5f7f9;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-`;
+        background-color: #f5f7f9;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    `;
 
     const OrderInfoTitle = styled.h4`
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 12px;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 8px;
-`;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 8px;
+    `;
 
     const OrderInfoItem = styled.div`
-  display: flex;
-  margin-bottom: 8px;
-  align-items: center;
-`;
+        display: flex;
+        margin-bottom: 8px;
+        align-items: center;
+    `;
 
     const OrderInfoLabel = styled.span`
-  font-weight: 500;
-  color: #555;
-  width: 40%;
-  flex-shrink: 0;
-`;
+        font-weight: 500;
+        color: #555;
+        width: 40%;
+        flex-shrink: 0;
+    `;
 
     const OrderInfoValue = styled.span`
-  color: #333;
-  font-weight: ${props => props.highlight ? '600' : 'normal'};
-  color: ${props => props.highlight ? '#d32f2f' : '#333'};
-`;
+        color: #333;
+        font-weight: ${props => props.highlight ? '600' : 'normal'};
+        color: ${props => props.highlight ? '#d32f2f' : '#333'};
+    `;
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -256,11 +293,11 @@ const AdminOrderManagement = () => {
             // Nếu trạng thái là 'Đã xác nhận' (status 4), chuyển tab
             if (newStatus === 4) {
                 setActiveTab('Đã xác nhận');
-            }else if (newStatus === 5) {
+            } else if (newStatus === 5) {
                 setActiveTab('Đang giao hàng');
-            }else if (newStatus === 6) {
+            } else if (newStatus === 6) {
                 setActiveTab('Đã giao hàng');
-            }else if (newStatus === 7) {
+            } else if (newStatus === 7) {
                 setActiveTab('Đã nhận hàng');
             }
 
@@ -284,10 +321,20 @@ const AdminOrderManagement = () => {
         }
     };
 
-    const filteredOrders = activeTab === 'Tất cả'
-        ? orders
-        : orders.filter(order => order.status === tabs.find(tab => tab.label === activeTab)?.status);
-    console.log(orders);
+    // Lọc đơn hàng theo tab trạng thái và tab phương thức thanh toán
+    const filteredOrders = orders.filter(order => {
+        // Lọc theo tab trạng thái
+        const statusMatch = activeTab === 'Tất cả'
+            ? true
+            : order.status === tabs.find(tab => tab.label === activeTab)?.status;
+
+        // Lọc theo tab phương thức thanh toán
+        const paymentMethodMatch = activePaymentMethodTab === 'Tất cả'
+            ? true
+            : order.paymentStatus === paymentMethodTabs.find(tab => tab.label === activePaymentMethodTab)?.value;
+
+        return statusMatch && paymentMethodMatch;
+    });
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -295,13 +342,20 @@ const AdminOrderManagement = () => {
     const columns = [
         { name: 'Mã hoá đơn', selector: row => row.orderNum, sortable: true, center: true, width: '150px' },
         { name: 'Tên khách hàng', selector: row => row.userName, sortable: true, center: true, width: '200px' },
-        { name: 'Tổng tiền', selector: row => `${row.totalPrice.toLocaleString()} VND`, sortable: true, right: true, center: true, width: '220px',
+        {
+            name: 'Tổng tiền',
+            selector: row => `${row.totalPrice.toLocaleString()} VND`,
+            sortable: true,
+            right: true,
+            center: true,
+            width: '220px',
             style: {
-                fontFamily: 'Arial, sans-serif',  // Thêm fontFamily
-                fontWeight: 'bold',  // Chữ in đậm
-                color: 'red',  // Thay '#FF5733' bằng màu bạn muốn (mã màu HEX, RGB, tên màu...)
+                fontFamily: 'Arial, sans-serif',
+                fontWeight: 'bold',
+                color: 'red',
                 fontSize: '14px',
-            }},
+            }
+        },
         { name: 'Ngày đặt hàng', selector: row => new Date(row.orderDate).toLocaleDateString(), sortable: true, center: true, width: '200px' },
         {
             name: 'Trạng thái',
@@ -329,15 +383,8 @@ const AdminOrderManagement = () => {
             name: 'Hành động',
             cell: row => (
                 <div className="flex space-x-2 justify-center">
-                    {row.status === 1 && !row.paymentStatus && (
-                        <button
-                            onClick={() => handleChangeStatus(row.id, 4)}
-                            className="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                        >
-                            Xác nhận đơn hàng
-                        </button>
-                    )}
-                    {row.status === 3 && !row.paymentStatus && (
+                    {/* Hiển thị nút xác nhận đơn hàng cho cả đơn hàng đã đặt hàng và đã thanh toán */}
+                    {(row.status === 1 || row.status === 3) && (
                         <button
                             onClick={() => handleChangeStatus(row.id, 4)}
                             className="btn btn-primary px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -374,9 +421,7 @@ const AdminOrderManagement = () => {
             center: true,
             width: '200px'
         }
-
     ];
-
 
     const ExpandedComponent = ({ data }) => (
         <OrderDetails>
@@ -475,6 +520,21 @@ const AdminOrderManagement = () => {
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Quản lý đơn hàng</h1>
+
+            {/* Thêm tab phương thức thanh toán */}
+            <PaymentMethodTabContainer>
+                {paymentMethodTabs.map(tab => (
+                    <PaymentMethodTab
+                        key={tab.label}
+                        active={activePaymentMethodTab === tab.label}
+                        onClick={() => setActivePaymentMethodTab(tab.label)}
+                    >
+                        {tab.label}
+                    </PaymentMethodTab>
+                ))}
+            </PaymentMethodTabContainer>
+
+            {/* Tab trạng thái đơn hàng */}
             <TabContainer>
                 {tabs.map(tab => (
                     <Tab

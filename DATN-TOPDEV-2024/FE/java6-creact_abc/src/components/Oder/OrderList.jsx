@@ -190,7 +190,7 @@ const OrderList = () => {
   const handleConfirmReceived = async (orderId) => {
     const result = await Swal.fire({
       title: 'Bạn có chắc chắn đã nhận hàng?',
-      text: "Hành động này sẽ xác nhận đơn hàng hoàn thành!",
+      text: "Hành động này sẽ xác nhận đơn hàng đã được giao thành công!",
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -201,7 +201,8 @@ const OrderList = () => {
 
     if (result.isConfirmed) {
       try {
-        await OrderService.updateOrderStatus(orderId, 7); // Cập nhật thành "Đã nhận hàng"
+        Swal.fire({ title: "Đang xử lý...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        await OrderService.updateOrderStatus(orderId, 8); // Cập nhật thành "Đã nhận hàng"
         const userId = localStorage.getItem("UserId");
         const ordersData = await OrderService.getOrdersByUserId(userId);
         setOrders(ordersData);
@@ -543,6 +544,18 @@ const OrderList = () => {
                               orderProducts={orderProducts}
                               onReviewSubmitted={fetchOrders}
                           />
+                      )}
+                    </div>
+                    <div className="mt-4 flex justify-end gap-2">
+                      {selectedOrder.status === 6 && (
+                          <Button size="sm" color="secondary" className="rounded-none" onClick={() => handleConfirmReceived(selectedOrder.id)}>
+                            Xác nhận đã nhận hàng
+                          </Button>
+                      )}
+                      {[1, 2, 3].includes(selectedOrder.status) && (
+                          <Button size="sm" color="danger" className="rounded-none" onClick={() => handleCancelOrder(selectedOrder.id)}>
+                            Hủy đơn hàng
+                          </Button>
                       )}
                     </div>
                   </div>
