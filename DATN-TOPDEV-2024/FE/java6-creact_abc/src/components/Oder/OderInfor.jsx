@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import logoZaloPay from "../../assets/images/zalopay.png";
+import logoMomo from "../../assets/images/logoMomo.png";
 import logoVNP from "../../assets/images/logoVNP.jpg";
 import OrderService from "../../services/OrderSevice";
 import Cookies from "js-cookie";
@@ -340,7 +340,7 @@ const OrderInfo = ({
               </div>
 
               <div className="flex space-x-4">
-                {["vnp", "zaloPay"].map((logo, idx) => (
+                {["vnp", "momoPay"].map((logo, idx) => (
                   <div
                     key={idx}
                     className={classNames(
@@ -355,7 +355,7 @@ const OrderInfo = ({
                     onClick={() => handleLogoClick(logo)}
                   >
                     <img
-                      src={logo === "vnp" ? logoVNP : logoZaloPay}
+                      src={logo === "vnp" ? logoVNP : logoMomo}
                       alt={`${logo} Logo`}
                       className="h-12 w-12 object-contain"
                     />

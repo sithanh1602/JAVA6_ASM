@@ -259,13 +259,14 @@ const GroupOrder = () => {
       shippingFee,
   };
   
-  console.log("📤 Dữ liệu gửi lên backend:", JSON.stringify(orderData, null, 2));
+  console.log("Dữ liệu gửi lên backend:", JSON.stringify(orderData, null, 2));
 
     try {
         if (paymentMethod === "bank") {
             let response;
-            if (selectedLogo === "zaloPay") {
-                response = await OrderService.placeOrderZaloPay(orderData);
+            if (selectedLogo === "momoPay") {
+                response = await OrderService.placeOrderMomo(orderData);
+                console.log("URL thanh toán Momo:", response);
             } else if (selectedLogo === "vnp") {
                 response = await OrderService.placeOrder(orderData);
             }
