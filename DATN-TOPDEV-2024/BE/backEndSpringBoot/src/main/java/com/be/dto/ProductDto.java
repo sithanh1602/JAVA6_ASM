@@ -7,6 +7,7 @@ public class ProductDto {
     private String name;
     private String description;
     private double price;
+    private Double discountPrice;
     private String image;
     private String attributes; // Đây là nơi chứa giá trị từ GROUP_CONCAT
     private Long variantId;

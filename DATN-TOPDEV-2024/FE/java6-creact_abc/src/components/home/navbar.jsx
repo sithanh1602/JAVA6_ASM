@@ -116,7 +116,7 @@ const Navbar = () => {
             const storedUserId = JSON.parse(localStorage.getItem('UserId'));
             await axios.put(`http://localhost:8080/api/carts/user/${storedUserId}/product/${productVariantId}`, {
                 quantity: newQuantity,
-                buildId: buildId // Nếu có BuildPC
+                buildId: buildId
             });
 
             setCartItems(prevItems =>
@@ -143,7 +143,7 @@ const Navbar = () => {
                 params: {
                     userId: storedUserId,
                     productVariantId: productVariantId,
-                    buildId: buildId // Nếu có BuildPC
+                    buildId: buildId
                 }
             });
 
@@ -211,7 +211,9 @@ const Navbar = () => {
                                             <span className="text-xs text-gray-500">{variant.brandName}</span>
                                             <span className="text-xs text-gray-500">{variant.categoryName}</span>
                                         </div>
-                                        <span className="text-blue-500 ml-auto">{formatCurrency(variant.price)}</span>
+                                        <span className="text-blue-500 ml-auto">
+                                            {formatCurrency(variant.price)}
+                                        </span>
                                     </Link>
                                 ))}
                             </div>
@@ -318,7 +320,11 @@ const Navbar = () => {
                                                                         </button>
                                                                     </div>
                                                                     <span className="text-base font-medium text-blue-600">
-                                                                        {formatCurrency(item.productPrice * item.quantity)}
+                                                                        {formatCurrency(
+                                                                            (item.productDiscountPrice && item.productDiscountPrice > 0
+                                                                                ? item.productDiscountPrice
+                                                                                : item.productPrice || 0) * item.quantity
+                                                                        )}
                                                                     </span>
                                                                     <button
                                                                         onClick={() => handleDelete(item.product_variant_id)}
@@ -346,7 +352,9 @@ const Navbar = () => {
                                                         cartItems.reduce((sum, item) => 
                                                             item.buildPC 
                                                                 ? sum + (item.buildPC.totalPrice * item.quantity)
-                                                                : sum + (item.productPrice * item.quantity), 
+                                                                : sum + ((item.productDiscountPrice && item.productDiscountPrice > 0
+                                                                    ? item.productDiscountPrice
+                                                                    : item.productPrice || 0) * item.quantity), 
                                                             0
                                                         )
                                                     )}

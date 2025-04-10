@@ -5,7 +5,6 @@ import {
   Input,
   Button,
   Image,
-  ScrollShadow,
   Select,
   SelectItem,
 } from "@nextui-org/react";
@@ -20,7 +19,8 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic"; // ✅ Đúng
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
 const schema = yup.object().shape({
   quantity: yup
     .number()
@@ -33,6 +33,11 @@ const schema = yup.object().shape({
   status: yup.string().required("Trạng thái là bắt buộc"),
   images: yup.array().min(1, "Phải thêm ít nhất một hình ảnh"),
   attributes: yup.array().min(1, "Phải thêm ít nhất một thuộc tính"),
+  discountPercentage: yup
+    .number()
+    .nullable()
+    .min(5, "Phần trăm giảm giá phải từ 5% đến 15%")
+    .max(15, "Phần trăm giảm giá phải từ 5% đến 15%"),
 });
 
 const ProductVariantsInput = ({ variant, onSave, productId }) => {
@@ -44,6 +49,7 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
     price: variant?.price || 0,
     attributes: variant?.attributes || [],
     description: variant?.description || "",
+    discountPercentage: variant?.discountPercentage || null,
   });
 
   const [availableAttributes, setAvailableAttributes] = useState([]);
@@ -58,28 +64,40 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: formData,
+    defaultValues: {
+      quantity: 1,
+      images: [],
+      status: "Available",
+      price: 0,
+      attributes: [],
+      description: "",
+      discountPercentage: null,
+    },
   });
 
   useEffect(() => {
     const fetchAttributes = async () => {
-      const attributes = await getAllAttributes();
-      const attributeMap = {};
-      attributes.forEach((attr) => {
-        if (!attributeMap[attr.name]) {
-          attributeMap[attr.name] = [];
-        }
-        attributeMap[attr.name].push({
-          id: attr.id,
-          name: attr.name,
-          value: attr.value,
+      try {
+        const attributes = await getAllAttributes();
+        const attributeMap = {};
+        attributes.forEach((attr) => {
+          if (!attributeMap[attr.name]) {
+            attributeMap[attr.name] = [];
+          }
+          attributeMap[attr.name].push({
+            id: attr.id,
+            name: attr.name,
+            value: attr.value,
+          });
         });
-      });
 
-      setAvailableAttributes(
-        Object.keys(attributeMap).map((name) => ({ name }))
-      );
-      setAttributeValues(attributeMap);
+        setAvailableAttributes(
+          Object.keys(attributeMap).map((name) => ({ name }))
+        );
+        setAttributeValues(attributeMap);
+      } catch (error) {
+        console.error("Lỗi khi lấy thuộc tính:", error);
+      }
     };
 
     fetchAttributes();
@@ -87,8 +105,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
 
   useEffect(() => {
     if (editingVariant) {
-      console.log("EditingVariant description:", editingVariant.description);
-      
       const updatedFormData = {
         quantity: editingVariant.stock || 1,
         images: editingVariant.images || [],
@@ -96,24 +112,18 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         price: editingVariant.price || 0,
         attributes: editingVariant.attributes || [],
         description: editingVariant.description || "",
+        discountPercentage: editingVariant.discountPercentage || null,
       };
-      
+
       setFormData(updatedFormData);
       setSelectedIds(editingVariant.attributes?.map((attr) => attr.id) || []);
-      
-      // Đặt các giá trị form bao gồm description
       reset(updatedFormData);
-      
-      // Đảm bảo description được đặt đúng
       setValue("description", editingVariant.description || "");
+      setValue("discountPercentage", editingVariant.discountPercentage || null);
     }
   }, [editingVariant, reset, setValue]);
-  
+
   const handleEditVariant = (variant) => {
-    console.log("Editing Variant Data:", variant);
-    console.log("Variant description:", variant.description);
-  
-    // Đảm bảo description được truyền đúng
     setEditingVariant({
       ...variant,
       stock: variant.stock,
@@ -122,8 +132,9 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       attributes: variant.attributes || [],
       images: variant.images || [],
       description: variant.description || "",
+      discountPercentage: variant.discountPercentage || null,
     });
-  
+
     const updatedFormData = {
       quantity: variant.stock,
       images: variant.images,
@@ -131,20 +142,14 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       price: variant.price,
       attributes: variant.attributes || [],
       description: variant.description || "",
+      discountPercentage: variant.discountPercentage || null,
     };
-  
-    console.log("Updated Form Data:", updatedFormData);
-    console.log("Description in form:", updatedFormData.description);
-  
+
     setFormData(updatedFormData);
     setSelectedIds(variant.attributes?.map((attr) => attr.id) || []);
-    
-    // Reset form với updatedFormData
     reset(updatedFormData);
-    
-    // Đặt riêng giá trị description để đảm bảo nó được cập nhật
     setValue("description", variant.description || "");
-  
+    setValue("discountPercentage", variant.discountPercentage || null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -167,14 +172,12 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       ...prevData,
       images: newImages,
     }));
-    // Cập nhật giá trị cho form
     setValue("images", newImages);
   };
 
   const removeImage = (index) => {
     const updatedImages = formData.images.filter((_, i) => i !== index);
     setFormData({ ...formData, images: updatedImages });
-    // Cập nhật giá trị cho form
     setValue("images", updatedImages);
   };
 
@@ -208,7 +211,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         }
       }
 
-      // Cập nhật giá trị cho form
       setValue("attributes", updatedAttributes);
       return { ...prev, attributes: updatedAttributes };
     });
@@ -225,7 +227,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         ...prevFormData.attributes,
         { name: "", value: "" },
       ];
-      // Cập nhật giá trị cho form
       setValue("attributes", newAttributes);
       return {
         ...prevFormData,
@@ -237,17 +238,19 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
   const removeAttribute = (index) => {
     const updatedAttributes = formData.attributes.filter((_, i) => i !== index);
     setFormData({ ...formData, attributes: updatedAttributes });
-    // Cập nhật giá trị cho form
     setValue("attributes", updatedAttributes);
   };
-  const onVariantChange = (event) => {
-    console.log("Variant changed:", event.target.value);
-  };
+
   const onSubmit = async (data) => {
     try {
       const newSelectedIds = formData.attributes
         .filter((attr) => attr.id)
         .map((attr) => attr.id);
+
+      // Định dạng discountPercentage thành số thực với 1 chữ số thập phân
+      const formattedDiscountPercentage = data.discountPercentage
+        ? parseFloat(data.discountPercentage.toFixed(1))
+        : null;
 
       const submitData = {
         productId: productId,
@@ -257,8 +260,10 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         attributeIds: newSelectedIds,
         imageUrls: formData.images.map((img) => img.preview),
         description: data.description,
+        discountPercentage: formattedDiscountPercentage,
       };
-
+      // Thêm log để kiểm tra dữ liệu trước khi gửi
+      console.log("Dữ liệu gửi đi:", JSON.stringify(submitData, null, 2));
       let result;
       if (editingVariant && editingVariant.idVariants) {
         result = await ProductVariantService.updateProductVariant(
@@ -273,7 +278,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         onSave(result);
       }
 
-      // Reset form
       setFormData({
         quantity: 1,
         images: [],
@@ -281,11 +285,11 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         price: 0,
         attributes: [],
         description: "",
+        discountPercentage: null,
       });
       setEditingVariant(null);
       setSelectedIds([]);
 
-      // ✅ Hiển thị thông báo thành công
       await Swal.fire({
         icon: "success",
         title: editingVariant?.idVariants
@@ -298,22 +302,10 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         confirmButtonText: "OK",
       });
 
-      // ✅ Thử cập nhật danh sách biến thể trong try-catch riêng
       try {
-        console.log("Gọi API lấy danh sách biến thể...");
         const newVariants =
           await ProductVariantService.getProductVariantsByProductId(productId);
-        console.log("Danh sách biến thể mới:", newVariants);
-
-        console.log("Cập nhật danh sách biến thể vào service...");
         await ProductVariantService.addVariant(newVariants);
-        console.log("Cập nhật danh sách biến thể thành công!");
-
-        console.log("Gọi onVariantChange...");
-        if (onVariantChange) {
-          onVariantChange();
-        }
-        console.log("onVariantChange đã gọi xong!");
       } catch (error) {
         console.error("Lỗi khi cập nhật danh sách biến thể:", error);
       }
@@ -391,6 +383,13 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
             onEditVariant={handleEditVariant}
           />
         </div>
+        <Button
+          color="primary"
+          className="w-full mt-6"
+          onClick={handleSubmit(onSubmit)}
+        >
+          {submitButtonText}
+        </Button>
       </div>
 
       <div className="space-y-4">
@@ -417,9 +416,74 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
               type="number"
               variant="bordered"
               error={errors.price?.message}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                const value =
+                  inputValue === "" ? "" : parseFloat(inputValue) || 0;
+                field.onChange(value);
+                setFormData((prev) => ({ ...prev, price: value }));
+              }}
             />
           )}
         />
+
+        <Controller
+          name="discountPercentage"
+          control={control}
+          render={({ field }) => (
+            <Select
+              label="Phần trăm giảm giá (%)"
+              variant="bordered"
+              selectedKeys={
+                field.value ? new Set([field.value.toString()]) : new Set()
+              }
+              onSelectionChange={(keys) => {
+                const value = keys.size > 0 ? parseFloat([...keys][0]) : null;
+                field.onChange(value);
+                setFormData((prev) => ({ ...prev, discountPercentage: value }));
+              }}
+              classNames={{
+                trigger: "min-h-12",
+                value: "text-left",
+              }}
+            >
+              <SelectItem key="5" value={5}>
+                5%
+              </SelectItem>
+              <SelectItem key="10" value={10}>
+                10%
+              </SelectItem>
+              <SelectItem key="15" value={15}>
+                15%
+              </SelectItem>
+            </Select>
+          )}
+        />
+        {errors.discountPercentage && (
+          <p className="text-red-500 text-sm">
+            {errors.discountPercentage.message}
+          </p>
+        )}
+
+        <div className="mt-4">
+          <label className="block mb-2 text-sm font-medium text-gray-900">
+            Giá đã giảm
+          </label>
+          <Input
+            value={
+              formData.discountPercentage && formData.price
+                ? (
+                    formData.price -
+                    (formData.price * formData.discountPercentage) / 100
+                  ).toLocaleString("vi-VN") + " đ"
+                : "Không có giảm giá"
+            }
+            readOnly
+            disabled
+            className="bg-gray-100"
+          />
+        </div>
+
         <Controller
           name="status"
           control={control}
@@ -429,8 +493,8 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
               label="Trạng Thái"
               variant="bordered"
               error={errors.status?.message}
-              selectedKeys={[field.value]} // Ensure the selected value is set correctly
-              onChange={(e) => field.onChange(e.target.value)} // Handle the change event
+              selectedKeys={[field.value]}
+              onChange={(e) => field.onChange(e.target.value)}
             >
               <SelectItem key="Available" value="Available">
                 Còn Hoạt Động
@@ -482,7 +546,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
                 onChange={(event, editor) => {
                   const data = editor.getData();
                   field.onChange(data);
-                  // Cập nhật cả formData để đảm bảo dữ liệu được giữ
                   setFormData((prev) => ({ ...prev, description: data }));
                 }}
               />
@@ -503,80 +566,70 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
               Thêm
             </Button>
           </div>
-          <ScrollShadow className="h-48">
-            <div className="space-y-2 p-2">
-              {formData.attributes.map((attr, index) => (
-                <div key={index} className="flex gap-2 items-center">
-                  <Select
-                    label="Thuộc tính"
-                    selectedKeys={[attr.name]}
-                    onChange={(e) =>
-                      handleAttributeChange(index, "name", e.target.value)
-                    }
-                    variant="bordered"
-                    size="sm"
-                    classNames={{
-                      listboxWrapper: "max-h-[200px]",
-                    }}
-                    listboxProps={{
-                      className: "overflow-auto",
-                      style: { maxHeight: "200px" },
-                    }}
-                  >
-                    {availableAttributes.map((option) => (
-                      <SelectItem key={option.name} value={option.name}>
-                        {option.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                  <Select
-                    label="Giá trị"
-                    selectedKeys={
-                      attr.value ? new Set([attr.value]) : new Set()
-                    }
-                    onChange={(e) =>
-                      handleAttributeChange(index, "value", e.target.value)
-                    }
-                    variant="bordered"
-                    size="sm"
-                    classNames={{
-                      listboxWrapper: "max-h-[200px]",
-                    }}
-                    listboxProps={{
-                      className: "overflow-auto",
-                      style: { maxHeight: "200px" },
-                    }}
-                  >
-                    {attributeValues[attr.name]?.map((attribute) => (
-                      <SelectItem key={attribute.value} value={attribute.value}>
-                        {attribute.value}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                  <Button
-                    isIconOnly
-                    color="danger"
-                    variant="flat"
-                    size="sm"
-                    onClick={() => removeAttribute(index)}
-                  >
-                    <FaTrash className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </ScrollShadow>
+
+          <div className="space-y-2 p-2">
+            {formData.attributes.map((attr, index) => (
+              <div key={index} className="flex gap-2 items-center">
+                <Select
+                  label="Thuộc tính"
+                  selectedKeys={[attr.name]}
+                  onChange={(e) =>
+                    handleAttributeChange(index, "name", e.target.value)
+                  }
+                  variant="bordered"
+                  size="sm"
+                  classNames={{
+                    listboxWrapper: "max-h-[200px]",
+                  }}
+                  listboxProps={{
+                    className: "overflow-auto",
+                    style: { maxHeight: "200px" },
+                  }}
+                >
+                  {availableAttributes.map((option) => (
+                    <SelectItem key={option.name} value={option.name}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  label="Giá trị"
+                  selectedKeys={attr.value ? new Set([attr.value]) : new Set()}
+                  onChange={(e) =>
+                    handleAttributeChange(index, "value", e.target.value)
+                  }
+                  variant="bordered"
+                  size="sm"
+                  classNames={{
+                    listboxWrapper: "max-h-[200px]",
+                  }}
+                  listboxProps={{
+                    className: "overflow-auto",
+                    style: { maxHeight: "200px" },
+                  }}
+                >
+                  {attributeValues[attr.name]?.map((attribute) => (
+                    <SelectItem key={attribute.value} value={attribute.value}>
+                      {attribute.value}
+                    </SelectItem>
+                  )) || []}
+                </Select>
+                <Button
+                  isIconOnly
+                  color="danger"
+                  variant="flat"
+                  size="sm"
+                  onClick={() => removeAttribute(index)}
+                >
+                  <FaTrash className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
           {errors.attributes && (
             <p className="text-red-500 text-sm">{errors.attributes.message}</p>
           )}
         </div>
-        <Button
-          color="primary"
-          className="w-full mt-6"
-          onClick={handleSubmit(onSubmit)}
-        >
-          {submitButtonText}
-        </Button>
       </div>
     </div>
   );

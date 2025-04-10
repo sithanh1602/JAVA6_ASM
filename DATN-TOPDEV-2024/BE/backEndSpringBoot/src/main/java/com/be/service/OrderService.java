@@ -289,27 +289,25 @@ public class OrderService {
     }
 
     public List<Map<String, Object>> getProductsByOrderId(Long orderId) throws Exception {
-        // Lấy danh sách chi tiết đơn hàng từ ID đơn hàng
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
         if (orderDetails.isEmpty()) {
             throw new Exception("Không tìm thấy chi tiết đơn hàng cho ID: " + orderId);
         }
 
-        // Trả về danh sách các sản phẩm kèm theo số lượng
         List<Map<String, Object>> productsWithQuantity = new ArrayList<>();
         for (OrderDetail orderDetail : orderDetails) {
             ProductVariant productVariant = orderDetail.getProduct_variant_id();
 
-            // Lấy danh sách hình ảnh của biến thể sản phẩm
             List<Image> images = productVariant.getImages();
             String imageUrl = (images != null && !images.isEmpty()) ? images.get(0).getImage() : null;
 
             Map<String, Object> productInfo = new HashMap<>();
-            productInfo.put("name", productVariant.getNameVariants()); // Lấy tên của ProductVariant
-            productInfo.put("imageUrl", imageUrl); // Gán ảnh đầu tiên của ProductVariant
+            productInfo.put("name", productVariant.getNameVariants());
+            productInfo.put("imageUrl", imageUrl);
             productInfo.put("quantity", orderDetail.getQuantity());
             productInfo.put("price", productVariant.getPrice());
-            productInfo.put("OrderDetailId",orderDetail.getId());
+            productInfo.put("discountPrice", productVariant.getDiscountPrice() != null ? productVariant.getDiscountPrice().doubleValue() : null); // Thêm discountPrice
+            productInfo.put("OrderDetailId", orderDetail.getId());
             productsWithQuantity.add(productInfo);
         }
         return productsWithQuantity;

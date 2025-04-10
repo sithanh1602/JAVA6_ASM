@@ -237,12 +237,14 @@ const ProductDetail = () => {
                 />
                 <button
                   onClick={handlePreviousImage}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition">
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition"
+                >
                   {"<"}
                 </button>
                 <button
                   onClick={handleNextImage}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition">
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white transition"
+                >
                   {">"}
                 </button>
               </div>
@@ -252,8 +254,9 @@ const ProductDetail = () => {
                   {images.map((image, index) => (
                     <div
                       key={image.id}
-                      className={`w-20 h-20  overflow-hidden cursor-pointer hover:scale-105 transition-transform ${index === mainImageIndex ? "border-blue-500" : ""
-                        }`}
+                      className={`w-20 h-20  overflow-hidden cursor-pointer hover:scale-105 transition-transform ${
+                        index === mainImageIndex ? "border-blue-500" : ""
+                      }`}
                       onClick={() => handleImageChange(index)}
                     >
                       <img
@@ -271,7 +274,8 @@ const ProductDetail = () => {
                   className="text-sm text-gray-600"
                   dangerouslySetInnerHTML={{
                     __html: selectedVariant?.description || "Không có mô tả",
-                  }}></div>
+                  }}
+                ></div>
               </div>
             </div>
 
@@ -281,9 +285,29 @@ const ProductDetail = () => {
                 <div className="border-b pb-4">
                   <h1 className="text-2xl font-bold mb-2">{productName}</h1>
                   <div className="text-xl font-semibold text-blue-600">
-                    {selectedVariant?.price
-                      ? `${selectedVariant.price.toLocaleString()}đ`
-                      : "Liên hệ để biết giá"}
+                    {(() => {
+                      const price = selectedVariant?.price;
+                      const discountPrice = selectedVariant?.discountPrice;
+                      const hasDiscount =
+                        discountPrice > 0 && discountPrice < price;
+
+                      if (hasDiscount) {
+                        return (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl font-semibold text-blue-600">
+                              {discountPrice.toLocaleString()}đ
+                            </span>
+                            <span className="text-sm text-gray-500 line-through">
+                              {price.toLocaleString()}đ
+                            </span>
+                          </div>
+                        );
+                      } else if (price > 0) {
+                        return <span>{price.toLocaleString()}đ</span>;
+                      } else {
+                        return <span>Liên hệ để biết giá</span>;
+                      }
+                    })()}
                   </div>
                 </div>
 
@@ -322,7 +346,8 @@ const ProductDetail = () => {
                               selectedVariant?.variantId === variant.variantId
                                 ? "border-blue-500 bg-blue-50"
                                 : "hover:bg-gray-50"
-                            }`}>
+                            }`}
+                          >
                             <img
                               src={variant?.image}
                               console={variant}
@@ -351,7 +376,8 @@ const ProductDetail = () => {
                           handleQuantityChange({
                             target: { value: quantity - 1 },
                           })
-                        }>
+                        }
+                      >
                         -
                       </button>
                       <input
@@ -367,7 +393,8 @@ const ProductDetail = () => {
                           handleQuantityChange({
                             target: { value: quantity + 1 },
                           })
-                        }>
+                        }
+                      >
                         +
                       </button>
                     </div>
@@ -379,7 +406,8 @@ const ProductDetail = () => {
                     </button>
                     <button
                       onClick={handleAddToCart}
-                      className="w-full text-blue-600 border border-blue-600 py-3 px-6 rounded-lg shadow hover:bg-blue-50 transition">
+                      className="w-full text-blue-600 border border-blue-600 py-3 px-6 rounded-lg shadow hover:bg-blue-50 transition"
+                    >
                       Thêm vào giỏ hàng
                     </button>
                   </div>

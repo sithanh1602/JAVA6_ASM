@@ -177,7 +177,7 @@ const PCBuildCard = ({ build, index }) => {
         onClick={handleAddAllToCart}
         disabled={isOutOfStock}
       >
-        <FontAwesomeIcon icon={faCartPlus} /> THÊM TẤT CẢ VÀO GIỎ HÀNG
+        <FontAwesomeIcon icon={faCartPlus} /> THÊM VÀO GIỎ HÀNG
       </button>
     </div>
   );

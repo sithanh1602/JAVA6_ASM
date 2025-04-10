@@ -18,29 +18,30 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Query(value = """
                 SELECT a.id,
                        (SELECT TOP 1 b.image FROM images b WHERE a.id = b.product_variant_id ORDER BY b.id ASC) AS image,
-                       a.name_variants, a.price, a.product_id, a.quantity, a.status,
+                       a.name_variants, a.price,a.discount_price, a.product_id, a.quantity, a.status,
                        c.name AS brand_name, d.name AS category_name
                 FROM product_variants a
                 JOIN products p ON a.product_id = p.id
-                JOIN brands c ON p.brands_id = c.brands_id\s
+                JOIN brands c ON p.brands_id = c.brands_id
                 JOIN categories d ON p.category_id = d.id
                 ORDER BY a.id DESC
             """, nativeQuery = true)
     List<Object[]> findAllWithFirstImage();
 
     @Query(value = """
-                    SELECT pv.id, pv.name_variants, pv.price, pv.quantity, pv.status,
-                   STRING_AGG(img.image, ',') WITHIN GROUP (ORDER BY img.id ASC) AS imageUrls,
-                   a.id AS attributeId, a.name AS attributeName, a.value AS attributeValue,
-                   pv.description
-            FROM product_variants pv
-            LEFT JOIN attributes_product_variants apv ON pv.id = apv.product_variant_id
-            LEFT JOIN attributes a ON apv.attribute_id = a.id
-            LEFT JOIN images img ON img.product_variant_id = pv.id
-            WHERE pv.product_id = :productId
-            GROUP BY pv.id, pv.name_variants, pv.price, pv.quantity, pv.status, pv.description, a.id, a.name, a.value
-            ORDER BY pv.id ASC, a.id ASC;
-            """, nativeQuery = true)
+        SELECT pv.id, pv.name_variants, pv.price, pv.quantity, pv.status,
+               STRING_AGG(img.image, ',') WITHIN GROUP (ORDER BY img.id ASC) AS imageUrls,
+               a.id AS attributeId, a.name AS attributeName, a.value AS attributeValue,
+               pv.description, pv.discount_price, pv.discount_percentage
+        FROM product_variants pv
+        LEFT JOIN attributes_product_variants apv ON pv.id = apv.product_variant_id
+        LEFT JOIN attributes a ON apv.attribute_id = a.id
+        LEFT JOIN images img ON img.product_variant_id = pv.id
+        WHERE pv.product_id = :productId
+        GROUP BY pv.id, pv.name_variants, pv.price, pv.quantity, pv.status, pv.description, 
+                 a.id, a.name, a.value, pv.discount_price, pv.discount_percentage
+        ORDER BY pv.id ASC, a.id ASC;
+        """, nativeQuery = true)
     List<Object[]> findProductVariantsByProductId(@Param("productId") Long productId);
 
     @Query("SELECT a.id, " +

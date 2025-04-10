@@ -14,4 +14,6 @@ public class ProductVariantRequest {
     private List<String> imageUrls;
     private List<Long> attributeIds;
     private String description;
+    private Double discountPercentage;
+    private Double discountPrice;
 }

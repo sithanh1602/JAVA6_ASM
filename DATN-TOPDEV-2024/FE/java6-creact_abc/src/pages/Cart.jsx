@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAllCartItemsForUser, removeProductFromCart } from '../services/CartService';
 import Breadcrumb from '../components/cart/Breadcrumb';
-import CartItem from '../components/cart/CartItem';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,7 +34,6 @@ const CartPage = () => {
                 } else {
                     const initialSelectedState = {};
                     items.forEach(item => {
-                        // Sử dụng buildId hoặc product_variant_id làm key tùy thuộc vào loại mục
                         const key = item.buildPC ? item.buildPC.buildId : item.product_variant_id;
                         initialSelectedState[key] = false;
                     });
@@ -43,7 +41,6 @@ const CartPage = () => {
                     setCartItems(items.map(item => ({
                         ...item,
                         quantity: item.quantity || 1,
-                        // Xác định loại mục (product hoặc buildPC)
                         type: item.buildPC ? 'buildPC' : 'product'
                     })));
                 }
@@ -64,7 +61,6 @@ const CartPage = () => {
 
     const handleDeleteItemFromCart = async (item) => {
         try {
-            // Xóa dựa trên buildId hoặc product_variant_id
             const idToRemove = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
             await removeProductFromCart(userId, item.type === 'buildPC' ? null : idToRemove, item.type === 'buildPC' ? idToRemove : null);
             setCartItems(cartItems.filter(cartItem => 
@@ -95,7 +91,11 @@ const CartPage = () => {
         return cartItems.reduce((total, item) => {
             const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
             if (selectedItems[key]) {
-                const price = item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice;
+                const price = item.type === 'buildPC'
+                    ? item.buildPC.totalPrice
+                    : (item.productDiscountPrice && item.productDiscountPrice > 0
+                        ? item.productDiscountPrice
+                        : item.productPrice || 0);
                 return total + (price * item.quantity);
             }
             return total;
@@ -145,53 +145,57 @@ const CartPage = () => {
         }).format(value).replace(/\s?₫/g, ' VND');
     };
 
-const handleProceedToCheckout = () => {
-    const selectedCartItems = cartItems.filter(item => {
-        const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
-        return selectedItems[key];
-    });
-
-    if (selectedCartItems.length === 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Chưa chọn sản phẩm',
-            text: 'Vui lòng chọn ít nhất một sản phẩm để tiến hành thanh toán.',
-            confirmButtonText: 'OK'
+    const handleProceedToCheckout = () => {
+        const selectedCartItems = cartItems.filter(item => {
+            const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+            return selectedItems[key];
         });
-        return;
-    }
 
-    const checkoutItems = selectedCartItems.flatMap(item => {
-        if (item.type === 'buildPC' && item.buildPC && item.buildPC.buildPCProductVariants) {
-            return item.buildPC.buildPCProductVariants.map(variant => ({
-                productVariantId: variant.productVariantId,
-                quantity: variant.variantQuantity * item.quantity,
-                productName: variant.nameVariants,
-                productPrice: variant.price,
-                productImageUrl: variant.image,
-                productStatus: variant.status,
-                buildId: item.buildPC.buildId,
-                buildName: item.buildPC.buildName,
-                nameVariants: variant.nameVariants, 
-            }));
-        } else {
-            return [{
-                productVariantId: item.product_variant_id,
-                quantity: item.quantity,
-                productName: item.productName,
-                productPrice: item.productPrice,
-                productImageUrl: item.productImageUrl,
-                productStatus: item.productStatus,
-                buildId: null,
-                buildName: null,
-                nameVariants: item.nameVariants || null,
-            }];
+        if (selectedCartItems.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa chọn sản phẩm',
+                text: 'Vui lòng chọn ít nhất một sản phẩm để tiến hành thanh toán.',
+                confirmButtonText: 'OK'
+            });
+            return;
         }
-    });
 
-    console.log("📤 Dữ liệu truyền sang GroupOrder:", JSON.stringify(checkoutItems, null, 2));
-    navigate('/orders', { state: { cartItems: checkoutItems } });
-};
+        const checkoutItems = selectedCartItems.flatMap(item => {
+            if (item.type === 'buildPC' && item.buildPC && item.buildPC.buildPCProductVariants) {
+                return item.buildPC.buildPCProductVariants.map(variant => ({
+                    productVariantId: variant.productVariantId,
+                    quantity: variant.variantQuantity * item.quantity,
+                    productName: variant.nameVariants,
+                    productPrice: variant.price,
+                    productImageUrl: variant.image,
+                    productStatus: variant.status,
+                    buildId: item.buildPC.buildId,
+                    buildName: item.buildPC.buildName,
+                    nameVariants: variant.nameVariants,
+                }));
+            } else {
+                const priceToUse = item.productDiscountPrice && item.productDiscountPrice > 0
+                    ? item.productDiscountPrice
+                    : item.productPrice || 0;
+                return [{
+                    productVariantId: item.product_variant_id,
+                    quantity: item.quantity,
+                    productName: item.productName,
+                    productPrice: priceToUse,
+                    productImageUrl: item.productImageUrl,
+                    productStatus: item.productStatus,
+                    buildId: null,
+                    buildName: null,
+                    nameVariants: item.nameVariants || null,
+                    ...(item.productDiscountPrice && item.productDiscountPrice > 0 && { productDiscountPrice: item.productDiscountPrice })
+                }];
+            }
+        });
+
+        console.log("📤 Dữ liệu truyền sang GroupOrder:", JSON.stringify(checkoutItems, null, 2));
+        navigate('/orders', { state: { cartItems: checkoutItems } });
+    };
 
     return (
         <div className="flex justify-center pb-20">
@@ -256,7 +260,13 @@ const handleProceedToCheckout = () => {
                                             </div>
                                         </td>
                                         <td className="py-4 px-4">
-                                            {formatCurrency(item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice || 0)}
+                                            {formatCurrency(
+                                                item.type === 'buildPC'
+                                                    ? item.buildPC.totalPrice
+                                                    : (item.productDiscountPrice && item.productDiscountPrice > 0
+                                                        ? item.productDiscountPrice
+                                                        : item.productPrice || 0)
+                                            )}
                                         </td>
                                         <td className="py-4 px-4">
                                             <div className="flex items-center border rounded-md overflow-hidden shadow-sm">
@@ -282,7 +292,13 @@ const handleProceedToCheckout = () => {
                                             </div>
                                         </td>
                                         <td className="py-4 px-4">
-                                            {formatCurrency((item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice || 0) * item.quantity)}
+                                            {formatCurrency(
+                                                (item.type === 'buildPC'
+                                                    ? item.buildPC.totalPrice
+                                                    : (item.productDiscountPrice && item.productDiscountPrice > 0
+                                                        ? item.productDiscountPrice
+                                                        : item.productPrice || 0)) * item.quantity
+                                            )}
                                         </td>
                                         <td className="py-4 px-4">
                                             <button

@@ -12,9 +12,10 @@ const ProductVariantsTable = ({ productId, onEditVariant }) => {
     const fetchVariants = async () => {
       try {
         const response = await ProductVariantService.getProductVariantsByProductId(productId);
-        const processedVariants = response.map(variant => ({
+        const processedVariants = response.map((variant) => ({
           ...variant,
-          displayImageUrl: variant.imageUrl.split(',')[0] // Chỉ lấy URL ảnh đầu tiên
+          displayImageUrl: variant.imageUrl.split(",")[0], // Chỉ lấy URL ảnh đầu tiên
+          discountPercentage: variant.discountPercentage || null, // Thêm discountPercentage
         }));
         setVariants(processedVariants);
       } catch (error) {
@@ -23,7 +24,7 @@ const ProductVariantsTable = ({ productId, onEditVariant }) => {
         setLoading(false);
       }
     };
-   
+
     if (productId) {
       fetchVariants();
     }
@@ -51,7 +52,7 @@ const ProductVariantsTable = ({ productId, onEditVariant }) => {
     },
     {
       name: "Trạng thái",
-      selector: (row) => row.status === "Available" ? "Còn hoạt động" : "Hết hoạt động",
+      selector: (row) => (row.status === "Available" ? "Còn hoạt động" : "Hết hoạt động"),
       sortable: true,
       width: "130px",
       wrap: true,
@@ -59,9 +60,9 @@ const ProductVariantsTable = ({ productId, onEditVariant }) => {
     {
       name: "Ảnh",
       cell: (row) => (
-        <img 
-          src={row.displayImageUrl} 
-          alt="variant" 
+        <img
+          src={row.displayImageUrl}
+          alt="variant"
           className="w-12 h-12 object-cover rounded-lg"
         />
       ),
@@ -73,18 +74,29 @@ const ProductVariantsTable = ({ productId, onEditVariant }) => {
         return row.attributes?.length > 0 ? (
           <div className="flex flex-wrap gap-1 max-w-[200px]">
             {row.attributes.map((attr, index) => (
-              <div
-                key={index}
-                className="px-1.5 py-0.5 text-xs bg-gray-100 rounded"
-              >
+              <div key={index} className="px-1.5 py-0.5 text-xs bg-gray-100 rounded">
                 <span className="font-medium">{attr.name}:</span> {attr.value}
               </div>
             ))}
           </div>
-        ) : "N/A";
+        ) : (
+          "N/A"
+        );
       },
       width: "200px",
       wrap: true,
+    },
+    {
+      name: "Khuyến mãi",
+      selector: (row) => (row.discountPercentage ? `${row.discountPercentage}%` : "Không có"),
+      sortable: true,
+      width: "120px",
+    },
+    {
+      name: "Giá Khuyến mãi",
+      selector: (row) => (row.discountPrice ? row.discountPrice.toLocaleString() + " VND" : "Không có"),
+      sortable: true,
+      width: "120px",
     },
     {
       name: "Thao tác",
@@ -101,7 +113,9 @@ const ProductVariantsTable = ({ productId, onEditVariant }) => {
               status: row.status,
               attributes: row.attributes,
               description: row.description || "",
-              images: row.imageUrl.split(',').map(url => ({ preview: url }))
+              images: row.imageUrl.split(",").map((url) => ({ preview: url })),
+              discountPrice: row.discountPrice || null,
+              discountPercentage: row.discountPercentage || null,
             };
             onEditVariant(processedVariant);
           }}
