@@ -22,7 +22,7 @@ public class MomoService {
     private static final String ACCESS_KEY = "F8BBA842ECF85";
     private static final String SECRET_KEY = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     private static final String REDIRECT_URL = "http://localhost:3000/payment";
-    private static final String IPN_URL = "https://callback.url/notify";
+    private static final String IPN_URL = "http://localhost:3000/payment";
     // private static final String REQUEST_TYPE = "captureWallet";
     private static final String REQUEST_TYPE = "payWithMethod";
 
@@ -30,7 +30,7 @@ public class MomoService {
         try {
             // Dùng orderId của hệ thống bạn làm orderId gửi cho Momo
             String requestId = PARTNER_CODE + new Date().getTime();
-            String orderId = "ORDER-" + orderIdFromSystem; // Đảm bảo không bị trùng trong hệ thống Momo
+            String orderId = orderIdFromSystem; // Đảm bảo không bị trùng trong hệ thống Momo
             String orderInfo = "Thanh toán ĐH -" + orderIdFromSystem;
             String extraData = orderIdFromSystem; // Dùng để gửi ngầm orderId thật về cho IPN
 
@@ -142,5 +142,24 @@ public class MomoService {
             return "{\"error\": \"Failed to check payment status: " + e.getMessage() + "\"}";
         }
     }
+
+    public String createOrderNoSave(int total, String orderIdFromSystem) {
+        try {
+            // Gọi lại hàm tạo payment request
+            String responseJson = createPaymentRequest(total, orderIdFromSystem);
+
+            // Parse JSON để lấy payUrl
+            JSONObject jsonResponse = new JSONObject(responseJson);
+            if (jsonResponse.has("payUrl")) {
+                return jsonResponse.getString("payUrl");
+            } else {
+                throw new RuntimeException("Không thể lấy URL thanh toán từ phản hồi MoMo: " + responseJson);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
 }

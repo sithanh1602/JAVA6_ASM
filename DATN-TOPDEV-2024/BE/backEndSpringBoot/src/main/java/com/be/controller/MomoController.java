@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RequestMapping("/api/momo")
 @RestController
 public class MomoController {
@@ -47,6 +49,41 @@ public class MomoController {
                     .body("Có lỗi xảy ra khi xử lý đơn hàng.");
         }
     }
+
+    @PostMapping("/placeno-momo")
+    public ResponseEntity<?> placeOrderWithMomoPreview(@RequestBody OrderRequest orderRequest) {
+        try {
+            System.out.println("Nhận yêu cầu thanh toán (MoMo): " + orderRequest); // Debug log
+
+            // Tạo đơn hàng preview nhưng chưa lưu DB
+            Orders orderPreview = orderService.createOrderPreview(orderRequest);
+
+            // Tạo URL thanh toán MoMo
+            String momoPayUrl = momoService.createOrderNoSave(
+                    orderPreview.getTotalPrice(),
+                    String.valueOf(orderPreview.getId())
+            );
+
+            if (momoPayUrl == null || momoPayUrl.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Không thể tạo URL thanh toán MoMo.");
+            }
+
+            System.out.println("URL Thanh toán MoMo: " + momoPayUrl);
+            return ResponseEntity.ok(Map.of(
+                    "paymentUrl", momoPayUrl,
+                    "orderId", orderPreview.getId(),
+                    "amount", orderPreview.getTotalPrice()
+            ));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi tạo đơn hàng thanh toán MoMo: " + e.getMessage());
+        }
+    }
+
+
 
 
     @GetMapping("/order-status/{orderId}")

@@ -396,7 +396,7 @@ public class OrderService {
             // Kiểm tra số lượng kho và trừ số lượng
             int newStock = productVariant.getQuantity() - item.getQuantity();
             if (newStock < 0) {
-                throw new IllegalArgumentException("Insufficient stock for product variant: " + productVariant.getProduct().getName());
+                throw  new IllegalArgumentException("Insufficient stock for product variant: " + productVariant.getProduct().getName());
             }
             productVariant.setQuantity(newStock);
 

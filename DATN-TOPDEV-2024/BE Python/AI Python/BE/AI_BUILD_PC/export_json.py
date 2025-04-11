@@ -15,7 +15,7 @@ cursor = conn.cursor()
 
 # 🔹 Danh sách các bảng từ SQL Server
 tables = [
-    "Address", "Attributes", "Attributes_Product_Variants", "Brands", "Build_PC",
+    "Address","Product_Variants","Products", "Attributes", "Attributes_Product_Variants", "Brands", "Build_PC",
     "Build_PC_Images", "Build_PC_Product_Variants", "cart_detail", "Categories",
     "Contact", "Favorites", "images", "Notifications", "order_detail", "Orders",
     "Posts", "Product_Variants", "Products", "Reviews", "Role", "templates",

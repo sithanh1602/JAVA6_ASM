@@ -249,20 +249,26 @@ class VectorizedChatbot:
 
 # Tích hợp với Flask
 def setup_chatbot():
-    """Thiết lập chatbot và trả về hàm get_response để sử dụng với Flask"""
-    chatbot = VectorizedChatbot()
-    
-    def get_response_for_flask(message):
-        response, intent, confidence = chatbot.get_response(message)
-        # Có thể log thông tin để debug
-        print(f"Câu hỏi: {message}")
-        print(f"Ý định dự đoán: {intent} (độ tin cậy: {confidence:.2f})")
-        return response
-    
-    return get_response_for_flask
+    """Khởi tạo chatbot cho Flask"""
+    bot = VectorizedChatbot()
+    return bot
 
-# Hàm get_response để sử dụng trong Flask
-get_response = setup_chatbot()
+# Chatbot instance
+chatbot = setup_chatbot()
+
+def get_response(message):
+    """Trả về câu trả lời cho Flask API"""
+    response, intent, confidence = chatbot.get_response(message)
+    
+    # Không bao giờ trả về "không có sản phẩm"
+    if "chưa có sản phẩm" in response.lower():
+        return "Chúng tôi có nhiều sản phẩm về linh kiện máy tính, điện thoại và đồ công nghệ. Bạn có thể cho biết loại sản phẩm cụ thể bạn đang tìm kiếm không?"
+    
+    # Xử lý truy vấn về sản phẩm
+    if "sản phẩm" in message.lower():
+        return "Chúng tôi có nhiều sản phẩm linh kiện máy tính như CPU, RAM, mainboard, card đồ họa, ổ cứng SSD/HDD, nguồn máy tính và các thiết bị ngoại vi. Bạn quan tâm đến sản phẩm nào?"
+    
+    return response
 
 # Ví dụ sử dụng
 if __name__ == "__main__":
