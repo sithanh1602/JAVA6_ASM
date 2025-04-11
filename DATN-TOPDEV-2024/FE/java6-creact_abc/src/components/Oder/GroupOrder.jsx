@@ -354,35 +354,42 @@ const GroupOrder = () => {
     }
 };
 
-  return (
-    <div className="container mx-auto p-4">
-      <OrderBr />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+return (
+  <div className="container mx-auto p-4">
+    <OrderBr />
+    {/* Thay đổi grid layout để OrderInfo chiếm nhiều không gian hơn */}
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="md:col-span-4">
         <BillingInfo
           setUserInfo={setUserInfo}
           userInfo={userInfo}
           setShippingFee={setShippingFee}
           fetchShippingFee={fetchShippingFee}
         />
+        
+        {/* Nút đặt hàng đã được di chuyển xuống dưới BillingInfo */}
+        <button
+          onClick={handlePlaceOrder}
+          className="mt-4 w-full bg-primary-600 text-white py-2 rounded-md hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+          disabled={loading}
+        >
+          {loading ? "Đang xử lý..." : "ĐẶT HÀNG"}
+        </button>
+      </div>
+      
+      <div className="md:col-span-8">
         <OrderInfo
           setPaymentMethod={setPaymentMethod}
           setVoucherDiscount={setVoucherDiscount}
           setVoucherCode={setVoucherCode}
           setVoucherid={setVoucherid}
-          shippingFee={shippingFee} // Truyền shippingFee vào OrderInfo
+          shippingFee={shippingFee}
           setSelectedLogo={setSelectedLogo}
         />
       </div>
-
-      <button
-        onClick={handlePlaceOrder}
-        className="mt-4 w-full bg-orange-600 text-white py-2 rounded-md hover:bg-orange-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-        disabled={loading}
-      >
-        {loading ? "Đang xử lý..." : "ĐẶT HÀNG"}
-      </button>
     </div>
-  );
+  </div>
+);
 };
 
 export default GroupOrder;

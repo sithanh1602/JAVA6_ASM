@@ -467,37 +467,80 @@ const Navbar = () => {
                     </div>
                   )}
 
-                                    {cartItems.length > 0 && (
-                                        <div className="mt-4 pt-4 border-t">
-                                            <div className="flex justify-between font-medium text-lg">
-                                                <span>Tổng cộng:</span>
-                                                <span className="text-blue-600">
-                                                    {formatCurrency(
-                                                        cartItems.reduce((sum, item) => 
-                                                            item.buildPC 
-                                                                ? sum + (item.buildPC.totalPrice * item.quantity)
-                                                                : sum + (item.productPrice * item.quantity), 
-                                                            0
-                                                        )
-                                                    )}
-                                                </span>
-                                            </div>
-                                            <Link
-                                                to="/cart"
-                                                className="block text-center py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-md mt-4 text-base"
-                                            >
-                                                Xem giỏ hàng
-                                            </Link>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                  {cartItems.length > 0 && (
+                    <div className="mt-4 pt-4 border-t">
+                      <div className="flex justify-between font-medium text-lg">
+                        <span>Tổng cộng:</span>
+                        <span className="text-blue-600">
+                          {formatCurrency(
+                            cartItems.reduce(
+                              (sum, item) =>
+                                item.buildPC
+                                  ? sum +
+                                    item.buildPC.totalPrice * item.quantity
+                                  : sum + item.productPrice * item.quantity,
+                              0
+                            )
+                          )}
+                        </span>
+                      </div>
+                      <Link
+                        to="/cart"
+                        className="block text-center py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-md mt-4 text-base">
+                        Xem giỏ hàng
+                      </Link>
                     </div>
+                  )}
                 </div>
+              </div>
             </div>
-        </nav>
-    );
+          </div>
+          <div>
+            {loading ? (
+              <Button isLoading color="primary" variant="ghost">
+                Đang tải...
+              </Button>
+            ) : isLoggedIn && user ? (
+              <Dropdown placement="bottom-start">
+                <DropdownTrigger>
+                  <User
+                    as="button"
+                    avatarProps={{
+                      isBordered: true,
+                      src: user.image,
+                    }}
+                    className="transition-transform"
+                    description={user.phone}
+                    name={`Chào! ${user.fullName}`}
+                  />
+                </DropdownTrigger>
+                <DropdownMenu aria-label="User Actions" variant="flat">
+                  <DropdownItem key="settings">
+                    <Link to="/profile/*">Thông tin tài khoản</Link>
+                  </DropdownItem>
+                  <DropdownItem key="help_and_feedback">
+                    Hỗ trợ và đánh giá
+                  </DropdownItem>
+                  <DropdownItem
+                    key="logout"
+                    color="danger"
+                    onClick={handleLogout}>
+                    Đăng xuất
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            ) : (
+              <Button color="primary">
+                <Link to="/loginn" className="text-white">
+                  Đăng nhập
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
 };
 
 export default Navbar;

@@ -88,6 +88,7 @@ const BillingInfo = ({ setUserInfo, userInfo, setShippingFee, fetchShippingFee }
     return (
         <div className="max-w-4xl">
             <h2 className="text-2xl font-bold mb-6">Thông tin thanh toán</h2>
+            <div className="border border-gray-300 rounded-md p-4">
             <div className="space-y-6">
                 <div className="space-y-6">
                     <div>
@@ -162,6 +163,7 @@ const BillingInfo = ({ setUserInfo, userInfo, setShippingFee, fetchShippingFee }
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 };
