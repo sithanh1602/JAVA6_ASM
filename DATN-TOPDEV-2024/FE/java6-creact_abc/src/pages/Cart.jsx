@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
 import 'aos/dist/aos.css';
+import axios from 'axios';
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -20,6 +21,12 @@ const CartPage = () => {
     useEffect(() => {
         const storedUserId = JSON.parse(localStorage.getItem('UserId'));
         if (!storedUserId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không tìm thấy userId trong localStorage. Vui lòng đăng nhập lại.',
+                confirmButtonText: 'OK',
+            });
             setError('Không tìm thấy userId trong localStorage.');
             setLoading(false);
             return;
@@ -33,19 +40,46 @@ const CartPage = () => {
                     toast.error('Giỏ hàng của bạn hiện tại trống.');
                 } else {
                     const initialSelectedState = {};
-                    items.forEach(item => {
-                        const key = item.buildPC ? item.buildPC.buildId : item.product_variant_id;
-                        initialSelectedState[key] = false;
-                    });
+                    // Fetch stock for products (not buildPC items)
+                    const updatedItems = await Promise.all(
+                        items.map(async (item) => {
+                            let productQuantity = null;
+                            if (!item.buildPC && item.product_variant_id) {
+                                try {
+                                    const response = await axios.get(
+                                        `http://localhost:8080/api/products/variants/${item.product_variant_id}`
+                                    );
+                                    productQuantity = Number(response.data.quantity) || 0;
+                                } catch (error) {
+                                    productQuantity = 0;
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Lỗi tải kho',
+                                        text: `Không thể tải thông tin kho cho sản phẩm ${item.productName}. Sản phẩm được coi là hết hàng.`,
+                                        confirmButtonText: 'Đóng',
+                                    });
+                                }
+                            }
+                            const key = item.buildPC ? item.buildPC.buildId : item.product_variant_id;
+                            initialSelectedState[key] = false;
+                            return {
+                                ...item,
+                                quantity: Math.max(1, Math.min(Number(item.quantity) || 1, productQuantity || Infinity)),
+                                type: item.buildPC ? 'buildPC' : 'product',
+                                productQuantity, // null for buildPC
+                            };
+                        })
+                    );
                     setSelectedItems(initialSelectedState);
-                    setCartItems(items.map(item => ({
-                        ...item,
-                        quantity: item.quantity || 1,
-                        type: item.buildPC ? 'buildPC' : 'product'
-                    })));
+                    setCartItems(updatedItems);
                 }
             } catch (err) {
-                toast.error('Không thể tải giỏ hàng.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không thể tải giỏ hàng. Vui lòng thử lại sau.',
+                    confirmButtonText: 'Đóng',
+                });
             } finally {
                 setLoading(false);
             }
@@ -62,12 +96,18 @@ const CartPage = () => {
     const handleDeleteItemFromCart = async (item) => {
         try {
             const idToRemove = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
-            await removeProductFromCart(userId, item.type === 'buildPC' ? null : idToRemove, item.type === 'buildPC' ? idToRemove : null);
-            setCartItems(cartItems.filter(cartItem => 
-                cartItem.type === 'buildPC' 
-                    ? cartItem.buildPC.buildId !== idToRemove 
-                    : cartItem.product_variant_id !== idToRemove
-            ));
+            await removeProductFromCart(
+                userId,
+                item.type === 'buildPC' ? null : idToRemove,
+                item.type === 'buildPC' ? idToRemove : null
+            );
+            setCartItems(
+                cartItems.filter((cartItem) =>
+                    cartItem.type === 'buildPC'
+                        ? cartItem.buildPC.buildId !== idToRemove
+                        : cartItem.product_variant_id !== idToRemove
+                )
+            );
             const newSelectedItems = { ...selectedItems };
             delete newSelectedItems[idToRemove];
             setSelectedItems(newSelectedItems);
@@ -76,14 +116,18 @@ const CartPage = () => {
                 icon: 'success',
                 title: 'Xóa thành công!',
                 text: 'Sản phẩm đã được xóa khỏi giỏ hàng.',
-                confirmButtonText: 'OK!'
+                confirmButtonText: 'OK!',
+                timer: 1500,
+                timerProgressBar: true,
             });
-
-            setTimeout(() => {
-                Swal.close();
-            }, 1000);
         } catch (error) {
             console.error('Lỗi khi xóa sản phẩm:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không thể xóa sản phẩm. Vui lòng thử lại.',
+                confirmButtonText: 'Đóng',
+            });
         }
     };
 
@@ -91,33 +135,92 @@ const CartPage = () => {
         return cartItems.reduce((total, item) => {
             const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
             if (selectedItems[key]) {
-                const price = item.type === 'buildPC'
-                    ? item.buildPC.totalPrice
-                    : (item.productDiscountPrice && item.productDiscountPrice > 0
-                        ? item.productDiscountPrice
-                        : item.productPrice || 0);
-                return total + (price * item.quantity);
+                const price = item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice;
+                return total + price * item.quantity;
             }
             return total;
         }, 0);
     };
 
-    const handleUpdateQuantity = (key, newQuantity) => {
-        const updatedCartItems = cartItems.map(item => {
-            const itemKey = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
-            return itemKey === key ? { ...item, quantity: newQuantity } : item;
-        });
-        setCartItems(updatedCartItems);
+    const handleUpdateQuantity = (key, newQuantity, itemName = 'sản phẩm') => {
+        console.log(`handleUpdateQuantity: key=${key}, newQuantity=${newQuantity}, itemName=${itemName}`);
+        setCartItems((prevItems) =>
+            prevItems.map((item) => {
+                const itemKey = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+                if (itemKey !== key) return item;
+
+                // Validate quantity
+                const validatedQuantity = Math.floor(Number(newQuantity) || 1);
+                console.log(`Validated quantity: ${validatedQuantity}`);
+
+                // For buildPC: allow any positive quantity
+                if (item.type === 'buildPC') {
+                    if (validatedQuantity < 1) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Số lượng không hợp lệ',
+                            text: 'Số lượng tối thiểu là 1.',
+                            confirmButtonText: 'Đóng',
+                        }).then(r => item);
+                        return { ...item, quantity: 1 };
+                    }
+                    return { ...item, quantity: validatedQuantity };
+                }
+
+                // For products: check stock
+                if (item.productQuantity === null) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Đang tải kho',
+                        text: 'Thông tin kho chưa tải xong. Vui lòng thử lại sau.',
+                        confirmButtonText: 'Đóng',
+                    }).then(r => item);
+                    return item;
+                }
+
+                if (item.productQuantity === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Hết hàng',
+                        text: `Sản phẩm ${itemName} hiện không còn trong kho.`,
+                        confirmButtonText: 'Đóng',
+                    });
+                    return { ...item, quantity: 1 };
+                }
+
+                if (validatedQuantity < 1) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Số lượng không hợp lệ',
+                        text: 'Số lượng tối thiểu là 1.',
+                        confirmButtonText: 'Đóng',
+                    });
+                    return { ...item, quantity: 1 };
+                }
+
+                if (validatedQuantity > item.productQuantity) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Vượt quá số lượng',
+                        text: `Chỉ còn ${item.productQuantity} ${itemName} trong kho.`,
+                        confirmButtonText: 'Đóng',
+                    });
+                    return { ...item, quantity: item.productQuantity };
+                }
+
+                return { ...item, quantity: validatedQuantity };
+            })
+        );
     };
 
     const handleSelectChange = (key, isSelected) => {
         const updatedSelectedItems = {
             ...selectedItems,
-            [key]: isSelected
+            [key]: isSelected,
         };
         setSelectedItems(updatedSelectedItems);
 
-        const allSelected = cartItems.every(item => {
+        const allSelected = cartItems.every((item) => {
             const itemKey = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
             return updatedSelectedItems[itemKey];
         });
@@ -129,7 +232,7 @@ const CartPage = () => {
         setSelectAll(newSelectAll);
 
         const updatedSelectedItems = {};
-        cartItems.forEach(item => {
+        cartItems.forEach((item) => {
             const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
             updatedSelectedItems[key] = newSelectAll;
         });
@@ -141,12 +244,14 @@ const CartPage = () => {
             style: 'currency',
             currency: 'VND',
             minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(value).replace(/\s?₫/g, ' VND');
+            maximumFractionDigits: 0,
+        })
+            .format(value)
+            .replace(/\s?₫/g, ' VND');
     };
 
     const handleProceedToCheckout = () => {
-        const selectedCartItems = cartItems.filter(item => {
+        const selectedCartItems = cartItems.filter((item) => {
             const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
             return selectedItems[key];
         });
@@ -156,14 +261,14 @@ const CartPage = () => {
                 icon: 'warning',
                 title: 'Chưa chọn sản phẩm',
                 text: 'Vui lòng chọn ít nhất một sản phẩm để tiến hành thanh toán.',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
             });
             return;
         }
 
-        const checkoutItems = selectedCartItems.flatMap(item => {
+        const checkoutItems = selectedCartItems.flatMap((item) => {
             if (item.type === 'buildPC' && item.buildPC && item.buildPC.buildPCProductVariants) {
-                return item.buildPC.buildPCProductVariants.map(variant => ({
+                return item.buildPC.buildPCProductVariants.map((variant) => ({
                     productVariantId: variant.productVariantId,
                     quantity: variant.variantQuantity * item.quantity,
                     productName: variant.nameVariants,
@@ -175,25 +280,23 @@ const CartPage = () => {
                     nameVariants: variant.nameVariants,
                 }));
             } else {
-                const priceToUse = item.productDiscountPrice && item.productDiscountPrice > 0
-                    ? item.productDiscountPrice
-                    : item.productPrice || 0;
-                return [{
-                    productVariantId: item.product_variant_id,
-                    quantity: item.quantity,
-                    productName: item.productName,
-                    productPrice: priceToUse,
-                    productImageUrl: item.productImageUrl,
-                    productStatus: item.productStatus,
-                    buildId: null,
-                    buildName: null,
-                    nameVariants: item.nameVariants || null,
-                    ...(item.productDiscountPrice && item.productDiscountPrice > 0 && { productDiscountPrice: item.productDiscountPrice })
-                }];
+                return [
+                    {
+                        productVariantId: item.product_variant_id,
+                        quantity: item.quantity,
+                        productName: item.productName,
+                        productPrice: item.productPrice,
+                        productImageUrl: item.productImageUrl,
+                        productStatus: item.productStatus,
+                        buildId: null,
+                        buildName: null,
+                        nameVariants: item.nameVariants || null,
+                    },
+                ];
             }
         });
 
-        console.log("📤 Dữ liệu truyền sang GroupOrder:", JSON.stringify(checkoutItems, null, 2));
+        console.log('📤 Dữ liệu truyền sang GroupOrder:', JSON.stringify(checkoutItems, null, 2));
         navigate('/orders', { state: { cartItems: checkoutItems } });
     };
 
@@ -205,7 +308,7 @@ const CartPage = () => {
                     {loading ? (
                         <div className="text-center py-8">Đang tải...</div>
                     ) : error ? (
-                        <div className="text-center py-8 text-red-500">Không thể tải giỏ hàng</div>
+                        <div className="text-center py-8 text-red-500">{error}</div>
                     ) : cartItems.length > 0 ? (
                         <table className="w-full border-collapse">
                             <thead>
@@ -229,8 +332,9 @@ const CartPage = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {cartItems.map(item => {
+                            {cartItems.map((item) => {
                                 const key = item.type === 'buildPC' ? item.buildPC.buildId : item.product_variant_id;
+                                const itemName = item.type === 'buildPC' ? item.buildPC.buildName : item.productName;
                                 return (
                                     <tr key={key} className="border-b">
                                         <td className="py-4 px-4">
@@ -244,12 +348,16 @@ const CartPage = () => {
                                         <td className="py-4 px-4">
                                             <div className="flex items-center">
                                                 <img
-                                                    src={item.type === 'buildPC' ? item.buildPC.image : item.productImageUrl || 'https://placehold.co/50x50'}
-                                                    alt={item.type === 'buildPC' ? item.buildPC.buildName : item.productName}
+                                                    src={
+                                                        item.type === 'buildPC'
+                                                            ? item.buildPC.image
+                                                            : item.productImageUrl || 'https://placehold.co/50x50'
+                                                    }
+                                                    alt={itemName}
                                                     className="w-12 h-12 mr-4 object-cover"
                                                 />
                                                 <div>
-                                                    <span>{item.type === 'buildPC' ? item.buildPC.buildName : item.productName}</span>
+                                                    <span>{itemName}</span>
                                                     {item.type === 'buildPC' && (
                                                         <div className="text-sm text-gray-600">
                                                             <p>Mục đích: {item.buildPC.usagePurpose}</p>
@@ -261,31 +369,56 @@ const CartPage = () => {
                                         </td>
                                         <td className="py-4 px-4">
                                             {formatCurrency(
-                                                item.type === 'buildPC'
-                                                    ? item.buildPC.totalPrice
-                                                    : (item.productDiscountPrice && item.productDiscountPrice > 0
-                                                        ? item.productDiscountPrice
-                                                        : item.productPrice || 0)
+                                                item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice || 0
                                             )}
                                         </td>
                                         <td className="py-4 px-4">
                                             <div className="flex items-center border rounded-md overflow-hidden shadow-sm">
                                                 <button
-                                                    className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
-                                                    onClick={() => handleUpdateQuantity(key, item.quantity - 1)}
-                                                    disabled={item.quantity <= 1}
+                                                    className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium disabled:opacity-50"
+                                                    onClick={() => handleUpdateQuantity(key, item.quantity - 1, itemName)}
+                                                    disabled={item.quantity <= 1 || item.productQuantity === null}
+                                                    aria-label={`Giảm số lượng ${itemName}`}
                                                 >
                                                     −
                                                 </button>
                                                 <input
-                                                    type="text"
-                                                    className="w-12 h-8 text-center border-none focus:outline-none"
+                                                    type="number"
+                                                    className="w-12 h-8 text-center border-none focus:outline-none disabled:bg-gray-100"
                                                     value={item.quantity}
-                                                    onChange={(e) => handleUpdateQuantity(key, Number(e.target.value) || 1)}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        if (value === '') {
+                                                            setCartItems((prev) =>
+                                                                prev.map((i) =>
+                                                                    (i.type === 'buildPC' ? i.buildPC.buildId : i.product_variant_id) === key
+                                                                        ? { ...i, quantity: '' }
+                                                                        : i
+                                                                )
+                                                            );
+                                                        } else {
+                                                            handleUpdateQuantity(key, Number(value), itemName);
+                                                        }
+                                                    }}
+                                                    onBlur={() => {
+                                                        if (item.quantity === '' || item.quantity < 1 || isNaN(item.quantity)) {
+                                                            handleUpdateQuantity(key, 1, itemName);
+                                                        }
+                                                    }}
+                                                    min="1"
+                                                    max={item.type === 'buildPC' ? undefined : item.productQuantity}
+                                                    disabled={item.productQuantity === null}
+                                                    aria-label={`Số lượng ${itemName}`}
                                                 />
                                                 <button
-                                                    className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium"
-                                                    onClick={() => handleUpdateQuantity(key, item.quantity + 1)}
+                                                    className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium disabled:opacity-50"
+                                                    onClick={() => handleUpdateQuantity(key, item.quantity + 1, itemName)}
+                                                    disabled={
+                                                        item.type === 'buildPC'
+                                                            ? false
+                                                            : item.productQuantity === null || item.quantity >= item.productQuantity
+                                                    }
+                                                    aria-label={`Tăng số lượng ${itemName}`}
                                                 >
                                                     +
                                                 </button>
@@ -293,20 +426,27 @@ const CartPage = () => {
                                         </td>
                                         <td className="py-4 px-4">
                                             {formatCurrency(
-                                                (item.type === 'buildPC'
-                                                    ? item.buildPC.totalPrice
-                                                    : (item.productDiscountPrice && item.productDiscountPrice > 0
-                                                        ? item.productDiscountPrice
-                                                        : item.productPrice || 0)) * item.quantity
+                                                (item.type === 'buildPC' ? item.buildPC.totalPrice : item.productPrice || 0) *
+                                                item.quantity
                                             )}
                                         </td>
                                         <td className="py-4 px-4">
                                             <button
                                                 onClick={() => handleDeleteItemFromCart(item)}
                                                 className="text-red-600 hover:text-red-800"
+                                                aria-label={`Xóa ${itemName}`}
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                        clipRule="evenodd"
+                                                    />
                                                 </svg>
                                             </button>
                                         </td>
@@ -330,14 +470,9 @@ const CartPage = () => {
                 </div>
                 <div className="flex justify-end mt-4">
                     <Link to="/products">
-                        <button className="bg-gray-300 px-4 py-2 ml-3 mr-2">
-                            Tiếp tục mua hàng
-                        </button>
+                        <button className="bg-gray-300 px-4 py-2 ml-3 mr-2">Tiếp tục mua hàng</button>
                     </Link>
-                    <button
-                        onClick={handleProceedToCheckout}
-                        className="bg-blue-500 text-white px-6 py-2"
-                    >
+                    <button onClick={handleProceedToCheckout} className="bg-blue-500 text-white px-6 py-2">
                         TIẾN HÀNH THANH TOÁN
                     </button>
                 </div>
