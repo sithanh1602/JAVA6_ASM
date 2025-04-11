@@ -247,8 +247,16 @@ const OrderInfo = ({
           return <div>↳ {row.productName}</div>;
         } else if (row.type === 'product') {
           return <div>{row.productName}</div>;
+        } else if (row.id === 'subtotal') {
+          return <div className="font-semibold text-gray-700">{row.productName}</div>;
+        } else if (row.id === 'shipping') {
+          return <div className="font-semibold text-blue-600">{row.productName}</div>;
+        } else if (row.id === 'discount') {
+          return <div className="font-semibold text-green-600">{row.productName}</div>;
+        } else if (row.id === 'total') {
+          return <div className="font-bold text-red-600">{row.productName}</div>;
         } else {
-          return <div className={row.type === 'total' ? 'font-bold' : ''}>{row.productName}</div>;
+          return <div>{row.productName}</div>;
         }
       },
       grow: 2
@@ -272,8 +280,17 @@ const OrderInfo = ({
       cell: row => {
         if (row.type === 'build-header' || row.price === '') {
           return '';
+        } else if (row.id === 'subtotal') {
+          return <div className="font-semibold text-gray-700">{formatCurrency(row.price)}</div>;
+        } else if (row.id === 'shipping') {
+          return <div className="font-semibold text-blue-600">{formatCurrency(row.price)}</div>;
+        } else if (row.id === 'discount') {
+          return <div className="font-semibold text-green-600">{formatCurrency(row.price)}</div>;
+        } else if (row.id === 'total') {
+          return <div className="font-bold text-red-600">{formatCurrency(row.price)}</div>;
+        } else {
+          return <div>{formatCurrency(row.price)}</div>;
         }
-        return <div className={row.type === 'total' ? 'font-bold' : ''}>{formatCurrency(row.price)}</div>;
       },
     }
   ];
