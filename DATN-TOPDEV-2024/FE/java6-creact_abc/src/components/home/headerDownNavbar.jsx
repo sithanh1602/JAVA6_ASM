@@ -15,10 +15,8 @@ import {
 } from "@nextui-org/react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
-import UserService from "../../services/UserService";
 import CategoryService from "../../services/CategoryService";
 import BrandService from "../../services/BrandService";
-import Cookies from "js-cookie";
 
 const HeaderDownNavbar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -65,25 +63,6 @@ const HeaderDownNavbar = () => {
         fetchCategories();
     }, []);
 
-    useEffect(() => {
-        const userId = JSON.parse(localStorage.getItem("UserId"));
-        if (userId) {
-            UserService.getUserById(userId)
-                .then((data) => {
-                    if (data) {
-                        setUser(data);
-                        setIsLoggedIn(true);
-                    }
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error("Error loading user:", err);
-                    setLoading(false);
-                });
-        } else {
-            setLoading(false);
-        }
-    }, []);
 
     const handleCategoryHover = async (categoryId) => {
         setHoveredCategory(categoryId);
@@ -100,23 +79,6 @@ const HeaderDownNavbar = () => {
                 setLoadingBrands(prev => ({ ...prev, [categoryId]: false }));
             }
         }
-    };
-
-    const handleLogout = () => {
-        sessionStorage.removeItem('token');
-        localStorage.removeItem('token');
-        localStorage.removeItem('roles');
-        localStorage.removeItem('UserId');
-        Cookies.remove('token');
-        Swal.fire({
-            icon: 'success',
-            title: 'Đăng xuất thành công!',
-            showConfirmButton: false,
-            timer: 1500
-        }).then(() => {
-            navigate('/');
-            window.location.reload();
-        });
     };
 
     return (
@@ -196,42 +158,6 @@ const HeaderDownNavbar = () => {
                 <NavbarItem><Link to="/PC">PC</Link></NavbarItem>
                 <NavbarItem><Link to="/posts">Tin tức</Link></NavbarItem>
                 <NavbarItem><Link to="/contact">Liên hệ</Link></NavbarItem>
-            </NavbarContent>
-
-            <NavbarContent justify="end">
-                {loading ? (
-                    <Button isLoading color="primary" variant="ghost">
-                        Đang tải...
-                    </Button>
-                ) : isLoggedIn && user ? (
-                    <Dropdown placement="bottom-start">
-                        <DropdownTrigger>
-                            <User
-                                as="button"
-                                avatarProps={{
-                                    isBordered: true,
-                                    src: user.image
-                                }}
-                                className="transition-transform"
-                                description={user.phone}
-                                name={`Chào! ${user.fullName}`}
-                            />
-                        </DropdownTrigger>
-                        <DropdownMenu aria-label="User Actions" variant="flat">
-                            <DropdownItem key="settings"><Link to="/profile/*">Thông tin tài khoản</Link></DropdownItem>
-                            <DropdownItem key="help_and_feedback">Hỗ trợ và đánh giá</DropdownItem>
-                            <DropdownItem key="logout" color="danger" onClick={handleLogout}>
-                                Đăng xuất
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                ) : (
-                    <Button color="primary">
-                        <Link to="/loginn" className="text-white">
-                            Đăng nhập
-                        </Link>
-                    </Button>
-                )}
             </NavbarContent>
         </Navbar>
     );

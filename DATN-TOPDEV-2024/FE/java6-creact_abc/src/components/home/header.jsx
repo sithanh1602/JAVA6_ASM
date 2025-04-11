@@ -130,7 +130,7 @@ const Header = () => {
         <>
             <header className="sticky-header border-b border-gray-200 bg-white shadow-md" data-aos="fade-down">
                 <div className="items-center justify-center">
-                    <div className="w-full max-w-7xl mx-auto">
+                    <div className="w-[80%] max-w-full mx-auto">
                         <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center py-4 space-y-2 sm:space-y-0">
                             <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
                                 <div className="flex items-center space-x-2">
