@@ -80,9 +80,13 @@ const AdminPCBuilder = ({
   useEffect(() => {
     let total = 0;
     Object.entries(selectedComponents).forEach(([categoryId, component]) => {
-      if (component && component.price) {
+      if (component) {
         const qty = quantities[categoryId] || 1;
-        total += component.price * qty;
+        // Use discountPrice if available, otherwise use regular price
+        const priceToUse = component.discountPrice && component.discountPrice > 0
+          ? component.discountPrice
+          : component.price;
+        total += priceToUse * qty;
       }
     });
     setTotalPrice(total);
@@ -180,6 +184,10 @@ const AdminPCBuilder = ({
       ([categoryId, component]) => ({
         productVariantId: component.id,
         variantQuantity: quantities[categoryId] || 1,
+        price: component.discountPrice && component.discountPrice > 0 
+          ? component.discountPrice 
+          : component.price,
+        discountPrice: component.discountPrice || null,
       })
     );
 
@@ -236,18 +244,25 @@ const AdminPCBuilder = ({
           </div>
           <div className="text-right min-w-36 flex flex-col items-end">
             <div className="mb-2">
-              <div className="text-primary font-medium">
-                {formatPrice(component.price * selectedQty || 0)}
-              </div>
-              <div className="text-xs text-gray-500">
-                Đơn giá: {formatPrice(component.price || 0)}
-              </div>
-              {component.originalPrice &&
-                component.originalPrice > component.price && (
-                  <div className="text-xs text-gray-500 line-through">
-                    {formatPrice(component.originalPrice)}
+              {component.discountPrice && component.discountPrice > 0 ? (
+                <>
+                  <div className="text-primary font-medium">
+                    {formatPrice(component.discountPrice * selectedQty || 0)}
                   </div>
-                )}
+                  <div className="text-xs text-gray-500">
+                    Đơn giá: <span className="line-through">{formatPrice(component.price || 0)}</span> {formatPrice(component.discountPrice || 0)}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-primary font-medium">
+                    {formatPrice(component.price * selectedQty || 0)}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Đơn giá: {formatPrice(component.price || 0)}
+                  </div>
+                </>
+              )}
             </div>
             
             <div className="flex flex-col items-end">

@@ -160,8 +160,12 @@ const PCBuilderComponent = () => {
         console.log(
             `${component.nameVariants}: Trong db = ${newStockQuantities[categoryId]}, Hiện tại = ${quantities[categoryId] || 1}`
         );
-        if (component && component.price) {
-          total += component.price * (quantities[categoryId] || 1);
+        if (component) {
+          // Sử dụng discountPrice nếu có, ngược lại dùng price
+          const priceToUse = component.discountPrice && component.discountPrice > 0
+            ? component.discountPrice
+            : component.price;
+          total += priceToUse * (quantities[categoryId] || 1);
         }
       }
       setStockQuantities(newStockQuantities);
@@ -302,7 +306,9 @@ const PCBuilderComponent = () => {
       const buildCartItems = Object.entries(selectedComponents).map(
           ([categoryId, component]) => ({
             product_variant_id: component.id,
-            productPrice: component.price,
+            productPrice: component.discountPrice && component.discountPrice > 0 
+              ? component.discountPrice 
+              : component.price,
             quantity: quantities[categoryId] || 1,
             nameVariants: component.nameVariants || "Không có tên",
             image: component.image,
@@ -346,12 +352,25 @@ const PCBuilderComponent = () => {
             </div>
             <div className="text-right min-w-32 flex items-center gap-2">
               <div>
-                <div className="text-primary font-medium">
-                  {formatPrice(component.price * qty)} ₫
-                </div>
-                <div className="text-xs text-gray-500">
-                  Đơn giá: {formatPrice(component.price)} ₫
-                </div>
+                {component.discountPrice && component.discountPrice > 0 ? (
+                  <>
+                    <div className="text-primary font-medium">
+                      {formatPrice(component.discountPrice * qty)} ₫
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Đơn giá: <span className="line-through">{formatPrice(component.price)} ₫</span> {formatPrice(component.discountPrice)} ₫
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-primary font-medium">
+                      {formatPrice(component.price * qty)} ₫
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Đơn giá: {formatPrice(component.price)} ₫
+                    </div>
+                  </>
+                )}
               </div>
               <div className="flex items-center border rounded p-1">
                 <Button

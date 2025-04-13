@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from 'react-dom/client';
 import Swal from "sweetalert2";
 import BillingInfo from "./OderBingllingInfor";
 import OrderInfo from "./OderInfor";
@@ -8,12 +9,12 @@ import UserAddressService from "../../services/UserAddressService";
 import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import DataTable from "react-data-table-component";
 
 const GroupOrder = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { cartItems = [] } = location.state || {};
-
 
   const [userInfo, setUserInfo] = useState({
     id: "",
@@ -31,6 +32,9 @@ const GroupOrder = () => {
   const [loading, setLoading] = useState(false);
   const [voucherId, setVoucherid] = useState(null);
   const [shippingFee, setShippingFee] = useState(0);
+  const [showOrderTable, setShowOrderTable] = useState(false);
+  const [orderSummary, setOrderSummary] = useState(null);
+  const [orderItems, setOrderItems] = useState([]);
 
   const TOKEN = "138133d6-a702-11ef-8d10-46c07cb69264";
   const SHOP_ID = "5468597";
@@ -283,57 +287,125 @@ const GroupOrder = () => {
         } else if (paymentMethod === "cash") {
             await OrderService.placeOrderNoVnpay(orderData);
 
-        // Nhóm các sản phẩm theo buildId giống OrderInfo
-        const groupedItems = cartItems.reduce((acc, item) => {
-          const key = item.buildId ? `build-${item.buildId}` : `single-${item.productVariantId || item.product_variant_id}`;
-          if (!acc[key]) {
-              acc[key] = {
-                  buildId: item.buildId || null,
-                  buildName: item.buildName || null,
-                  items: [],
-              };
-          }
-          acc[key].items.push(item);
-          return acc;
-      }, {});
+            // Group items for the data table
+            const tableItems = cartItems.map(item => ({
+                name: item.buildId ? item.nameVariants : `${item.productName}${item.nameVariants ? ` (${item.nameVariants})` : ""}`,
+                buildName: item.buildName || null,
+                buildId: item.buildId || null,
+                quantity: item.quantity,
+                price: item.productPrice,
+                total: item.productPrice * item.quantity,
+            }));
 
-      // Tạo danh sách sản phẩm chi tiết
-      const productDetails = Object.values(groupedItems)
-          .map((group) => {
-              let groupHtml = '';
-              if (group.buildId) {
-                  groupHtml += `<li style="font-weight: bold; color: #1e90ff; margin-bottom: 5px;">BuildPC: ${group.buildName}</li>`;
-              }
-              const itemsHtml = group.items
-                  .map((item) => {
-                      // Sửa logic description: linh kiện BuildPC dùng nameVariants, sản phẩm thường dùng cả productName và nameVariants
-                      let description = item.buildId 
-                          ? (item.nameVariants || "Linh kiện không tên") 
-                          : `${item.productName || ""}${item.nameVariants ? ` (${item.nameVariants})` : ""}` || "Sản phẩm không tên";
-                      const itemTotal = (item.productPrice * item.quantity).toLocaleString('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND',
-                      })
-                      .replace("₫", "VNĐ");
-                      return `<li style="margin-left: ${group.buildId ? '20px' : '0'}; list-style-type: ${group.buildId ? "'↳ '" : "'- '"}">${description} × ${item.quantity} - ${itemTotal}</li>`;
-                  })
-                  .join('');
-              return groupHtml + itemsHtml;
-          })
-          .join('');
+            // Prepare order summary
+            const summary = {
+                totalItems: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+                subtotal: cartItems.reduce((sum, item) => sum + item.productPrice * item.quantity, 0),
+                shipping: shippingFee,
+                discount: voucherDiscount,
+                total: calculateTotalPrice()
+            };
 
+            // Set state for data table
+            setOrderItems(tableItems);
+            setOrderSummary(summary);
+            setShowOrderTable(true);
+            
+            // Show the DataTable in a Swal modal
             Swal.fire({
                 title: "Đặt hàng thành công!",
                 html: `
-                    <p>Đơn hàng của bạn đã được ghi nhận.</p>
-                    <ul style="text-align: left; margin: 10px 0;">${productDetails}</ul>
-                    <p><strong>Tổng tiền: ${calculateTotalPrice().toLocaleString()} VNĐ</strong></p>
-                    <p class="mt-2">Cảm ơn bạn đã mua hàng!</p>
+                    <div id="order-confirmation-container" class="w-full max-w-4xl mx-auto">
+                        <p class="mb-4">Đơn hàng của bạn đã được ghi nhận.</p>
+                        <div id="order-table-container" class="w-full overflow-auto" style="max-height: 300px; border: 1px solid #e5e7eb; border-radius: 6px;"></div>
+                        <div class="mt-4 text-right">
+                            <p><strong>Tổng số lượng:</strong> ${summary.totalItems}</p>
+                            <p><strong>Tạm tính:</strong> ${summary.subtotal.toLocaleString()} VNĐ</p>
+                            <p><strong>Phí vận chuyển:</strong> ${summary.shipping.toLocaleString()} VNĐ</p>
+                            <p><strong>Giảm giá:</strong> ${summary.discount.toLocaleString()} VNĐ</p>
+                            <p class="text-lg font-bold text-red-600">
+                                <strong>Tổng tiền:</strong> ${summary.total.toLocaleString()} VNĐ
+                            </p>
+                        </div>
+                        <p class="mt-4">Cảm ơn bạn đã mua hàng!</p>
+                    </div>
                 `,
                 icon: "success",
+                width: 800,
                 confirmButtonText: "Xem đơn hàng",
                 showCancelButton: true,
                 cancelButtonText: "Tiếp tục mua sắm",
+                didOpen: () => {
+                    // Create a root element for React to render into
+                    const container = document.getElementById('order-table-container');
+                    
+                    // Define columns for the DataTable
+                    const columns = [
+                        {
+                            name: 'Sản phẩm',
+                            cell: row => (
+                                <div className="flex items-center gap-2">
+                                    <div>
+                                        {row.buildId && <div className="text-xs font-medium text-blue-600">{row.buildName}</div>}
+                                        <div className={row.buildId ? "ml-2 text-sm" : "text-sm"}>{row.name}</div>
+                                    </div>
+                                </div>
+                            ),
+                            width: '40%',
+                        },
+                        {
+                            name: 'Số lượng',
+                            selector: row => row.quantity,
+                            width: '15%',
+                        },
+                        {
+                            name: 'Đơn giá',
+                            cell: row => <span>{row.price.toLocaleString()} VNĐ</span>,
+                            width: '20%',
+                        },
+                        {
+                            name: 'Thành tiền',
+                            cell: row => <span className="font-medium">{row.total.toLocaleString()} VNĐ</span>,
+                            width: '25%',
+                        }
+                    ];
+                    
+                    // Render the DataTable
+                    const root = ReactDOM.createRoot(container);
+                    root.render(
+                        <DataTable
+                            columns={columns}
+                            data={tableItems}
+                            noHeader
+                            dense
+                            fixedHeader
+                            customStyles={{
+                                rows: {
+                                    style: {
+                                        minHeight: '50px',
+                                        fontSize: '14px',
+                                    },
+                                },
+                                headCells: {
+                                    style: {
+                                        fontWeight: 'bold',
+                                        color: '#374151',
+                                        backgroundColor: '#F3F4F6',
+                                        position: 'sticky',
+                                        top: 0,
+                                        zIndex: 1,
+                                    },
+                                },
+                                cells: {
+                                    style: {
+                                        paddingTop: '8px',
+                                        paddingBottom: '8px',
+                                    },
+                                },
+                            }}
+                        />
+                    );
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     navigate("/OrderUser");
