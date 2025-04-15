@@ -21,26 +21,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findTop3BestSellingProducts();
 
     @Query(value = """
- SELECT
-     p.name AS product_name,
-     pv.description AS product_description,
-     pv.price AS product_price,
-     (
-         SELECT TOP 1 c.image
-         FROM images c
-         WHERE c.product_variant_id = pv.id
-         ORDER BY c.id ASC
-     ) AS product_image,
-     STRING_AGG(a.name + ' ' + a.value, ', ') AS attributes,
-     pv.id AS variant_id,
-     pv.quantity AS variant_quantity
- FROM Products p
- JOIN Product_Variants pv ON p.id = pv.product_id
- JOIN Attributes_Product_Variants apv ON apv.product_variant_id = pv.id
- JOIN Attributes a ON apv.attribute_id = a.id
- WHERE pv.product_id = :productId
- GROUP BY p.name, pv.description, pv.price, pv.id, pv.quantity
-
+SELECT
+    p.name AS product_name,
+    pv.description AS product_description,
+    pv.price AS product_price,
+    pv.discount_price AS discount_price,  -- Thêm cột này
+    (
+        SELECT TOP 1 c.image
+        FROM images c
+        WHERE c.product_variant_id = pv.id
+        ORDER BY c.id ASC
+    ) AS product_image,
+    STRING_AGG(a.name + ' ' + a.value, ', ') AS attributes,
+    pv.id AS variant_id,
+    pv.quantity AS variant_quantity
+FROM Products p
+JOIN Product_Variants pv ON p.id = pv.product_id
+JOIN Attributes_Product_Variants apv ON apv.product_variant_id = pv.id
+JOIN Attributes a ON apv.attribute_id = a.id
+WHERE pv.product_id = :productId
+GROUP BY p.name, pv.description, pv.price, pv.discount_price, pv.id, pv.quantity
 """, nativeQuery = true)
     List<Object[]> findProductById(@Param("productId") Long productId);
 
@@ -55,7 +55,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "    a.price, \n" +
             "    a.quantity, \n" +
             "    a.description, \n" +
-            "    a.id AS id_Variants\n" +
+            "    a.id AS id_Variants,\n" +
+            "    a.status,\n" +
+            "    a.discount_price,\n" +
+            "    a.discount_percentage\n" +
             "FROM Product_Variants a\n" +
             "JOIN Products b ON a.product_id = b.id\n" +
             "WHERE a.product_id = :productId AND a.status = 1",

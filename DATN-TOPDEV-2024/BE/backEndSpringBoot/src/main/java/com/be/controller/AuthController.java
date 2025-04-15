@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -79,7 +78,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
-            // Kiểm tra nếu tên người dùng hoặc mật khẩu bị null hoặc trống
+            // Các kiểm tra ban đầu vẫn giữ nguyên
             if (user.getUserName() == null || user.getUserName().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tên tài khoản không được để trống");
             }
@@ -101,7 +100,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản của bạn đang bị khóa");
             }
 
-            // Kiểm tra mật khẩu bằng BCryptPasswordEncoder
+            // Kiểm tra mật khẩu
             if (!passwordEncoder.matches(user.getPassword(), storedUser.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
             }
@@ -119,15 +118,14 @@ public class AuthController {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
-            // Tạo token JWT
+            // Tạo token JWT với thông tin roles
             final String jwt = jwtUtil.generateToken(userDetails.getUsername(), roles, storedUser.getUserId());
 
-            return ResponseEntity.ok(new AuthResponse(jwt, storedUser.getUserId(),roles));
+            return ResponseEntity.ok(new AuthResponse(jwt, storedUser.getUserId(), roles));
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Tài khoản hoặc mật khẩu không đúng");
         } catch (Exception e) {
-            // Ghi log lỗi chi tiết
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra, vui lòng thử lại sau");
         }

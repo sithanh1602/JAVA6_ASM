@@ -23,6 +23,7 @@ const CartItem = ({ item, onUpdateQuantity, onDelete, onSelectChange, isSelected
 
     useEffect(() => {
         setQuantity(item.quantity);
+        console.log(quantity);
     }, [item.quantity]);
 
     const handleQuantityChange = (newQuantity) => {

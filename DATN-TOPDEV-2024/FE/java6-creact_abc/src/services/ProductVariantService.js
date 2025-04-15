@@ -47,7 +47,8 @@ const updateProductVariant = async (variantId, productVariantData) => {
       status: productVariantData.status,
       attributeIds: productVariantData.attributeIds.map((id) => parseInt(id)),
       imageUrls: productVariantData.imageUrls,
-      description: productVariantData.description
+      description: productVariantData.description,
+      discountPercentage: productVariantData.discountPercentage,
     };
     console.log("Updating variant with ID:", variantId);
     console.log("Update payload:", JSON.stringify(payload, null, 2));

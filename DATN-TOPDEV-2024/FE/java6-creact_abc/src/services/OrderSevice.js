@@ -74,7 +74,7 @@ const placeOrderNosave = async (orderData, userId, orderId) => {
 
         return response.data; // Trả về dữ liệu từ server
     } catch (error) {
-        console.error("❌ Lỗi khi đặt hàng:", error.response?.data || error.message);
+        console.error("Lỗi khi đặt hàng:", error.response?.data || error.message);
         throw error; // Ném lỗi để xử lý ở nơi gọi hàm
     }
 };
@@ -166,6 +166,25 @@ const saveOrder = async (orderData) => {
     }
 };
 
+const placeOrderMomo = async (orderData) => {
+    try {
+        const response = await axios.post('http://localhost:8080/api/momo', orderData);
+        return response.data.payUrl; // <-- Đảm bảo trả về đúng URL
+    } catch (error) {
+        handleError(error);
+    }
+};
+
+
+const checkMomoPaymentStatus = async (orderId) => {
+    try {
+        const response = await axios.get(`http://localhost:8080/api/momo/order-status/${orderId}`);
+        return response.data;
+    } catch (error) {
+        handleError(error);
+    }
+};
+
 
 
 // Export các hàm API
@@ -181,4 +200,6 @@ export default {
     getOrderById,
     placeOrderZaloPay,
     saveOrder,
+    placeOrderMomo,             // ✅ mới thêm
+    checkMomoPaymentStatus      // ✅ mới thêm
 };

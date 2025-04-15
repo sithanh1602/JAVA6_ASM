@@ -25,6 +25,7 @@ import GroupOrder from "../components/Oder/GroupOrder";
 import ProfilePage from "../components/Profile/ProfilePage";
 import OrderList from "../components/Oder/OrderList";
 import PaymentSuccess from "../components/vnpaypayment/PaymentSuccess";
+import MomoPaySuccess from "../components/zaloPayment/momoPaySuccess";
 import ProductDetail from "../components/products/productDetails/ProductDetail";
 import HeaderDownNavbar from "../components/home/headerDownNavbar";
 import AuthForm from "../components/account/AuthForm";
@@ -143,6 +144,7 @@ const HomePage = () => {
                     <Route path="/profile/*" element={<ProfilePage />} />
                     <Route path="/OrderUser" element={<OrderList />} />
                     <Route path="/payment/vnpay-payment" element={<PaymentSuccess />} />
+                    <Route path="/payment" element={<MomoPaySuccess/>} />
                     <Route path="/order-detail/:orderId" element={<OrderDetail />} />
                     <Route path="/PC" element={<PCBuildsPage />} />
                     <Route path="/BuilderPC" element={<PCBuilderComponent />} />

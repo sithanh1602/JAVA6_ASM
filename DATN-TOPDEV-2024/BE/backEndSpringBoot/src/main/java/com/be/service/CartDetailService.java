@@ -49,6 +49,7 @@ public class CartDetailService {
                     dto.setProductDescription(productVariant.getDescription());
                     dto.setProductQuantity(productVariant.getQuantity());
                     dto.setProductPrice(productVariant.getPrice().intValue());
+                    dto.setProductDiscountPrice(productVariant.getDiscountPrice() != null ? productVariant.getDiscountPrice().doubleValue() : null); // Thêm discountPrice
                     dto.setProductStatus(productVariant.getStatus());
 
                     // Get image URL from first image in the list if available
@@ -58,7 +59,7 @@ public class CartDetailService {
                 }
             }
 
-            // Xử lý BuildPC
+            // Xử lý BuildPC (giữ nguyên, không thêm discountPrice)
             if (cartDetail.getBuildId() != null) {
                 com.be.entity.BuildPC buildPC = buildPCRepository.findById(cartDetail.getBuildId().getBuildId()).orElse(null);
                 if (buildPC != null) {

@@ -12,7 +12,7 @@ const Introduction = () => {
                             width="800"/>
                         <div className="absolute inset-0 flex justify-center items-center">
                             <div className="bg-white bg-opacity-105 rounded-full p-4">
-                                <i className="fas fa-play text-orange-500 text-3xl ml-2">
+                                <i className="fas fa-play text-primary-500 text-3xl ml-2">
                                 </i>
                             </div>
                         </div>

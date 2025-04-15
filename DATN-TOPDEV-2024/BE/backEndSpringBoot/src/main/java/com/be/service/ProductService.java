@@ -165,14 +165,18 @@ public class ProductService {
             dto.setName((String) result[0]);  // product_name
             dto.setDescription((String) result[1]);  // product_description
 
-            // Chuyển đổi từ BigDecimal sang Double
+            // Chuyển đổi từ BigDecimal sang Double cho price
             BigDecimal price = (BigDecimal) result[2]; // product_price
             dto.setPrice(price != null ? price.doubleValue() : null);
 
-            dto.setImage((String) result[3]);  // product_image
-            dto.setAttributes((String) result[4]);  // attributes
-            dto.setVariantId((Long) result[5]);  // variant_id
-            dto.setQuantity((Integer) result[6]);  // variant_quantity
+            // Chuyển đổi từ BigDecimal sang Double cho discount_price
+            BigDecimal discountPrice = (BigDecimal) result[3]; // discount_price
+            dto.setDiscountPrice(discountPrice != null ? discountPrice.doubleValue() : null);
+
+            dto.setImage((String) result[4]);  // product_image
+            dto.setAttributes((String) result[5]);  // attributes
+            dto.setVariantId((Long) result[6]);  // variant_id
+            dto.setQuantity((Integer) result[7]);  // variant_quantity
 
             return dto;
         }).collect(Collectors.toList());
@@ -190,10 +194,11 @@ public class ProductService {
                     ((Number) rawVariant[2]).doubleValue(), // price
                     ((Number) rawVariant[3]).intValue(),    // stock
                     (String) rawVariant[4],  // description
-                    ((Number) rawVariant[5]).longValue(), // idVariants
-                    (String) rawVariant[6],
-                    new ArrayList<>() ,// Danh sách attributes rỗng
-                    null
+                    ((Number) rawVariant[5]).longValue(),   // idVariants
+                    (String) rawVariant[6],  // status
+                    productId,  // productId
+                    rawVariant[7] != null ? ((Number) rawVariant[7]).doubleValue() : null, // discountPrice
+                    rawVariant[8] != null ? ((Number) rawVariant[8]).doubleValue() : null  // discountPercentage
             );
             variantDTOs.add(dto);
         }

@@ -3,7 +3,7 @@ import React from 'react';
 
 const Breadcrumb = () => (
     <div className="text-sm text-gray-600 p-3">
-        <a href="#" className="text-orange-500">Trang Chủ</a> / Giỏ hàng
+        <a href="#" className="text-primary-500">Trang Chủ</a> / Giỏ hàng
     </div>
 );
 

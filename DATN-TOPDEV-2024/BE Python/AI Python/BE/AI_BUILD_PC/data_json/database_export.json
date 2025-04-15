@@ -1,0 +1,4961 @@
+{
+    "Address": [
+        {
+            "id_address": 1,
+            "id_user": 1,
+            "streetaddress": "Toà nhà FPT Polytechnic, Đ. Số 22",
+            "ward": "Phường Hưng Thạnh",
+            "district": "Quận Cái Răng",
+            "province": "Thành phố Cần Thơ",
+            "phone": "0912368236",
+            "defaults": true,
+            "full_address": "Toà nhà FPT Polytechnic, Đ. Số 22, Phường Hưng Thạnh, Quận Cái Răng, Thành phố Cần Thơ"
+        },
+        {
+            "id_address": 3,
+            "id_user": 3,
+            "streetaddress": "137 Đường Hồ Trung Thành",
+            "ward": "Phường Trà An",
+            "district": "Quận Bình Thuỷ",
+            "province": "Thành phố Cần Thơ",
+            "phone": "0394027613",
+            "defaults": true,
+            "full_address": "137 Đường Hồ Trung Thành, Phường Trà An, Quận Bình Thuỷ, Thành phố Cần Thơ"
+        },
+        {
+            "id_address": 4,
+            "id_user": 4,
+            "streetaddress": "86 Đường Nguyễn Văn Cừ",
+            "ward": "Phường Xuân Khánh",
+            "district": "Quận Ninh Kiều",
+            "province": "Thành phố Cần Thơ",
+            "phone": "0356789123",
+            "defaults": true,
+            "full_address": "86 Đường Nguyễn Văn Cừ, Phường Xuân Khánh, Quận Ninh Kiều, Thành phố Cần Thơ"
+        },
+        {
+            "id_address": 5,
+            "id_user": 5,
+            "streetaddress": "120 Đường 30 Tháng 4",
+            "ward": "Hưng Lợi",
+            "district": "Ninh Kiều",
+            "province": "Cần Thơ",
+            "phone": "0398765432",
+            "defaults": true,
+            "full_address": "120 Đường 30 Tháng 4, Hưng Lợi, Ninh Kiều, Cần Thơ, Việt Nam"
+        },
+        {
+            "id_address": 6,
+            "id_user": 6,
+            "streetaddress": "45 Đường Trần Hưng Đạo",
+            "ward": "An Hội",
+            "district": "Ninh Kiều",
+            "province": "Cần Thơ",
+            "phone": "0389123456",
+            "defaults": true,
+            "full_address": "45 Đường Trần Hưng Đạo, An Hội, Ninh Kiều, Cần Thơ, Việt Nam"
+        },
+        {
+            "id_address": 8,
+            "id_user": 2,
+            "streetaddress": "128 Ngô Đức Thắng",
+            "ward": "Phường Hưng Lợi",
+            "district": "Quận Ninh Kiều",
+            "province": "Thành phố Cần Thơ",
+            "phone": "0394027628",
+            "defaults": true,
+            "full_address": "128 Ngô Đức Thắng, Phường Hưng Lợi, Quận Ninh Kiều, Thành phố Cần Thơ"
+        },
+        {
+            "id_address": 9,
+            "id_user": 5,
+            "streetaddress": "306H/2 KV5-PHUONG AN KHANH-QUAN NINH KIEU-THANH PHO CAN THO-VIET NAM",
+            "ward": "Phường An Khánh",
+            "district": "Quận Ninh Kiều",
+            "province": "Thành phố Cần Thơ",
+            "phone": "0907335002",
+            "defaults": false,
+            "full_address": "306H/2 KV5-PHUONG AN KHANH-QUAN NINH KIEU-THANH PHO CAN THO-VIET NAM, Phường An Khánh, Quận Ninh Kiều, Thành phố Cần Thơ"
+        }
+    ],
+    "Product_Variants": [
+        {
+            "id": 1,
+            "product_id": 1,
+            "quantity": 4,
+            "status": "Available",
+            "price": 750000.0,
+            "name_variants": "Intel Core i7-13700K 8P+8E",
+            "description": "Bộ vi xử lý Intel Core i7-13700K, 8 nhân hiệu năng + 8 nhân tiết kiệm",
+            "discount_percentage": 10.0,
+            "discount_price": 675000.0
+        },
+        {
+            "id": 2,
+            "product_id": 1,
+            "quantity": 200,
+            "status": "Available",
+            "price": 780000.0,
+            "name_variants": "Intel Core i7-13700KF 8P+8E",
+            "description": "Bộ vi xử lý i7-13700K không GPU tích hợp",
+            "discount_percentage": 20.0,
+            "discount_price": 624000.0
+        },
+        {
+            "id": 3,
+            "product_id": 1,
+            "quantity": 200,
+            "status": "Available",
+            "price": 800000.0,
+            "name_variants": "Intel Core i7-13700K Box",
+            "description": "Bộ vi xử lý i7-13700K kèm quạt tản nhiệt",
+            "discount_percentage": 20.0,
+            "discount_price": 640000.0
+        },
+        {
+            "id": 4,
+            "product_id": 2,
+            "quantity": 199,
+            "status": "Available",
+            "price": 550000.0,
+            "name_variants": "Intel Core i5-13600K (Intel/Có/6 nhân hiệu năng + 8 nhân tiết kiệm/16 luồng)",
+            "description": "",
+            "discount_percentage": 15.5,
+            "discount_price": 464750.0
+        },
+        {
+            "id": 5,
+            "product_id": 2,
+            "quantity": 200,
+            "status": "Available",
+            "price": 570000.0,
+            "name_variants": "Intel Core i5-13600K (Intel/Có/6 nhân hiệu năng + 8 nhân tiết kiệm/12 luồng)",
+            "description": "",
+            "discount_percentage": 5.0,
+            "discount_price": 541500.0
+        },
+        {
+            "id": 6,
+            "product_id": 2,
+            "quantity": 200,
+            "status": "Available",
+            "price": 590000.0,
+            "name_variants": "Intel Core i5-13600K (Intel/8 nhân hiệu năng + 8 nhân tiết kiệm/Có/16 luồng)",
+            "description": "",
+            "discount_percentage": 20.0,
+            "discount_price": 472000.0
+        },
+        {
+            "id": 7,
+            "product_id": 3,
+            "quantity": 200,
+            "status": "Available",
+            "price": 820000.0,
+            "name_variants": "AMD Ryzen 7 7700X 8C/16T",
+            "description": "Bộ vi xử lý Ryzen 7 7700X, 8 nhân 16 luồng",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 8,
+            "product_id": 3,
+            "quantity": 200,
+            "status": "Available",
+            "price": 850000.0,
+            "name_variants": "AMD Ryzen 7 7700X OEM",
+            "description": "Bộ vi xử lý Ryzen 7 7700X phiên bản OEM",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 9,
+            "product_id": 3,
+            "quantity": 200,
+            "status": "Available",
+            "price": 870000.0,
+            "name_variants": "AMD Ryzen 7 7700X Bundle",
+            "description": "Bộ vi xử lý Ryzen 7 7700X kèm tản nhiệt",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 10,
+            "product_id": 4,
+            "quantity": 200,
+            "status": "Available",
+            "price": 620000.0,
+            "name_variants": "AMD Ryzen 5 7600X (AMD/6 nhân hiệu năng + 8 nhân tiết kiệm/12 luồng)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 11,
+            "product_id": 4,
+            "quantity": 200,
+            "status": "Available",
+            "price": 640000.0,
+            "name_variants": "AMD Ryzen 5 7600X (AMD/8 nhân hiệu năng + 8 nhân tiết kiệm/16 luồng)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 12,
+            "product_id": 4,
+            "quantity": 200,
+            "status": "Available",
+            "price": 660000.0,
+            "name_variants": "AMD Ryzen 5 7600X (AMD/8 nhân hiệu năng + 8 nhân tiết kiệm/20 luồng)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 13,
+            "product_id": 5,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1450000.0,
+            "name_variants": "Intel Xeon W-3275 (Intel/24 luồng/28 nhân)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 14,
+            "product_id": 5,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1480000.0,
+            "name_variants": "Intel Xeon W-3275 (Intel/28 nhân/56 luồng)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 15,
+            "product_id": 5,
+            "quantity": 198,
+            "status": "Available",
+            "price": 1500000.0,
+            "name_variants": "Intel Xeon W-3275 (Intel/28 nhân/56 luồng/Ép xung)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 16,
+            "product_id": 6,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1450000.0,
+            "name_variants": "NVIDIA RTX 4070 Ti 12GB",
+            "description": "Card đồ họa RTX 4070 Ti, 12GB GDDR6X",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 17,
+            "product_id": 6,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1480000.0,
+            "name_variants": "NVIDIA RTX 4070 Ti OC",
+            "description": "Card đồ họa RTX 4070 Ti ép xung",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 18,
+            "product_id": 6,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1500000.0,
+            "name_variants": "NVIDIA RTX 4070 Ti White",
+            "description": "Card đồ họa RTX 4070 Ti phiên bản trắng",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 19,
+            "product_id": 7,
+            "quantity": 200,
+            "status": "Available",
+            "price": 950000.0,
+            "name_variants": "NVIDIA RTX 4060 (NVIDIA/8GB/GDDR6)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 20,
+            "product_id": 7,
+            "quantity": 200,
+            "status": "Available",
+            "price": 970000.0,
+            "name_variants": "NVIDIA RTX 4060 (NVIDIA/12GB/GDDR6X/Ép xung)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 21,
+            "product_id": 7,
+            "quantity": 200,
+            "status": "Available",
+            "price": 990000.0,
+            "name_variants": "NVIDIA RTX 4060 (NVIDIA/12GB/GDDR6)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 22,
+            "product_id": 8,
+            "quantity": 200,
+            "status": "Available",
+            "price": 750000.0,
+            "name_variants": "AMD Radeon RX 7600 (AMD/8GB/GDDR6)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 23,
+            "product_id": 8,
+            "quantity": 200,
+            "status": "Available",
+            "price": 770000.0,
+            "name_variants": "AMD Radeon RX 7600 (AMD/12GB/GDDR6X)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 24,
+            "product_id": 8,
+            "quantity": 200,
+            "status": "Available",
+            "price": 790000.0,
+            "name_variants": "AMD Radeon RX 7600 (AMD/GDDR6X/16GB)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 25,
+            "product_id": 9,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1350000.0,
+            "name_variants": "AMD Radeon RX 6800 XT (AMD/8GB/GDDR6)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 26,
+            "product_id": 9,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1380000.0,
+            "name_variants": "AMD Radeon RX 6800 XT (AMD/12GB/GDDR6X)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 27,
+            "product_id": 9,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1400000.0,
+            "name_variants": "AMD Radeon RX 6800 XT (AMD/GDDR6X/16GB)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 28,
+            "product_id": 10,
+            "quantity": 200,
+            "status": "Available",
+            "price": 850000.0,
+            "name_variants": "Intel Arc A770 (Intel/8GB/GDDR6)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 29,
+            "product_id": 10,
+            "quantity": 198,
+            "status": "Available",
+            "price": 870000.0,
+            "name_variants": "Intel Arc A770 (Intel/12GB/GDDR6)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 30,
+            "product_id": 10,
+            "quantity": 200,
+            "status": "Available",
+            "price": 890000.0,
+            "name_variants": "Intel Arc A770 (Intel/GDDR6X/16GB)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 31,
+            "product_id": 11,
+            "quantity": 200,
+            "status": "Available",
+            "price": 250000.0,
+            "name_variants": "Kingston HyperX Fury 16GB DDR4",
+            "description": "RAM DDR4 16GB, tốc độ 3200MHz",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 32,
+            "product_id": 11,
+            "quantity": 199,
+            "status": "Available",
+            "price": 260000.0,
+            "name_variants": "Kingston HyperX Fury 16GB RGB",
+            "description": "RAM DDR4 16GB, tốc độ 3200MHz, có RGB",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 33,
+            "product_id": 11,
+            "quantity": 200,
+            "status": "Available",
+            "price": 270000.0,
+            "name_variants": "Kingston HyperX Fury 32GB DDR4",
+            "description": "RAM DDR4 32GB, tốc độ 3200MHz",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 34,
+            "product_id": 12,
+            "quantity": 200,
+            "status": "Available",
+            "price": 450000.0,
+            "name_variants": "Kingston Fury Beast (Kingston/32GB/DDR5/3200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 35,
+            "product_id": 12,
+            "quantity": 200,
+            "status": "Available",
+            "price": 460000.0,
+            "name_variants": "Kingston Fury Beast (Kingston/32GB/DDR5/5200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 36,
+            "product_id": 12,
+            "quantity": 200,
+            "status": "Available",
+            "price": 470000.0,
+            "name_variants": "Kingston Fury Beast (Kingston/64GB/DDR5/5200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 37,
+            "product_id": 13,
+            "quantity": 200,
+            "status": "Available",
+            "price": 650000.0,
+            "name_variants": "Samsung DDR5 (Samsung/16GB/DDR5/3200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 38,
+            "product_id": 13,
+            "quantity": 200,
+            "status": "Available",
+            "price": 670000.0,
+            "name_variants": "Samsung DDR5 (Samsung/32GB/DDR5/5200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 39,
+            "product_id": 13,
+            "quantity": 200,
+            "status": "Available",
+            "price": 690000.0,
+            "name_variants": "Samsung DDR5 (Samsung/64GB/DDR5/5200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 40,
+            "product_id": 14,
+            "quantity": 200,
+            "status": "Available",
+            "price": 280000.0,
+            "name_variants": "Corsair Vengeance RGB (Corsair/16GB/DDR4/3200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 41,
+            "product_id": 14,
+            "quantity": 200,
+            "status": "Available",
+            "price": 290000.0,
+            "name_variants": "Corsair Vengeance RGB (Corsair/32GB/DDR4/3200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 42,
+            "product_id": 14,
+            "quantity": 200,
+            "status": "Available",
+            "price": 300000.0,
+            "name_variants": "Corsair Vengeance RGB (Corsair/64GB/DDR4/3200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 43,
+            "product_id": 15,
+            "quantity": 200,
+            "status": "Available",
+            "price": 480000.0,
+            "name_variants": "G.Skill Trident Z5 (G.Skill/16GB/DDR5/3200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 44,
+            "product_id": 15,
+            "quantity": 200,
+            "status": "Available",
+            "price": 490000.0,
+            "name_variants": "G.Skill Trident Z5 (G.Skill/32GB/DDR5/3200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 45,
+            "product_id": 15,
+            "quantity": 188,
+            "status": "Available",
+            "price": 500000.0,
+            "name_variants": "G.Skill Trident Z5 (G.Skill/64GB/DDR5/3200MHz)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 46,
+            "product_id": 16,
+            "quantity": 200,
+            "status": "Available",
+            "price": 650000.0,
+            "name_variants": "ASUS Prime Z790-A WiFi",
+            "description": "Bo mạch chủ Z790, hỗ trợ WiFi 6",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 47,
+            "product_id": 16,
+            "quantity": 200,
+            "status": "Available",
+            "price": 670000.0,
+            "name_variants": "ASUS Prime Z790-A",
+            "description": "Bo mạch chủ Z790, không WiFi",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 48,
+            "product_id": 16,
+            "quantity": 200,
+            "status": "Available",
+            "price": 690000.0,
+            "name_variants": "ASUS Prime Z790-A White",
+            "description": "Bo mạch chủ Z790, WiFi, phiên bản trắng",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 49,
+            "product_id": 17,
+            "quantity": 200,
+            "status": "Available",
+            "price": 720000.0,
+            "name_variants": "ASUS ROG STRIX B650-E (ASUS/LGA 1700/Không)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 50,
+            "product_id": 17,
+            "quantity": 200,
+            "status": "Available",
+            "price": 740000.0,
+            "name_variants": "ASUS ROG STRIX B650-E (ASUS/Ép xung/LGA 1700/Có/5.0)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 51,
+            "product_id": 17,
+            "quantity": 200,
+            "status": "Available",
+            "price": 760000.0,
+            "name_variants": "ASUS ROG STRIX B650-E (ASUS/RGB/LGA 1700/Có/5.0)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 52,
+            "product_id": 18,
+            "quantity": 200,
+            "status": "Available",
+            "price": 950000.0,
+            "name_variants": "MSI MEG X670E ACE (MSI/AM5/Có)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 53,
+            "product_id": 18,
+            "quantity": 200,
+            "status": "Available",
+            "price": 970000.0,
+            "name_variants": "MSI MEG X670E ACE (MSI/AM5/Có/5.0)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 54,
+            "product_id": 18,
+            "quantity": 200,
+            "status": "Available",
+            "price": 990000.0,
+            "name_variants": "MSI MEG X670E ACE (MSI/Ép xung/AM5/Có/5.0)",
+            "description": ""
+        },
+        {
+            "id": 55,
+            "product_id": 19,
+            "quantity": 200,
+            "status": "Available",
+            "price": 580000.0,
+            "name_variants": "Gigabyte Z790 AORUS Elite (Gigabyte/LGA 1700/Có/5.0)",
+            "description": ""
+        },
+        {
+            "id": 56,
+            "product_id": 19,
+            "quantity": 200,
+            "status": "Available",
+            "price": 600000.0,
+            "name_variants": "Gigabyte Z790 AORUS Elite (Gigabyte/LGA 1700/Có/5.0/DDR5)",
+            "description": ""
+        },
+        {
+            "id": 57,
+            "product_id": 19,
+            "quantity": 200,
+            "status": "Available",
+            "price": 620000.0,
+            "name_variants": "Gigabyte Z790 AORUS Elite (Gigabyte/Ép xung/LGA 1700/Có/5.0/DDR5)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 58,
+            "product_id": 20,
+            "quantity": 198,
+            "status": "Available",
+            "price": 480000.0,
+            "name_variants": "Gigabyte B650 AORUS Pro (Gigabyte/LGA 1700/5.0)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 59,
+            "product_id": 20,
+            "quantity": 200,
+            "status": "Available",
+            "price": 500000.0,
+            "name_variants": "Gigabyte B650 AORUS Pro (Gigabyte/LGA 1700/Có/5.0/DDR5)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 60,
+            "product_id": 20,
+            "quantity": 200,
+            "status": "Available",
+            "price": 520000.0,
+            "name_variants": "Gigabyte B650 AORUS Pro (Gigabyte/Ép xung/LGA 1700/Có/5.0/DDR5)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 61,
+            "product_id": 21,
+            "quantity": 200,
+            "status": "Available",
+            "price": 320000.0,
+            "name_variants": "Corsair RM850x 850W Gold",
+            "description": "Nguồn 850W, chứng nhận 80+ Gold",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 62,
+            "product_id": 21,
+            "quantity": 200,
+            "status": "Available",
+            "price": 330000.0,
+            "name_variants": "Corsair RM850x 850W White",
+            "description": "Nguồn 850W, 80+ Gold, phiên bản trắng",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 63,
+            "product_id": 21,
+            "quantity": 200,
+            "status": "Available",
+            "price": 340000.0,
+            "name_variants": "Corsair RM850x 850W Silent",
+            "description": "Nguồn 850W, 80+ Gold, quạt êm",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 64,
+            "product_id": 22,
+            "quantity": 200,
+            "status": "Available",
+            "price": 220000.0,
+            "name_variants": "Corsair CX750M 750W (Corsair/750W/80+ Bronze)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 65,
+            "product_id": 22,
+            "quantity": 200,
+            "status": "Available",
+            "price": 230000.0,
+            "name_variants": "Corsair CX750M 750W (Corsair/750W/80+ Gold)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 66,
+            "product_id": 22,
+            "quantity": 200,
+            "status": "Available",
+            "price": 240000.0,
+            "name_variants": "Corsair CX750M 750W (Corsair/750W/80+ Platinum)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 67,
+            "product_id": 23,
+            "quantity": 200,
+            "status": "Available",
+            "price": 650000.0,
+            "name_variants": "ASUS ROG Thor 1200W (ASUS/1200W/80+ Bronze)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 68,
+            "product_id": 23,
+            "quantity": 200,
+            "status": "Available",
+            "price": 670000.0,
+            "name_variants": "ASUS ROG Thor 1200W (ASUS/1200W/80+ Gold)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 69,
+            "product_id": 23,
+            "quantity": 200,
+            "status": "Available",
+            "price": 690000.0,
+            "name_variants": "ASUS ROG Thor 1200W (ASUS/1200W/80+ Platinum)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 70,
+            "product_id": 24,
+            "quantity": 200,
+            "status": "Available",
+            "price": 420000.0,
+            "name_variants": "MSI MPG A1000G 1000W (MSI/1000W/80+ Bronze)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 71,
+            "product_id": 24,
+            "quantity": 200,
+            "status": "Available",
+            "price": 430000.0,
+            "name_variants": "MSI MPG A1000G 1000W (MSI/1000W/80+ Gold)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 72,
+            "product_id": 24,
+            "quantity": 199,
+            "status": "Available",
+            "price": 440000.0,
+            "name_variants": "MSI MPG A1000G 1000W (MSI/1000W/80+ Platinum)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 73,
+            "product_id": 25,
+            "quantity": 200,
+            "status": "Available",
+            "price": 280000.0,
+            "name_variants": "Gigabyte P850GM 850W Gold",
+            "description": "Nguồn 850W, chứng nhận 80+ Gold",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 74,
+            "product_id": 25,
+            "quantity": 200,
+            "status": "Available",
+            "price": 290000.0,
+            "name_variants": "Gigabyte P850GM 850W Modular",
+            "description": "Nguồn 850W, 80+ Gold, cáp tháo rời",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 75,
+            "product_id": 25,
+            "quantity": 198,
+            "status": "Available",
+            "price": 300000.0,
+            "name_variants": "Gigabyte P850GM 850W Silent",
+            "description": "Nguồn 850W, 80+ Gold, quạt êm",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 76,
+            "product_id": 26,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1000000.0,
+            "name_variants": "SSD Samsung 970 EVO Plus (Samsung/500GB)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 77,
+            "product_id": 26,
+            "quantity": 198,
+            "status": "Available",
+            "price": 1500000.0,
+            "name_variants": "SSD Samsung 970 EVO Plus (Samsung/1TB)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 78,
+            "product_id": 27,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1000000.0,
+            "name_variants": "SSD Kingston KC3000 (Kingston/500GB)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 79,
+            "product_id": 27,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1500000.0,
+            "name_variants": "SSD Kingston KC3000 (Kingston/1TB)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 80,
+            "product_id": 28,
+            "quantity": 197,
+            "status": "Available",
+            "price": 1000000.0,
+            "name_variants": "HDD WD Blue 1TB 3.5 inch SATA III (500GB/Western Digital)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 81,
+            "product_id": 28,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1500000.0,
+            "name_variants": "HDD WD Blue 1TB 3.5 inch SATA III (1TB/Western Digital)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 82,
+            "product_id": 29,
+            "quantity": 199,
+            "status": "Available",
+            "price": 2000000.0,
+            "name_variants": "HDD Synology HAT3300 3.5 inch SATA (2TB/Synology)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 83,
+            "product_id": 29,
+            "quantity": 199,
+            "status": "Available",
+            "price": 2500000.0,
+            "name_variants": "HDD Synology HAT3300 3.5 inch SATA (4TB/Synology)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 84,
+            "product_id": 30,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1000000.0,
+            "name_variants": "Case Asus ROG STRIX GR701 HYPERION (ASUS/Đen/Lớn/4 Quạt)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 85,
+            "product_id": 30,
+            "quantity": 200,
+            "status": "Available",
+            "price": 1200000.0,
+            "name_variants": "Case Asus ROG STRIX GR701 HYPERION (ASUS/Trắng/Lớn/4 Quạt)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 86,
+            "product_id": 31,
+            "quantity": 199,
+            "status": "Available",
+            "price": 1000000.0,
+            "name_variants": "Case Corsair 6500X TG CC-9011257-WW (Corsair/Đen/Trung bình/6 Quạt)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 87,
+            "product_id": 31,
+            "quantity": 197,
+            "status": "Available",
+            "price": 1200000.0,
+            "name_variants": "Case Corsair 6500X TG CC-9011257-WW (Corsair/Trắng/Trung bình/6 Quạt)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 88,
+            "product_id": 32,
+            "quantity": 198,
+            "status": "Available",
+            "price": 1000000.0,
+            "name_variants": "Tản nhiệt nước AIO Corsair iCUE LINK H100i RGB CW-9061005-WW (Corsair/Đen/2 Quạt)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 89,
+            "product_id": 32,
+            "quantity": 184,
+            "status": "Available",
+            "price": 1200000.0,
+            "name_variants": "Tản nhiệt nước AIO Corsair iCUE LINK H100i RGB CW-9061005-WW (Corsair/Trắng/2 Quạt)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 90,
+            "product_id": 33,
+            "quantity": 188,
+            "status": "Available",
+            "price": 1000000.0,
+            "name_variants": "Tản nhiệt nước AIO ASUS ROG STRIX LC 360 ARGB (ASUS/Đen/3 Quạt)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        },
+        {
+            "id": 91,
+            "product_id": 33,
+            "quantity": 165,
+            "status": "Available",
+            "price": 1200000.0,
+            "name_variants": "Tản nhiệt nước AIO ASUS ROG STRIX LC 360 ARGB (ASUS/Trắng/3 Quạt)",
+            "description": "",
+            "discount_percentage": NaN,
+            "discount_price": NaN
+        }
+    ],
+    "Products": [
+        {
+            "id": 1,
+            "category_id": 1,
+            "brands_id": 1,
+            "name": "Intel Core i7-13700K",
+            "description": "Bộ vi xử lý Intel Core i7 thế hệ 13",
+            "stock": 599,
+            "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyRI4iDaP8R5gkbDecnQdaHzc3KQ4TKswuvA&s",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 6,
+            "slug": "intel-core-i7-13700k"
+        },
+        {
+            "id": 2,
+            "category_id": 1,
+            "brands_id": 1,
+            "name": "Intel Core i5-13600K",
+            "description": "Bộ vi xử lý Intel Core i5 mạnh mẽ",
+            "stock": 599,
+            "image_url": "https://www.nnkk.vn/media/product/3351_intel_core_i5_13600k4.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 10,
+            "slug": "intel-core-i5-13600k"
+        },
+        {
+            "id": 3,
+            "category_id": 1,
+            "brands_id": 2,
+            "name": "AMD Ryzen 7 7700X",
+            "description": "Bộ vi xử lý Ryzen 7 tối ưu cho gaming",
+            "stock": 600,
+            "image_url": "https://hanoicomputercdn.com/media/lib/29-11-2022/cpu-amd-ryzen-7-7700x-45-ghz-upto-54ghz-40mb-8-cores-16-threads-105w-socket-am5-x.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 10,
+            "slug": "amd-ryzen-7-7700x"
+        },
+        {
+            "id": 4,
+            "category_id": 1,
+            "brands_id": 2,
+            "name": "AMD Ryzen 5 7600X",
+            "description": "Bộ vi xử lý Ryzen 5 thế hệ mới",
+            "stock": 600,
+            "image_url": "https://i.ytimg.com/vi/cp4rLjZyYmU/sddefault.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 8,
+            "slug": "amd-ryzen-5-7600x"
+        },
+        {
+            "id": 5,
+            "category_id": 1,
+            "brands_id": 1,
+            "name": "Intel Xeon W-3275",
+            "description": "Bộ vi xử lý chuyên dụng cho workstation",
+            "stock": 598,
+            "image_url": "https://www.notebookcheck.net/fileadmin/Notebooks/News/_nc3/Xeon.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 7,
+            "slug": "intel-xeon-w-3275"
+        },
+        {
+            "id": 6,
+            "category_id": 2,
+            "brands_id": 3,
+            "name": "NVIDIA RTX 4070 Ti",
+            "description": "Card đồ họa NVIDIA dành cho gaming",
+            "stock": 600,
+            "image_url": "https://longhungpc.vn/media/news/146-0801_vga-nvidia-geforce-rtx-4070-ti-super_pcm.png",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 12,
+            "slug": "nvidia-rtx-4070-ti"
+        },
+        {
+            "id": 7,
+            "category_id": 2,
+            "brands_id": 3,
+            "name": "NVIDIA RTX 4060",
+            "description": "Card đồ họa phổ thông với hiệu suất cao",
+            "stock": 600,
+            "image_url": "https://www.nvidia.com/content/dam/en-zz/Solutions/geforce/ada/rtx-4060-4060ti/geforce-rtx-4060-ti-og-1200x630.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 15,
+            "slug": "nvidia-rtx-4060"
+        },
+        {
+            "id": 8,
+            "category_id": 2,
+            "brands_id": 2,
+            "name": "AMD Radeon RX 7600",
+            "description": "Card đồ họa AMD hiệu suất ổn định",
+            "stock": 600,
+            "image_url": "https://giaonhanh.vn/wp-content/uploads/2023/05/AMD-Radeon-RX-7600.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 11,
+            "slug": "amd-radeon-rx-7600"
+        },
+        {
+            "id": 9,
+            "category_id": 2,
+            "brands_id": 2,
+            "name": "AMD Radeon RX 6800 XT",
+            "description": "Card đồ họa gaming hiệu suất cao",
+            "stock": 600,
+            "image_url": "https://www.gigabyte.com/FileUpload/Global/KeyFeature/1689/innergigabyteimages/eagle/03_s.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 11,
+            "slug": "amd-radeon-rx-6800xt"
+        },
+        {
+            "id": 10,
+            "category_id": 2,
+            "brands_id": 1,
+            "name": "Intel Arc A770",
+            "description": "Card đồ họa Intel dành cho sáng tạo nội dung",
+            "stock": 598,
+            "image_url": "https://gearshop.vn/upload/images/Product/Intel/VGA/ARC%20A770/Inteal-ARC-A770-(7).jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 9,
+            "slug": "intel-arc-a770"
+        },
+        {
+            "id": 11,
+            "category_id": 3,
+            "brands_id": 4,
+            "name": "Kingston HyperX Fury",
+            "description": "RAM DDR4 Kingston HyperX cho gaming",
+            "stock": 599,
+            "image_url": "https://nvs.tn-cdn.net/2021/07/55178_ram_desktop_kingston_hyperx_fury_rbg_hx432c16fb3ak2_16_1.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 21,
+            "slug": "kingston-hyperx-16gb"
+        },
+        {
+            "id": 12,
+            "category_id": 3,
+            "brands_id": 4,
+            "name": "Kingston Fury Beast",
+            "description": "RAM DDR5 tốc độ cao",
+            "stock": 600,
+            "image_url": "https://anphat.com.vn/media/product/46875_ram_kingston_fury_beast_rgb_32gb__2x16gb__ddr4_3200mhz__2_.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 20,
+            "slug": "kingston-fury-32gb"
+        },
+        {
+            "id": 13,
+            "category_id": 3,
+            "brands_id": 5,
+            "name": "Samsung DDR5",
+            "description": "RAM hiệu suất cao dành cho workstation",
+            "stock": 600,
+            "image_url": "https://image.semiconductor.samsung.com/image/samsung/p6/semiconductor/products/dram/ddr/ddr5/ddr5_feature_01_02_pc.png?$ORIGIN_PNG$",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 12,
+            "slug": "samsung-ddr5-64gb"
+        },
+        {
+            "id": 14,
+            "category_id": 3,
+            "brands_id": 9,
+            "name": "Corsair Vengeance RGB",
+            "description": "RAM RGB dành cho gamer",
+            "stock": 600,
+            "image_url": "https://anphat.com.vn/media/product/29961_81jodopl_gl__ac_sl1500_.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 25,
+            "slug": "corsair-vengeance-16gb"
+        },
+        {
+            "id": 15,
+            "category_id": 3,
+            "brands_id": 4,
+            "name": "G.Skill Trident Z5",
+            "description": "RAM cao cấp hiệu suất cao",
+            "stock": 598,
+            "image_url": "https://product.hstatic.net/1000361104/product/4_6d061f3bca484734807060dc63e3db8d_master.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 16,
+            "slug": "gskill-tridentz5-32gb"
+        },
+        {
+            "id": 16,
+            "category_id": 4,
+            "brands_id": 6,
+            "name": "ASUS Prime Z790-A",
+            "description": "Bo mạch chủ cao cấp cho Intel",
+            "stock": 600,
+            "image_url": "https://static.nix.ru/images/asus-prime-z790-p-d4-69025415675.jpg?good_id=690254&width=500&height=500&view_id=15675",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 10,
+            "slug": "asus-prime-z790a"
+        },
+        {
+            "id": 17,
+            "category_id": 4,
+            "brands_id": 6,
+            "name": "ASUS ROG STRIX B650-E",
+            "description": "Mainboard AMD gaming cao cấp",
+            "stock": 600,
+            "image_url": "https://product.hstatic.net/1000333506/product/rog-strix-b650e-e-gaming_5c15257bc3f842cfb5457ed2ce7f7785.png",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 8,
+            "slug": "asus-rog-strix-b650e"
+        },
+        {
+            "id": 18,
+            "category_id": 4,
+            "brands_id": 7,
+            "name": "MSI MEG X670E ACE",
+            "description": "Mainboard AMD hiệu suất cao",
+            "stock": 600,
+            "image_url": "https://storage-asset.msi.com/global/picture/image/feature/mb/X670/meg/MEG-X670E-ACE/meg-kv.png",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 5,
+            "slug": "msi-meg-x670e"
+        },
+        {
+            "id": 19,
+            "category_id": 4,
+            "brands_id": 8,
+            "name": "Gigabyte Z790 AORUS Elite",
+            "description": "Bo mạch chủ Gigabyte dành cho gaming",
+            "stock": 600,
+            "image_url": "https://nguyencongpc.vn/media/product/23620-mainboard-asus-prime-z790-p-csm-1.jpeg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 9,
+            "slug": "gigabyte-z790-aorus"
+        },
+        {
+            "id": 20,
+            "category_id": 4,
+            "brands_id": 8,
+            "name": "Gigabyte B650 AORUS Pro",
+            "description": "Mainboard phổ thông hiệu năng tốt",
+            "stock": 598,
+            "image_url": "https://nguyencongpc.vn/media/lib/27-10-2022/b650aorusproax-01.png",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 8,
+            "slug": "gigabyte-b650-aorus-pro"
+        },
+        {
+            "id": 21,
+            "category_id": 5,
+            "brands_id": 9,
+            "name": "Corsair RM850x 850W",
+            "description": "Bộ nguồn Corsair 850W",
+            "stock": 600,
+            "image_url": "https://hanoicomputercdn.com/media/product/37025_nguon_corsair_rm_series_rm850x_850w_modular_80_plus_gold_0005_6.jpg",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 7,
+            "slug": "corsair-rm850x"
+        },
+        {
+            "id": 22,
+            "category_id": 5,
+            "brands_id": 9,
+            "name": "Corsair CX750M 750W",
+            "description": "Nguồn máy tính phổ thông",
+            "stock": 600,
+            "image_url": "https://bizweb.dktcdn.net/thumb/1024x1024/100/329/122/products/nguon-may-tinh-corsair-cx750m-750w-80-plus-bronze-cp-9020061-na-5.png?v=1627899699200",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 10,
+            "slug": "corsair-cx750m"
+        },
+        {
+            "id": 23,
+            "category_id": 5,
+            "brands_id": 6,
+            "name": "ASUS ROG Thor 1200W",
+            "description": "Bộ nguồn công suất lớn dành cho gaming",
+            "stock": 600,
+            "image_url": "https://pcmarket.vn/media/product/12043_nguon_asus_rog_thor_1200_platium_1.png",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 4,
+            "slug": "asus-rog-thor-1200w"
+        },
+        {
+            "id": 24,
+            "category_id": 5,
+            "brands_id": 7,
+            "name": "MSI MPG A1000G 1000W",
+            "description": "Bộ nguồn gaming công suất cao",
+            "stock": 599,
+            "image_url": "https://storage-asset.msi.com/global/picture/image/feature/power/MPG/A1000G-pcie5/kv-power.png",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 7,
+            "slug": "msi-mpg-a1000g"
+        },
+        {
+            "id": 25,
+            "category_id": 5,
+            "brands_id": 8,
+            "name": "Gigabyte P850GM 850W",
+            "description": "Bộ nguồn giá tốt cho PC gaming",
+            "stock": 598,
+            "image_url": "https://product.hstatic.net/1000333506/product/gigabyte-p850gm-80-plus-gold-1_d8068330dfa54a63908186638ec98274_master_f06bb15f352e4f4e8b69f495b19dc7a2_grande.png",
+            "created_at": "2025-03-07 21:55:26.070",
+            "status": "Available",
+            "purchase_count": 10,
+            "slug": "gigabyte-p850gm"
+        },
+        {
+            "id": 26,
+            "category_id": 6,
+            "brands_id": 5,
+            "name": "SSD Samsung 970 EVO Plus",
+            "description": "Ổ cứng SSD Samsung 970 EVO Plus PCIe NVMe M.2 2280 V-NAND là sự lựa chọn tốt nhất hiện nay dành cho game thủ",
+            "stock": 598,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product-images%2Fssd-samsung-970-evo-plus-pcie-nvme-v-nand-m-2-2280-500gb-mz-v7s500bw-3.jpg?alt=media&token=dd5f6126-ad77-48e0-ad37-690632fadedf",
+            "created_at": "2025-03-11 17:26:09.920",
+            "status": "Available",
+            "purchase_count": 2,
+            "slug": null
+        },
+        {
+            "id": 27,
+            "category_id": 6,
+            "brands_id": 4,
+            "name": "SSD Kingston KC3000",
+            "description": "Ổ cứng SSD Kingston KC3000 M.2 PCIe Gen 4 x4 NVMe của Kingston mang đến hiệu năng siêu cao khi được trang bị chuẩn NVMe PCIe Gen 4.0 x4",
+            "stock": 600,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product-images%2Fssd-kingston-kc3000-500gb.webp?alt=media&token=00f48fdc-3abd-4b60-a8be-7215ecdc1bd4",
+            "created_at": "2025-03-11 17:34:16.527",
+            "status": "Available",
+            "purchase_count": 0,
+            "slug": null
+        },
+        {
+            "id": 28,
+            "category_id": 7,
+            "brands_id": 10,
+            "name": "HDD WD Blue 3.5 inch SATA III",
+            "description": "Ổ Western Blue thương hiệu được thiết kế hoàn hảo dành cho PC với các ứng dụng văn phòng và web.",
+            "stock": 597,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product-images%2Fhdd-wd-blue-1tb-3-5-inch-sata-iii-64mb-cache-7200rpm-wd10ezex.webp?alt=media&token=aaa7e55a-319b-419b-ae67-73dba4641f02",
+            "created_at": "2025-03-11 17:46:19.507",
+            "status": "Available",
+            "purchase_count": 3,
+            "slug": null
+        },
+        {
+            "id": 29,
+            "category_id": 7,
+            "brands_id": 11,
+            "name": "HDD Synology HAT3300 3.5 inch SATA",
+            "description": "Ổ cứng Synology HAT3300 tận dụng giao thức SATA độ trễ thấp khi kết hợp hiệu suất cao cùngcông việc luôn ổn định.",
+            "stock": 598,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product-images%2Fhdd-synology-hat3300-4tb-3-5-inch-sata-256mb-cache-5400rpm-hat3300-4t.webp?alt=media&token=27d720c4-f6f6-40ca-af35-81309dd1d61b",
+            "created_at": "2025-03-11 17:52:53.930",
+            "status": "Available",
+            "purchase_count": 2,
+            "slug": null
+        },
+        {
+            "id": 30,
+            "category_id": 8,
+            "brands_id": 6,
+            "name": "Case Asus ROG STRIX GR701 HYPERION",
+            "description": "Case máy tính Asus ROG STRIX GR701 HYPERION Black với thiết kế khung máy chắc chắn mang đến hiệu suất cao",
+            "stock": 600,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product-images%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-black-5.webp?alt=media&token=0880fe6e-e1d6-442c-8b0d-0589099f5840",
+            "created_at": "2025-03-11 18:03:25.690",
+            "status": "Available",
+            "purchase_count": 0,
+            "slug": null
+        },
+        {
+            "id": 31,
+            "category_id": 8,
+            "brands_id": 9,
+            "name": "Case Corsair 6500X TG CC-9011257-WW",
+            "description": "Case Corsair 6500X sở hữu thiết kế hiện đại với 2 mặt kính cường lực đen tuyền, cho phép khoe trọn vẹn nội thất bên trong.",
+            "stock": 596,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product-images%2F6500x-black-render-01.webp?alt=media&token=bc966c57-12b8-48b0-be48-c10bdc323ea9",
+            "created_at": "2025-03-11 18:11:20.797",
+            "status": "Available",
+            "purchase_count": 4,
+            "slug": null
+        },
+        {
+            "id": 32,
+            "category_id": 9,
+            "brands_id": 9,
+            "name": "Tản nhiệt nước AIO Corsair iCUE LINK H100i RGB CW-9061005-WW",
+            "description": "Tản nhiệt nước AIO Corsair là một phần của hệ sinh thái thông minh iCUE Link độc quyền từ Corsair",
+            "stock": 582,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product-images%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-cw-9061001-ww.webp?alt=media&token=89400cfe-0ace-4621-ad36-9c631cb8de66",
+            "created_at": "2025-03-11 18:31:20.433",
+            "status": "Available",
+            "purchase_count": 18,
+            "slug": null
+        },
+        {
+            "id": 33,
+            "category_id": 9,
+            "brands_id": 6,
+            "name": "Tản nhiệt nước AIO ASUS ROG STRIX LC 360 ARGB",
+            "description": "Tản nhiệt nước AIO ASUS ROG STRIX LC 360 ARGB là bộ làm mát CPU nước xoay 360°, hiệu ứng ánh sáng Aura tùy chỉnh.",
+            "stock": 553,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product-images%2Fcooler%20asus-3.webp?alt=media&token=6af58fd5-401c-46af-b947-e4698ba55551",
+            "created_at": "2025-03-11 18:37:57.853",
+            "status": "Available",
+            "purchase_count": 47,
+            "slug": null
+        }
+    ],
+    "Attributes": [
+        {
+            "id": 1,
+            "name": "Thương hiệu",
+            "value": "Intel"
+        },
+        {
+            "id": 2,
+            "name": "Thương hiệu",
+            "value": "AMD"
+        },
+        {
+            "id": 3,
+            "name": "Thương hiệu",
+            "value": "NVIDIA"
+        },
+        {
+            "id": 4,
+            "name": "Thương hiệu",
+            "value": "Kingston"
+        },
+        {
+            "id": 5,
+            "name": "Thương hiệu",
+            "value": "Corsair"
+        },
+        {
+            "id": 6,
+            "name": "Thương hiệu",
+            "value": "G.Skill"
+        },
+        {
+            "id": 7,
+            "name": "Thương hiệu",
+            "value": "Samsung"
+        },
+        {
+            "id": 8,
+            "name": "Thương hiệu",
+            "value": "ASUS"
+        },
+        {
+            "id": 9,
+            "name": "Thương hiệu",
+            "value": "MSI"
+        },
+        {
+            "id": 10,
+            "name": "Thương hiệu",
+            "value": "Gigabyte"
+        },
+        {
+            "id": 11,
+            "name": "Số nhân",
+            "value": "8 nhân hiệu năng + 8 nhân tiết kiệm"
+        },
+        {
+            "id": 12,
+            "name": "Số luồng",
+            "value": "24 luồng"
+        },
+        {
+            "id": 13,
+            "name": "GPU tích hợp",
+            "value": "Có"
+        },
+        {
+            "id": 14,
+            "name": "GPU tích hợp",
+            "value": "Không"
+        },
+        {
+            "id": 15,
+            "name": "Số nhân",
+            "value": "6 nhân hiệu năng + 8 nhân tiết kiệm"
+        },
+        {
+            "id": 16,
+            "name": "Số luồng",
+            "value": "20 luồng"
+        },
+        {
+            "id": 17,
+            "name": "Số nhân",
+            "value": "8 nhân"
+        },
+        {
+            "id": 18,
+            "name": "Số luồng",
+            "value": "16 luồng"
+        },
+        {
+            "id": 19,
+            "name": "Số nhân",
+            "value": "6 nhân"
+        },
+        {
+            "id": 20,
+            "name": "Số luồng",
+            "value": "12 luồng"
+        },
+        {
+            "id": 21,
+            "name": "Số nhân",
+            "value": "28 nhân"
+        },
+        {
+            "id": 22,
+            "name": "Số luồng",
+            "value": "56 luồng"
+        },
+        {
+            "id": 23,
+            "name": "Dung lượng VRAM",
+            "value": "12GB"
+        },
+        {
+            "id": 24,
+            "name": "Loại bộ nhớ",
+            "value": "GDDR6X"
+        },
+        {
+            "id": 25,
+            "name": "Dung lượng VRAM",
+            "value": "8GB"
+        },
+        {
+            "id": 26,
+            "name": "Loại bộ nhớ",
+            "value": "GDDR6"
+        },
+        {
+            "id": 27,
+            "name": "Dung lượng VRAM",
+            "value": "16GB"
+        },
+        {
+            "id": 28,
+            "name": "Tính năng",
+            "value": "Ép xung"
+        },
+        {
+            "id": 29,
+            "name": "Phiên bản màu",
+            "value": "Trắng"
+        },
+        {
+            "id": 30,
+            "name": "Phiên bản màu",
+            "value": "Đen"
+        },
+        {
+            "id": 31,
+            "name": "Phiên bản màu",
+            "value": "Đỏ"
+        },
+        {
+            "id": 32,
+            "name": "Kích thước",
+            "value": "Nhỏ"
+        },
+        {
+            "id": 33,
+            "name": "Dung lượng",
+            "value": "16GB"
+        },
+        {
+            "id": 34,
+            "name": "Dung lượng",
+            "value": "32GB"
+        },
+        {
+            "id": 35,
+            "name": "Dung lượng",
+            "value": "64GB"
+        },
+        {
+            "id": 36,
+            "name": "Dung lượng",
+            "value": "128GB"
+        },
+        {
+            "id": 37,
+            "name": "Loại RAM",
+            "value": "DDR4"
+        },
+        {
+            "id": 38,
+            "name": "Loại RAM",
+            "value": "DDR5"
+        },
+        {
+            "id": 39,
+            "name": "Tốc độ",
+            "value": "3200MHz"
+        },
+        {
+            "id": 40,
+            "name": "Tốc độ",
+            "value": "5200MHz"
+        },
+        {
+            "id": 41,
+            "name": "Tính năng",
+            "value": "RGB"
+        },
+        {
+            "id": 42,
+            "name": "Tính năng",
+            "value": "ECC"
+        },
+        {
+            "id": 43,
+            "name": "Socket",
+            "value": "LGA 1700"
+        },
+        {
+            "id": 44,
+            "name": "Socket",
+            "value": "AM5"
+        },
+        {
+            "id": 45,
+            "name": "Socket",
+            "value": "AM4"
+        },
+        {
+            "id": 46,
+            "name": "Hỗ trợ WiFi",
+            "value": "Có"
+        },
+        {
+            "id": 47,
+            "name": "Hỗ trợ WiFi",
+            "value": "Không"
+        },
+        {
+            "id": 48,
+            "name": "Chuẩn PCIe",
+            "value": "5.0"
+        },
+        {
+            "id": 49,
+            "name": "Hỗ trợ RAM",
+            "value": "DDR5"
+        },
+        {
+            "id": 53,
+            "name": "Công suất",
+            "value": "850W"
+        },
+        {
+            "id": 54,
+            "name": "Công suất",
+            "value": "750W"
+        },
+        {
+            "id": 55,
+            "name": "Công suất",
+            "value": "1200W"
+        },
+        {
+            "id": 56,
+            "name": "Công suất",
+            "value": "1000W"
+        },
+        {
+            "id": 57,
+            "name": "Chứng nhận",
+            "value": "80+ Gold"
+        },
+        {
+            "id": 58,
+            "name": "Chứng nhận",
+            "value": "80+ Bronze"
+        },
+        {
+            "id": 59,
+            "name": "Chứng nhận",
+            "value": "80+ Platinum"
+        },
+        {
+            "id": 60,
+            "name": "Tính năng",
+            "value": "Cáp tháo rời"
+        },
+        {
+            "id": 61,
+            "name": "Tính năng",
+            "value": "Quạt êm"
+        },
+        {
+            "id": 62,
+            "name": "Dung lượng",
+            "value": "256GB"
+        },
+        {
+            "id": 63,
+            "name": "Dung lượng",
+            "value": "500GB"
+        },
+        {
+            "id": 64,
+            "name": "Dung lượng",
+            "value": "1TB"
+        },
+        {
+            "id": 65,
+            "name": "Dung lượng",
+            "value": "2TB"
+        },
+        {
+            "id": 66,
+            "name": "Dung lượng",
+            "value": "4TB"
+        },
+        {
+            "id": 67,
+            "name": "Thương hiệu",
+            "value": "Western Digital"
+        },
+        {
+            "id": 68,
+            "name": "Thương hiệu",
+            "value": "Synology"
+        },
+        {
+            "id": 69,
+            "name": "Kích thước",
+            "value": "Trung bình"
+        },
+        {
+            "id": 70,
+            "name": "Kích thước",
+            "value": "Lớn"
+        },
+        {
+            "id": 71,
+            "name": "Quạt đi kèm",
+            "value": "1 Quạt"
+        },
+        {
+            "id": 72,
+            "name": "Quạt đi kèm",
+            "value": "2 Quạt"
+        },
+        {
+            "id": 73,
+            "name": "Quạt đi kèm",
+            "value": "3 Quạt"
+        },
+        {
+            "id": 74,
+            "name": "Quạt đi kèm",
+            "value": "4 Quạt"
+        },
+        {
+            "id": 75,
+            "name": "Quạt đi kèm",
+            "value": "5 Quạt"
+        },
+        {
+            "id": 76,
+            "name": "Quạt đi kèm",
+            "value": "6 Quạt"
+        },
+        {
+            "id": 77,
+            "name": "Quạt đi kèm",
+            "value": "7 Quạt"
+        }
+    ],
+    "Attributes_Product_Variants": [
+        {
+            "id": 1,
+            "product_variant_id": 1,
+            "attribute_id": 1
+        },
+        {
+            "id": 2,
+            "product_variant_id": 1,
+            "attribute_id": 11
+        },
+        {
+            "id": 3,
+            "product_variant_id": 1,
+            "attribute_id": 12
+        },
+        {
+            "id": 4,
+            "product_variant_id": 1,
+            "attribute_id": 13
+        },
+        {
+            "id": 5,
+            "product_variant_id": 2,
+            "attribute_id": 1
+        },
+        {
+            "id": 6,
+            "product_variant_id": 2,
+            "attribute_id": 11
+        },
+        {
+            "id": 7,
+            "product_variant_id": 2,
+            "attribute_id": 12
+        },
+        {
+            "id": 8,
+            "product_variant_id": 2,
+            "attribute_id": 14
+        },
+        {
+            "id": 9,
+            "product_variant_id": 3,
+            "attribute_id": 1
+        },
+        {
+            "id": 10,
+            "product_variant_id": 3,
+            "attribute_id": 11
+        },
+        {
+            "id": 11,
+            "product_variant_id": 3,
+            "attribute_id": 12
+        },
+        {
+            "id": 12,
+            "product_variant_id": 3,
+            "attribute_id": 13
+        },
+        {
+            "id": 13,
+            "product_variant_id": 7,
+            "attribute_id": 2
+        },
+        {
+            "id": 14,
+            "product_variant_id": 7,
+            "attribute_id": 17
+        },
+        {
+            "id": 15,
+            "product_variant_id": 7,
+            "attribute_id": 18
+        },
+        {
+            "id": 16,
+            "product_variant_id": 8,
+            "attribute_id": 2
+        },
+        {
+            "id": 17,
+            "product_variant_id": 8,
+            "attribute_id": 17
+        },
+        {
+            "id": 18,
+            "product_variant_id": 8,
+            "attribute_id": 18
+        },
+        {
+            "id": 19,
+            "product_variant_id": 9,
+            "attribute_id": 2
+        },
+        {
+            "id": 20,
+            "product_variant_id": 9,
+            "attribute_id": 17
+        },
+        {
+            "id": 21,
+            "product_variant_id": 9,
+            "attribute_id": 18
+        },
+        {
+            "id": 22,
+            "product_variant_id": 16,
+            "attribute_id": 3
+        },
+        {
+            "id": 23,
+            "product_variant_id": 16,
+            "attribute_id": 23
+        },
+        {
+            "id": 24,
+            "product_variant_id": 16,
+            "attribute_id": 24
+        },
+        {
+            "id": 25,
+            "product_variant_id": 17,
+            "attribute_id": 3
+        },
+        {
+            "id": 26,
+            "product_variant_id": 17,
+            "attribute_id": 23
+        },
+        {
+            "id": 27,
+            "product_variant_id": 17,
+            "attribute_id": 24
+        },
+        {
+            "id": 28,
+            "product_variant_id": 17,
+            "attribute_id": 28
+        },
+        {
+            "id": 29,
+            "product_variant_id": 18,
+            "attribute_id": 3
+        },
+        {
+            "id": 30,
+            "product_variant_id": 18,
+            "attribute_id": 23
+        },
+        {
+            "id": 31,
+            "product_variant_id": 18,
+            "attribute_id": 24
+        },
+        {
+            "id": 32,
+            "product_variant_id": 18,
+            "attribute_id": 29
+        },
+        {
+            "id": 33,
+            "product_variant_id": 31,
+            "attribute_id": 4
+        },
+        {
+            "id": 34,
+            "product_variant_id": 31,
+            "attribute_id": 33
+        },
+        {
+            "id": 35,
+            "product_variant_id": 31,
+            "attribute_id": 37
+        },
+        {
+            "id": 36,
+            "product_variant_id": 31,
+            "attribute_id": 39
+        },
+        {
+            "id": 37,
+            "product_variant_id": 32,
+            "attribute_id": 4
+        },
+        {
+            "id": 38,
+            "product_variant_id": 32,
+            "attribute_id": 33
+        },
+        {
+            "id": 39,
+            "product_variant_id": 32,
+            "attribute_id": 37
+        },
+        {
+            "id": 40,
+            "product_variant_id": 32,
+            "attribute_id": 39
+        },
+        {
+            "id": 41,
+            "product_variant_id": 32,
+            "attribute_id": 41
+        },
+        {
+            "id": 42,
+            "product_variant_id": 33,
+            "attribute_id": 4
+        },
+        {
+            "id": 43,
+            "product_variant_id": 33,
+            "attribute_id": 34
+        },
+        {
+            "id": 44,
+            "product_variant_id": 33,
+            "attribute_id": 37
+        },
+        {
+            "id": 45,
+            "product_variant_id": 33,
+            "attribute_id": 39
+        },
+        {
+            "id": 46,
+            "product_variant_id": 46,
+            "attribute_id": 8
+        },
+        {
+            "id": 47,
+            "product_variant_id": 46,
+            "attribute_id": 42
+        },
+        {
+            "id": 48,
+            "product_variant_id": 46,
+            "attribute_id": 45
+        },
+        {
+            "id": 49,
+            "product_variant_id": 47,
+            "attribute_id": 8
+        },
+        {
+            "id": 50,
+            "product_variant_id": 47,
+            "attribute_id": 42
+        },
+        {
+            "id": 51,
+            "product_variant_id": 47,
+            "attribute_id": 46
+        },
+        {
+            "id": 52,
+            "product_variant_id": 48,
+            "attribute_id": 8
+        },
+        {
+            "id": 53,
+            "product_variant_id": 48,
+            "attribute_id": 42
+        },
+        {
+            "id": 54,
+            "product_variant_id": 48,
+            "attribute_id": 45
+        },
+        {
+            "id": 55,
+            "product_variant_id": 48,
+            "attribute_id": 48
+        },
+        {
+            "id": 56,
+            "product_variant_id": 61,
+            "attribute_id": 5
+        },
+        {
+            "id": 57,
+            "product_variant_id": 61,
+            "attribute_id": 28
+        },
+        {
+            "id": 58,
+            "product_variant_id": 61,
+            "attribute_id": 56
+        },
+        {
+            "id": 59,
+            "product_variant_id": 62,
+            "attribute_id": 5
+        },
+        {
+            "id": 60,
+            "product_variant_id": 62,
+            "attribute_id": 28
+        },
+        {
+            "id": 61,
+            "product_variant_id": 62,
+            "attribute_id": 56
+        },
+        {
+            "id": 62,
+            "product_variant_id": 62,
+            "attribute_id": 60
+        },
+        {
+            "id": 63,
+            "product_variant_id": 63,
+            "attribute_id": 5
+        },
+        {
+            "id": 64,
+            "product_variant_id": 63,
+            "attribute_id": 28
+        },
+        {
+            "id": 65,
+            "product_variant_id": 63,
+            "attribute_id": 56
+        },
+        {
+            "id": 66,
+            "product_variant_id": 63,
+            "attribute_id": 58
+        },
+        {
+            "id": 67,
+            "product_variant_id": 73,
+            "attribute_id": 10
+        },
+        {
+            "id": 68,
+            "product_variant_id": 73,
+            "attribute_id": 28
+        },
+        {
+            "id": 69,
+            "product_variant_id": 73,
+            "attribute_id": 56
+        },
+        {
+            "id": 70,
+            "product_variant_id": 74,
+            "attribute_id": 10
+        },
+        {
+            "id": 71,
+            "product_variant_id": 74,
+            "attribute_id": 28
+        },
+        {
+            "id": 72,
+            "product_variant_id": 74,
+            "attribute_id": 56
+        },
+        {
+            "id": 73,
+            "product_variant_id": 74,
+            "attribute_id": 57
+        },
+        {
+            "id": 74,
+            "product_variant_id": 75,
+            "attribute_id": 10
+        },
+        {
+            "id": 75,
+            "product_variant_id": 75,
+            "attribute_id": 28
+        },
+        {
+            "id": 76,
+            "product_variant_id": 75,
+            "attribute_id": 56
+        },
+        {
+            "id": 77,
+            "product_variant_id": 75,
+            "attribute_id": 58
+        },
+        {
+            "id": 86,
+            "product_variant_id": 34,
+            "attribute_id": 4
+        },
+        {
+            "id": 87,
+            "product_variant_id": 34,
+            "attribute_id": 34
+        },
+        {
+            "id": 88,
+            "product_variant_id": 34,
+            "attribute_id": 38
+        },
+        {
+            "id": 89,
+            "product_variant_id": 34,
+            "attribute_id": 39
+        },
+        {
+            "id": 90,
+            "product_variant_id": 36,
+            "attribute_id": 4
+        },
+        {
+            "id": 91,
+            "product_variant_id": 36,
+            "attribute_id": 35
+        },
+        {
+            "id": 92,
+            "product_variant_id": 36,
+            "attribute_id": 38
+        },
+        {
+            "id": 93,
+            "product_variant_id": 36,
+            "attribute_id": 40
+        },
+        {
+            "id": 97,
+            "product_variant_id": 4,
+            "attribute_id": 1
+        },
+        {
+            "id": 98,
+            "product_variant_id": 4,
+            "attribute_id": 13
+        },
+        {
+            "id": 99,
+            "product_variant_id": 4,
+            "attribute_id": 15
+        },
+        {
+            "id": 100,
+            "product_variant_id": 4,
+            "attribute_id": 18
+        },
+        {
+            "id": 101,
+            "product_variant_id": 5,
+            "attribute_id": 1
+        },
+        {
+            "id": 102,
+            "product_variant_id": 5,
+            "attribute_id": 13
+        },
+        {
+            "id": 103,
+            "product_variant_id": 5,
+            "attribute_id": 15
+        },
+        {
+            "id": 104,
+            "product_variant_id": 5,
+            "attribute_id": 20
+        },
+        {
+            "id": 105,
+            "product_variant_id": 6,
+            "attribute_id": 1
+        },
+        {
+            "id": 106,
+            "product_variant_id": 6,
+            "attribute_id": 11
+        },
+        {
+            "id": 107,
+            "product_variant_id": 6,
+            "attribute_id": 13
+        },
+        {
+            "id": 108,
+            "product_variant_id": 6,
+            "attribute_id": 18
+        },
+        {
+            "id": 109,
+            "product_variant_id": 10,
+            "attribute_id": 2
+        },
+        {
+            "id": 110,
+            "product_variant_id": 10,
+            "attribute_id": 15
+        },
+        {
+            "id": 111,
+            "product_variant_id": 10,
+            "attribute_id": 20
+        },
+        {
+            "id": 112,
+            "product_variant_id": 11,
+            "attribute_id": 2
+        },
+        {
+            "id": 113,
+            "product_variant_id": 11,
+            "attribute_id": 11
+        },
+        {
+            "id": 114,
+            "product_variant_id": 11,
+            "attribute_id": 18
+        },
+        {
+            "id": 115,
+            "product_variant_id": 12,
+            "attribute_id": 2
+        },
+        {
+            "id": 116,
+            "product_variant_id": 12,
+            "attribute_id": 11
+        },
+        {
+            "id": 117,
+            "product_variant_id": 12,
+            "attribute_id": 16
+        },
+        {
+            "id": 123,
+            "product_variant_id": 13,
+            "attribute_id": 1
+        },
+        {
+            "id": 124,
+            "product_variant_id": 13,
+            "attribute_id": 12
+        },
+        {
+            "id": 125,
+            "product_variant_id": 13,
+            "attribute_id": 21
+        },
+        {
+            "id": 126,
+            "product_variant_id": 14,
+            "attribute_id": 1
+        },
+        {
+            "id": 127,
+            "product_variant_id": 14,
+            "attribute_id": 21
+        },
+        {
+            "id": 128,
+            "product_variant_id": 14,
+            "attribute_id": 22
+        },
+        {
+            "id": 129,
+            "product_variant_id": 15,
+            "attribute_id": 1
+        },
+        {
+            "id": 130,
+            "product_variant_id": 15,
+            "attribute_id": 21
+        },
+        {
+            "id": 131,
+            "product_variant_id": 15,
+            "attribute_id": 22
+        },
+        {
+            "id": 132,
+            "product_variant_id": 15,
+            "attribute_id": 28
+        },
+        {
+            "id": 133,
+            "product_variant_id": 19,
+            "attribute_id": 3
+        },
+        {
+            "id": 134,
+            "product_variant_id": 19,
+            "attribute_id": 25
+        },
+        {
+            "id": 135,
+            "product_variant_id": 19,
+            "attribute_id": 26
+        },
+        {
+            "id": 136,
+            "product_variant_id": 20,
+            "attribute_id": 3
+        },
+        {
+            "id": 137,
+            "product_variant_id": 20,
+            "attribute_id": 23
+        },
+        {
+            "id": 138,
+            "product_variant_id": 20,
+            "attribute_id": 24
+        },
+        {
+            "id": 139,
+            "product_variant_id": 20,
+            "attribute_id": 28
+        },
+        {
+            "id": 140,
+            "product_variant_id": 21,
+            "attribute_id": 3
+        },
+        {
+            "id": 141,
+            "product_variant_id": 21,
+            "attribute_id": 23
+        },
+        {
+            "id": 142,
+            "product_variant_id": 21,
+            "attribute_id": 26
+        },
+        {
+            "id": 143,
+            "product_variant_id": 22,
+            "attribute_id": 2
+        },
+        {
+            "id": 144,
+            "product_variant_id": 22,
+            "attribute_id": 25
+        },
+        {
+            "id": 145,
+            "product_variant_id": 22,
+            "attribute_id": 26
+        },
+        {
+            "id": 146,
+            "product_variant_id": 23,
+            "attribute_id": 2
+        },
+        {
+            "id": 147,
+            "product_variant_id": 23,
+            "attribute_id": 23
+        },
+        {
+            "id": 148,
+            "product_variant_id": 23,
+            "attribute_id": 24
+        },
+        {
+            "id": 149,
+            "product_variant_id": 24,
+            "attribute_id": 2
+        },
+        {
+            "id": 150,
+            "product_variant_id": 24,
+            "attribute_id": 24
+        },
+        {
+            "id": 151,
+            "product_variant_id": 24,
+            "attribute_id": 27
+        },
+        {
+            "id": 152,
+            "product_variant_id": 25,
+            "attribute_id": 2
+        },
+        {
+            "id": 153,
+            "product_variant_id": 25,
+            "attribute_id": 25
+        },
+        {
+            "id": 154,
+            "product_variant_id": 25,
+            "attribute_id": 26
+        },
+        {
+            "id": 155,
+            "product_variant_id": 26,
+            "attribute_id": 2
+        },
+        {
+            "id": 156,
+            "product_variant_id": 26,
+            "attribute_id": 23
+        },
+        {
+            "id": 157,
+            "product_variant_id": 26,
+            "attribute_id": 24
+        },
+        {
+            "id": 158,
+            "product_variant_id": 27,
+            "attribute_id": 2
+        },
+        {
+            "id": 159,
+            "product_variant_id": 27,
+            "attribute_id": 24
+        },
+        {
+            "id": 160,
+            "product_variant_id": 27,
+            "attribute_id": 27
+        },
+        {
+            "id": 161,
+            "product_variant_id": 28,
+            "attribute_id": 1
+        },
+        {
+            "id": 162,
+            "product_variant_id": 28,
+            "attribute_id": 25
+        },
+        {
+            "id": 163,
+            "product_variant_id": 28,
+            "attribute_id": 26
+        },
+        {
+            "id": 164,
+            "product_variant_id": 29,
+            "attribute_id": 1
+        },
+        {
+            "id": 165,
+            "product_variant_id": 29,
+            "attribute_id": 23
+        },
+        {
+            "id": 166,
+            "product_variant_id": 29,
+            "attribute_id": 26
+        },
+        {
+            "id": 167,
+            "product_variant_id": 30,
+            "attribute_id": 1
+        },
+        {
+            "id": 168,
+            "product_variant_id": 30,
+            "attribute_id": 24
+        },
+        {
+            "id": 169,
+            "product_variant_id": 30,
+            "attribute_id": 27
+        },
+        {
+            "id": 194,
+            "product_variant_id": 37,
+            "attribute_id": 7
+        },
+        {
+            "id": 195,
+            "product_variant_id": 37,
+            "attribute_id": 33
+        },
+        {
+            "id": 196,
+            "product_variant_id": 37,
+            "attribute_id": 38
+        },
+        {
+            "id": 197,
+            "product_variant_id": 37,
+            "attribute_id": 39
+        },
+        {
+            "id": 210,
+            "product_variant_id": 35,
+            "attribute_id": 4
+        },
+        {
+            "id": 211,
+            "product_variant_id": 35,
+            "attribute_id": 34
+        },
+        {
+            "id": 212,
+            "product_variant_id": 35,
+            "attribute_id": 38
+        },
+        {
+            "id": 213,
+            "product_variant_id": 35,
+            "attribute_id": 40
+        },
+        {
+            "id": 234,
+            "product_variant_id": 38,
+            "attribute_id": 7
+        },
+        {
+            "id": 235,
+            "product_variant_id": 38,
+            "attribute_id": 34
+        },
+        {
+            "id": 236,
+            "product_variant_id": 38,
+            "attribute_id": 38
+        },
+        {
+            "id": 237,
+            "product_variant_id": 38,
+            "attribute_id": 40
+        },
+        {
+            "id": 238,
+            "product_variant_id": 39,
+            "attribute_id": 7
+        },
+        {
+            "id": 239,
+            "product_variant_id": 39,
+            "attribute_id": 35
+        },
+        {
+            "id": 240,
+            "product_variant_id": 39,
+            "attribute_id": 38
+        },
+        {
+            "id": 241,
+            "product_variant_id": 39,
+            "attribute_id": 40
+        },
+        {
+            "id": 242,
+            "product_variant_id": 40,
+            "attribute_id": 5
+        },
+        {
+            "id": 243,
+            "product_variant_id": 40,
+            "attribute_id": 33
+        },
+        {
+            "id": 244,
+            "product_variant_id": 40,
+            "attribute_id": 37
+        },
+        {
+            "id": 245,
+            "product_variant_id": 40,
+            "attribute_id": 39
+        },
+        {
+            "id": 246,
+            "product_variant_id": 41,
+            "attribute_id": 5
+        },
+        {
+            "id": 247,
+            "product_variant_id": 41,
+            "attribute_id": 34
+        },
+        {
+            "id": 248,
+            "product_variant_id": 41,
+            "attribute_id": 37
+        },
+        {
+            "id": 249,
+            "product_variant_id": 41,
+            "attribute_id": 39
+        },
+        {
+            "id": 254,
+            "product_variant_id": 42,
+            "attribute_id": 5
+        },
+        {
+            "id": 255,
+            "product_variant_id": 42,
+            "attribute_id": 35
+        },
+        {
+            "id": 256,
+            "product_variant_id": 42,
+            "attribute_id": 37
+        },
+        {
+            "id": 257,
+            "product_variant_id": 42,
+            "attribute_id": 39
+        },
+        {
+            "id": 258,
+            "product_variant_id": 43,
+            "attribute_id": 6
+        },
+        {
+            "id": 259,
+            "product_variant_id": 43,
+            "attribute_id": 33
+        },
+        {
+            "id": 260,
+            "product_variant_id": 43,
+            "attribute_id": 38
+        },
+        {
+            "id": 261,
+            "product_variant_id": 43,
+            "attribute_id": 39
+        },
+        {
+            "id": 262,
+            "product_variant_id": 44,
+            "attribute_id": 6
+        },
+        {
+            "id": 263,
+            "product_variant_id": 44,
+            "attribute_id": 34
+        },
+        {
+            "id": 264,
+            "product_variant_id": 44,
+            "attribute_id": 38
+        },
+        {
+            "id": 265,
+            "product_variant_id": 44,
+            "attribute_id": 39
+        },
+        {
+            "id": 266,
+            "product_variant_id": 45,
+            "attribute_id": 6
+        },
+        {
+            "id": 267,
+            "product_variant_id": 45,
+            "attribute_id": 35
+        },
+        {
+            "id": 268,
+            "product_variant_id": 45,
+            "attribute_id": 38
+        },
+        {
+            "id": 269,
+            "product_variant_id": 45,
+            "attribute_id": 39
+        },
+        {
+            "id": 293,
+            "product_variant_id": 52,
+            "attribute_id": 9
+        },
+        {
+            "id": 294,
+            "product_variant_id": 52,
+            "attribute_id": 44
+        },
+        {
+            "id": 295,
+            "product_variant_id": 52,
+            "attribute_id": 46
+        },
+        {
+            "id": 296,
+            "product_variant_id": 53,
+            "attribute_id": 9
+        },
+        {
+            "id": 297,
+            "product_variant_id": 53,
+            "attribute_id": 44
+        },
+        {
+            "id": 298,
+            "product_variant_id": 53,
+            "attribute_id": 46
+        },
+        {
+            "id": 299,
+            "product_variant_id": 53,
+            "attribute_id": 48
+        },
+        {
+            "id": 300,
+            "product_variant_id": 54,
+            "attribute_id": 9
+        },
+        {
+            "id": 301,
+            "product_variant_id": 54,
+            "attribute_id": 28
+        },
+        {
+            "id": 302,
+            "product_variant_id": 54,
+            "attribute_id": 44
+        },
+        {
+            "id": 303,
+            "product_variant_id": 54,
+            "attribute_id": 46
+        },
+        {
+            "id": 304,
+            "product_variant_id": 54,
+            "attribute_id": 48
+        },
+        {
+            "id": 305,
+            "product_variant_id": 49,
+            "attribute_id": 8
+        },
+        {
+            "id": 306,
+            "product_variant_id": 49,
+            "attribute_id": 43
+        },
+        {
+            "id": 307,
+            "product_variant_id": 49,
+            "attribute_id": 47
+        },
+        {
+            "id": 308,
+            "product_variant_id": 50,
+            "attribute_id": 8
+        },
+        {
+            "id": 309,
+            "product_variant_id": 50,
+            "attribute_id": 28
+        },
+        {
+            "id": 310,
+            "product_variant_id": 50,
+            "attribute_id": 43
+        },
+        {
+            "id": 311,
+            "product_variant_id": 50,
+            "attribute_id": 46
+        },
+        {
+            "id": 312,
+            "product_variant_id": 50,
+            "attribute_id": 48
+        },
+        {
+            "id": 317,
+            "product_variant_id": 51,
+            "attribute_id": 8
+        },
+        {
+            "id": 318,
+            "product_variant_id": 51,
+            "attribute_id": 41
+        },
+        {
+            "id": 319,
+            "product_variant_id": 51,
+            "attribute_id": 43
+        },
+        {
+            "id": 320,
+            "product_variant_id": 51,
+            "attribute_id": 46
+        },
+        {
+            "id": 321,
+            "product_variant_id": 51,
+            "attribute_id": 48
+        },
+        {
+            "id": 322,
+            "product_variant_id": 55,
+            "attribute_id": 10
+        },
+        {
+            "id": 323,
+            "product_variant_id": 55,
+            "attribute_id": 43
+        },
+        {
+            "id": 324,
+            "product_variant_id": 55,
+            "attribute_id": 46
+        },
+        {
+            "id": 325,
+            "product_variant_id": 55,
+            "attribute_id": 48
+        },
+        {
+            "id": 326,
+            "product_variant_id": 56,
+            "attribute_id": 10
+        },
+        {
+            "id": 327,
+            "product_variant_id": 56,
+            "attribute_id": 43
+        },
+        {
+            "id": 328,
+            "product_variant_id": 56,
+            "attribute_id": 46
+        },
+        {
+            "id": 329,
+            "product_variant_id": 56,
+            "attribute_id": 48
+        },
+        {
+            "id": 330,
+            "product_variant_id": 56,
+            "attribute_id": 49
+        },
+        {
+            "id": 331,
+            "product_variant_id": 57,
+            "attribute_id": 10
+        },
+        {
+            "id": 332,
+            "product_variant_id": 57,
+            "attribute_id": 28
+        },
+        {
+            "id": 333,
+            "product_variant_id": 57,
+            "attribute_id": 43
+        },
+        {
+            "id": 334,
+            "product_variant_id": 57,
+            "attribute_id": 46
+        },
+        {
+            "id": 335,
+            "product_variant_id": 57,
+            "attribute_id": 48
+        },
+        {
+            "id": 336,
+            "product_variant_id": 57,
+            "attribute_id": 49
+        },
+        {
+            "id": 337,
+            "product_variant_id": 58,
+            "attribute_id": 10
+        },
+        {
+            "id": 338,
+            "product_variant_id": 58,
+            "attribute_id": 43
+        },
+        {
+            "id": 339,
+            "product_variant_id": 58,
+            "attribute_id": 48
+        },
+        {
+            "id": 340,
+            "product_variant_id": 59,
+            "attribute_id": 10
+        },
+        {
+            "id": 341,
+            "product_variant_id": 59,
+            "attribute_id": 43
+        },
+        {
+            "id": 342,
+            "product_variant_id": 59,
+            "attribute_id": 46
+        },
+        {
+            "id": 343,
+            "product_variant_id": 59,
+            "attribute_id": 48
+        },
+        {
+            "id": 344,
+            "product_variant_id": 59,
+            "attribute_id": 49
+        },
+        {
+            "id": 345,
+            "product_variant_id": 60,
+            "attribute_id": 10
+        },
+        {
+            "id": 346,
+            "product_variant_id": 60,
+            "attribute_id": 28
+        },
+        {
+            "id": 347,
+            "product_variant_id": 60,
+            "attribute_id": 43
+        },
+        {
+            "id": 348,
+            "product_variant_id": 60,
+            "attribute_id": 46
+        },
+        {
+            "id": 349,
+            "product_variant_id": 60,
+            "attribute_id": 48
+        },
+        {
+            "id": 350,
+            "product_variant_id": 60,
+            "attribute_id": 49
+        },
+        {
+            "id": 351,
+            "product_variant_id": 64,
+            "attribute_id": 5
+        },
+        {
+            "id": 352,
+            "product_variant_id": 64,
+            "attribute_id": 54
+        },
+        {
+            "id": 353,
+            "product_variant_id": 64,
+            "attribute_id": 58
+        },
+        {
+            "id": 354,
+            "product_variant_id": 65,
+            "attribute_id": 5
+        },
+        {
+            "id": 355,
+            "product_variant_id": 65,
+            "attribute_id": 54
+        },
+        {
+            "id": 356,
+            "product_variant_id": 65,
+            "attribute_id": 57
+        },
+        {
+            "id": 357,
+            "product_variant_id": 66,
+            "attribute_id": 5
+        },
+        {
+            "id": 358,
+            "product_variant_id": 66,
+            "attribute_id": 54
+        },
+        {
+            "id": 359,
+            "product_variant_id": 66,
+            "attribute_id": 59
+        },
+        {
+            "id": 360,
+            "product_variant_id": 67,
+            "attribute_id": 8
+        },
+        {
+            "id": 361,
+            "product_variant_id": 67,
+            "attribute_id": 55
+        },
+        {
+            "id": 362,
+            "product_variant_id": 67,
+            "attribute_id": 58
+        },
+        {
+            "id": 363,
+            "product_variant_id": 68,
+            "attribute_id": 8
+        },
+        {
+            "id": 364,
+            "product_variant_id": 68,
+            "attribute_id": 55
+        },
+        {
+            "id": 365,
+            "product_variant_id": 68,
+            "attribute_id": 57
+        },
+        {
+            "id": 366,
+            "product_variant_id": 69,
+            "attribute_id": 8
+        },
+        {
+            "id": 367,
+            "product_variant_id": 69,
+            "attribute_id": 55
+        },
+        {
+            "id": 368,
+            "product_variant_id": 69,
+            "attribute_id": 59
+        },
+        {
+            "id": 369,
+            "product_variant_id": 70,
+            "attribute_id": 9
+        },
+        {
+            "id": 370,
+            "product_variant_id": 70,
+            "attribute_id": 56
+        },
+        {
+            "id": 371,
+            "product_variant_id": 70,
+            "attribute_id": 58
+        },
+        {
+            "id": 372,
+            "product_variant_id": 71,
+            "attribute_id": 9
+        },
+        {
+            "id": 373,
+            "product_variant_id": 71,
+            "attribute_id": 56
+        },
+        {
+            "id": 374,
+            "product_variant_id": 71,
+            "attribute_id": 57
+        },
+        {
+            "id": 375,
+            "product_variant_id": 72,
+            "attribute_id": 9
+        },
+        {
+            "id": 376,
+            "product_variant_id": 72,
+            "attribute_id": 56
+        },
+        {
+            "id": 377,
+            "product_variant_id": 72,
+            "attribute_id": 59
+        },
+        {
+            "id": 379,
+            "product_variant_id": 76,
+            "attribute_id": 7
+        },
+        {
+            "id": 380,
+            "product_variant_id": 76,
+            "attribute_id": 63
+        },
+        {
+            "id": 381,
+            "product_variant_id": 77,
+            "attribute_id": 7
+        },
+        {
+            "id": 382,
+            "product_variant_id": 77,
+            "attribute_id": 64
+        },
+        {
+            "id": 383,
+            "product_variant_id": 78,
+            "attribute_id": 4
+        },
+        {
+            "id": 384,
+            "product_variant_id": 78,
+            "attribute_id": 63
+        },
+        {
+            "id": 385,
+            "product_variant_id": 79,
+            "attribute_id": 4
+        },
+        {
+            "id": 386,
+            "product_variant_id": 79,
+            "attribute_id": 64
+        },
+        {
+            "id": 387,
+            "product_variant_id": 80,
+            "attribute_id": 63
+        },
+        {
+            "id": 388,
+            "product_variant_id": 80,
+            "attribute_id": 67
+        },
+        {
+            "id": 389,
+            "product_variant_id": 81,
+            "attribute_id": 64
+        },
+        {
+            "id": 390,
+            "product_variant_id": 81,
+            "attribute_id": 67
+        },
+        {
+            "id": 395,
+            "product_variant_id": 82,
+            "attribute_id": 65
+        },
+        {
+            "id": 396,
+            "product_variant_id": 82,
+            "attribute_id": 68
+        },
+        {
+            "id": 399,
+            "product_variant_id": 83,
+            "attribute_id": 66
+        },
+        {
+            "id": 400,
+            "product_variant_id": 83,
+            "attribute_id": 68
+        },
+        {
+            "id": 401,
+            "product_variant_id": 84,
+            "attribute_id": 8
+        },
+        {
+            "id": 402,
+            "product_variant_id": 84,
+            "attribute_id": 30
+        },
+        {
+            "id": 403,
+            "product_variant_id": 84,
+            "attribute_id": 70
+        },
+        {
+            "id": 404,
+            "product_variant_id": 84,
+            "attribute_id": 74
+        },
+        {
+            "id": 405,
+            "product_variant_id": 85,
+            "attribute_id": 8
+        },
+        {
+            "id": 406,
+            "product_variant_id": 85,
+            "attribute_id": 29
+        },
+        {
+            "id": 407,
+            "product_variant_id": 85,
+            "attribute_id": 70
+        },
+        {
+            "id": 408,
+            "product_variant_id": 85,
+            "attribute_id": 74
+        },
+        {
+            "id": 409,
+            "product_variant_id": 86,
+            "attribute_id": 5
+        },
+        {
+            "id": 410,
+            "product_variant_id": 86,
+            "attribute_id": 30
+        },
+        {
+            "id": 411,
+            "product_variant_id": 86,
+            "attribute_id": 69
+        },
+        {
+            "id": 412,
+            "product_variant_id": 86,
+            "attribute_id": 76
+        },
+        {
+            "id": 413,
+            "product_variant_id": 87,
+            "attribute_id": 5
+        },
+        {
+            "id": 414,
+            "product_variant_id": 87,
+            "attribute_id": 29
+        },
+        {
+            "id": 415,
+            "product_variant_id": 87,
+            "attribute_id": 69
+        },
+        {
+            "id": 416,
+            "product_variant_id": 87,
+            "attribute_id": 76
+        },
+        {
+            "id": 417,
+            "product_variant_id": 88,
+            "attribute_id": 5
+        },
+        {
+            "id": 418,
+            "product_variant_id": 88,
+            "attribute_id": 30
+        },
+        {
+            "id": 419,
+            "product_variant_id": 88,
+            "attribute_id": 72
+        },
+        {
+            "id": 420,
+            "product_variant_id": 89,
+            "attribute_id": 5
+        },
+        {
+            "id": 421,
+            "product_variant_id": 89,
+            "attribute_id": 29
+        },
+        {
+            "id": 422,
+            "product_variant_id": 89,
+            "attribute_id": 72
+        },
+        {
+            "id": 423,
+            "product_variant_id": 90,
+            "attribute_id": 8
+        },
+        {
+            "id": 424,
+            "product_variant_id": 90,
+            "attribute_id": 30
+        },
+        {
+            "id": 425,
+            "product_variant_id": 90,
+            "attribute_id": 73
+        },
+        {
+            "id": 426,
+            "product_variant_id": 91,
+            "attribute_id": 8
+        },
+        {
+            "id": 427,
+            "product_variant_id": 91,
+            "attribute_id": 29
+        },
+        {
+            "id": 428,
+            "product_variant_id": 91,
+            "attribute_id": 73
+        }
+    ],
+    "Brands": [
+        {
+            "brands_id": 1,
+            "name": "Intel",
+            "contact_info": "support@intel.com",
+            "image": "https://media.zenfs.com/en/us.finance.gurufocus/06ee28153af34ee682f043e62519b8dd"
+        },
+        {
+            "brands_id": 2,
+            "name": "AMD",
+            "contact_info": "support@amd.com",
+            "image": "https://brandlogos.net/wp-content/uploads/2012/03/amd-vector.jpg"
+        },
+        {
+            "brands_id": 3,
+            "name": "NVIDIA",
+            "contact_info": "support@nvidia.com",
+            "image": "https://khoserver.com/wp-content/uploads/2024/12/hinh-1-nvidia-bat-dau-tuyen-dung-nhieu-vi-tri-tai-viet-nam.png.webp"
+        },
+        {
+            "brands_id": 4,
+            "name": "Kingston",
+            "contact_info": "support@kingston.com",
+            "image": "https://vitinhttc.com/wp-content/uploads/2022/08/thuong-hieu-kingston.jpg"
+        },
+        {
+            "brands_id": 5,
+            "name": "Samsung",
+            "contact_info": "support@samsung.com",
+            "image": "https://static.vecteezy.com/system/resources/thumbnails/020/975/669/small_2x/samsung-logo-samsung-icon-transparent-free-png.png"
+        },
+        {
+            "brands_id": 6,
+            "name": "ASUS",
+            "contact_info": "support@asus.com",
+            "image": "https://inkythuatso.com/uploads/thumbnails/800/2021/11/logo-asus-inkythuatso-2-01-26-09-21-11.jpg"
+        },
+        {
+            "brands_id": 7,
+            "name": "MSI",
+            "contact_info": "support@msi.com",
+            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5uDPlqog-obkg3tlQsLg8RbBpIbpFr5PfjA&s"
+        },
+        {
+            "brands_id": 8,
+            "name": "Gigabyte",
+            "contact_info": "support@gigabyte.com",
+            "image": "https://logoeps.com/wp-content/uploads/2011/05/gigabyte-vector-logo.png"
+        },
+        {
+            "brands_id": 9,
+            "name": "Corsair",
+            "contact_info": "support@corsair.com",
+            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnqXs8JXox4phhj-xhnE0fatGtIEuwBqDC3w&s"
+        },
+        {
+            "brands_id": 10,
+            "name": "Western Digital",
+            "contact_info": "support@wd.com",
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/brand-images%2Fbrand-1741690083265-WD.png?alt=media&token=894489fe-5157-4144-a52d-258abeb01329"
+        },
+        {
+            "brands_id": 11,
+            "name": "Synology",
+            "contact_info": "support@synology.com",
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/brand-images%2Fbrand-1741690116144-synology_logo_icon_249461.webp?alt=media&token=7f8478cd-7b21-4b15-b56e-26f5a2379b59"
+        }
+    ],
+    "Build_PC": [
+        {
+            "build_id": 0,
+            "build_name": "Gaming Beast",
+            "total_price": 35700000.0,
+            "usage_purpose": "Gaming",
+            "description": "Máy tính chơi game cấu hình mạnh với RTX 4070 Ti",
+            "status": "Available",
+            "created_date": "2025-03-01 09:00:00.000"
+        },
+        {
+            "build_id": 1,
+            "build_name": "Workstation Pro",
+            "total_price": 51300000.0,
+            "usage_purpose": "Workstation",
+            "description": "Máy trạm chuyên dụng với Xeon W-3275",
+            "status": "Available",
+            "created_date": "2025-03-02 14:00:00.000"
+        },
+        {
+            "build_id": 2,
+            "build_name": "Budget Gamer",
+            "total_price": 20850000.0,
+            "usage_purpose": "Gaming",
+            "description": "Máy tính chơi game giá rẻ với RX 7600",
+            "status": "Available",
+            "created_date": "2025-03-03 10:00:00.000"
+        },
+        {
+            "build_id": 3,
+            "build_name": "Pc đẹp",
+            "total_price": 8880000.0,
+            "usage_purpose": "Gaming",
+            "description": "<p>san pham xịn</p>",
+            "status": "Available",
+            "created_date": "2025-03-27 14:58:59.353"
+        }
+    ],
+    "Build_PC_Images": [
+        {
+            "id": 0,
+            "build_id": 0,
+            "image_url": "https://pcmarket.vn/media/product/11425_dsc07621.jpg"
+        },
+        {
+            "id": 1,
+            "build_id": 1,
+            "image_url": "https://khoavang.vn/resources/cache/800xx1/data/dell/dell_t5820/z3571357350043_b8600a55695f406921474e93eb15eec4-1658030804.webp"
+        },
+        {
+            "id": 2,
+            "build_id": 2,
+            "image_url": "https://product.hstatic.net/200000420363/product/12122_b85a0b07d85b42a69af819748353cacf_master.png"
+        },
+        {
+            "id": 3,
+            "build_id": 3,
+            "image_url": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/build_pc_images%2FPc%20%C4%91%E1%BA%B9p-unnamed%20(1).webp-1743062280538?alt=media&token=476b5919-0707-4a60-8b5e-11550a0f7914"
+        }
+    ],
+    "Build_PC_Product_Variants": [
+        {
+            "id": 0,
+            "build_id": 1,
+            "product_variant_id": 1,
+            "variant_quantity": 1
+        },
+        {
+            "id": 1,
+            "build_id": 1,
+            "product_variant_id": 16,
+            "variant_quantity": 1
+        },
+        {
+            "id": 2,
+            "build_id": 1,
+            "product_variant_id": 31,
+            "variant_quantity": 2
+        },
+        {
+            "id": 3,
+            "build_id": 1,
+            "product_variant_id": 46,
+            "variant_quantity": 1
+        },
+        {
+            "id": 4,
+            "build_id": 1,
+            "product_variant_id": 61,
+            "variant_quantity": 1
+        },
+        {
+            "id": 5,
+            "build_id": 2,
+            "product_variant_id": 13,
+            "variant_quantity": 1
+        },
+        {
+            "id": 6,
+            "build_id": 2,
+            "product_variant_id": 28,
+            "variant_quantity": 1
+        },
+        {
+            "id": 7,
+            "build_id": 2,
+            "product_variant_id": 37,
+            "variant_quantity": 2
+        },
+        {
+            "id": 8,
+            "build_id": 2,
+            "product_variant_id": 55,
+            "variant_quantity": 1
+        },
+        {
+            "id": 9,
+            "build_id": 2,
+            "product_variant_id": 70,
+            "variant_quantity": 1
+        },
+        {
+            "id": 10,
+            "build_id": 3,
+            "product_variant_id": 10,
+            "variant_quantity": 1
+        },
+        {
+            "id": 11,
+            "build_id": 3,
+            "product_variant_id": 22,
+            "variant_quantity": 1
+        },
+        {
+            "id": 12,
+            "build_id": 3,
+            "product_variant_id": 40,
+            "variant_quantity": 2
+        },
+        {
+            "id": 13,
+            "build_id": 3,
+            "product_variant_id": 58,
+            "variant_quantity": 1
+        },
+        {
+            "id": 14,
+            "build_id": 3,
+            "product_variant_id": 73,
+            "variant_quantity": 1
+        },
+        {
+            "id": 15,
+            "build_id": 3,
+            "product_variant_id": 15,
+            "variant_quantity": 1
+        },
+        {
+            "id": 16,
+            "build_id": 3,
+            "product_variant_id": 30,
+            "variant_quantity": 1
+        },
+        {
+            "id": 17,
+            "build_id": 3,
+            "product_variant_id": 45,
+            "variant_quantity": 1
+        },
+        {
+            "id": 18,
+            "build_id": 3,
+            "product_variant_id": 59,
+            "variant_quantity": 1
+        },
+        {
+            "id": 19,
+            "build_id": 3,
+            "product_variant_id": 74,
+            "variant_quantity": 1
+        },
+        {
+            "id": 20,
+            "build_id": 3,
+            "product_variant_id": 78,
+            "variant_quantity": 1
+        },
+        {
+            "id": 21,
+            "build_id": 3,
+            "product_variant_id": 82,
+            "variant_quantity": 1
+        },
+        {
+            "id": 22,
+            "build_id": 3,
+            "product_variant_id": 85,
+            "variant_quantity": 1
+        },
+        {
+            "id": 23,
+            "build_id": 3,
+            "product_variant_id": 90,
+            "variant_quantity": 1
+        }
+    ],
+    "cart_detail": [
+        {
+            "id": 3,
+            "user_id": 3,
+            "quantity": 1,
+            "product_variant_id": 10,
+            "build_id": null
+        },
+        {
+            "id": 6,
+            "user_id": 6,
+            "quantity": 1,
+            "product_variant_id": 1,
+            "build_id": null
+        },
+        {
+            "id": 7,
+            "user_id": 6,
+            "quantity": 1,
+            "product_variant_id": 91,
+            "build_id": null
+        },
+        {
+            "id": 8,
+            "user_id": 6,
+            "quantity": 1,
+            "product_variant_id": 90,
+            "build_id": null
+        },
+        {
+            "id": 9,
+            "user_id": 6,
+            "quantity": 1,
+            "product_variant_id": 89,
+            "build_id": null
+        },
+        {
+            "id": 10,
+            "user_id": 6,
+            "quantity": 1,
+            "product_variant_id": 88,
+            "build_id": null
+        },
+        {
+            "id": 14,
+            "user_id": 5,
+            "quantity": 1,
+            "product_variant_id": 89,
+            "build_id": null
+        },
+        {
+            "id": 15,
+            "user_id": 6,
+            "quantity": 1,
+            "product_variant_id": 74,
+            "build_id": null
+        }
+    ],
+    "Categories": [
+        {
+            "id": 1,
+            "name": "CPU",
+            "description": "Bộ vi xử lý trung tâm",
+            "image": "https://cdn.tgdd.vn/2023/03/content/so-sanh-cpu-laptop-core-i3-i5-i7-va-i9-khac-nhau-gi-nen-mua-loai-nao--760x367-760x367.jpg",
+            "parent_id": 1,
+            "slug": "cpu",
+            "id_build": 2
+        },
+        {
+            "id": 2,
+            "name": "GPU",
+            "description": "Card đồ họa",
+            "image": "https://i0.wp.com/ictc.edu.vn/wp-content/uploads/2024/04/image-36.png?fit=1000%2C658&ssl=1",
+            "parent_id": 1,
+            "slug": "gpu",
+            "id_build": 2
+        },
+        {
+            "id": 3,
+            "name": "RAM",
+            "description": "Bộ nhớ trong",
+            "image": "https://hc.com.vn/i/ecommerce/media/ck3109742-cac-loai-ram-may-tinh-1.jpg",
+            "parent_id": 1,
+            "slug": "ram",
+            "id_build": 2
+        },
+        {
+            "id": 4,
+            "name": "Mainboard",
+            "description": "Bo mạch chủ",
+            "image": "https://cdn.tgdd.vn/Files/2021/11/11/1397215/cac-loai-mainboard-may-tinh-thong-dung-nhat-tren-t-1.jpg",
+            "parent_id": 1,
+            "slug": "mainboard",
+            "id_build": 2
+        },
+        {
+            "id": 5,
+            "name": "PSU",
+            "description": "Bộ nguồn máy tính",
+            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwQS9H7_dt40ut38s-xSb-iKFGy-QtRzb_0w&s",
+            "parent_id": 1,
+            "slug": "psu",
+            "id_build": 2
+        },
+        {
+            "id": 6,
+            "name": "SSD",
+            "description": "Ổ cứng SSD",
+            "image": "https://www.hoangvucenter.vn/fileserver//images/smartweb_hoangvu/root/upload/media/M625cf7a623097/%E1%BB%94-c%E1%BB%A9ng-ssd-laptop-m2-sata-128g-(5).jpg",
+            "parent_id": 1,
+            "slug": "ssd",
+            "id_build": 2
+        },
+        {
+            "id": 7,
+            "name": "HDD",
+            "description": "Ổ cứng HDD",
+            "image": "https://www.tonycomputer.vn/uploads/plugin/product_items/512/1601971924-2073031070-c-ng-wd-hdd-250gb.jpg",
+            "parent_id": 1,
+            "slug": "hdd",
+            "id_build": 2
+        },
+        {
+            "id": 8,
+            "name": "Case",
+            "description": "Vỏ máy tính",
+            "image": "https://pcmarket.vn/media/product/10476_vo_case_cesar_bravery_black_01.png",
+            "parent_id": 1,
+            "slug": "case",
+            "id_build": 2
+        },
+        {
+            "id": 9,
+            "name": "Cooler",
+            "description": "Tản nhiệt",
+            "image": "https://hanoicomputercdn.com/media/product/87921_tan_nhiet_khi_id_cooling_frozn_a610_argb__1_.jpg",
+            "parent_id": 1,
+            "slug": "cooler",
+            "id_build": 2
+        },
+        {
+            "id": 10,
+            "name": "Monitor",
+            "description": "Màn hình",
+            "image": "https://images-na.ssl-images-amazon.com/images/I/71OlXltl18L.jpg",
+            "parent_id": 1,
+            "slug": "monitor",
+            "id_build": 2
+        },
+        {
+            "id": 11,
+            "name": "Keyboard",
+            "description": "Bàn phím máy tính",
+            "image": "https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/MXCL3?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1728939673942",
+            "parent_id": 1,
+            "slug": "keyboard",
+            "id_build": 2
+        },
+        {
+            "id": 12,
+            "name": "Mouse",
+            "description": "Chuột máy tính",
+            "image": "https://m.media-amazon.com/images/I/61M9TBM9HaL._AC_SL1500_.jpg",
+            "parent_id": 1,
+            "slug": "mouse",
+            "id_build": 2
+        }
+    ],
+    "Contact": [
+        {
+            "id": 1,
+            "full_name": "Nguyễn Văn A",
+            "email": "yttnpc08086@fpt.edu.vn",
+            "phone": "0918000001",
+            "subject": "Hỏi về sản phẩm",
+            "message": "Cho tôi hỏi về thông tin RTX 4070 Ti",
+            "created_at": "2025-03-05 10:00:00",
+            "status": true,
+            "user_id": 2
+        },
+        {
+            "id": 2,
+            "full_name": "Trần Thị B",
+            "email": "mod01@xai.com",
+            "phone": "0928000001",
+            "subject": "Báo lỗi hệ thống",
+            "message": "Hệ thống bị chậm khi thêm sản phẩm",
+            "created_at": "2025-03-06 14:00:00",
+            "status": true,
+            "user_id": 2
+        }
+    ],
+    "Favorites": [
+        {
+            "id": 2,
+            "user_id": 3,
+            "product_variant_id": 31
+        },
+        {
+            "id": 3,
+            "user_id": 6,
+            "product_variant_id": 10
+        },
+        {
+            "id": 4,
+            "user_id": 6,
+            "product_variant_id": 88
+        },
+        {
+            "id": 5,
+            "user_id": 2,
+            "product_variant_id": 31
+        },
+        {
+            "id": 6,
+            "user_id": 2,
+            "product_variant_id": 32
+        },
+        {
+            "id": 7,
+            "user_id": 2,
+            "product_variant_id": 86
+        }
+    ],
+    "images": [
+        {
+            "id": 1,
+            "image": "https://baolongpc.vn/upload/files/product-news/rv-intel-core-i7-13700k-2.webp",
+            "product_variant_id": 1
+        },
+        {
+            "id": 2,
+            "image": "https://product.hstatic.net/200000522285/product/vbwdmdagjuab9vp53qn9x8_a29dab8cf2334f78962ace104279a20c.jpg",
+            "product_variant_id": 2
+        },
+        {
+            "id": 3,
+            "image": "https://cdn.tgdd.vn/News/1496819/cpu-intel-core-i7-13700k-chip-the-he-13-so-huu-4-800x560.jpg",
+            "product_variant_id": 3
+        },
+        {
+            "id": 7,
+            "image": "https://hanoicomputercdn.com/media/lib/29-11-2022/cpu-amd-ryzen-7-7700x-45-ghz-upto-54ghz-40mb-8-cores-16-threads-105w-socket-am5-x.jpg",
+            "product_variant_id": 7
+        },
+        {
+            "id": 8,
+            "image": "https://pcmarket.vn/media/lib/18-06-2024/cpu-amd-ryzen-7-7700x_.jpg",
+            "product_variant_id": 8
+        },
+        {
+            "id": 9,
+            "image": "https://mega.com.vn/media/news/1801_CPU-AMD-Ryzen-7-7700.jpg",
+            "product_variant_id": 9
+        },
+        {
+            "id": 16,
+            "image": "https://longhungpc.vn/media/news/146-0801_vga-nvidia-geforce-rtx-4070-ti-super_pcm.png",
+            "product_variant_id": 16
+        },
+        {
+            "id": 17,
+            "image": "https://product.hstatic.net/200000837185/product/1024_cb093998e36c41d8b1f9b66f01c09eb5.png",
+            "product_variant_id": 17
+        },
+        {
+            "id": 18,
+            "image": "https://www.tncstore.vn/media/product/250-11305-tnc-store-card-man-hinh-gigabyte-geforce-rtx-4070-ti-super-windforce-16g--2-.jpg",
+            "product_variant_id": 18
+        },
+        {
+            "id": 31,
+            "image": "https://nvs.tn-cdn.net/2021/07/55178_ram_desktop_kingston_hyperx_fury_rbg_hx432c16fb3ak2_16_1.jpg",
+            "product_variant_id": 31
+        },
+        {
+            "id": 32,
+            "image": "https://bizweb.dktcdn.net/thumb/1024x1024/100/329/122/products/ram-pc-kingston-ddr4-hx426c16fb3k216-13.jpg?v=1632763334867",
+            "product_variant_id": 32
+        },
+        {
+            "id": 33,
+            "image": "https://product.hstatic.net/200000680839/product/71eucpeucsl._sl1500__1_-_copy_1_9a97b42a62134d93885b46f0ede5c20f.jpg",
+            "product_variant_id": 33
+        },
+        {
+            "id": 46,
+            "image": "https://nguyencongpc.vn/media/product/23620-mainboard-asus-prime-z790-p-csm-1.jpeg",
+            "product_variant_id": 46
+        },
+        {
+            "id": 47,
+            "image": "https://khoavang.vn/resources/cache/800xx1/A-Khoi-Hinh-anh/A-Mainboard/ASUS-Prime-Z790-A-WiFi-Overview-1706170840.jpg",
+            "product_variant_id": 47
+        },
+        {
+            "id": 48,
+            "image": "https://anphat.com.vn/media/product/43610_mainboard_asus_prime_z790_a_wifi_csm_ddr5_anphat88.jpg",
+            "product_variant_id": 48
+        },
+        {
+            "id": 61,
+            "image": "https://hanoicomputercdn.com/media/product/37025_nguon_corsair_rm_series_rm850x_850w_modular_80_plus_gold_0005_6.jpg",
+            "product_variant_id": 61
+        },
+        {
+            "id": 62,
+            "image": "https://product.hstatic.net/1000333506/product/corsair-rm850x-shift-fully-modular-atx-power-supply-ttd-1_6089b423e5f44595bfd1bb1c6a5828ce_grande.jpg",
+            "product_variant_id": 62
+        },
+        {
+            "id": 63,
+            "image": "https://maytinhdaiviet.com/wp-content/uploads/2023/10/PSU-Corsair-RM850x-2021-850W80-Plus-GoldDenTrang-2.jpg",
+            "product_variant_id": 63
+        },
+        {
+            "id": 73,
+            "image": "https://product.hstatic.net/1000333506/product/gigabyte-p850gm-80-plus-gold-1_d8068330dfa54a63908186638ec98274_master_f06bb15f352e4f4e8b69f495b19dc7a2_grande.png",
+            "product_variant_id": 73
+        },
+        {
+            "id": 74,
+            "image": "https://hanoicomputercdn.com/media/lib/07-07-2021/gigabyte_p850_gm_thucte2.jpg",
+            "product_variant_id": 74
+        },
+        {
+            "id": 75,
+            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiM1KN4unLi-2qnk7DqiilE5v3A0sGX5vMmg&s",
+            "product_variant_id": 75
+        },
+        {
+            "id": 78,
+            "image": "https://anphat.com.vn/media/product/46875_ram_kingston_fury_beast_rgb_32gb__2x16gb__ddr4_3200mhz__2_.jpg",
+            "product_variant_id": 34
+        },
+        {
+            "id": 79,
+            "image": "https://product.hstatic.net/1000037809/product/thegioigear_kingston_fury_beast_rgb_1_19fd9cbe934c4cefbb1833211b65d18b_master.jpeg",
+            "product_variant_id": 36
+        },
+        {
+            "id": 81,
+            "image": "https://www.nnkk.vn/media/product/3351_intel_core_i5_13600k4.jpg",
+            "product_variant_id": 4
+        },
+        {
+            "id": 82,
+            "image": "https://hanoicomputercdn.com/media/product/68383_cpu_intel_core_i5_13600k_3_5ghz_turbo_up_to_5_1ghz_14_nhan_20_luong_20mb_cache_125w_socket_intel_lga_1700_alder_lake.jpg",
+            "product_variant_id": 5
+        },
+        {
+            "id": 83,
+            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUirarsoVRvP6gFO0wjYME2g2Ydt8tYv2SBg&s",
+            "product_variant_id": 6
+        },
+        {
+            "id": 84,
+            "image": "https://i.ytimg.com/vi/cp4rLjZyYmU/sddefault.jpg",
+            "product_variant_id": 10
+        },
+        {
+            "id": 85,
+            "image": "https://minhancomputercdn.com/media/product/11382_amd_ryzen_5_7600x_7.jpg",
+            "product_variant_id": 11
+        },
+        {
+            "id": 86,
+            "image": "https://product.hstatic.net/200000680839/product/amd-ryzen-5-7600x-01_ae23edf394c5486b902b470c864d2fb1.jpg",
+            "product_variant_id": 12
+        },
+        {
+            "id": 89,
+            "image": "https://www.notebookcheck.net/fileadmin/Notebooks/News/_nc3/Xeon.jpg",
+            "product_variant_id": 13
+        },
+        {
+            "id": 90,
+            "image": "https://cdn11.bigcommerce.com/s-0yiknm/images/stencil/1280x1280/products/15952/25389/1693509559.1280.1280__24411.1693509687.jpg?c=2",
+            "product_variant_id": 14
+        },
+        {
+            "id": 91,
+            "image": "https://s.alicdn.com/@sc04/kf/H2d5d058186c740f9a341453f59849008K.jpg_720x720q50.jpg",
+            "product_variant_id": 15
+        },
+        {
+            "id": 92,
+            "image": "https://www.nvidia.com/content/dam/en-zz/Solutions/geforce/ada/rtx-4060-4060ti/geforce-rtx-4060-ti-og-1200x630.jpg",
+            "product_variant_id": 19
+        },
+        {
+            "id": 93,
+            "image": "https://anphat.com.vn/media/product/45668_vga_msi_rtx_4060_ventus_2x_black_8gb_oc__2_.jpg",
+            "product_variant_id": 20
+        },
+        {
+            "id": 94,
+            "image": "https://product.hstatic.net/200000420363/product/card-man-hinh-vga-colorful-igame-geforce-rtx-4060-ti-mini-oc-8gb-5_b8132bce00464d929ebce64dc6a45e25.jpg",
+            "product_variant_id": 21
+        },
+        {
+            "id": 95,
+            "image": "https://giaonhanh.vn/wp-content/uploads/2023/05/AMD-Radeon-RX-7600.jpg",
+            "product_variant_id": 22
+        },
+        {
+            "id": 96,
+            "image": "https://www.lowyat.net/wp-content/uploads/2023/05/AMD-Radeon-RX-7600-17.jpg",
+            "product_variant_id": 23
+        },
+        {
+            "id": 97,
+            "image": "https://www.proshop.dk/Images/AMD-Radeon-RX7600XT-Topbanner-852x402.jpg",
+            "product_variant_id": 24
+        },
+        {
+            "id": 98,
+            "image": "https://www.gigabyte.com/FileUpload/Global/KeyFeature/1689/innergigabyteimages/eagle/03_s.jpg",
+            "product_variant_id": 25
+        },
+        {
+            "id": 99,
+            "image": "https://amdvietnam.vn/data/upload/media/files/amd-radeon-rx-6800-xt/2022-05-13_15-47-05.png",
+            "product_variant_id": 26
+        },
+        {
+            "id": 100,
+            "image": "https://assetsio.gnwcdn.com/amd-radeon-rx-6800-vs-6800-xt.jpg?width=1200&height=1200&fit=bounds&quality=70&format=jpg&auto=webp",
+            "product_variant_id": 27
+        },
+        {
+            "id": 101,
+            "image": "https://gearshop.vn/upload/images/Product/Intel/VGA/ARC%20A770/Inteal-ARC-A770-(7).jpg",
+            "product_variant_id": 28
+        },
+        {
+            "id": 102,
+            "image": "https://pg.asrock.com/Graphics-Card/photo/Intel%20Arc%20A770%20Phantom%20Gaming%2016GB%20OC(L1).png",
+            "product_variant_id": 29
+        },
+        {
+            "id": 103,
+            "image": "https://pg.asrock.com/Graphics-Card/photo/Intel%20Arc%20A770%20Phantom%20Gaming%2016GB%20OC(L3).png",
+            "product_variant_id": 30
+        },
+        {
+            "id": 110,
+            "image": "https://image.semiconductor.samsung.com/image/samsung/p6/semiconductor/products/dram/ddr/ddr5/ddr5_feature_01_02_pc.png?$ORIGIN_PNG$",
+            "product_variant_id": 37
+        },
+        {
+            "id": 114,
+            "image": "https://anphat.com.vn/media/product/46875_ram_kingston_fury_beast_rgb_32gb__2x16gb__ddr4_3200mhz__2_.jpg",
+            "product_variant_id": 35
+        },
+        {
+            "id": 120,
+            "image": "https://api.thinkview.vn/uploads/backend/2021/3/26/samsung-ddr5-512gb.jpg",
+            "product_variant_id": 38
+        },
+        {
+            "id": 121,
+            "image": "https://lagihitech.vn/wp-content/uploads/2022/05/RAM-Laptop-DDR5-Samsung-8GB-Bus-4800-M425R1GB4BB0-CQK0D-hinh-5.jpg",
+            "product_variant_id": 39
+        },
+        {
+            "id": 122,
+            "image": "https://anphat.com.vn/media/product/29961_81jodopl_gl__ac_sl1500_.jpg",
+            "product_variant_id": 40
+        },
+        {
+            "id": 123,
+            "image": "https://bizweb.dktcdn.net/100/329/122/products/ram-pc-corsair-vengeance-rgb-64gb-6000mhz-ddr5-2x32gb-cmh64gx5m2b6000c38-01.jpg?v=1732161825607",
+            "product_variant_id": 41
+        },
+        {
+            "id": 125,
+            "image": "https://bizweb.dktcdn.net/thumb/grande/100/433/921/files/a-nh-ma-n-hi-nh-2024-03-08-lu-c-09-09-33.png?v=1709863790192",
+            "product_variant_id": 42
+        },
+        {
+            "id": 126,
+            "image": "https://product.hstatic.net/1000361104/product/4_6d061f3bca484734807060dc63e3db8d_master.jpg",
+            "product_variant_id": 43
+        },
+        {
+            "id": 127,
+            "image": "https://nguyencongpc.vn/media/lib/01-06-2023/ramgskilltridentz5rgb32g2x16bddr55600mhz4.jpeg",
+            "product_variant_id": 44
+        },
+        {
+            "id": 128,
+            "image": "https://product.hstatic.net/200000420363/product/ram-gskill-trident-z5-neo-rgb-32gb-w_435ea92178d147d3b244df9528aa6ea0_master.jpg",
+            "product_variant_id": 45
+        },
+        {
+            "id": 135,
+            "image": "https://storage-asset.msi.com/global/picture/image/feature/mb/X670/meg/MEG-X670E-ACE/meg-kv.png",
+            "product_variant_id": 52
+        },
+        {
+            "id": 136,
+            "image": "https://product.hstatic.net/200000456405/product/storage-overview_1568cbe11c6841c59363d63303fd6ae9.png",
+            "product_variant_id": 53
+        },
+        {
+            "id": 137,
+            "image": "https://product.hstatic.net/200000420363/product/mainboard-msi-meg-z790-ace-4_27a9b06835d944ca8d8b703edc9ee0e0_master.jpg",
+            "product_variant_id": 54
+        },
+        {
+            "id": 138,
+            "image": "https://product.hstatic.net/1000333506/product/rog-strix-b650e-e-gaming_5c15257bc3f842cfb5457ed2ce7f7785.png",
+            "product_variant_id": 49
+        },
+        {
+            "id": 139,
+            "image": "https://product.hstatic.net/1000333506/product/rog-strix-b650e-e-gaming_5c15257bc3f842cfb5457ed2ce7f7785.png",
+            "product_variant_id": 50
+        },
+        {
+            "id": 141,
+            "image": "https://cdn.medcom.id/dynamic/content/2024/06/23/1692042/Emp2eb5ksh.jpg?w=480",
+            "product_variant_id": 51
+        },
+        {
+            "id": 142,
+            "image": "https://bizweb.dktcdn.net/thumb/1024x1024/100/329/122/products/mainboard-pc-gigabyte-z790-aorus-elite-ax-3.jpg?v=1680579282430",
+            "product_variant_id": 55
+        },
+        {
+            "id": 143,
+            "image": "https://product.hstatic.net/1000333506/product/2484_2a49e582190fc2d0ae9d7cb04c958fff_90f21a0ff5494869bd69775ddb7b44cc_d473a2b84cb04b8683d9463c288cb584.png",
+            "product_variant_id": 56
+        },
+        {
+            "id": 144,
+            "image": "https://product.hstatic.net/1000333506/product/9030_c7c8a72c2bb11ca9c57b0f35fbecbb56_bbac4639e3da4ac0a98a367a33aca1ad_013fa54aad77418483579b88b8ef3d33.jpg",
+            "product_variant_id": 57
+        },
+        {
+            "id": 145,
+            "image": "https://product.hstatic.net/200000722513/product/4178_fa4a0d1ef74021bca32073bf01d981f7_c40398b0baae4855b2e72bfd0c69946c_8872c6a07af94f97b829c5622e03939d_compact.jpg",
+            "product_variant_id": 58
+        },
+        {
+            "id": 146,
+            "image": "https://bizweb.dktcdn.net/thumb/1024x1024/100/329/122/products/mainboard-pc-gigabyte-z790-aorus-elite-x-wifi7-1.jpg?v=1728576211263",
+            "product_variant_id": 59
+        },
+        {
+            "id": 147,
+            "image": "https://nguyencongpc.vn/media/lib/27-10-2022/b650aorusproax-01.png",
+            "product_variant_id": 60
+        },
+        {
+            "id": 148,
+            "image": "https://bizweb.dktcdn.net/thumb/1024x1024/100/329/122/products/nguon-may-tinh-corsair-cx750m-750w-80-plus-bronze-cp-9020061-na-5.png?v=1627899699200",
+            "product_variant_id": 64
+        },
+        {
+            "id": 149,
+            "image": "https://laptopbaoloc.vn/wp-content/uploads/2020/09/screenshot2-7401.png",
+            "product_variant_id": 65
+        },
+        {
+            "id": 150,
+            "image": "https://bizweb.dktcdn.net/100/329/122/products/nguon-may-tinh-corsair-cx750m-750w-80-plus-bronze-cp-9020061-na.png?v=1627899699200",
+            "product_variant_id": 66
+        },
+        {
+            "id": 151,
+            "image": "https://pcmarket.vn/media/product/12043_nguon_asus_rog_thor_1200_platium_1.png",
+            "product_variant_id": 67
+        },
+        {
+            "id": 152,
+            "image": "https://phungtien.vn/assets/nguon/nguon-may-tinh-asus-rog-thor-1200w-platinum3/nguon_may_tinh_asus_rog_thor_1200w_platinum3_01.jpg",
+            "product_variant_id": 68
+        },
+        {
+            "id": 153,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fnguon-may-tinh-asus-rog-thor-1200p2-gaming-1200w-platinum-8.jpg-1741578278748?alt=media&token=040f635a-33a9-4ac8-938d-fa21c3b2c173",
+            "product_variant_id": 69
+        },
+        {
+            "id": 154,
+            "image": "https://s4.shopbay.vn/files/421/msi-a1000g-1-6777a1839f810.jpg",
+            "product_variant_id": 70
+        },
+        {
+            "id": 155,
+            "image": "https://songphuong.vn/Content/uploads/2022/02/Nguon-MSI-MPG-A1000G-1000W-1-songphuong.vn_.jpg",
+            "product_variant_id": 71
+        },
+        {
+            "id": 156,
+            "image": "https://s4.shopbay.vn/files/421/msi-a1000g-1-6777a1839f810.jpg",
+            "product_variant_id": 72
+        },
+        {
+            "id": 161,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-samsung-970-evo-plus-pcie-nvme-v-nand-m-2-2280-500gb-mz-v7s500bw.jpg-1741688793744?alt=media&token=45d081f1-0995-41fd-a01c-0dd1cd9a624d",
+            "product_variant_id": 76
+        },
+        {
+            "id": 162,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-samsung-970-evo-plus-pcie-nvme-v-nand-m-2-2280-500gb-mz-v7s500bw-1.jpg-1741688795062?alt=media&token=53ea96c7-282e-4ad0-bdd2-fdfbc609b30f",
+            "product_variant_id": 76
+        },
+        {
+            "id": 163,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-samsung-970-evo-plus-pcie-nvme-v-nand-m-2-2280-500gb-mz-v7s500bw-2.jpg-1741688796188?alt=media&token=317a6a7b-8371-402e-a713-5d551ee8955b",
+            "product_variant_id": 76
+        },
+        {
+            "id": 164,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-samsung-970-evo-plus-pcie-nvme-v-nand-m-2-2280-500gb-mz-v7s500bw-3.jpg-1741688797146?alt=media&token=6c71953c-26cd-4098-beee-a93ff5f09fde",
+            "product_variant_id": 76
+        },
+        {
+            "id": 165,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-samsung-970-evo-plus-pcie-nvme-v-nand-m-2-2280-500gb-mz-v7s500bw.jpg-1741689014708?alt=media&token=a191dac3-ca40-42de-95f8-52e1b7eeae31",
+            "product_variant_id": 77
+        },
+        {
+            "id": 166,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-samsung-970-evo-plus-pcie-nvme-v-nand-m-2-2280-500gb-mz-v7s500bw-1.jpg-1741689015713?alt=media&token=a41c51b7-4a88-478f-94e8-eaf996994989",
+            "product_variant_id": 77
+        },
+        {
+            "id": 167,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-samsung-970-evo-plus-pcie-nvme-v-nand-m-2-2280-500gb-mz-v7s500bw-2.jpg-1741689016445?alt=media&token=1e47d667-7447-4a31-a93e-7561b560731f",
+            "product_variant_id": 77
+        },
+        {
+            "id": 168,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-kingston-kc3000-500gb.webp-1741689269715?alt=media&token=3e678308-f31c-469a-8f0c-5aba55a7d1fe",
+            "product_variant_id": 78
+        },
+        {
+            "id": 169,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-kingston-kc3000-500gb-2.webp-1741689271538?alt=media&token=36497252-e424-49d8-a863-5aebeb380e1f",
+            "product_variant_id": 78
+        },
+        {
+            "id": 170,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-kingston-kc3000-500gb-3.webp-1741689273353?alt=media&token=01ce089f-ab2a-4618-93e8-9d638477ecb8",
+            "product_variant_id": 78
+        },
+        {
+            "id": 171,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-kingston-kc3000-500gb.webp-1741689294110?alt=media&token=6f51bd3b-5023-4a03-a0a4-0a039fcc4bfe",
+            "product_variant_id": 79
+        },
+        {
+            "id": 172,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fssd-kingston-kc3000-500gb-2.webp-1741689295905?alt=media&token=71bab9b1-cc5d-4cc0-9698-fbb61de193f4",
+            "product_variant_id": 79
+        },
+        {
+            "id": 173,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fhdd-wd-blue-1tb-3-5-inch-sata-iii-64mb-cache-7200rpm-wd10ezex.webp-1741690181177?alt=media&token=741a7c01-f6d9-49ba-8910-d106f5960b94",
+            "product_variant_id": 80
+        },
+        {
+            "id": 174,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fhdd-wd-blue-1tb-3-5-inch-sata-iii-64mb-cache-7200rpm-wd10ezex-0.webp-1741690183740?alt=media&token=45e8d838-c6e6-4c9f-ac0b-420ce42ecfad",
+            "product_variant_id": 80
+        },
+        {
+            "id": 175,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fwd-hdd-blue-1tb-3-5-sata-6gb-64mb-cache-7200rpm-3-2776b4ba-e612-4cbf-90a8-e94a6ed15244.webp-1741690185786?alt=media&token=225008dc-0f56-4f08-a626-f0ef3809ebf1",
+            "product_variant_id": 80
+        },
+        {
+            "id": 176,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fhdd-wd-blue-1tb-3-5-inch-sata-iii-64mb-cache-7200rpm-wd10ezex-0.webp-1741690216887?alt=media&token=bd8f20a7-d438-4a03-b2fc-ebc9c665b9b7",
+            "product_variant_id": 81
+        },
+        {
+            "id": 177,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fwd-hdd-blue-1tb-3-5-sata-6gb-64mb-cache-7200rpm-3-2776b4ba-e612-4cbf-90a8-e94a6ed15244.webp-1741690218753?alt=media&token=dac8417d-72a9-4f34-a3bb-0fcd7b71a95f",
+            "product_variant_id": 81
+        },
+        {
+            "id": 182,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fhdd-synology-hat3300-4tb-3-5-inch-sata-256mb-cache-5400rpm-hat3300-4t.webp-1741690397380?alt=media&token=d046ed7c-5e0c-4a38-b72a-5ebd835ee173",
+            "product_variant_id": 82
+        },
+        {
+            "id": 183,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fhdd-synology-hat3300-4tb-3-5-inch-sata-256mb-cache-5400rpm-hat3300-4t-1.webp-1741690399180?alt=media&token=5f5d11a3-4094-40e6-b7c6-d9815a660452",
+            "product_variant_id": 82
+        },
+        {
+            "id": 186,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fhdd-synology-hat3300-4tb-3-5-inch-sata-256mb-cache-5400rpm-hat3300-4t.webp-1741690429337?alt=media&token=781a7d4f-b25c-405c-9632-00678e642ba4",
+            "product_variant_id": 83
+        },
+        {
+            "id": 187,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fhdd-synology-hat3300-4tb-3-5-inch-sata-256mb-cache-5400rpm-hat3300-4t-1.webp-1741690431124?alt=media&token=e0b98ad5-c5a2-416b-8fc8-984590f27ac1",
+            "product_variant_id": 83
+        },
+        {
+            "id": 188,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-black-3.jpg-1741691077207?alt=media&token=8a869cd8-9467-4e50-9255-425c62355783",
+            "product_variant_id": 84
+        },
+        {
+            "id": 189,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-black-4.webp-1741691080002?alt=media&token=0bf0aab8-975d-443e-94e7-d6ea01b68215",
+            "product_variant_id": 84
+        },
+        {
+            "id": 190,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-black-5.webp-1741691082198?alt=media&token=d33fbf6b-82b2-4bd6-ac2e-6663fdd158e7",
+            "product_variant_id": 84
+        },
+        {
+            "id": 191,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-black-6.webp-1741691084607?alt=media&token=3e5398cf-064a-4c72-b428-701d4d66fee1",
+            "product_variant_id": 84
+        },
+        {
+            "id": 192,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-black-7.webp-1741691085932?alt=media&token=acee3a00-884d-46ac-bd2e-620745ead5fe",
+            "product_variant_id": 84
+        },
+        {
+            "id": 193,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-white-3.webp-1741691167849?alt=media&token=c128ff70-df28-41fd-bc13-1dec534608be",
+            "product_variant_id": 85
+        },
+        {
+            "id": 194,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-white-4.webp-1741691169149?alt=media&token=479434e3-0ef2-4692-b1c8-19a65e24d5c9",
+            "product_variant_id": 85
+        },
+        {
+            "id": 195,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-white-6.jpg-1741691170269?alt=media&token=99bdc8bc-dc5f-4c6d-9292-00b5340d05d6",
+            "product_variant_id": 85
+        },
+        {
+            "id": 196,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcase-may-tinh-asus-rog-strix-gr701-hyperion-white-7.webp-1741691172211?alt=media&token=13e30d5c-4280-4394-91f2-0466659c4fb6",
+            "product_variant_id": 85
+        },
+        {
+            "id": 197,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2F6500x-black-hero-01-aa.webp-1741691502582?alt=media&token=7fe13eb9-522b-4a0d-8abd-da15d1c2fc83",
+            "product_variant_id": 86
+        },
+        {
+            "id": 198,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2F6500x-black-render-01.webp-1741691504495?alt=media&token=cf716782-97bb-46cd-abd3-8a896548bfa2",
+            "product_variant_id": 86
+        },
+        {
+            "id": 199,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2F6500x-black-render-15.webp-1741691505322?alt=media&token=dc684f3e-2190-433a-a245-91740cdbef8e",
+            "product_variant_id": 86
+        },
+        {
+            "id": 200,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcorsair%20white-1.webp-1741691569728?alt=media&token=c38aa659-ae44-4dc5-84d2-999c9159a3e8",
+            "product_variant_id": 87
+        },
+        {
+            "id": 201,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcorsair%20white-2.webp-1741691571626?alt=media&token=b27096ee-0fc2-433b-8ebd-d4b7d6147d29",
+            "product_variant_id": 87
+        },
+        {
+            "id": 202,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcorsair%20white-3.webp-1741691573505?alt=media&token=57f14890-7bdc-4ac4-a9a5-4467a5c83d7a",
+            "product_variant_id": 87
+        },
+        {
+            "id": 203,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-cw-9061001-ww.webp-1741692696156?alt=media&token=057dc9bf-329f-4a70-a5b4-3ecda962e604",
+            "product_variant_id": 88
+        },
+        {
+            "id": 204,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-cw-9061001-ww-1.webp-1741692698405?alt=media&token=22efce47-5bea-47d4-9948-e1645e747359",
+            "product_variant_id": 88
+        },
+        {
+            "id": 205,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-cw-9061001-ww-2.webp-1741692700654?alt=media&token=9194046b-f8d0-4c64-8546-75307cd5abf3",
+            "product_variant_id": 88
+        },
+        {
+            "id": 206,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-cw-9061001-ww-3.webp-1741692701601?alt=media&token=d56ae20b-54c8-4a50-9b4d-0faa4ed4d10e",
+            "product_variant_id": 88
+        },
+        {
+            "id": 207,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-white-cw-9061005-ww.webp-1741692749169?alt=media&token=a5a077d6-4413-47e9-a3e8-61245f7c543f",
+            "product_variant_id": 89
+        },
+        {
+            "id": 208,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-white-cw-9061005-ww-1.webp-1741692750051?alt=media&token=f0fe423b-7c48-4716-be50-36e03719c1d8",
+            "product_variant_id": 89
+        },
+        {
+            "id": 209,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-white-cw-9061005-ww-2.webp-1741692751886?alt=media&token=2bf7efaa-9c8f-441c-a65d-beeb03268e79",
+            "product_variant_id": 89
+        },
+        {
+            "id": 210,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Ftan-nhiet-nuoc-aio-corsair-icue-link-h100i-rgb-white-cw-9061005-ww-4.webp-1741692752629?alt=media&token=5dbf48c1-d79f-496f-b4c5-fce6081732eb",
+            "product_variant_id": 89
+        },
+        {
+            "id": 211,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcooler%20asus-1.webp-1741695172902?alt=media&token=41750e10-d242-4435-af6a-04ae8850d54c",
+            "product_variant_id": 90
+        },
+        {
+            "id": 212,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcooler%20asus-2.webp-1741695174588?alt=media&token=ca30a3d8-0793-4528-b331-6bd1b87c7e50",
+            "product_variant_id": 90
+        },
+        {
+            "id": 213,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcooler%20asus-3.webp-1741695175752?alt=media&token=38695bd0-f07d-4c07-9b82-dd9b225934b4",
+            "product_variant_id": 90
+        },
+        {
+            "id": 214,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcooler%20asus-white-1.webp-1741695300126?alt=media&token=e8f0f314-5530-4e21-b70d-6f9958d54f79",
+            "product_variant_id": 91
+        },
+        {
+            "id": 215,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcooler%20asus-white-2.webp-1741695301598?alt=media&token=634c32cc-55ea-4113-87a8-4632483ecbe5",
+            "product_variant_id": 91
+        },
+        {
+            "id": 216,
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/product_variants%2Fcooler%20asus-white-3.webp-1741695303830?alt=media&token=b8a0c9c0-5bcf-4d7a-9e8d-526f59827439",
+            "product_variant_id": 91
+        }
+    ],
+    "Notifications": [
+        {
+            "id": 99,
+            "user_id": 2,
+            "order_id": 1061,
+            "content": "Đơn hàng DH00001 của bạn đang ở trạng thái Đã thanh toán",
+            "created_at": "2025-04-10 22:08:28.860",
+            "is_read": true
+        },
+        {
+            "id": 100,
+            "user_id": 2,
+            "order_id": 1061,
+            "content": "Đơn hàng DH00001 của bạn đang ở trạng thái Đã thanh toán",
+            "created_at": "2025-04-10 22:08:28.860",
+            "is_read": true
+        },
+        {
+            "id": 101,
+            "user_id": 2,
+            "order_id": 1061,
+            "content": "Đơn hàng DH00001 của bạn đang ở trạng thái Đã xác nhận",
+            "created_at": "2025-04-10 23:11:43.130",
+            "is_read": true
+        }
+    ],
+    "order_detail": [
+        {
+            "id": 1088,
+            "order_id": 1061,
+            "quantity": 1,
+            "price": 1000000.0,
+            "product_variant_id": 90
+        },
+        {
+            "id": 1089,
+            "order_id": 1061,
+            "quantity": 1,
+            "price": 1200000.0,
+            "product_variant_id": 89
+        },
+        {
+            "id": 1090,
+            "order_id": 1061,
+            "quantity": 1,
+            "price": 1200000.0,
+            "product_variant_id": 91
+        },
+        {
+            "id": 1091,
+            "order_id": 1062,
+            "quantity": 1,
+            "price": 1200000.0,
+            "product_variant_id": 89
+        },
+        {
+            "id": 1092,
+            "order_id": 1063,
+            "quantity": 1,
+            "price": 1200000.0,
+            "product_variant_id": 89
+        },
+        {
+            "id": 1093,
+            "order_id": 1064,
+            "quantity": 1,
+            "price": 750000.0,
+            "product_variant_id": 1
+        }
+    ],
+    "Orders": [
+        {
+            "id": 1061,
+            "user_id": 2,
+            "voucher_id": null,
+            "order_date": "2025-04-10 22:07:37.510",
+            "total_price": 3415500,
+            "status": 4,
+            "payment_status": true,
+            "full_address": "128 Ngô Đức Thắng, Phường Hưng Lợi, Quận Ninh Kiều, Thành phố Cần Thơ",
+            "order_num": "DH00001",
+            "shipping_fee": 15500,
+            "discout_price": 0,
+            "phone": "0394027628"
+        },
+        {
+            "id": 1062,
+            "user_id": 2,
+            "voucher_id": null,
+            "order_date": "2025-04-10 22:46:13.887",
+            "total_price": 1215500,
+            "status": 2,
+            "payment_status": true,
+            "full_address": "128 Ngô Đức Thắng, Phường Hưng Lợi, Quận Ninh Kiều, Thành phố Cần Thơ",
+            "order_num": "DH00002",
+            "shipping_fee": 15500,
+            "discout_price": 0,
+            "phone": "0394027628"
+        },
+        {
+            "id": 1063,
+            "user_id": 2,
+            "voucher_id": null,
+            "order_date": "2025-04-10 22:46:52.637",
+            "total_price": 1215500,
+            "status": 2,
+            "payment_status": true,
+            "full_address": "128 Ngô Đức Thắng, Phường Hưng Lợi, Quận Ninh Kiều, Thành phố Cần Thơ",
+            "order_num": "DH00003",
+            "shipping_fee": 15500,
+            "discout_price": 0,
+            "phone": "0394027628"
+        },
+        {
+            "id": 1064,
+            "user_id": 2,
+            "voucher_id": null,
+            "order_date": "2025-04-11 08:04:40.267",
+            "total_price": 765500,
+            "status": 2,
+            "payment_status": true,
+            "full_address": "128 Ngô Đức Thắng, Phường Hưng Lợi, Quận Ninh Kiều, Thành phố Cần Thơ",
+            "order_num": "DH00004",
+            "shipping_fee": 15500,
+            "discout_price": 0,
+            "phone": "0394027628"
+        }
+    ],
+    "Posts": [
+        {
+            "id": 1,
+            "user_id": 1,
+            "title": "Hướng dẫn build PC cho người mới bắt đầu",
+            "content": "Xây dựng một chiếc PC không phải là nhiệm vụ khó khăn nếu bạn biết những điều cơ bản. Trong bài viết này, chúng tôi sẽ hướng dẫn bạn cách chọn từng linh kiện, từ CPU, GPU, RAM, mainboard cho đến nguồn và case. Ngoài ra, bạn cũng sẽ biết cách lắp ráp một cách chính xác để tránh hư hỏng linh kiện. Hãy cùng khám phá và tự tay xây dựng một chiếc PC phù hợp với nhu cầu của bạn.",
+            "status": "0",
+            "image": "https://i.ytimg.com/vi/3ejIMYt84vA/maxresdefault.jpg",
+            "create_at": "2025-01-15 10:30:00"
+        },
+        {
+            "id": 2,
+            "user_id": 1,
+            "title": "Những lỗi phổ biến khi lắp ráp PC và cách khắc phục",
+            "content": "Lắp ráp PC là một trải nghiệm thú vị, nhưng nhiều người dùng mới thường mắc phải các lỗi phổ biến như cắm sai khe RAM, bôi keo tản nhiệt quá nhiều hoặc quá ít, hoặc lắp sai thứ tự dây nguồn. Trong bài viết này, chúng tôi sẽ liệt kê những sai lầm thường gặp khi lắp ráp PC và hướng dẫn bạn cách khắc phục chúng để đảm bảo hiệu suất tối ưu cho hệ thống.",
+            "status": "1",
+            "image": "https://hoanglongcomputer.vn/media/news/126-95--m---c-ph---i-c--c-l---i-c---b---n-n--y.png",
+            "create_at": "2025-02-10 14:00:00"
+        },
+        {
+            "id": 3,
+            "user_id": 1,
+            "title": "Đánh giá các dòng card đồ họa mới nhất",
+            "content": "Card đồ họa là một trong những linh kiện quan trọng nhất đối với game thủ và dân thiết kế đồ họa. Trong bài viết này, chúng tôi sẽ đánh giá hiệu suất của các dòng GPU mới nhất từ NVIDIA và AMD, bao gồm RTX 4090, RTX 4080, RX 7900 XT và RX 7800 XT. Bài viết sẽ giúp bạn hiểu rõ ưu điểm và nhược điểm của từng dòng card để lựa chọn sản phẩm phù hợp với nhu cầu sử dụng.",
+            "status": "1",
+            "image": "https://24hcomputer.vn/img/image/Tin-tuc-cong-nghe/card-do-hoa-toit-nhat-2022/top-10-card-do-hoa-tot-nhat-nam-2022-24h-computer.jpg",
+            "create_at": "2025-03-05 09:45:00"
+        },
+        {
+            "id": 4,
+            "user_id": 1,
+            "title": "Bí quyết tối ưu hiệu suất cho PC gaming",
+            "content": "Bạn cảm thấy game của mình bị giật lag hoặc FPS không ổn định? Có nhiều cách để tối ưu hiệu suất cho PC gaming của bạn, bao gồm tinh chỉnh thiết lập đồ họa, cập nhật driver, ép xung phần cứng, tối ưu hệ điều hành và làm mát linh kiện. Trong bài viết này, chúng tôi sẽ hướng dẫn bạn từng bước để giúp PC hoạt động mượt mà hơn và đem lại trải nghiệm gaming tốt nhất.",
+            "status": "1",
+            "image": "https://kimlongcenter.com/upload/image/Thu%20Thuat/C%C3%A1ch%20t%E1%BB%91i%20%C6%B0u%20%C4%91%E1%BB%83%20ch%C6%A1i%20game%20m%C6%B0%E1%BB%A3t%20h%C6%A1n/c%C3%A1ch-t%E1%BB%91i-%C6%B0u-%C4%91%E1%BB%83-ch%C6%A1i-game-m%C6%B0%E1%BB%A3t-h%C6%A1n.jpg",
+            "create_at": "2025-04-01 16:20:00"
+        },
+        {
+            "id": 5,
+            "user_id": 1,
+            "title": "Cách vệ sinh và bảo trì PC đúng cách",
+            "content": "Bụi bẩn là kẻ thù lớn nhất của máy tính, nó có thể làm giảm hiệu suất và gây hư hỏng linh kiện nếu không được làm sạch thường xuyên. Trong bài viết này, chúng tôi sẽ hướng dẫn bạn cách vệ sinh PC đúng cách, từ việc làm sạch quạt, bộ tản nhiệt, bo mạch chủ đến thay keo tản nhiệt cho CPU. Ngoài ra, bạn cũng sẽ học được cách bảo trì PC để kéo dài tuổi thọ và duy trì hiệu suất ổn định.",
+            "status": "1",
+            "image": "https://media2.lamdongtructuyen.vn/api/file/f0906157-3a74-4f96-8225-88c6950107bf",
+            "create_at": "2025-04-20 08:10:00"
+        },
+        {
+            "id": 6,
+            "user_id": 1,
+            "title": "Nên chọn SSD hay HDD cho máy tính? Ưu, nhược điểm và cách lựa chọn phù hợp",
+            "content": "Khi lựa chọn ổ cứng cho máy tính, nhiều người phân vân giữa SSD và HDD. SSD có tốc độ đọc/ghi nhanh gấp nhiều lần HDD, giúp cải thiện hiệu suất của hệ thống đáng kể. Với SSD, máy tính có thể khởi động chỉ trong vài giây, trong khi HDD mất nhiều thời gian hơn. Bên cạnh đó, SSD cũng không có bộ phận chuyển động nên bền bỉ hơn, tiêu thụ ít điện năng hơn và ít bị hư hỏng do va đập. Tuy nhiên, SSD có giá thành cao hơn so với HDD ở cùng một mức dung lượng.\r\n\r\n    HDD có ưu điểm là giá rẻ hơn, dung lượng lớn, phù hợp cho những ai cần lưu trữ nhiều dữ liệu nhưng không quan trọng tốc độ. Với những người làm việc với dữ liệu lớn như video editor, photographer hoặc lưu trữ game dung lượng cao, HDD vẫn là một lựa chọn hợp lý. Để có hiệu suất tốt nhất, người dùng nên kết hợp cả SSD và HDD: SSD dùng để cài hệ điều hành và phần mềm, còn HDD để lưu trữ dữ liệu ít truy cập hơn.\r\n\r\n    Khi chọn SSD, bạn cũng cần quan tâm đến loại giao tiếp như SATA hay NVMe. SSD NVMe có tốc độ nhanh hơn đáng kể so với SSD SATA nhưng cũng có giá thành cao hơn. Ngoài ra, tuổi thọ SSD cũng bị ảnh hưởng bởi số lần ghi/xóa dữ liệu, vì vậy bạn nên chọn những thương hiệu uy tín như Samsung, Western Digital, Crucial hoặc Kingston để đảm bảo độ bền.",
+            "status": "1",
+            "image": "https://atpro.com.vn/wp-content/uploads/2023/06/lua-chon-o-cung-ssd-hay-hdd.jpg",
+            "create_at": "2025-05-10 09:30:00"
+        },
+        {
+            "id": 7,
+            "user_id": 1,
+            "title": "Cách chọn bộ nguồn (PSU) phù hợp với PC - Tránh cháy nổ và đảm bảo hiệu suất ổn định",
+            "content": "Bộ nguồn (PSU) là một trong những linh kiện quan trọng nhưng thường bị bỏ qua khi build PC. Một bộ nguồn không đủ công suất hoặc chất lượng kém có thể gây ra hiện tượng sụt áp, mất ổn định hệ thống, thậm chí làm hỏng các linh kiện khác như CPU, GPU và bo mạch chủ.\r\n\r\n    Khi chọn PSU, bạn cần xác định tổng công suất tiêu thụ của hệ thống. Các linh kiện như card đồ họa, CPU, ổ cứng đều tiêu tốn điện năng khác nhau. Ví dụ, một hệ thống gaming với RTX 3080 và Core i9 có thể cần PSU 750W trở lên, trong khi một dàn PC văn phòng có thể chỉ cần PSU 400W.\r\n\r\n    Ngoài công suất, bạn nên chọn PSU đạt chuẩn 80 Plus để đảm bảo hiệu suất cao và ít hao phí điện năng. Các mức 80 Plus phổ biến gồm: 80 Plus Standard, Bronze, Silver, Gold, Platinum, và Titanium, với Titanium có hiệu suất cao nhất. Một yếu tố quan trọng khác là thương hiệu. Những hãng uy tín như Corsair, EVGA, Seasonic, Cooler Master thường có PSU chất lượng cao, bền bỉ và ổn định hơn so với các PSU giá rẻ không rõ nguồn gốc.\r\n\r\n    Việc chọn sai PSU có thể dẫn đến nhiều vấn đề như sụt điện, hư hỏng linh kiện, thậm chí là cháy nổ. Do đó, hãy đầu tư một bộ nguồn chất lượng ngay từ đầu để đảm bảo hệ thống hoạt động bền bỉ.",
+            "status": "1",
+            "image": "https://moduncomputer.vn/wp-content/uploads/2025/02/ngu%E1%BB%93n.jpg",
+            "create_at": "2025-06-02 14:15:00"
+        },
+        {
+            "id": 8,
+            "user_id": 1,
+            "title": "Ép xung CPU là gì? Có nên ép xung để tăng hiệu suất hay không?",
+            "content": "Ép xung (overclocking) là quá trình tăng xung nhịp của CPU so với mức mặc định mà nhà sản xuất quy định nhằm đạt hiệu suất cao hơn. Điều này có thể giúp tăng tốc độ xử lý của máy tính, đặc biệt là trong các tác vụ như gaming hoặc render video.\r\n\r\n    Tuy nhiên, ép xung đi kèm với rủi ro, bao gồm tăng nhiệt độ, giảm tuổi thọ linh kiện và tiêu thụ điện năng cao hơn. Nếu hệ thống tản nhiệt không đủ tốt, CPU có thể bị quá nhiệt và gây lỗi hệ thống hoặc thậm chí bị hư hỏng. Do đó, nếu muốn ép xung, bạn cần đầu tư một bộ tản nhiệt tốt như tản nhiệt nước AIO hoặc tản nhiệt khí cao cấp.\r\n\r\n    Ngoài ra, không phải CPU nào cũng có thể ép xung. Ví dụ, các dòng CPU Intel có hậu tố \"K\" như i7-13700K hoặc AMD Ryzen dòng \"X\" như Ryzen 7 7800X được thiết kế để ép xung dễ dàng hơn. Bo mạch chủ cũng cần hỗ trợ ép xung, thường là các dòng chipset cao cấp như Z-series của Intel hoặc X-series của AMD.\r\n\r\n    Việc ép xung có thể mang lại hiệu suất tốt hơn, nhưng không phải lúc nào cũng đáng để đánh đổi sự ổn định. Nếu bạn không có kinh nghiệm, hãy cân nhắc kỹ trước khi thử nghiệm.",
+            "status": "1",
+            "image": "https://suachualaptop24h.com/uploads/A-Pin-Dell/ep-xung-cpu-la-gi-nhung-dieu-ban-can-biet-ve-ep-xung-cpu.jpg",
+            "create_at": "2025-06-15 16:45:00"
+        },
+        {
+            "id": 9,
+            "user_id": 1,
+            "title": "RAM là gì? Cách chọn RAM phù hợp cho PC gaming và làm việc",
+            "content": "RAM (Random Access Memory) là bộ nhớ tạm thời giúp hệ thống xử lý dữ liệu nhanh chóng. Khi mua RAM, có ba yếu tố quan trọng cần quan tâm: dung lượng, tốc độ (bus) và độ trễ (CAS latency).\r\n\r\n    - Dung lượng RAM: Với các tác vụ cơ bản như lướt web, gõ văn bản, 8GB RAM là đủ. Nếu bạn chơi game hoặc làm đồ họa, 16GB là mức tối thiểu. Còn nếu làm việc chuyên sâu như chỉnh sửa video 4K, lập trình AI, nên chọn 32GB trở lên.\r\n    - Tốc độ RAM (bus): RAM có bus càng cao, tốc độ xử lý dữ liệu càng nhanh. Đối với PC gaming, RAM DDR4 3200MHz hoặc DDR5 5200MHz trở lên là lựa chọn tốt.\r\n    - Độ trễ (CAS latency): CL thấp hơn đồng nghĩa với tốc độ xử lý nhanh hơn, nhưng chênh lệch không quá đáng kể nếu không chạy ứng dụng đặc thù.\r\n\r\n    Khi chọn RAM, bạn cũng cần kiểm tra bo mạch chủ có hỗ trợ loại RAM đó không. Các thương hiệu RAM nổi tiếng như Corsair, G.Skill, Kingston, Crucial sẽ giúp đảm bảo độ bền và hiệu suất cao.",
+            "status": "1",
+            "image": "https://ictsaigon.com.vn/storage/ram-la-gi.webp",
+            "create_at": "2025-07-01 10:00:00"
+        },
+        {
+            "id": 10,
+            "user_id": 1,
+            "title": "Có nên mua card đồ họa cũ không? Những điều cần biết trước khi mua GPU second-hand",
+            "content": "Card đồ họa là một trong những linh kiện đắt đỏ nhất khi build PC. Mua GPU cũ có thể giúp tiết kiệm chi phí, nhưng cũng có rủi ro cao như card đã bị đào coin, hỏng hóc hoặc hiệu năng giảm sút.\r\n\r\n    Trước khi mua card đồ họa cũ, bạn nên kiểm tra nguồn gốc, nhiệt độ khi hoạt động và hiệu suất thực tế bằng các phần mềm như MSI Afterburner hoặc FurMark. Nếu card từng dùng để đào coin, tuổi thọ có thể bị giảm đáng kể. Do đó, tốt nhất là chọn mua từ những người bán uy tín hoặc cửa hàng có bảo hành.",
+            "status": "1",
+            "image": "https://minhancomputercdn.com/media/news/290_nen_mua_card_do_hoa_cu_hay_khong.jpg",
+            "create_at": "2025-07-20 13:30:00"
+        }
+    ],
+    "Reviews": [],
+    "Role": [
+        {
+            "id": 1,
+            "role_name": "ADMIN"
+        },
+        {
+            "id": 2,
+            "role_name": "USER"
+        }
+    ],
+    "templates": [],
+    "User_Role": [
+        {
+            "user_role_id": 1,
+            "user_id": 1,
+            "role_id": 1
+        },
+        {
+            "user_role_id": 2,
+            "user_id": 2,
+            "role_id": 2
+        },
+        {
+            "user_role_id": 3,
+            "user_id": 3,
+            "role_id": 1
+        },
+        {
+            "user_role_id": 4,
+            "user_id": 4,
+            "role_id": 2
+        },
+        {
+            "user_role_id": 5,
+            "user_id": 5,
+            "role_id": 2
+        },
+        {
+            "user_role_id": 6,
+            "user_id": 6,
+            "role_id": 2
+        },
+        {
+            "user_role_id": 7,
+            "user_id": 7,
+            "role_id": 2
+        }
+    ],
+    "Users": [
+        {
+            "id": 1,
+            "user_name": "admin",
+            "email": "lesithanh160201@gmail.comm",
+            "password": "$2a$10$.SS.GJlObzTTB2D0vUZAoeF.6f/6ZM75/jTerK7392ZYS1Wrl6Xw2",
+            "full_name": "LÊ SĨ THÀNH",
+            "phone": "0912368236",
+            "total_spent": 1000000.0,
+            "registration_date": "2025-01-01 08:00:00.000",
+            "otp_sms": null,
+            "status": "Active",
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/users%2F1739850482845_abc.jpg?alt=media&token=d1cc6563-d46f-43a4-a2df-57a80099aba7"
+        },
+        {
+            "id": 2,
+            "user_name": "user",
+            "email": "lesithanh160201@gmail.com",
+            "password": "$2a$10$.SS.GJlObzTTB2D0vUZAoeF.6f/6ZM75/jTerK7392ZYS1Wrl6Xw2",
+            "full_name": "Si Thanh",
+            "phone": "0982345761",
+            "total_spent": 2000000.0,
+            "registration_date": "2025-02-01 10:00:00.000",
+            "otp_sms": null,
+            "status": "Active",
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/profiles%2F2_1744332630068_abc.jpg?alt=media&token=b9920c09-fd7e-4d54-a274-b0d5f588d016"
+        },
+        {
+            "id": 3,
+            "user_name": "thai",
+            "email": "giaychannel123@gmail.com",
+            "password": "$2a$10$.SS.GJlObzTTB2D0vUZAoeF.6f/6ZM75/jTerK7392ZYS1Wrl6Xw2",
+            "full_name": "Trần Quang Thái",
+            "phone": "0394027613",
+            "total_spent": 1500000.0,
+            "registration_date": "2025-03-01 09:30:00.000",
+            "otp_sms": null,
+            "status": "Active",
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/users%2F1741695440158_IMG_20250129_023730.jpg?alt=media&token=1202e2a9-8aa1-46fc-acca-bdf2adb8ae41"
+        },
+        {
+            "id": 4,
+            "user_name": "thai1",
+            "email": "tranquangthai.02nct@gmail.com",
+            "password": "$2a$10$.SS.GJlObzTTB2D0vUZAoeF.6f/6ZM75/jTerK7392ZYS1Wrl6Xw2",
+            "full_name": "Trần Quang Thái",
+            "phone": "0394027614",
+            "total_spent": 500000.0,
+            "registration_date": "2025-03-10 11:00:00.000",
+            "otp_sms": null,
+            "status": "Active",
+            "image": "https://firebasestorage.googleapis.com/v0/b/anhduanxuong.appspot.com/o/users%2F1741695595582_poko1.jpg?alt=media&token=e33664ec-3b74-4595-b2bd-99845d80dcc0"
+        },
+        {
+            "id": 5,
+            "user_name": "peter_parker",
+            "email": "spiderman@marvel.com",
+            "password": "$2a$10$.SS.GJlObzTTB2D0vUZAoeF.6f/6ZM75/jTerK7392ZYS1Wrl6Xw2",
+            "full_name": "PETER PARKER",
+            "phone": "0978654321",
+            "total_spent": 3000000.0,
+            "registration_date": "2025-04-01 15:45:00.000",
+            "otp_sms": null,
+            "status": "Active",
+            "image": "https://phanmemmkt.vn/wp-content/uploads/2024/09/Hinh-anh-dai-dien-mac-dinh-Facebook.jpg"
+        },
+        {
+            "id": 6,
+            "user_name": "tony_stark",
+            "email": "ironman@marvel.com",
+            "password": "$2a$10$.SS.GJlObzTTB2D0vUZAoeF.6f/6ZM75/jTerK7392ZYS1Wrl6Xw2",
+            "full_name": "TONY STARK",
+            "phone": "0965123789",
+            "total_spent": 10000000.0,
+            "registration_date": "2025-04-15 18:20:00.000",
+            "otp_sms": null,
+            "status": "Active",
+            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDQjzviHm6Pnv3Zexbi1Uy6bFB0vwptrNK3Q&s"
+        },
+        {
+            "id": 7,
+            "user_name": "thanh1",
+            "email": "thanhthanh@gmail.com",
+            "password": "$2a$10$caKw63p0M2wDFP0kAq3TNu2VMGlaCsb2WIvLRHqFTzWSW/ecmi5Mm",
+            "full_name": "Le Thanh",
+            "phone": "0983795817",
+            "total_spent": NaN,
+            "registration_date": "2025-03-21 10:58:22.853",
+            "otp_sms": null,
+            "status": null,
+            "image": null
+        }
+    ],
+    "Vouchers": []
+}

@@ -76,31 +76,33 @@ const Favorite = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {favorites.map((item, index) => (
-                        <div key={item.idVariants} className="relative">
-                            <button
-                                onClick={() => handleRemoveFavorite(item.idVariants)}
-                                className="absolute right-2 top-2 z-10 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
-                            >
-                                <FontAwesomeIcon icon={faTrash} />
-                            </button>
-                            <ProductCard 
-                                variant={{
-                                    id: item.idVariants,
-                                    productId: item.productId,
-                                    nameVariants: item.name,
-                                    image: item.imageUrl,
-                                    price: item.price,
-                                    quantity: item.stock,
-                                    description: item.description,
-                                    status: item.status,
-                                    attributes: item.attributes
-                                }}
-                                index={index}
-                            />
-                        </div>
-                    ))}
-                </div>
+                {favorites.map((item, index) => (
+                    <div key={item.idVariants} className="relative">
+                        <button
+                            onClick={() => handleRemoveFavorite(item.idVariants)}
+                            className="absolute right-2 top-2 z-10 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                        >
+                            <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                        <ProductCard 
+                            variant={{
+                                id: item.idVariants,
+                                productId: item.productId,
+                                nameVariants: item.name,
+                                image: item.imageUrl,
+                                price: item.price,
+                                quantity: item.stock,
+                                description: item.description,
+                                status: item.status,
+                                attributes: item.attributes,
+                                discountPrice: item.discountPrice,
+                                discountPercentage: item.discountPercentage || 0
+                            }}
+                            index={index}
+                        />
+                    </div>
+                ))}
+            </div>
             )}
         </div>
     );

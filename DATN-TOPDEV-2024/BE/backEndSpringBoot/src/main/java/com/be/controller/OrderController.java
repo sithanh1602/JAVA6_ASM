@@ -119,7 +119,7 @@ public class OrderController {
     @PostMapping("/placeno")
     public ResponseEntity<?> placeOrderPreview(@RequestBody OrderRequest orderRequest) {
         try {
-            System.out.println("📥 Nhận request thanh toán: " + orderRequest); // Debug log
+            System.out.println("Nhận request thanh toán: " + orderRequest); // Debug log
             Orders orderPreview = orderService.createOrderPreview(orderRequest);
 
             String urlPayment = vnPayService.createOrderNoSave(
@@ -129,14 +129,15 @@ public class OrderController {
                     String.valueOf(orderPreview.getId())
             );
 
-            System.out.println("✅ URL Thanh toán: " + urlPayment);
+            System.out.println("URL Thanh toán: " + urlPayment);
             return ResponseEntity.status(HttpStatus.OK).body(urlPayment);
         } catch (Exception e) {
             e.printStackTrace(); // In lỗi BE
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("🔥 BE Error: " + e.getMessage());
+                    .body(" BE Error: " + e.getMessage());
         }
     }
+
 
 
 

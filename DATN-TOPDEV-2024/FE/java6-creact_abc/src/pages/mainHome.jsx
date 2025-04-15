@@ -8,6 +8,8 @@ import ProductList from "../components/home/ProductList";
 import HotProducts from "../components/home/HotProducts";
 import NewProduct from "../components/home/NewProduct";
 import TopRatedProducts from "../components/home/TopRatedProducts";
+import VariantRecommendations from "../components/AI/AI_ProductVariant/VariantRecommendations";
+
 const HomePage = () => {
     return (
         <div className="bg-gray-100 will-change-transform">
@@ -20,6 +22,7 @@ const HomePage = () => {
                 <TopRatedProducts/>
                 <NewProduct />
                 <ProductList />
+                {/*<VariantRecommendations/>*/}
             </div>
         </div>
     );

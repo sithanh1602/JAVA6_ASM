@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import logoZaloPay from "../../assets/images/zalopay.png";
+import logoMomo from "../../assets/images/logoMomo.png";
 import logoVNP from "../../assets/images/logoVNP.jpg";
 import OrderService from "../../services/OrderSevice";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import classNames from "classnames";
 import Swal from "sweetalert2";
+import DataTable from "react-data-table-component";
 
 const OrderInfo = ({
   setPaymentMethod,
@@ -189,59 +190,148 @@ const OrderInfo = ({
     return result;
   };
 
+  // Prepare data for DataTable
+  const prepareTableData = () => {
+    const tableData = [];
+    
+    // Add product rows
+    Object.values(groupedItems()).forEach((group) => {
+      if (group.buildId) {
+        // Add build PC header row
+        tableData.push({
+          id: `build-${group.buildId}`,
+          type: 'build-header',
+          productName: `PC: ${group.buildName}`,
+          quantity: '',
+          price: '',
+        });
+      }
+      
+      // Add product items
+      group.items.forEach((item, idx) => {
+        tableData.push({
+          id: `${group.buildId || 'single'}-${item.productVariantId}-${idx}`,
+          type: 'product',
+          buildId: group.buildId,
+          productName: item.productName,
+          quantity: item.quantity,
+          price: item.productPrice * item.quantity,
+        });
+      });
+    });
+    
+    // Add summary rows
+    tableData.push(
+      { id: 'subtotal', type: 'summary', productName: 'Tạm tính', price: totalAmount },
+      { id: 'shipping', type: 'summary', productName: 'Phí vận chuyển', price: shippingFee }
+    );
+    
+    if (discountAmount > 0) {
+      tableData.push({ id: 'discount', type: 'summary', productName: 'Giảm giá', price: discountAmount });
+    }
+    
+    tableData.push({ id: 'total', type: 'total', productName: 'Tổng', price: totalAfterDiscount });
+    
+    return tableData;
+  };
+
+  // Define columns for DataTable
+  const columns = [
+    {
+      name: 'Sản phẩm',
+      selector: row => row.productName,
+      cell: row => {
+        if (row.type === 'build-header') {
+          return <div className="font-semibold text-blue-600 py-2">{row.productName}</div>;
+        } else if (row.type === 'product' && row.buildId) {
+          return <div>↳ {row.productName}</div>;
+        } else if (row.type === 'product') {
+          return <div>{row.productName}</div>;
+        } else if (row.id === 'subtotal') {
+          return <div className="font-semibold text-gray-700">{row.productName}</div>;
+        } else if (row.id === 'shipping') {
+          return <div className="font-semibold text-blue-600">{row.productName}</div>;
+        } else if (row.id === 'discount') {
+          return <div className="font-semibold text-green-600">{row.productName}</div>;
+        } else if (row.id === 'total') {
+          return <div className="font-bold text-red-600">{row.productName}</div>;
+        } else {
+          return <div>{row.productName}</div>;
+        }
+      },
+      grow: 2
+    },
+    {
+      name: 'Số lượng',
+      selector: row => row.quantity,
+      center: true,
+      width: '100px',
+      cell: row => {
+        if (row.type === 'product') {
+          return <span className="font-semibold text-red-600">{row.quantity}</span>;
+        }
+        return '';
+      },
+    },
+    {
+      name: 'Tạm tính',
+      selector: row => row.price,
+      right: true,
+      cell: row => {
+        if (row.type === 'build-header' || row.price === '') {
+          return '';
+        } else if (row.id === 'subtotal') {
+          return <div className="font-semibold text-gray-700">{formatCurrency(row.price)}</div>;
+        } else if (row.id === 'shipping') {
+          return <div className="font-semibold text-blue-600">{formatCurrency(row.price)}</div>;
+        } else if (row.id === 'discount') {
+          return <div className="font-semibold text-green-600">{formatCurrency(row.price)}</div>;
+        } else if (row.id === 'total') {
+          return <div className="font-bold text-red-600">{formatCurrency(row.price)}</div>;
+        } else {
+          return <div>{formatCurrency(row.price)}</div>;
+        }
+      },
+    }
+  ];
+
+  // Custom styles for DataTable
+  const customStyles = {
+    table: {
+      style: {
+        marginBottom: '20px',
+      },
+    },
+    rows: {
+      style: {
+        minHeight: '50px',
+        borderBottomStyle: 'solid',
+        borderBottomWidth: '1px',
+        borderBottomColor: '#e2e8f0',
+      },
+    },
+    headRow: {
+      style: {
+        borderBottomStyle: 'solid',
+        borderBottomWidth: '2px',
+        borderBottomColor: '#e2e8f0',
+        backgroundColor: '#f8fafc',
+      },
+    },
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Thông tin đơn hàng</h2>
       <div className="border border-gray-300 rounded-md p-4">
-        <table className="w-full text-left">
-          <thead>
-            <tr>
-              <th>Sản phẩm</th>
-              <th>Tạm tính</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.values(groupedItems()).map((group, index) => (
-              <React.Fragment key={index}>
-                {group.buildId && (
-                  <tr>
-                    <td colSpan="2" className="font-semibold text-blue-600 py-2">
-                      PC: {group.buildName}
-                    </td>
-                  </tr>
-                )}
-                {group.items.map((item, idx) => (
-                  <tr key={idx} className={group.buildId ? "pl-4" : ""}>
-                    <td>
-                    {group.buildId && "↳ "} {item.productName} × <span className="font-semibold text-red-600 py-2">{item.quantity}</span>
-                    </td>
-                    <td>{formatCurrency(item.productPrice * item.quantity)}</td>
-                  </tr>
-                ))}
-              </React.Fragment>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td>Tạm tính</td>
-              <td>{formatCurrency(totalAmount)}</td>
-            </tr>
-            <tr>
-              <td>Phí vận chuyển</td>
-              <td>{formatCurrency(shippingFee)}</td>
-            </tr>
-            {discountAmount > 0 && (
-              <tr>
-                <td>Giảm giá</td>
-                <td>{formatCurrency(discountAmount)}</td>
-              </tr>
-            )}
-            <tr>
-              <td className="font-bold">Tổng</td>
-              <td className="font-bold">{formatCurrency(totalAfterDiscount)}</td>
-            </tr>
-          </tfoot>
-        </table>
+        <DataTable
+          columns={columns}
+          data={prepareTableData()}
+          customStyles={customStyles}
+          noHeader
+          pagination={false}
+          dense
+        />
 
         {/* Voucher Section */}
         <button
@@ -340,7 +430,7 @@ const OrderInfo = ({
               </div>
 
               <div className="flex space-x-4">
-                {["vnp", "zaloPay"].map((logo, idx) => (
+                {["vnp", "momoPay"].map((logo, idx) => (
                   <div
                     key={idx}
                     className={classNames(
@@ -355,7 +445,7 @@ const OrderInfo = ({
                     onClick={() => handleLogoClick(logo)}
                   >
                     <img
-                      src={logo === "vnp" ? logoVNP : logoZaloPay}
+                      src={logo === "vnp" ? logoVNP : logoMomo}
                       alt={`${logo} Logo`}
                       className="h-12 w-12 object-contain"
                     />

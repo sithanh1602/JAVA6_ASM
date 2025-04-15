@@ -47,14 +47,15 @@ public class ProductVariantService {
         return results.stream().map(row -> {
             ProductVariantHomeDTO dto = new ProductVariantHomeDTO();
             dto.setId(row[0] != null ? ((Number) row[0]).longValue() : null);  // id
-            dto.setImage(row[1] != null ? (String) row[1] : "default.jpg");    // image (tránh lỗi null)
+            dto.setImage(row[1] != null ? (String) row[1] : "default.jpg");    // image
             dto.setNameVariants(row[2] != null ? (String) row[2] : "");        // nameVariants
             dto.setPrice(row[3] != null ? ((Number) row[3]).doubleValue() : 0.0); // price
-            dto.setProductId(row[4] != null ? ((Number) row[4]).longValue() : null); // productId
-            dto.setQuantity(row[5] != null ? ((Number) row[5]).intValue() : 0); // quantity
-            dto.setStatus(row[6] != null ? (String) row[6] : "unknown");      // status
-            dto.setBrandName(row[7] != null ? (String) row[7] : "Unknown");   // ✅ brand_name
-            dto.setCategoryName(row[8] != null ? (String) row[8] : "Unknown"); // ✅ category_name
+            dto.setDiscountPrice(row[4] != null ? ((Number) row[4]).doubleValue() : 0.0); // discount_price
+            dto.setProductId(row[5] != null ? ((Number) row[5]).longValue() : null); // productId
+            dto.setQuantity(row[6] != null ? ((Number) row[6]).intValue() : 0); // quantity
+            dto.setStatus(row[7] != null ? (String) row[7] : "unknown");      // status
+            dto.setBrandName(row[8] != null ? (String) row[8] : "Unknown");   // brand_name
+            dto.setCategoryName(row[9] != null ? (String) row[9] : "Unknown"); // category_name
             return dto;
         }).collect(Collectors.toList());
     }
@@ -78,6 +79,7 @@ public class ProductVariantService {
         variant.setAttributes(attributes);
         variant.setNameVariants(product.getName() + " (" + attributeNames + ")");
         variant.setDescription(request.getDescription());
+        variant.setDiscountPercentage(request.getDiscountPercentage()); // Thêm discountPercentage
 
         ProductVariant savedVariant = productVariantRepository.save(variant);
 
@@ -118,6 +120,7 @@ public class ProductVariantService {
         variant.setAttributes(attributes);
         variant.setNameVariants(product.getName() + " (" + attributeNames + ")");
         variant.setDescription(request.getDescription());
+        variant.setDiscountPercentage(request.getDiscountPercentage()); // Cập nhật discountPercentage
 
         // Cập nhật ảnh
         imageRepository.deleteByProductVariant(variant);
@@ -154,8 +157,10 @@ public class ProductVariantService {
                         row[9] != null ? (String) row[9] : "", // Mô tả
                         idVariants,
                         row[4] != null ? (String) row[4] : "Unknown", // status
-                        new ArrayList<>() ,// Khởi tạo danh sách attributes rỗng
-                        null // productId
+                        new ArrayList<>(), // Khởi tạo danh sách attributes rỗng
+                        productId, // productId
+                        row[10] != null ? ((Number) row[10]).doubleValue() : null, // discountPrice
+                        row[11] != null ? ((Number) row[11]).doubleValue() : null  // discountPercentage
                 );
                 variantMap.put(idVariants, variantDTO);
             }

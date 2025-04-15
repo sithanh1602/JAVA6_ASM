@@ -237,7 +237,7 @@ const PCBuildDetail = () => {
                     className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg shadow hover:bg-blue-700 transition"
                     onClick={handleAddAllToCart}
                   >
-                    Thêm tất cả vào giỏ hàng
+                    Thêm vào giỏ hàng
                   </button>
                 </div>
               </div>

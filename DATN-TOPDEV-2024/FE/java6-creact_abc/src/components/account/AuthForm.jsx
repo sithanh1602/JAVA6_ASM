@@ -7,9 +7,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
-import { FaGoogle, FaFacebook} from 'react-icons/fa';
+import { FaLock, FaFacebook} from 'react-icons/fa';
 import {Input, Checkbox} from "@nextui-org/react";
 import Modal from 'react-modal'; // Import react-modal
+import { useAuth0 } from "@auth0/auth0-react";
 
 
 
@@ -35,6 +36,9 @@ const AuthForm = () => {
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [resetStage, setResetStage] = useState('email');
 
+    const { loginWithRedirect } = useAuth0();
+
+
     useEffect(() => {
         // Tải tên đăng nhập và mật khẩu từ localStorage khi component được tải
         const savedUsername = localStorage.getItem('savedUsername');
@@ -45,6 +49,12 @@ const AuthForm = () => {
             setRememberMe(true);
         }
     }, []);
+
+    const handleAuth0Login = () => {
+        loginWithRedirect({
+            redirectUri: window.location.origin,
+        });
+    };
 
 
     const handleModalOpen = () => setIsModalOpen(true); // Open modal
@@ -327,10 +337,11 @@ const AuthForm = () => {
                                 </div>
                                 <div className="mt-6">
                                     <button
+                                        onClick={handleAuth0Login} // Gọi hàm đăng nhập Auth0
                                         className="w-full bg-red-600 text-white py-2 flex items-center justify-center hover:bg-red-700 transition duration-200 mb-4"
                                     >
-                                        <FaGoogle className="w-4 h-4 mr-2"/> {/* Thêm mt-1 để căn chỉnh icon */}
-                                        Đăng Nhập với Google
+                                        <FaLock className="w-4 h-4 mr-2"/> {/* Thay FaGoogle bằng FaLock */}
+                                        Đăng Nhập với Auth0
                                     </button>
                                     <button
                                         className="w-full bg-blue-800 text-white py-2 flex items-center justify-center hover:bg-blue-900 transition duration-200"

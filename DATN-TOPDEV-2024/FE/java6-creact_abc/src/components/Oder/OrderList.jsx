@@ -190,7 +190,7 @@ const OrderList = () => {
   const handleConfirmReceived = async (orderId) => {
     const result = await Swal.fire({
       title: 'Bạn có chắc chắn đã nhận hàng?',
-      text: "Hành động này sẽ xác nhận đơn hàng hoàn thành!",
+      text: "Hành động này sẽ xác nhận đơn hàng đã được giao thành công!",
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -201,7 +201,8 @@ const OrderList = () => {
 
     if (result.isConfirmed) {
       try {
-        await OrderService.updateOrderStatus(orderId, 7); // Cập nhật thành "Đã nhận hàng"
+        Swal.fire({ title: "Đang xử lý...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        await OrderService.updateOrderStatus(orderId, 8); // Cập nhật thành "Đã nhận hàng"
         const userId = localStorage.getItem("UserId");
         const ordersData = await OrderService.getOrdersByUserId(userId);
         setOrders(ordersData);
@@ -277,17 +278,17 @@ const OrderList = () => {
       cell: row => (
           <div className="flex gap-2">
             {row.paymentStatus && (row.status === 1 || row.status === 2) && (
-                <Button size="sm" color="success"  className="rounded-none" onClick={() => handlePayment(row.id)}>
+                <Button size="sm" color="success" className="rounded-none" onClick={() => handlePayment(row.id)}>
                   Thanh toán
                 </Button>
             )}
             {[1, 2, 3].includes(row.status) && (
-                <Button size="sm" color="danger"  className="rounded-none" onClick={() => handleCancelOrder(row.id)}>
+                <Button size="sm" color="danger" className="rounded-none" onClick={() => handleCancelOrder(row.id)}>
                   Hủy
                 </Button>
             )}
             {row.status === 6 && (
-                <Button size="sm" color="secondary"  className="rounded-none" onClick={() => handleConfirmReceived(row.id)}>
+                <Button size="sm" color="secondary" className="rounded-none" onClick={() => handleConfirmReceived(row.id)}>
                   Đã nhận hàng
                 </Button>
             )}
@@ -298,7 +299,7 @@ const OrderList = () => {
                     onReviewSubmitted={fetchOrders}
                 />
             )}
-            <Button size="sm" color="primary"  className="rounded-none" onClick={() => openModal(row)}>
+            <Button size="sm" color="primary" className="rounded-none" onClick={() => openModal(row)}>
               Chi tiết
             </Button>
           </div>
@@ -312,7 +313,28 @@ const OrderList = () => {
     { name: 'Ảnh', cell: row => <img src={row.imageUrl} alt={row.name} className="w-12 h-12 object-cover rounded-md" />, width: '80px' },
     { name: 'Tên Sản Phẩm', selector: row => row.name, sortable: true, style: { fontSize: '14px' } },
     { name: 'Số Lượng', selector: row => row.quantity, sortable: true, width: '100px', style: { fontSize: '14px' } },
-    { name: 'Giá', selector: row => row.price, sortable: true, format: row => `${row.price.toLocaleString()} ₫`, width: '120px', style: { fontSize: '14px' } },
+    {
+      name: 'Giá',
+      selector: row => row.discountPrice && row.discountPrice > 0 ? row.discountPrice : row.price,
+      sortable: true,
+      cell: row => {
+        const priceToDisplay = row.discountPrice && row.discountPrice > 0 ? row.discountPrice : row.price;
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-blue-500 font-medium">
+              {priceToDisplay.toLocaleString()} ₫
+            </span>
+            {row.discountPrice && row.discountPrice > 0 && row.price > row.discountPrice && (
+              <span className="text-gray-500 line-through text-sm">
+                {row.price.toLocaleString()} ₫
+              </span>
+            )}
+          </div>
+        );
+      },
+      width: '150px',
+      style: { fontSize: '14px' }
+    },
   ];
 
   const OrderProcessTimeline = ({ currentStatus }) => {
@@ -536,7 +558,7 @@ const OrderList = () => {
                           responsive
                       />
                     </div>
-                    <div className="p-2 ">
+                    <div className="p-2">
                       {selectedOrder.status === 8 && (
                           <ReviewComponent
                               orderId={selectedOrder.id}
@@ -545,11 +567,23 @@ const OrderList = () => {
                           />
                       )}
                     </div>
+                    <div className="mt-4 flex justify-end gap-2">
+                      {selectedOrder.status === 6 && (
+                          <Button size="sm" color="secondary" className="rounded-none" onClick={() => handleConfirmReceived(selectedOrder.id)}>
+                            Xác nhận đã nhận hàng
+                          </Button>
+                      )}
+                      {[1, 2, 3].includes(selectedOrder.status) && (
+                          <Button size="sm" color="danger" className="rounded-none" onClick={() => handleCancelOrder(selectedOrder.id)}>
+                            Hủy đơn hàng
+                          </Button>
+                      )}
+                    </div>
                   </div>
               )}
             </ModalBody>
             <ModalFooter>
-              <Button color="danger" size="sm"  className="rounded-none" onClick={closeModal}>Đóng</Button>
+              <Button color="danger" size="sm" className="rounded-none" onClick={closeModal}>Đóng</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
