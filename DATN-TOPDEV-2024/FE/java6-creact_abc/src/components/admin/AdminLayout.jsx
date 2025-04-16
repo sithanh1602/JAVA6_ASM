@@ -11,6 +11,7 @@ import Top3User from "../dashBoard/Dashboard";
 import Contact from "../../pages/admin/Contact";
 import Reviews from "../../pages/admin/Reviews";
 import PCBuildsAdmin from "../../pages/admin/PCBuildsAdmin";
+import Vouchers from "../../pages/admin/Vouchers";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { ToastContainer, toast } from 'react-toastify';
@@ -94,6 +95,7 @@ const AdminLayout = () => {
                             <Route path="/tk" element={<MonthlyProductionChart />} />
                             <Route path="/order" element={<AdminOrderManagement />} />
                             <Route path="/pc-builds" element={<PCBuildsAdmin />} />
+                            <Route path="/voucher" element={<Vouchers />} />
                         </Routes>
                     </motion.div>
                 </div>
