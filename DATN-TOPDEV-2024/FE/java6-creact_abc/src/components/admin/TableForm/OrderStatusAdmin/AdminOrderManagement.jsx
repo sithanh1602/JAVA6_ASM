@@ -6,6 +6,7 @@ import OrderSevice from "../../../../services/OrderSevice";
 import { FaClipboardList, FaDollarSign, FaCheckCircle, FaShippingFast, FaBoxOpen, FaTimesCircle } from 'react-icons/fa';
 import axios from "axios";
 
+
 const Tab = styled.button`
     padding: 10px 20px;
     margin: 0 5px;
@@ -337,28 +338,36 @@ const AdminOrderManagement = () => {
         return statusMatch && paymentMethodMatch;
     });
 
+    // UPDATED: handleRefund method now uses MomoService
     const handleRefund = async (order) => {
         const confirm = window.confirm("Xác nhận hoàn tiền cho đơn hàng?");
         if (!confirm) return;
-        console.log(order);
+
         try {
-            const res = await axios.post(`http://localhost:8080/api/momo/refund-momo`, null, {
-                params: {
-                    orderNum: order.orderNum,
-                    transId: order.transId,
-                    amount: order.totalPrice,
-                    description: "Huỷ đơn hàng"
-                }
+            // Use MomoService instead of direct axios call
+            const response = await OrderSevice.refundMomoPayment(
+                order.orderNum,
+                order.transId,
+                order.totalPrice,
+                "Huỷ đơn hàng"
+            );
+
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Hoàn tiền thành công!',
+                text: `Đơn hàng ${order.orderNum} đã được hoàn tiền.`
             });
 
-            if (res.status === 200) {
-                alert("Hoàn tiền thành công!");
-            } else {
-                alert("Có lỗi khi hoàn tiền.");
-            }
         } catch (err) {
             console.error(err);
-            alert("Lỗi hoàn tiền: " + err.response?.data || err.message);
+
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi hoàn tiền',
+                text: err.message || 'Có lỗi xảy ra khi hoàn tiền.'
+            });
         }
     };
 

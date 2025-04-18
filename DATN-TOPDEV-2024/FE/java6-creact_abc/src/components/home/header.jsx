@@ -3,10 +3,10 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { Link } from 'react-router-dom';
 import { FaTruck, FaBook, FaCoins, FaBell, FaDesktop, FaEnvelope, FaEnvelopeOpen } from 'react-icons/fa';
-import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { Popover, PopoverTrigger, PopoverContent, Badge, ScrollShadow, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@nextui-org/react';
 import OrderService from "../../services/OrderSevice";
+import NotificationService from "../../services/NotificationService";
 import DataTable from 'react-data-table-component';
 
 const Header = () => {
@@ -16,8 +16,6 @@ const Header = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [orderProducts, setOrderProducts] = useState([]);
-
-
 
     useEffect(() => {
         AOS.init({ duration: 1000 });
@@ -30,21 +28,10 @@ const Header = () => {
         }
     }, []);
 
-    const filterRecentNotifications = (notifications) => {
-        const now = new Date();
-        return notifications.map(notification => {
-            const createdAt = new Date(notification.createdAt);
-            const expirationDate = new Date(createdAt);
-            expirationDate.setDate(createdAt.getDate() + 7);
-            const timeLeft = Math.max(0, expirationDate - now);
-            return { ...notification, timeLeft };
-        }).filter(notification => notification.timeLeft > 0);
-    };
-
     const fetchNotifications = async (userId) => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/notifications/user/${userId}`);
-            const recentNotifications = filterRecentNotifications(response.data);
+            const notificationsData = await NotificationService.getUserNotifications(userId);
+            const recentNotifications = NotificationService.filterRecentNotifications(notificationsData);
             setNotifications(recentNotifications);
             setUnreadCount(recentNotifications.filter(notification => !notification.read).length);
             console.log('Notifications:', recentNotifications); // Debug: Check notification data
@@ -97,7 +84,7 @@ const Header = () => {
 
     const markAsRead = async (notificationId) => {
         try {
-            await axios.put(`http://localhost:8080/api/notifications/${notificationId}/read`);
+            await NotificationService.markAsRead(notificationId);
             setNotifications((prevNotifications) =>
                 prevNotifications.map((notification) =>
                     notification.id === notificationId ? { ...notification, isRead: true } : notification
@@ -242,8 +229,7 @@ const Header = () => {
                             <>
                                 <p><strong>Ngày đặt:</strong> {formatDate(selectedOrder.orderDate)}</p>
                                 <p><strong>Trạng thái:</strong> {selectedOrder.status || 'Chưa xác định'}</p>
-                                <p><strong>Tổng tiền:</strong> {selectedOrder.
-                                totalPrice?.toLocaleString('vi-VN') || 0} VNĐ</p>
+                                <p><strong>Tổng tiền:</strong> {selectedOrder.totalPrice?.toLocaleString('vi-VN') || 0} VNĐ</p>
                                 <h4 className="mt-4">Sản phẩm trong đơn hàng:</h4>
                                 {orderProducts.length > 0 ? (
                                     <DataTable
