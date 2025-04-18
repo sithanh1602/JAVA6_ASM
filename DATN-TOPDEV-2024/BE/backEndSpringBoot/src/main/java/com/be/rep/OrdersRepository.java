@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findByUser_UserId(Long userId);  // Sử dụng 'user.userId' thay vì 'userId'
@@ -48,5 +49,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findOrdersByUserId(@Param("userId") Long userId);
 
     List<Orders> findByStatus(int status);
+
+    Optional<Orders> findByOrderNum(String orderNum);
+
 }
 

@@ -4,6 +4,7 @@ import DataTable from 'react-data-table-component';
 import Swal from 'sweetalert2';
 import OrderSevice from "../../../../services/OrderSevice";
 import { FaClipboardList, FaDollarSign, FaCheckCircle, FaShippingFast, FaBoxOpen, FaTimesCircle } from 'react-icons/fa';
+import axios from "axios";
 
 const Tab = styled.button`
     padding: 10px 20px;
@@ -275,7 +276,7 @@ const AdminOrderManagement = () => {
                 // Lọc các đơn hàng có trạng thái "Chờ xác nhận" (status: 2)
                 const pendingOrdersList = ordersData.filter(order => order.status === 2);
                 setPendingOrders(pendingOrdersList); // Lưu các đơn hàng chờ xác nhận
-
+                console.log(ordersData);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -335,6 +336,32 @@ const AdminOrderManagement = () => {
 
         return statusMatch && paymentMethodMatch;
     });
+
+    const handleRefund = async (order) => {
+        const confirm = window.confirm("Xác nhận hoàn tiền cho đơn hàng?");
+        if (!confirm) return;
+        console.log(order);
+        try {
+            const res = await axios.post(`http://localhost:8080/api/momo/refund-momo`, null, {
+                params: {
+                    orderNum: order.orderNum,
+                    transId: order.transId,
+                    amount: order.totalPrice,
+                    description: "Huỷ đơn hàng"
+                }
+            });
+
+            if (res.status === 200) {
+                alert("Hoàn tiền thành công!");
+            } else {
+                alert("Có lỗi khi hoàn tiền.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi hoàn tiền: " + err.response?.data || err.message);
+        }
+    };
+
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -416,6 +443,15 @@ const AdminOrderManagement = () => {
                             Đã nhận hàng
                         </button>
                     )}
+                    {row.status === 9 && row.paymentStatus && (
+                        <button
+                            className="btn btn-success px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                            onClick={() => handleRefund(row)}
+                        >
+                            Hoàn tiền
+                        </button>
+                    )}
+
                 </div>
             ),
             center: true,

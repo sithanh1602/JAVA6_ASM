@@ -178,21 +178,28 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    // Endpoint cập nhật trạng thái đơn hàng
     @PutMapping("/{orderId}/status")
     public ResponseEntity<?> updateOrderStatus(
             @PathVariable Long orderId,
-            @RequestParam int status) {
+            @RequestParam int status,
+            @RequestParam(required = false) String transactionId // Thêm tham số cho transactionId
+            ) {
         try {
-            Orders updatedOrder = orderService.updateOrderStatus(orderId, status);
+            // Cập nhật trạng thái đơn hàng và lưu transactionId, paymentMethod
+            Orders updatedOrder = orderService.updateOrderStatus(orderId, status, transactionId);
+
+            // Lấy mô tả trạng thái đơn hàng từ service
             String statusDescription = orderService.getStatusDescription(status);
+
+            // Trả về kết quả cập nhật
             Map<String, Object> response = Map.of(
                     "message", "Cập nhật trạng thái đơn hàng thành công",
                     "order", Map.of(
                             "orderId", updatedOrder.getId(),
                             "status", updatedOrder.getStatus(),
                             "statusDescription", statusDescription,
-                            "userId", updatedOrder.getUser().getUserId()
+                            "userId", updatedOrder.getUser().getUserId(),
+                            "transactionId", updatedOrder.getTrans_id()  // Trả về transactionId
                     )
             );
             return ResponseEntity.ok(response);
@@ -204,6 +211,42 @@ public class OrderController {
                     .body(Map.of("error", "Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng"));
         }
     }
+
+    @PutMapping("/momo/{orderNum}/status")
+    public ResponseEntity<?> updateOrderStatusMomo(
+            @PathVariable String orderNum,
+            @RequestParam int status,
+            @RequestParam(required = false) String transactionId
+    ) {
+        try {
+            // Gọi service để cập nhật trạng thái đơn hàng theo orderNum
+            Orders updatedOrder = orderService.updateOrderStatusMomo(orderNum, status, transactionId);
+
+            // Lấy mô tả trạng thái đơn hàng
+            String statusDescription = orderService.getStatusDescription(status);
+
+            // Trả về kết quả
+            Map<String, Object> response = Map.of(
+                    "message", "Cập nhật trạng thái đơn hàng thành công",
+                    "order", Map.of(
+                            "orderId", updatedOrder.getOrderNum(),
+                            "status", updatedOrder.getStatus(),
+                            "statusDescription", statusDescription,
+                            "userId", updatedOrder.getUser().getUserId(),
+                            "transactionId", updatedOrder.getTrans_id()
+                    )
+            );
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng"));
+        }
+    }
+
+
 
 
     @PutMapping("/{orderId}/statushuy")
@@ -241,31 +284,6 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/zalopay-callback")
-    public ResponseEntity<?> zaloPayCallback(@RequestBody Map<String, String> callbackData) {
-        try {
-            if (zaloPayService.verifyCallback(callbackData)) {
-                // Update order status based on callback data
-                String appTransId = callbackData.get("app_trans_id");
-                String orderId = appTransId.split("_")[0];
-                int status = Integer.parseInt(callbackData.get("status"));
-
-                // Update order status
-                if (status == 1) { // Payment successful
-                    orderService.updateOrderStatus(Long.parseLong(orderId), 1);
-                    return ResponseEntity.ok().body("Payment processed successfully");
-                } else {
-                    orderService.updateOrderStatus(Long.parseLong(orderId), -1);
-                    return ResponseEntity.ok().body("Payment failed");
-                }
-            }
-            return ResponseEntity.badRequest().body("Invalid callback signature");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error processing callback");
-        }
-    }
 
     // Endpoint mới để gọi thủ công cleanupUnpaidOrders
     @PostMapping("/cleanup-unpaid")

@@ -30,7 +30,7 @@ public class MomoService {
         try {
             // Dùng orderId của hệ thống bạn làm orderId gửi cho Momo
             String requestId = PARTNER_CODE + new Date().getTime();
-            String orderId = orderIdFromSystem; // Đảm bảo không bị trùng trong hệ thống Momo
+            String orderId = orderIdFromSystem ; // Kết hợp orderId từ hệ thống với timestamp + "_" + new Date().getTime()
             String orderInfo = "Thanh toán ĐH -" + orderIdFromSystem;
             String extraData = orderIdFromSystem; // Dùng để gửi ngầm orderId thật về cho IPN
 
@@ -161,5 +161,53 @@ public class MomoService {
         }
     }
 
+    public String refundOrder(String orderId, String transId, int amount, String description) {
+        try {
+            String requestId = PARTNER_CODE + new Date().getTime();
+
+            // Tạo raw signature
+            String rawSignature = String.format(
+                    "accessKey=%s&amount=%d&description=%s&orderId=%s&partnerCode=%s&requestId=%s&transId=%s",
+                    ACCESS_KEY, amount, description, orderId, PARTNER_CODE, requestId, transId
+            );
+
+            // Ký HMAC SHA256
+            String signature = signHmacSHA256(rawSignature, SECRET_KEY);
+
+            // Body JSON
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("partnerCode", PARTNER_CODE);
+            requestBody.put("accessKey", ACCESS_KEY);
+            requestBody.put("requestId", requestId);
+            requestBody.put("amount", amount);
+            requestBody.put("orderId", orderId);
+            requestBody.put("transId", transId);
+            requestBody.put("lang", "vi");
+            requestBody.put("description", description);
+            requestBody.put("signature", signature);
+
+            // Gửi request
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost("https://test-payment.momo.vn/v2/gateway/api/refund");
+            httpPost.setHeader("Content-Type", "application/json");
+            httpPost.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8));
+
+            try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8));
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+                System.out.println("Phản hồi hoàn tiền từ MoMo: " + result);
+                return result.toString(); // Bạn có thể parse lấy message
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"error\": \"Lỗi khi gửi yêu cầu hoàn tiền: " + e.getMessage() + "\"}";
+        }
+    }
 
 }

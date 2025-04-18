@@ -92,6 +92,7 @@ public class OrderService {
             orderInfo.put("voucher", order.getVoucher());
             orderInfo.put("fullAddress", order.getFullAddress());
             orderInfo.put("phone", order.getPhone());
+            orderInfo.put("transId",order.getTrans_id());
             response.add(orderInfo);
         }
 
@@ -129,13 +130,18 @@ public class OrderService {
 
 
     @Transactional
-    public Orders updateOrderStatus(Long orderId, int status) {
+    public Orders updateOrderStatus(Long orderId, int status, String transactionId) {
         // Tìm đơn hàng theo ID
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
-        // Cập nhật trạng thái
+        // Cập nhật trạng thái đơn hàng
         order.setStatus(status);
+
+        // Nếu có thông tin giao dịch, cập nhật transactionId và paymentMethod
+        if (transactionId != null) {
+            order.setTrans_id(transactionId);
+        }
 
         // Lưu đơn hàng đã cập nhật
         Orders updatedOrder = ordersRepository.save(order);
@@ -157,12 +163,56 @@ public class OrderService {
         message.put("orderNum", updatedOrder.getOrderNum());
         message.put("status", updatedOrder.getStatus());
         message.put("userId", updatedOrder.getUser().getUserId());
+        message.put("transactionId", updatedOrder.getTrans_id());  // Gửi thông tin transactionId
 
         // Gửi thông báo qua WebSocket
         messagingTemplate.convertAndSend("/topic/status", message);
 
         return updatedOrder;
     }
+
+    @Transactional
+    public Orders updateOrderStatusMomo(String orderNum, int status, String transactionId) {
+        // Tìm đơn hàng theo orderNum thay vì id
+        Orders order = ordersRepository.findByOrderNum(orderNum)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng với mã: " + orderNum));
+
+        // Cập nhật trạng thái đơn hàng
+        order.setStatus(status);
+
+        // Nếu có thông tin giao dịch, cập nhật transactionId và paymentMethod
+        if (transactionId != null) {
+            order.setTrans_id(transactionId);
+        }
+
+        // Lưu đơn hàng đã cập nhật
+        Orders updatedOrder = ordersRepository.save(order);
+
+        // Ánh xạ trạng thái thành mô tả
+        String statusDescription = getStatusDescription(status);
+
+        // Tạo và lưu thông báo
+        Notification notification = new Notification();
+        notification.setUser(updatedOrder.getUser());
+        notification.setOrder(updatedOrder);
+        notification.setContent("Đơn hàng " + updatedOrder.getOrderNum() +
+                " của bạn đang ở trạng thái " + statusDescription);
+        notificationRepository.save(notification);
+
+        // Chuẩn bị dữ liệu gửi qua WebSocket
+        Map<String, Object> message = new HashMap<>();
+        message.put("orderId", updatedOrder.getId());
+        message.put("orderNum", updatedOrder.getOrderNum());
+        message.put("status", updatedOrder.getStatus());
+        message.put("userId", updatedOrder.getUser().getUserId());
+        message.put("transactionId", updatedOrder.getTrans_id());  // Gửi transactionId nếu có
+
+        // Gửi thông báo qua WebSocket
+        messagingTemplate.convertAndSend("/topic/status", message);
+
+        return updatedOrder;
+    }
+
 
     // Hàm ánh xạ trạng thái thành mô tả
     public String getStatusDescription(int status) {
@@ -444,7 +494,6 @@ public class OrderService {
 
 
 
-
     @Transactional
     public Orders saveOrdernovnpay(OrderRequest orderRequest) throws Exception {
         // Kiểm tra User ID
@@ -584,11 +633,10 @@ public class OrderService {
         order.setStatus(2);
         order.setPaymentStatus(true);
         order.setOrderDate(new Date());
+        order.setTrans_id(orderRequest.getTransId());
 
         return order;
     }
-
-
 
     private String buildEmailContent(User user, OrderRequest orderRequest) {
         StringBuilder sb = new StringBuilder();

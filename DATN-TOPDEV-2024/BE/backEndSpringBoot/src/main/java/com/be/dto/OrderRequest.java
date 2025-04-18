@@ -19,10 +19,20 @@ public class OrderRequest {
     private int shippingFee; // Phí vận chuyển
     private int voucherDiscount; // Giá trị giảm giá từ voucher (nếu có)
     private String voucherCode;
+    private String transId;
+    private String orderNum;
 
     // Getters and Setters
     public Long getUserId() {
         return userId;
+    }
+
+    public String getTransId(){
+        return transId;
+    }
+
+    public String getOrderNum(){
+        return orderNum;
     }
 
     public void setUserId(Long userId) {
