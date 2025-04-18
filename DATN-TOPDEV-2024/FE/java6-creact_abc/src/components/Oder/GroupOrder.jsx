@@ -283,6 +283,7 @@ const GroupOrder = () => {
                 showConfirmButton: false,
             }).then(() => {
                 window.location.href = response;
+                console.log(response);
             });
         } else if (paymentMethod === "cash") {
             await OrderService.placeOrderNoVnpay(orderData);

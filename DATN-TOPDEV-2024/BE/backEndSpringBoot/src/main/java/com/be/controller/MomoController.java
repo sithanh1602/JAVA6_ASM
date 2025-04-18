@@ -40,7 +40,7 @@ public class MomoController {
             messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getOrderNum());
 
             // Gọi Momo service để tạo yêu cầu thanh toán
-            String momoPaymentUrl = momoService.createPaymentRequest(savedOrder.getTotalPrice(), String.valueOf(savedOrder.getId()));
+            String momoPaymentUrl = momoService.createPaymentRequest(savedOrder.getTotalPrice(), String.valueOf(savedOrder.getOrderNum()));
 
             return ResponseEntity.status(HttpStatus.CREATED).body(momoPaymentUrl);
         } catch (Exception e) {
@@ -61,7 +61,7 @@ public class MomoController {
             // Tạo URL thanh toán MoMo
             String momoPayUrl = momoService.createOrderNoSave(
                     orderPreview.getTotalPrice(),
-                    String.valueOf(orderPreview.getId())
+                    String.valueOf(orderPreview.getOrderNum())
             );
 
             if (momoPayUrl == null || momoPayUrl.isEmpty()) {
@@ -72,7 +72,7 @@ public class MomoController {
             System.out.println("URL Thanh toán MoMo: " + momoPayUrl);
             return ResponseEntity.ok(Map.of(
                     "paymentUrl", momoPayUrl,
-                    "orderId", orderPreview.getId(),
+                    "orderId", orderPreview.getOrderNum(),
                     "amount", orderPreview.getTotalPrice()
             ));
 
@@ -83,6 +83,20 @@ public class MomoController {
         }
     }
 
+    @PostMapping("/refund-momo")
+    public ResponseEntity<?> refundOrderMomo(@RequestParam String orderNum,
+                                             @RequestParam String transId,
+                                             @RequestParam int amount,
+                                             @RequestParam(required = false, defaultValue = "Hủy đơn hàng") String description) {
+        try {
+            String response = momoService.refundOrder(orderNum, transId, amount, description);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi hoàn tiền MoMo: " + e.getMessage());
+        }
+    }
 
 
 
