@@ -69,6 +69,7 @@ const PCBuildsAdmin = () => {
                 id: variant.productVariantId,
                 nameVariants: variant.nameVariants || "Unknown",
                 price: variant.price || 0,
+                discountPrice: variant.discountPrice || null,
                 image: variant.image || null,
                 quantity: variant.quantity || 0,
                 variantQuantity: variant.variantQuantity || 1,
@@ -180,7 +181,7 @@ const PCBuildsAdmin = () => {
           componentsObj[comp.categoryId] = {
             id: comp.variantId,
             nameVariants: comp.name || "Unknown",
-            price: comp.price || 0,
+            price: comp.discountPrice || comp.price || 0,
             image: comp.image || null,
             quantity: comp.quantity || 1,
             status: comp.status || "Available",

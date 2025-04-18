@@ -9,6 +9,7 @@ public class BuildPCProductVariantDTO {
     private Integer quantity;
     private String nameVariants;
     private Double price;
+    private Double discountPrice;
     private String image;
     private String status;
     private Long categoryId;

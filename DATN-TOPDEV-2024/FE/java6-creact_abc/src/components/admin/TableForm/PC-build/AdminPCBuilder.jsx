@@ -64,7 +64,16 @@ const AdminPCBuilder = ({
   useEffect(() => {
     console.log("initialComponents received:", initialComponents);
     if (initialComponents && Object.keys(initialComponents).length > 0) {
-      setSelectedComponents(initialComponents);
+      // Đảm bảo discountPrice được bao gồm trong dữ liệu
+      const componentsWithDiscountPrice = {};
+      Object.entries(initialComponents).forEach(([categoryId, component]) => {
+        componentsWithDiscountPrice[categoryId] = {
+          ...component,
+          discountPrice: component.discountPrice || null
+        };
+      });
+
+      setSelectedComponents(componentsWithDiscountPrice);
   
       // Extract quantities from initialComponents, sử dụng variantQuantity
       const initialQuantities = {};

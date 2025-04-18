@@ -186,7 +186,7 @@ public class OrderController {
             ) {
         try {
             // Cập nhật trạng thái đơn hàng và lưu transactionId, paymentMethod
-            Orders updatedOrder = orderService.updateOrderStatus(orderId, status, transactionId);
+            Orders updatedOrder = orderService.updateOrderStatus(orderId, status);
 
             // Lấy mô tả trạng thái đơn hàng từ service
             String statusDescription = orderService.getStatusDescription(status);
@@ -198,8 +198,8 @@ public class OrderController {
                             "orderId", updatedOrder.getId(),
                             "status", updatedOrder.getStatus(),
                             "statusDescription", statusDescription,
-                            "userId", updatedOrder.getUser().getUserId(),
-                            "transactionId", updatedOrder.getTrans_id()  // Trả về transactionId
+                            "userId", updatedOrder.getUser().getUserId()
+
                     )
             );
             return ResponseEntity.ok(response);

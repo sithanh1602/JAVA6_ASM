@@ -130,7 +130,7 @@ public class OrderService {
 
 
     @Transactional
-    public Orders updateOrderStatus(Long orderId, int status, String transactionId) {
+    public Orders updateOrderStatus(Long orderId, int status) {
         // Tìm đơn hàng theo ID
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
@@ -138,10 +138,7 @@ public class OrderService {
         // Cập nhật trạng thái đơn hàng
         order.setStatus(status);
 
-        // Nếu có thông tin giao dịch, cập nhật transactionId và paymentMethod
-        if (transactionId != null) {
-            order.setTrans_id(transactionId);
-        }
+
 
         // Lưu đơn hàng đã cập nhật
         Orders updatedOrder = ordersRepository.save(order);
@@ -182,6 +179,7 @@ public class OrderService {
 
         // Nếu có thông tin giao dịch, cập nhật transactionId và paymentMethod
         if (transactionId != null) {
+
             order.setTrans_id(transactionId);
         }
 

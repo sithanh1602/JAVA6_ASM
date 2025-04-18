@@ -108,6 +108,7 @@ public class BuildPCService {
                         // Thêm các thông tin chi tiết của variant
                         variantDTO.setNameVariants(productVariant.getNameVariants());
                         variantDTO.setPrice(productVariant.getPrice());
+                        variantDTO.setDiscountPrice(productVariant.getDiscountPrice()); // Thêm discountPrice
                         variantDTO.setImage(productVariant.getImages() != null && !productVariant.getImages().isEmpty() ?
                                 productVariant.getImages().get(0).getImage() : null);
                         variantDTO.setStatus(productVariant.getStatus());
