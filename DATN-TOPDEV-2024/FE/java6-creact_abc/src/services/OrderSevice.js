@@ -185,6 +185,24 @@ const checkMomoPaymentStatus = async (orderId) => {
     }
 };
 
+const refundMomoPayment = async (orderNum, transId, amount, description = "Huỷ đơn hàng") => {
+    try {
+        const response = await axios.post(`http://localhost:8080/api/momo/refund-momo`, null, {
+            params: {
+                orderNum,
+                transId,
+                amount,
+                description
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi hoàn tiền MoMo:", error);
+        // Sử dụng hàm xử lý lỗi chung
+        handleError(error);
+    }
+};
+
 
 
 // Export các hàm API
@@ -201,5 +219,6 @@ export default {
     placeOrderZaloPay,
     saveOrder,
     placeOrderMomo,             // ✅ mới thêm
-    checkMomoPaymentStatus      // ✅ mới thêm
+    checkMomoPaymentStatus,
+    refundMomoPayment// ✅ mới thêm
 };

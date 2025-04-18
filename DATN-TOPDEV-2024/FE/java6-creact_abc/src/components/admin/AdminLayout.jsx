@@ -7,7 +7,7 @@ import Products from "../../pages/admin/Products";
 import Posts from "../../pages/admin/Posts";
 import Categorys from "../../pages/admin/Categorys";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
-import Top3User from "../dashBoard/Top3User";
+import Top3User from "../dashBoard/Dashboard";
 import Contact from "../../pages/admin/Contact";
 import Reviews from "../../pages/admin/Reviews";
 import PCBuildsAdmin from "../../pages/admin/PCBuildsAdmin";

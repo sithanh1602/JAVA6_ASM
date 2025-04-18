@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,15 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findByStatus(int status);
 
     Optional<Orders> findByOrderNum(String orderNum);
+
+
+    @Query("SELECT COUNT(o) FROM Orders o WHERE CAST(o.orderDate AS date) = CURRENT_DATE")
+    long countOrdersToday();
+
+    @Query(value = "SELECT * FROM orders WHERE CAST(order_date AS date) = CAST(GETDATE() AS date)", nativeQuery = true)
+    List<Orders> findTodayOrders();
+
+    List<Orders> findByOrderDateBetween(LocalDateTime start, LocalDateTime end);
 
 }
 

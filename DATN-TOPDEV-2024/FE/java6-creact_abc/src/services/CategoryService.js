@@ -67,6 +67,16 @@ class CategoryService {
             throw error; // Propagate error
         }
     }
+
+    async getProductsByCategory(categoryName) {
+        try {
+            const response = await axios.get(`/api/categories/${categoryName}/products`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching products for category ${categoryName}:`, error);
+            throw error;
+        }
+    }
 }
 
 export default new CategoryService();
