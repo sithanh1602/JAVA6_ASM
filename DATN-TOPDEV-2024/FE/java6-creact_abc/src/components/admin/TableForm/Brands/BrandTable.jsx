@@ -21,6 +21,7 @@ const BrandTable = () => {
             setIsLoading(true);
             const data = await BrandService.getAllBrands();
             setBrands(data);
+            console.log(data);
         } catch (error) {
             Swal.fire('Lỗi', 'Không thể tải danh sách thương hiệu!', 'error');
         } finally {
@@ -42,7 +43,7 @@ const BrandTable = () => {
         setIsModalOpen(false);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (brandsId) => {
         const result = await Swal.fire({
             title: 'Bạn có chắc chắn?',
             text: 'Hành động này không thể hoàn tác!',
@@ -54,7 +55,8 @@ const BrandTable = () => {
 
         if (result.isConfirmed) {
             try {
-                await BrandService.deleteBrand(id);
+                await BrandService.deleteBrand(brandsId);
+                console.log(brandsId)
                 fetchBrands();
                 Swal.fire('Thành công!', 'Thương hiệu đã được xóa.', 'success');
             } catch (error) {
@@ -109,7 +111,7 @@ const BrandTable = () => {
                         <FaEdit />
                     </button>
                     <button
-                        onClick={() => handleDelete(row.id)}
+                        onClick={() => handleDelete(row.brandsId)}
                         className="bg-red-500 text-white px-4 py-2 rounded flex items-center"
                     >
                         <FaTrash />

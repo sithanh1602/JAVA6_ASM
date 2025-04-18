@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,6 +50,9 @@ public class User {
     @Size(max = 6, message = "OTP must not exceed 6 characters")
     @Column(name = "otp_sms", nullable = true)
     private String otpSms;
+
+    @Column(name = "otp_expired_at")
+    private LocalDateTime otpExpiredAt;
 
     @Column(columnDefinition = "NVARCHAR(50)")
     private String status;

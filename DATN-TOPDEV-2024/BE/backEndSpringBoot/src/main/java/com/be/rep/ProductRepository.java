@@ -1,6 +1,7 @@
 package com.be.rep;
 
 import com.be.entity.Product;
+import com.be.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,7 +11,23 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    List<Product> findByName(String name);
+    // Lấy products với category và brand
+    @Query("SELECT p FROM Product p " +
+            "LEFT JOIN FETCH p.category " +
+            "LEFT JOIN FETCH p.brand")
+    List<Product> findAllWithBasicDetails();
+
+    // Lấy variants với images
+    @Query("SELECT pv FROM ProductVariant pv " +
+            "LEFT JOIN FETCH pv.images " +
+            "WHERE pv.product.id IN :productIds")
+    List<ProductVariant> findVariantsWithImagesByProductIds(@Param("productIds") List<Integer> productIds);
+
+    // Lấy variants với attributes
+    @Query("SELECT pv FROM ProductVariant pv " +
+            "LEFT JOIN FETCH pv.attributes " +
+            "WHERE pv.product.id IN :productIds")
+    List<ProductVariant> findVariantsWithAttributesByProductIds(@Param("productIds") List<Integer> productIds);
 
     boolean existsByName(String name);
     List<Product> findByCategoryId(int categoryId);

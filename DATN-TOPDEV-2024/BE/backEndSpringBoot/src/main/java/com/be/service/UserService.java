@@ -7,6 +7,7 @@ import com.be.rep.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -24,29 +25,8 @@ public class UserService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
-    // Phương thức đăng ký người dùng với mật khẩu mặc định "123"
-    public User register(User user) {
-        // Kiểm tra xem người dùng đã tồn tại chưa
-        if (userRepository.findByUserName(user.getUserName()).isPresent()) {
-            throw new RuntimeException("Tên tài khoản đã tồn tại");
-        }
-
-        // Gán mật khẩu mặc định là "123" và mã hóa mật khẩu đó
-        String defaultPassword = "123";
-        user.setPassword(passwordEncoder.encode(defaultPassword));
-
-        // Lưu người dùng với mật khẩu đã mã hóa
-        return userRepository.save(user);
-    }
-
-    // Phương thức lưu người dùng với mật khẩu mã hóa
-    public void saveUser(User user) {
-        // Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-    }
 
     public List<User> getTopCustomers(int limit) {
         return userRepository.findTopCustomers(PageRequest.of(0, limit));
@@ -73,8 +53,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Gán role mặc định là USER
-        Role userRole = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new RuntimeException("Role USER not found"));
+        Role userRole = roleRepository.findByRoleName("USER");
+
 
         user.setRoles(Set.of(userRole));
 

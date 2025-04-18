@@ -327,311 +327,314 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
       : "Thêm biến thể mới";
 
   return (
-    <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="space-y-4">
-        <p className="text-sm font-medium">Ảnh Biến Thể</p>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleImageChange}
-          className="hidden"
-          id="variant-image-upload"
-        />
-        <label
-          htmlFor="variant-image-upload"
-          className="cursor-pointer block w-full"
-        >
-          <div className="w-full flex flex-wrap gap-2">
-            {formData.images.length > 0 ? (
-              formData.images.map((img, index) => (
-                <div
-                  key={index}
-                  className="relative w-32 h-32 flex items-center justify-center bg-gray-100 border rounded-lg overflow-hidden"
-                >
-                  <Image
-                    src={img.preview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                    radius="lg"
-                  />
-                  <button
-                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full z-10"
-                    onClick={() => removeImage(index)}
-                  >
-                    <FaTrash className="w-4 h-4" />
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="w-full h-32 flex flex-col items-center justify-center bg-default-100 rounded-lg border-2 border-dashed border-default-300">
-                <FaImage className="w-8 h-8 text-default-400" />
-                <span className="mt-2 text-sm text-default-400">
+      <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
+        <div className="space-y-4">
+          <p className="text-sm font-medium">Ảnh Biến Thể</p>
+          <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              className="hidden"
+              id="variant-image-upload"
+          />
+          <label
+              htmlFor="variant-image-upload"
+              className="cursor-pointer block w-full"
+          >
+            <div className="w-full flex flex-wrap gap-2">
+              {formData.images.length > 0 ? (
+                  formData.images.map((img, index) => (
+                      <div
+                          key={index}
+                          className="relative w-32 h-32 flex items-center justify-center bg-gray-100 border rounded-lg overflow-hidden"
+                      >
+                        <Image
+                            src={img.preview}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            radius="lg"
+                        />
+                        <button
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full z-10"
+                            onClick={() => removeImage(index)}
+                        >
+                          <FaTrash className="w-4 h-4"/>
+                        </button>
+                      </div>
+                  ))
+              ) : (
+                  <div
+                      className="w-full h-32 flex flex-col items-center justify-center bg-default-100 rounded-lg border-2 border-dashed border-default-300">
+                    <FaImage className="w-8 h-8 text-default-400"/>
+                    <span className="mt-2 text-sm text-default-400">
                   Click to upload
                 </span>
-              </div>
-            )}
+                  </div>
+              )}
+            </div>
+          </label>
+          {errors.images && (
+              <p className="text-red-500 text-sm">{errors.images.message}</p>
+          )}
+
+          <div className="mt-4 w-full ">
+            <ProductVariantsTable
+                productId={productId}
+                onEditVariant={handleEditVariant}
+            />
           </div>
-        </label>
-        {errors.images && (
-          <p className="text-red-500 text-sm">{errors.images.message}</p>
-        )}
-
-        <div className="mt-4">
-          <ProductVariantsTable
-            productId={productId}
-            onEditVariant={handleEditVariant}
-          />
-        </div>
-        <Button
-          color="primary"
-          className="w-full mt-6"
-          onClick={handleSubmit(onSubmit)}
-        >
-          {submitButtonText}
-        </Button>
-      </div>
-
-      <div className="space-y-4">
-        <Controller
-          name="quantity"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              label="Số Lượng"
-              type="number"
-              variant="bordered"
-              error={errors.quantity?.message}
-            />
-          )}
-        />
-        <Controller
-          name="price"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              label="Giá"
-              type="number"
-              variant="bordered"
-              error={errors.price?.message}
-              onChange={(e) => {
-                const inputValue = e.target.value;
-                const value =
-                  inputValue === "" ? "" : parseFloat(inputValue) || 0;
-                field.onChange(value);
-                setFormData((prev) => ({ ...prev, price: value }));
-              }}
-            />
-          )}
-        />
-
-        <Controller
-          name="discountPercentage"
-          control={control}
-          render={({ field }) => (
-            <Select
-              label="Phần trăm giảm giá (%)"
-              variant="bordered"
-              selectedKeys={
-                field.value ? new Set([field.value.toString()]) : new Set()
-              }
-              onSelectionChange={(keys) => {
-                const value = keys.size > 0 ? parseFloat([...keys][0]) : null;
-                field.onChange(value);
-                setFormData((prev) => ({ ...prev, discountPercentage: value }));
-              }}
-              classNames={{
-                trigger: "min-h-12",
-                value: "text-left",
-              }}
-            >
-              <SelectItem key="5" value={5}>
-                5%
-              </SelectItem>
-              <SelectItem key="10" value={10}>
-                10%
-              </SelectItem>
-              <SelectItem key="15" value={15}>
-                15%
-              </SelectItem>
-            </Select>
-          )}
-        />
-        {errors.discountPercentage && (
-          <p className="text-red-500 text-sm">
-            {errors.discountPercentage.message}
-          </p>
-        )}
-
-        <div className="mt-4">
-          <label className="block mb-2 text-sm font-medium text-gray-900">
-            Giá đã giảm
-          </label>
-          <Input
-            value={
-              formData.discountPercentage && formData.price
-                ? (
-                    formData.price -
-                    (formData.price * formData.discountPercentage) / 100
-                  ).toLocaleString("vi-VN") + " đ"
-                : "Không có giảm giá"
-            }
-            readOnly
-            disabled
-            className="bg-gray-100"
-          />
-        </div>
-
-        <Controller
-          name="status"
-          control={control}
-          render={({ field }) => (
-            <Select
-              {...field}
-              label="Trạng Thái"
-              variant="bordered"
-              error={errors.status?.message}
-              selectedKeys={[field.value]}
-              onChange={(e) => field.onChange(e.target.value)}
-            >
-              <SelectItem key="Available" value="Available">
-                Còn Hoạt Động
-              </SelectItem>
-              <SelectItem key="Unavailable" value="Unavailable">
-                Hết Hoạt Động
-              </SelectItem>
-            </Select>
-          )}
-        />
-
-        <div className="w-full border p-2">
-          <label className="block mb-2 text-sm font-medium text-gray-900">
-            Mô Tả
-          </label>
-          <Controller
-            name="description"
-            control={control}
-            render={({ field }) => (
-              <CKEditor
-                editor={ClassicEditor}
-                data={field.value || formData.description || ""}
-                config={{
-                  toolbar: [
-                    "heading",
-                    "|",
-                    "bold",
-                    "italic",
-                    "link",
-                    "bulletedList",
-                    "numberedList",
-                    "|",
-                    "insertTable",
-                    "tableColumn",
-                    "tableRow",
-                    "mergeTableCells",
-                    "|",
-                    "alignment:left",
-                    "alignment:center",
-                    "alignment:right",
-                    "alignment:justify",
-                    "|",
-                    "insertImage",
-                    "mediaEmbed",
-                    "undo",
-                    "redo",
-                  ],
-                }}
-                onChange={(event, editor) => {
-                  const data = editor.getData();
-                  field.onChange(data);
-                  setFormData((prev) => ({ ...prev, description: data }));
-                }}
-              />
-            )}
-          />
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium">Thuộc Tính Biến Thể</p>
-            <Button
-              size="sm"
-              variant="flat"
+          <Button
               color="primary"
-              startContent={<FaPlus />}
-              onClick={addAttribute}
-            >
-              Thêm
-            </Button>
-          </div>
+              className="w-full mt-6"
+              onClick={handleSubmit(onSubmit)}
+          >
+            {submitButtonText}
+          </Button>
+        </div>
 
-          <div className="space-y-2 p-2">
-            {formData.attributes.map((attr, index) => (
-              <div key={index} className="flex gap-2 items-center">
-                <Select
-                  label="Thuộc tính"
-                  selectedKeys={[attr.name]}
-                  onChange={(e) =>
-                    handleAttributeChange(index, "name", e.target.value)
+        <div className="flex justify-end">
+          <div className="space-y-4 max-w-xl">
+            <Controller
+                name="quantity"
+                control={control}
+                render={({field}) => (
+                    <Input
+                        {...field}
+                        label="Số Lượng"
+                        type="number"
+                        variant="bordered"
+                        error={errors.quantity?.message}
+                    />
+                )}
+            />
+            <Controller
+                name="price"
+                control={control}
+                render={({field}) => (
+                    <Input
+                        {...field}
+                        label="Giá"
+                        type="number"
+                        variant="bordered"
+                        error={errors.price?.message}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          const value =
+                              inputValue === "" ? "" : parseFloat(inputValue) || 0;
+                          field.onChange(value);
+                          setFormData((prev) => ({...prev, price: value}));
+                        }}
+                    />
+                )}
+            />
+
+            <Controller
+                name="discountPercentage"
+                control={control}
+                render={({field}) => (
+                    <Select
+                        label="Phần trăm giảm giá (%)"
+                        variant="bordered"
+                        selectedKeys={
+                          field.value ? new Set([field.value.toString()]) : new Set()
+                        }
+                        onSelectionChange={(keys) => {
+                          const value = keys.size > 0 ? parseFloat([...keys][0]) : null;
+                          field.onChange(value);
+                          setFormData((prev) => ({...prev, discountPercentage: value}));
+                        }}
+                        classNames={{
+                          trigger: "min-h-12",
+                          value: "text-left",
+                        }}
+                    >
+                      <SelectItem key="5" value={5}>
+                        5%
+                      </SelectItem>
+                      <SelectItem key="10" value={10}>
+                        10%
+                      </SelectItem>
+                      <SelectItem key="15" value={15}>
+                        15%
+                      </SelectItem>
+                    </Select>
+                )}
+            />
+            {errors.discountPercentage && (
+                <p className="text-red-500 text-sm">
+                  {errors.discountPercentage.message}
+                </p>
+            )}
+
+            <div className="mt-4">
+              <label className="block mb-2 text-sm font-medium text-gray-900">
+                Giá đã giảm
+              </label>
+              <Input
+                  value={
+                    formData.discountPercentage && formData.price
+                        ? (
+                        formData.price -
+                        (formData.price * formData.discountPercentage) / 100
+                    ).toLocaleString("vi-VN") + " đ"
+                        : "Không có giảm giá"
                   }
-                  variant="bordered"
-                  size="sm"
-                  classNames={{
-                    listboxWrapper: "max-h-[200px]",
-                  }}
-                  listboxProps={{
-                    className: "overflow-auto",
-                    style: { maxHeight: "200px" },
-                  }}
-                >
-                  {availableAttributes.map((option) => (
-                    <SelectItem key={option.name} value={option.name}>
-                      {option.name}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <Select
-                  label="Giá trị"
-                  selectedKeys={attr.value ? new Set([attr.value]) : new Set()}
-                  onChange={(e) =>
-                    handleAttributeChange(index, "value", e.target.value)
-                  }
-                  variant="bordered"
-                  size="sm"
-                  classNames={{
-                    listboxWrapper: "max-h-[200px]",
-                  }}
-                  listboxProps={{
-                    className: "overflow-auto",
-                    style: { maxHeight: "200px" },
-                  }}
-                >
-                  {attributeValues[attr.name]?.map((attribute) => (
-                    <SelectItem key={attribute.value} value={attribute.value}>
-                      {attribute.value}
-                    </SelectItem>
-                  )) || []}
-                </Select>
+                  readOnly
+                  disabled
+                  className="bg-gray-100"
+              />
+            </div>
+
+            <Controller
+                name="status"
+                control={control}
+                render={({field}) => (
+                    <Select
+                        {...field}
+                        label="Trạng Thái"
+                        variant="bordered"
+                        error={errors.status?.message}
+                        selectedKeys={[field.value]}
+                        onChange={(e) => field.onChange(e.target.value)}
+                    >
+                      <SelectItem key="Available" value="Available">
+                        Còn Hoạt Động
+                      </SelectItem>
+                      <SelectItem key="Unavailable" value="Unavailable">
+                        Hết Hoạt Động
+                      </SelectItem>
+                    </Select>
+                )}
+            />
+
+            <div className="w-full border p-2">
+              <label className="block mb-2 text-sm font-medium text-gray-900">
+                Mô Tả
+              </label>
+              <Controller
+                  name="description"
+                  control={control}
+                  render={({field}) => (
+                      <CKEditor
+                          editor={ClassicEditor}
+                          data={field.value || formData.description || ""}
+                          config={{
+                            toolbar: [
+                              "heading",
+                              "|",
+                              "bold",
+                              "italic",
+                              "link",
+                              "bulletedList",
+                              "numberedList",
+                              "|",
+                              "insertTable",
+                              "tableColumn",
+                              "tableRow",
+                              "mergeTableCells",
+                              "|",
+                              "alignment:left",
+                              "alignment:center",
+                              "alignment:right",
+                              "alignment:justify",
+                              "|",
+                              "insertImage",
+                              "mediaEmbed",
+                              "undo",
+                              "redo",
+                            ],
+                          }}
+                          onChange={(event, editor) => {
+                            const data = editor.getData();
+                            field.onChange(data);
+                            setFormData((prev) => ({...prev, description: data}));
+                          }}
+                      />
+                  )}
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium">Thuộc Tính Biến Thể</p>
                 <Button
-                  isIconOnly
-                  color="danger"
-                  variant="flat"
-                  size="sm"
-                  onClick={() => removeAttribute(index)}
+                    size="sm"
+                    variant="flat"
+                    color="primary"
+                    startContent={<FaPlus/>}
+                    onClick={addAttribute}
                 >
-                  <FaTrash className="w-4 h-4" />
+                  Thêm
                 </Button>
               </div>
-            ))}
+
+              <div className="space-y-2 p-2">
+                {formData.attributes.map((attr, index) => (
+                    <div key={index} className="flex gap-2 items-center">
+                      <Select
+                          label="Thuộc tính"
+                          selectedKeys={[attr.name]}
+                          onChange={(e) =>
+                              handleAttributeChange(index, "name", e.target.value)
+                          }
+                          variant="bordered"
+                          size="sm"
+                          classNames={{
+                            listboxWrapper: "max-h-[200px]",
+                          }}
+                          listboxProps={{
+                            className: "overflow-auto",
+                            style: {maxHeight: "200px"},
+                          }}
+                      >
+                        {availableAttributes.map((option) => (
+                            <SelectItem key={option.name} value={option.name}>
+                              {option.name}
+                            </SelectItem>
+                        ))}
+                      </Select>
+                      <Select
+                          label="Giá trị"
+                          selectedKeys={attr.value ? new Set([attr.value]) : new Set()}
+                          onChange={(e) =>
+                              handleAttributeChange(index, "value", e.target.value)
+                          }
+                          variant="bordered"
+                          size="sm"
+                          classNames={{
+                            listboxWrapper: "max-h-[200px]",
+                          }}
+                          listboxProps={{
+                            className: "overflow-auto",
+                            style: {maxHeight: "200px"},
+                          }}
+                      >
+                        {attributeValues[attr.name]?.map((attribute) => (
+                            <SelectItem key={attribute.value} value={attribute.value}>
+                              {attribute.value}
+                            </SelectItem>
+                        )) || []}
+                      </Select>
+                      <Button
+                          isIconOnly
+                          color="danger"
+                          variant="flat"
+                          size="sm"
+                          onClick={() => removeAttribute(index)}
+                      >
+                        <FaTrash className="w-4 h-4"/>
+                      </Button>
+                    </div>
+                ))}
+              </div>
+              {errors.attributes && (
+                  <p className="text-red-500 text-sm">{errors.attributes.message}</p>
+              )}
+            </div>
           </div>
-          {errors.attributes && (
-            <p className="text-red-500 text-sm">{errors.attributes.message}</p>
-          )}
         </div>
       </div>
-    </div>
   );
 };
 

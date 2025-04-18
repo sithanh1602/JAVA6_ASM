@@ -64,7 +64,7 @@ const AuthForm = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        // Hiển thị thông báo "Đang đăng nhập..." bằng SweetAlert2
+        // Show loading notification with SweetAlert2
         Swal.fire({
             title: 'Đang đăng nhập...',
             text: 'Vui lòng chờ trong giây lát',
@@ -75,16 +75,17 @@ const AuthForm = () => {
         });
 
         try {
-            // Gửi yêu cầu đăng nhập với mật khẩu thô (không mã hóa Base64)
+            // Send login request with raw password
             const response = await axios.post('http://localhost:8080/api/auth/login', {
-                userName: username,
-                password: password // Gửi mật khẩu thô
+                username: username,
+                password: password
             });
 
-            const { token, message, userId } = response.data;
+            const { data, message } = response.data;
+            const { token, userId, userName, fullName, phone, roles } = data;
 
-            // Kiểm tra nếu tài khoản bị khóa
-            if (message === "Tài khoản của bạn đang bị khóa") {
+            // Check for locked account
+            if (message === "Account is locked") {
                 Swal.close();
                 Swal.fire({
                     icon: 'error',
@@ -94,20 +95,21 @@ const AuthForm = () => {
                 return;
             }
 
-            // Lưu token vào localStorage, sessionStorage và Cookies
+            // Store token in localStorage, sessionStorage, and Cookies
             localStorage.setItem('token', token);
             sessionStorage.setItem('token', token);
             Cookies.set('token', token, { expires: 7, sameSite: 'Strict' });
 
-            // Giải mã token để lấy thông tin roles và userId
-            const decodedToken = jwtDecode(token);
-
-            localStorage.setItem('roles', JSON.stringify(decodedToken.roles));
-            const userRole = decodedToken.roles[0];
+            // Store user information
+            localStorage.setItem('roles', JSON.stringify(roles));
+            const userRole = roles[0]; // Assuming the first role is the primary role
             localStorage.setItem('role', userRole);
-            localStorage.setItem('UserId', JSON.stringify(userId));
+            localStorage.setItem('UserId', userId);
+            localStorage.setItem('userName', userName);
+            localStorage.setItem('fullName', fullName);
+            localStorage.setItem('phone', phone);
 
-            // Lưu thông tin đăng nhập nếu nhớ mật khẩu
+            // Save login info if rememberMe is checked
             if (rememberMe) {
                 localStorage.setItem('savedUsername', username);
                 localStorage.setItem('savedPassword', password);
@@ -116,7 +118,7 @@ const AuthForm = () => {
                 localStorage.removeItem('savedPassword');
             }
 
-            // Đóng thông báo "Đang đăng nhập..." và hiển thị thông báo thành công
+            // Close loading notification and show success message
             Swal.close();
             Swal.fire({
                 icon: 'success',
@@ -125,29 +127,31 @@ const AuthForm = () => {
                 timer: 1500
             });
 
-            // Điều hướng dựa trên vai trò người dùng
+            // Navigate based on user role
             if (userRole === 'ADMIN') {
                 navigate('/admin');
             } else if (userRole === 'USER') {
                 navigate('/');
-                window.location.reload(); // Load lại trang sau khi chuyển hướng
+                window.location.reload(); // Reload page after redirect
             } else {
                 toast.error('Không có quyền truy cập');
             }
         } catch (err) {
             Swal.close();
 
-            // Xử lý lỗi đăng nhập và hiển thị thông báo lỗi
+            // Handle login errors and display error message
+            let errorMessage = 'Tài khoản hoặc mật khẩu không đúng';
+            if (err.response && err.response.data) {
+                errorMessage = err.response.data.message || errorMessage;
+            }
+
             Swal.fire({
                 icon: 'error',
                 title: 'Đăng nhập không thành công',
-                text: err.response && err.response.data
-                    ? err.response.data
-                    : 'Tài khoản hoặc mật khẩu không đúng'
+                text: errorMessage
             });
         }
     };
-
 
     const handleRegister = async (e) => {
         e.preventDefault();

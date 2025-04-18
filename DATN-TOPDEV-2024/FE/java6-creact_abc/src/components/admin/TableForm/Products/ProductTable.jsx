@@ -424,7 +424,7 @@ const ProductTable = forwardRef((_, ref) => {
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           onClick={handleAddAttribute}
         >
-          + Thêm thuộc tính
+          + Thêm thuộQuản Lý Thuộc tínhc tính
         </button>
 
         {/* Nút Xuất Excel */}
