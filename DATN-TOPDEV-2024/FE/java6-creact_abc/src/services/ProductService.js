@@ -150,6 +150,18 @@ class ProductService {
         }
     }
 
+    async getVariantById(variantId) {
+        try {
+            const response = await axios.get(`${BASE_URL}/variants/${variantId}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching stock for variant ID ${variantId}:`, error);
+            return null;
+        }
+    }
+
+
+
 }
 
 export default new ProductService();

@@ -45,4 +45,7 @@
         private int discountPrice;
 
         private String phone;
+
+        @Column(name = "trans_id")
+        private String trans_id;
     }

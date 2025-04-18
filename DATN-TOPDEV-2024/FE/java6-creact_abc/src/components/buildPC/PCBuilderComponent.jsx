@@ -7,23 +7,20 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Input,
 } from "@nextui-org/react";
 import ComponentSelectionModal from "./ComponentSelectionModal";
 import CategoryService from "../../services/CategoryService";
+import ProductService from "../../services/ProductService";
 import { FaTrash } from "react-icons/fa";
 import logo from '../../assets/images/cpu2.png';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import axios from "axios";
-
-const BASE_URL = "http://localhost:8080/api/products";
 
 const PCBuilderComponent = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // State cho nhiều cấu hình
   const [currentConfigIndex, setCurrentConfigIndex] = useState(0);
   const [configurations, setConfigurations] = useState(() => {
@@ -38,12 +35,12 @@ const PCBuilderComponent = () => {
       { components: {}, quantities: {}, name: "Cấu hình 3" }
     ];
   });
-  
+
   // Lấy cấu hình hiện tại
   const currentConfig = configurations[currentConfigIndex];
   const [selectedComponents, setSelectedComponents] = useState(currentConfig.components || {});
   const [quantities, setQuantities] = useState(currentConfig.quantities || {});
-  
+
   const [totalPrice, setTotalPrice] = useState(0);
   const [stockQuantities, setStockQuantities] = useState({});
   const printRef = useRef(null);
@@ -54,7 +51,7 @@ const PCBuilderComponent = () => {
   useEffect(() => {
     localStorage.setItem("pcConfigurations", JSON.stringify(configurations));
   }, [configurations]);
-  
+
   // Cập nhật cấu hình khi người dùng chuyển đổi giữa các cấu hình
   useEffect(() => {
     // Lưu cấu hình hiện tại trước khi chuyển
@@ -68,11 +65,11 @@ const PCBuilderComponent = () => {
   const switchConfiguration = (index) => {
     // Lưu cấu hình hiện tại trước khi chuyển đổi
     saveCurrentConfiguration();
-    
+
     // Chuyển đến cấu hình mới
     setCurrentConfigIndex(index);
   };
-  
+
   // Hàm lưu cấu hình hiện tại
   const saveCurrentConfiguration = () => {
     const updatedConfigurations = [...configurations];
@@ -109,28 +106,6 @@ const PCBuilderComponent = () => {
     });
   };
 
-  // Kiểm tra số lượng hiện tại từ API
-  const checkVariantQuantity = async (variantId) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/check-quantity/${variantId}`);
-      return response.data; 
-    } catch (error) {
-      console.error(`Error checking quantity for variant ID ${variantId}:`, error);
-      throw error;
-    }
-  };
-
-  // Lấy số lượng trong kho từ API
-  const fetchStockQuantity = async (variantId) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/variants/${variantId}`);
-      return response.data.quantity;
-    } catch (error) {
-      console.error(`Error fetching stock for variant ID ${variantId}:`, error);
-      return null;
-    }
-  };
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -155,8 +130,8 @@ const PCBuilderComponent = () => {
     const fetchAllStockQuantities = async () => {
       const newStockQuantities = {};
       for (const [categoryId, component] of Object.entries(selectedComponents)) {
-        const stockQty = await fetchStockQuantity(component.id);
-        newStockQuantities[categoryId] = stockQty !== null ? stockQty : component.quantity || 0;
+        const stockQty = await ProductService.getVariantById(component.id);
+        newStockQuantities[categoryId] = stockQty !== null ? stockQty.quantity : component.quantity || 0;
         console.log(
             `${component.nameVariants}: Trong db = ${newStockQuantities[categoryId]}, Hiện tại = ${quantities[categoryId] || 1}`
         );
@@ -269,7 +244,7 @@ const PCBuilderComponent = () => {
       const quantityChecks = await Promise.all(
           Object.entries(selectedComponents).map(async ([categoryId, component]) => {
             const currentQty = quantities[categoryId] || 1;
-            const latestQty = await checkVariantQuantity(component.id);
+            const latestQty = await ProductService.checkVariantQuantity(component.id);
             return { categoryId, component, currentQty, latestQty };
           })
       );
@@ -575,15 +550,15 @@ const PCBuilderComponent = () => {
 
         <div className="flex flex-wrap gap-2 mb-6 items-center">
           {configurations.map((config, index) => (
-            <Button 
-              key={index}
-              color={currentConfigIndex === index ? "primary" : "default"}
-              variant={currentConfigIndex === index ? "solid" : "flat"}
-              className="font-medium rounded-none"
-              onClick={() => switchConfiguration(index)}
-            >
-              {config.name}
-            </Button>
+              <Button
+                  key={index}
+                  color={currentConfigIndex === index ? "primary" : "default"}
+                  variant={currentConfigIndex === index ? "solid" : "flat"}
+                  className="font-medium rounded-none"
+                  onClick={() => switchConfiguration(index)}
+              >
+                {config.name}
+              </Button>
           ))}
 
           <div className="ml-auto flex items-center gap-4">

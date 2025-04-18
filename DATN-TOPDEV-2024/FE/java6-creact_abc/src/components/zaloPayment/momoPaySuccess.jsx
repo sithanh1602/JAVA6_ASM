@@ -11,15 +11,17 @@ const PaymentResult = () => {
 
     useEffect(() => {
         const resultCode = searchParams.get("resultCode");
+        const vnpStatus = searchParams.get("vnp_TransactionStatus");
         const message = searchParams.get("message");
-        const orderIdRaw = searchParams.get("orderId") || searchParams.get("vnp_TxnRef");
+        const orderId = searchParams.get("orderId") || searchParams.get("vnp_TxnRef");
         const amount = searchParams.get("amount") || searchParams.get("vnp_Amount");
+        const transactionId = searchParams.get("transId");
+        const paymentMethod = searchParams.get("payType");
 
-        const orderId = orderIdRaw?.split("_")[0];
+        const isSuccess = resultCode === "0" || vnpStatus === "00";
+        const newStatus = isSuccess ? 3 : 2; // 3 = success, 2 = failed
+
         setOrderInfo({ orderId, message, amount });
-
-        const isSuccess = resultCode === "0" || searchParams.get("vnp_TransactionStatus") === "00";
-        const newStatus = isSuccess ? 3 : 2;
 
         if (!orderId) {
             setStatus("failed");
@@ -27,18 +29,22 @@ const PaymentResult = () => {
             return;
         }
 
+        // Gửi yêu cầu cập nhật trạng thái đơn hàng (không cần gửi body nếu query param đã đủ)
         axios
-            .put(`http://localhost:8080/api/orders/${orderId}/status?status=${newStatus}`, {
-                status: newStatus,
+            .put(`http://localhost:8080/api/orders/momo/${orderId}/status`, null, {
+                params: {
+                    status: newStatus,
+                    transactionId: transactionId || "",
+                },
             })
-            .then((res) => {
+            .then(() => {
                 setStatus(isSuccess ? "success" : "failed");
             })
             .catch((err) => {
-                const message =
+                const msg =
                     err.response?.data?.error ||
                     `Thanh toán thành công nhưng không thể cập nhật trạng thái đơn hàng ${orderId}. Vui lòng liên hệ hỗ trợ.`;
-                setErrorMsg(message);
+                setErrorMsg(msg);
                 setStatus(isSuccess ? "success" : "failed");
             });
     }, [searchParams]);

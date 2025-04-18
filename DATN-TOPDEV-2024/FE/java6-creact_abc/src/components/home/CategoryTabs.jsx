@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Tabs from './Tabs';
 import ProductsSlider from './ProductsSlider';
-import axios from 'axios';
+import CategoryService from "../../services/CategoryService";
 
 const CategoryTabs = () => {
     const [categories, setCategories] = useState([]); // List of categories
@@ -13,10 +13,10 @@ const CategoryTabs = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('/api/categories');
-                setCategories(response.data);
-                if (response.data.length > 0) {
-                    setSelectedCategory(response.data[0].name); // Select the first category
+                const data = await CategoryService.getAllCategories();
+                setCategories(data);
+                if (data.length > 0) {
+                    setSelectedCategory(data[0].name); // Select the first category
                 }
             } catch (error) {
                 console.error('Error fetching categories:', error);
@@ -33,8 +33,8 @@ const CategoryTabs = () => {
             if (!selectedCategory) return;
 
             try {
-                const response = await axios.get(`/api/categories/${selectedCategory}/products`);
-                setProducts(response.data);
+                const data = await CategoryService.getProductsByCategory(selectedCategory);
+                setProducts(data);
             } catch (error) {
                 console.error('Error fetching products:', error);
                 setError('Failed to fetch products');

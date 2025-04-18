@@ -4,14 +4,13 @@ import { getStorage } from "firebase/storage"; // Import Storage SDK nếu muố
 
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCxbXSDC2NwA-ZB-8sNR6wXZUQEwCLDRhY",
-    authDomain: "datn-buildpc.firebaseapp.com",
-    projectId: "datn-buildpc",
-    storageBucket: "datn-buildpc.firebasestorage.app",
-    messagingSenderId: "444522016574",
-    appId: "1:444522016574:web:cc1ca00247e81fde50466f",
-    measurementId: "G-1DN5DB8GQS"
-  };
+    apiKey: "AIzaSyAN-RGe3mwtkaxc-or6D0GWBxheUA08PD4",
+    authDomain: "anhduanxuong.firebaseapp.com",
+    projectId: "anhduanxuong",
+    storageBucket: "anhduanxuong.appspot.com",
+    messagingSenderId: "580326984513",
+    appId: "1:580326984513:web:0fb61d5c9c2b0fe94cefc0"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class Voucher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String code;
 

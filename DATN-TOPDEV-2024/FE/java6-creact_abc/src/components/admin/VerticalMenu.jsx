@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-    FaHome, FaEnvelope, FaPencilAlt, FaTable, FaFileAlt, 
-    FaChevronRight, FaBars, FaProductHunt, FaUser, FaDisease, FaFirstOrder, 
-    FaDesktop, FaMoon, FaSun,FaDonate
+    FaHome, FaEnvelope, FaPencilAlt, FaPuzzlePiece, FaTable, FaMap, FaFileAlt, FaLayerGroup, 
+    FaChevronRight, FaBars, FaProductHunt, FaUser, FaDisease, FaFileExcel, FaFirstOrder, 
+    FaDesktop, FaMoon, FaSun
 } from 'react-icons/fa';
 import { MdCategory } from 'react-icons/md';
 import Swal from 'sweetalert2';
@@ -28,7 +28,6 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
         { icon: <FaDisease className="text-red-500 dark:text-red-400" />, label: 'Quản lý thương hiệu', link: '/admin/brand' },
         { icon: <FaProductHunt className="text-orange-500 dark:text-orange-400" />, label: 'Quản lý sản phẩm', link: '/admin/product' },
         { icon: <FaDesktop className="text-green-500 dark:text-green-400" />, label: 'Cấu hình PC', link: '/admin/pc-builds' },
-        { icon: <FaDonate className="text-green-500 dark:text-green-400" />, label: 'Quản lý voucher', link: '/admin/voucher' },
         { icon: <FaFileAlt className="text-pink-500" />, label: "Quản lý đánh giá", link: "/admin/reviews" },
         { icon: <FaUser className="text-pink-500 dark:text-pink-400" />, label: 'Quản lý người dùng', link: '/admin/user' },
         { icon: <FaEnvelope className="text-purple-500 dark:text-purple-400" />, label: 'Quản lý phản hồi', link: '/admin/contact' },
