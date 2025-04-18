@@ -273,17 +273,22 @@ const ComponentSelectionModal = ({
                       </p>
                     </div>
                     <div className="text-right min-w-32">
-                      <div className="text-primary font-medium">
-                        {formatPrice(product.price)}
-                      </div>
-                      {product.originalPrice &&
-                        product.originalPrice !== product.price && (
+                      {product.discountPrice && product.discountPrice > 0 ? (
+                        <>
+                          <div className="text-primary font-medium">
+                            {formatPrice(product.discountPrice)}
+                          </div>
                           <div className="flex flex-col items-end">
                             <span className="text-xs text-gray-500 line-through">
-                              {formatPrice(product.originalPrice)}
+                              {formatPrice(product.price)}
                             </span>
                           </div>
-                        )}
+                        </>
+                      ) : (
+                        <div className="text-primary font-medium">
+                          {formatPrice(product.price)}
+                        </div>
+                      )}
                     </div>
                     <Button
                       color="primary"

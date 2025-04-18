@@ -57,7 +57,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     @Query("SELECT a.id, " +
             "(SELECT b.image FROM Image b WHERE a.id = b.productVariant.id ORDER BY b.id ASC LIMIT 1) AS image, " +
-            "a.nameVariants, a.price, a.product.id, a.quantity, a.status, " +
+            "a.nameVariants, a.price, a.discountPrice, a.product.id, a.quantity, a.status, " +
             "d.name AS categoryName " +
             "FROM ProductVariant a " +
             "JOIN a.product p " +
