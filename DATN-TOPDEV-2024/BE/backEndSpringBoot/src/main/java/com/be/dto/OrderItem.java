@@ -5,7 +5,6 @@ public class OrderItem {
     private int quantity;           // Số lượng của sản phẩm trong giỏ
     private double productPrice;    // Giá của sản phẩm
     private String productName;     // Tên của sản phẩm
-    private Long buildId;
 
     // Getter và Setter cho productVariantId
     public Long getProductVariantId() {
@@ -14,14 +13,6 @@ public class OrderItem {
 
     public void setProductVariantId(Long productVariantId) {
         this.productVariantId = productVariantId;
-    }
-
-    public Long getBuildId() {
-        return buildId;
-    }
-
-    public void setBuildId(Long buildId) {
-        this.buildId = buildId;
     }
 
     // Getter và Setter cho quantity
@@ -50,6 +41,4 @@ public class OrderItem {
     public void setProductName(String productName) {
         this.productName = productName;
     }
-
-
 }

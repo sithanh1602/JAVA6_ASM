@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +17,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long userId;
+
+    @Column(name = "auth0_id")
+    private String auth0Id;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
@@ -50,6 +54,9 @@ public class User {
     @Column(name = "otp_sms", nullable = true)
     private String otpSms;
 
+    @Column(name = "otp_expired_at")
+    private LocalDateTime otpExpiredAt;
+
     @Column(columnDefinition = "NVARCHAR(50)")
     private String status;
 
@@ -62,5 +69,6 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+
     private Set<Role> roles = new HashSet<>();
 }

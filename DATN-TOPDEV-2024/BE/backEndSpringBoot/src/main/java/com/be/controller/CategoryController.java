@@ -18,7 +18,7 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    // Get all categoriesS
+    // Get all categories
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
         List<Category> categories = categoryService.getAllCategories();
@@ -51,11 +51,5 @@ public class CategoryController {
     public ResponseEntity<Void> deleteCategory(@PathVariable int id) {
         boolean isDeleted = categoryService.deleteCategory(id);
         return isDeleted ? ResponseEntity.noContent().build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
-    @GetMapping("/TopCategories")
-     public ResponseEntity<List<Category>> getTop5Categoriesy(@RequestParam(defaultValue = "5") int limit) {
-        List<Category> categories = categoryService.getTopCategories(limit);
-        return ResponseEntity.ok(categories);
     }
 }

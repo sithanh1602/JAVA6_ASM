@@ -1,10 +1,13 @@
 package com.be.controller;
 
+import com.be.GeminiClientdto.FullProductDTO;
 import com.be.dto.ProductDto;
 import com.be.dto.ProductVariantDTO;
 import com.be.entity.*;
 import com.be.service.ProductService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +20,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     private final ProductService productService;
 
     @Autowired
@@ -117,12 +120,22 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    // Lấy danh sách sản phẩm giảm giá
-    @GetMapping("/discounted")
-    public ResponseEntity<List<ProductVariant>> getDiscountedProducts() {
-        List<ProductVariant> discountedProducts = productService.getDiscountedProducts();
-        return ResponseEntity.ok(discountedProducts);
+    @GetMapping("/full-details")
+    public ResponseEntity<List<FullProductDTO>> getAllProductsWithFullDetails() {
+        logger.info("Received request to fetch all products with full details");
+        try {
+            List<FullProductDTO> products = productService.getAllProductsWithFullDetails();
+            if (products.isEmpty()) {
+                logger.info("No products found to return");
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            logger.info("Returning {} products with full details", products.size());
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Failed to fetch products with full details: {}", e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
 }

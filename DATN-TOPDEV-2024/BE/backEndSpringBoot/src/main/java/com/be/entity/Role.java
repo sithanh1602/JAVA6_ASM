@@ -20,4 +20,13 @@ public class Role implements GrantedAuthority {
     public String getAuthority() {
         return roleName; // Trả về tên vai trò làm quyền hạn
     }
+
+
+    public boolean isPresent() {
+        return roleId != null;
+    }
+
+    public Role orElseThrow(Object o) {
+        return (Role) o;
+    }
 }

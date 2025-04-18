@@ -34,7 +34,7 @@ const ProfilePage = () => {
 
     // Save user data
     const handleSave = async () => {
-        const userId = JSON.parse(localStorage.getItem("UserId"));
+        const userId = JSON.parse(localStorage.getItem("userId"));
         if (!userId || !user) {
             toast.error("Không tìm thấy thông tin người dùng.");
             return;

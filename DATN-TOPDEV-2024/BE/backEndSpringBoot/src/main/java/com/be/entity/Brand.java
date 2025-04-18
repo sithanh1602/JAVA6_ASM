@@ -25,4 +25,6 @@ public class Brand {
     @NotBlank(message = "Hình ảnh không được để trống")
     @Column(nullable = false)
     private String image;
+
+
 }

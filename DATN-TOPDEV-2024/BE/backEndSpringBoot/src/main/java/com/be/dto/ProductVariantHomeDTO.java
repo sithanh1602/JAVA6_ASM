@@ -12,7 +12,6 @@ public class ProductVariantHomeDTO {
     private String image;
     private String nameVariants;
     private Double price;
-    private Double discountPrice;
     private Long productId;
     private Integer quantity;
     private String status;

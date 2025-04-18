@@ -23,7 +23,6 @@ public class DashboardController {
     @Autowired
     private ProductService productService;
 
-    // Endpoint to get the top 3 best-selling products
     @GetMapping("/top-selling")
     public List<Product> getTopSellingProducts() {
         return productService.getTop3BestSellingProducts();

@@ -32,7 +32,7 @@ public class ProductVariant {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "price")
+    @Column(name = "Price")
     private Double price;
 
     @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL)
@@ -47,11 +47,5 @@ public class ProductVariant {
     )
     @JsonIgnore
     private List<Attribute> attributes;
-
-    @Column(name = "discount_percentage")
-    private Double discountPercentage; // % giảm giá
-
-    @Column(name = "discount_price")
-    private Double discountPrice; // Giá đã giảm
 }
 

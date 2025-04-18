@@ -20,4 +20,5 @@ public class Image {
     @Column(name = "image", nullable = false)
     private String image; // Tên trường được đặt rõ nghĩa hơn
 
+
 }

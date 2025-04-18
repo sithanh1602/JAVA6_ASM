@@ -6,12 +6,10 @@ import com.be.entity.*;
 import com.be.rep.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,12 +37,6 @@ public class OrderService {
     private ProductVariantRepository productVariantRepository;
     @Autowired
     private VoucherRepository voucherRepository;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
-    @Autowired
-    private NotificationRepository notificationRepository;
 
     // Scheduler chạy mỗi giờ để kiểm tra và xóa đơn hàng trạng thái 2
     @Scheduled(fixedRate = 60 * 60 * 1000) // Chạy mỗi giờ (60 phút * 60 giây * 1000 ms)
@@ -88,10 +80,7 @@ public class OrderService {
             orderInfo.put("paymentStatus", order.isPaymentStatus());
             orderInfo.put("orderDate", order.getOrderDate());
             orderInfo.put("products", products);
-            orderInfo.put("shoping_Fee", order.getShipping_fee());
-            orderInfo.put("voucher", order.getVoucher());
-            orderInfo.put("fullAddress", order.getFullAddress());
-            orderInfo.put("phone", order.getPhone());
+
             response.add(orderInfo);
         }
 
@@ -126,162 +115,40 @@ public class OrderService {
     public List<Object[]> getDailyRevenue(Date startDate, Date endDate) {
         return ordersRepository.calculateDailyRevenue(startDate, endDate);
     }
-
-
-    @Transactional
     public Orders updateOrderStatus(Long orderId, int status) {
-        // Tìm đơn hàng theo ID
-        Orders order = ordersRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        // Find the order by ID
+        Orders order = ordersRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
 
-        // Cập nhật trạng thái
+        // Update the status
         order.setStatus(status);
 
-        // Lưu đơn hàng đã cập nhật
-        Orders updatedOrder = ordersRepository.save(order);
-
-        // Ánh xạ trạng thái thành mô tả
-        String statusDescription = getStatusDescription(status);
-
-        // Tạo và lưu thông báo
-        Notification notification = new Notification();
-        notification.setUser(updatedOrder.getUser());
-        notification.setOrder(updatedOrder);
-        notification.setContent("Đơn hàng " + updatedOrder.getOrderNum() +
-                " của bạn đang ở trạng thái " + statusDescription);
-        notificationRepository.save(notification);
-
-        // Chuẩn bị dữ liệu gửi qua WebSocket
-        Map<String, Object> message = new HashMap<>();
-        message.put("orderId", updatedOrder.getId());
-        message.put("orderNum", updatedOrder.getOrderNum());
-        message.put("status", updatedOrder.getStatus());
-        message.put("userId", updatedOrder.getUser().getUserId());
-
-        // Gửi thông báo qua WebSocket
-        messagingTemplate.convertAndSend("/topic/status", message);
-
-        return updatedOrder;
+        // Save the updated order to the database
+        return ordersRepository.save(order);
     }
 
-    // Hàm ánh xạ trạng thái thành mô tả
-    public String getStatusDescription(int status) {
-        switch (status) {
-            case 1: return "Đã đặt hàng";
-            case 2: return "Chưa thanh toán";
-            case 3: return "Đã thanh toán";
-            case 4: return "Đã xác nhận";
-            case 5: return "Đang giao hàng";
-            case 6: return "Đã giao hàng";
-            case 7: return "Đã nhận hàng";
-            case 8: return "Hoàn thành";
-            case 9: return "Đã huỷ";
-            default: return "Không xác định";
-        }
-    }
-    
+
+
+//    public void updateOrderStatus(Long orderId, int status) {
+//        Orders order = ordersRepository.findById(orderId)
+//                .orElseThrow(() -> new RuntimeException("Order not found"));
+//
+//        order.setStatus(status); // Đảm bảo trường `status` tồn tại trong entity Orders
+//
+//        ordersRepository.save(order);
+//    }
+
+
     public Orders getOrderById(Long orderId) {
         return ordersRepository.findById(orderId)
                 .orElseThrow();
     }
 
-    @Transactional
-    public Orders updateOrderStatushuy(Long orderId, int status) {
+    public Orders updateOrderStatushuy(Long orderId, Integer status) {
+        // Tìm kiếm đơn hàng theo ID
         Orders order = ordersRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-
-        int oldStatus = order.getStatus();
-        order.setStatus(status);
-        Orders updatedOrder = ordersRepository.save(order);
-
-        String statusDescription = getStatusDescription(status);
-
-        Notification notification = new Notification();
-        notification.setUser(updatedOrder.getUser());
-        notification.setOrder(updatedOrder);
-        notification.setContent("Đơn hàng " + updatedOrder.getOrderNum() +
-                " của bạn đang ở trạng thái " + statusDescription);
-        notificationRepository.save(notification);
-
-        if (status == 9) {
-            System.out.println("Order " + orderId + " canceled, attempting to send email"); // Debug
-            sendOrderCancellationEmail(updatedOrder);
-        }
-
-        Map<String, Object> message = new HashMap<>();
-        message.put("orderId", updatedOrder.getId());
-        message.put("orderNum", updatedOrder.getOrderNum());
-        message.put("status", updatedOrder.getStatus());
-        message.put("userId", updatedOrder.getUser().getUserId());
-        messagingTemplate.convertAndSend("/topic/status", message);
-
-        return updatedOrder;
-    }
-
-    private void sendOrderCancellationEmail(Orders order) {
-        User user = order.getUser();
-        if (user == null || user.getEmail() == null) {
-            System.err.println("Cannot send email: No user or email for order " + order.getOrderNum());
-            return;
-        }
-
-        try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("<html>");
-            sb.append("<head>");
-            sb.append("<style>");
-            sb.append("body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }");
-            sb.append(".container { max-width: 800px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }");
-            sb.append(".header { text-align: center; padding-bottom: 20px; }");
-            sb.append(".header h2 { color: #ff6b6b; }");
-            sb.append(".order-info { margin: 20px 0; padding: 15px; background-color: #f9f9f9; border-radius: 5px; }");
-            sb.append(".footer { margin-top: 30px; text-align: center; color: #888; }");
-            sb.append("</style>");
-            sb.append("</head>");
-            sb.append("<body>");
-            sb.append("<div class='container'>");
-            sb.append("<div class='header'>");
-            sb.append("<h2>Đơn hàng đã được hủy</h2>");
-            sb.append("</div>");
-            sb.append("<p>Kính gửi ").append(user.getFullName()).append(",</p>");
-            sb.append("<p>Đơn hàng <strong>").append(order.getOrderNum()).append("</strong> của bạn đã được hủy thành công.</p>");
-
-            sb.append("<div class='order-info'>");
-            sb.append("<h3>Thông tin đơn hàng:</h3>");
-            sb.append("<p><strong>Mã đơn hàng:</strong> ").append(order.getOrderNum()).append("</p>");
-            sb.append("<p><strong>Ngày đặt hàng:</strong> ").append(order.getOrderDate()).append("</p>");
-            sb.append("<p><strong>Tổng giá trị:</strong> ").append(String.format("%,.0f", (double) order.getTotalPrice())).append(" VND</p>");
-            sb.append("<p><strong>Địa chỉ giao hàng:</strong> ").append(order.getFullAddress()).append("</p>");
-            sb.append("</div>");
-
-            if (order.isPaymentStatus()) {
-                sb.append("<p>Vì đơn hàng của bạn đã được thanh toán, chúng tôi sẽ tiến hành hoàn tiền cho bạn. Để quá trình hoàn tiền diễn ra nhanh chóng, vui lòng cung cấp các thông tin sau:</p>");
-                sb.append("<ol>");
-                sb.append("<li>Tên chủ tài khoản ngân hàng</li>");
-                sb.append("<li>Số tài khoản</li>");
-                sb.append("<li>Tên ngân hàng</li>");
-                sb.append("</ol>");
-                sb.append("<p>Bạn có thể phản hồi trực tiếp email này với các thông tin trên.</p>");
-            }
-
-            sb.append("<p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email hoặc hotline.</p>");
-            sb.append("<div class='footer'>");
-            sb.append("<p>Trân trọng,</p>");
-            sb.append("<p>Đội ngũ hỗ trợ khách hàng Tech Mart</p>");
-            sb.append("</div>");
-            sb.append("</div>");
-            sb.append("</body>");
-            sb.append("</html>");
-
-            emailService.sendEmail(
-                    user.getEmail(),
-                    "Thông báo hủy đơn hàng " + order.getOrderNum(),
-                    sb.toString()
-            );
-            System.out.println("Email sent successfully to " + user.getEmail()); // Debug
-        } catch (Exception e) {
-            System.err.println("Error sending cancellation email for order " + order.getOrderNum() + ": " + e.getMessage());
-        }
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+            order.setStatus(status);  // Cập nhật trạng thái đơn hàng
+            return ordersRepository.save(order);
     }
 
     public List<Orders> getOrdersByUserId(Long userId) {
@@ -289,25 +156,28 @@ public class OrderService {
     }
 
     public List<Map<String, Object>> getProductsByOrderId(Long orderId) throws Exception {
+        // Lấy danh sách chi tiết đơn hàng từ ID đơn hàng
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
         if (orderDetails.isEmpty()) {
             throw new Exception("Không tìm thấy chi tiết đơn hàng cho ID: " + orderId);
         }
 
+        // Trả về danh sách các sản phẩm kèm theo số lượng
         List<Map<String, Object>> productsWithQuantity = new ArrayList<>();
         for (OrderDetail orderDetail : orderDetails) {
             ProductVariant productVariant = orderDetail.getProduct_variant_id();
 
+            // Lấy danh sách hình ảnh của biến thể sản phẩm
             List<Image> images = productVariant.getImages();
             String imageUrl = (images != null && !images.isEmpty()) ? images.get(0).getImage() : null;
 
             Map<String, Object> productInfo = new HashMap<>();
-            productInfo.put("name", productVariant.getNameVariants());
-            productInfo.put("imageUrl", imageUrl);
+            productInfo.put("name", productVariant.getNameVariants()); // Lấy tên của ProductVariant
+            productInfo.put("imageUrl", imageUrl); // Gán ảnh đầu tiên của ProductVariant
             productInfo.put("quantity", orderDetail.getQuantity());
             productInfo.put("price", productVariant.getPrice());
-            productInfo.put("discountPrice", productVariant.getDiscountPrice() != null ? productVariant.getDiscountPrice().doubleValue() : null); // Thêm discountPrice
-            productInfo.put("OrderDetailId", orderDetail.getId());
+            productInfo.put("OrderDetailId",orderDetail.getId());
+
             productsWithQuantity.add(productInfo);
         }
         return productsWithQuantity;
@@ -394,7 +264,7 @@ public class OrderService {
             // Kiểm tra số lượng kho và trừ số lượng
             int newStock = productVariant.getQuantity() - item.getQuantity();
             if (newStock < 0) {
-                throw  new IllegalArgumentException("Insufficient stock for product variant: " + productVariant.getProduct().getName());
+                throw new IllegalArgumentException("Insufficient stock for product variant: " + productVariant.getProduct().getName());
             }
             productVariant.setQuantity(newStock);
 
@@ -426,10 +296,7 @@ public class OrderService {
             orderDetailRepository.save(orderDetail);
 
             // Xóa mục khỏi CartDetail
-            cartDetailRepository.deleteByUserIdAndproductVariantId(orderRequest.getUserId(), item.getProductVariantId());
-
-            cartDetailRepository.deleteByUserIdAndBuildId(orderRequest.getUserId(), item.getBuildId());
-
+            cartDetailRepository.deleteByUserIdAndProductId(orderRequest.getUserId(), item.getProductVariantId());
         }
 
         return savedOrder;
@@ -467,7 +334,7 @@ public class OrderService {
         order.setStatus(1);  // Đơn hàng mới
         order.setFullAddress(orderRequest.getFullAddress());
         order.setPaymentStatus(false); // Trạng thái thanh toán là thành công
-        order.setOrderDate(new Date());
+        order.setOrderDate(new Date()); // Ngày tạo đơn hàng
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
 
@@ -476,9 +343,6 @@ public class OrderService {
             // Tìm voucher theo mã
             Voucher voucher = voucherRepository.findByCode(orderRequest.getvoucherCode())
                     .orElseThrow(() -> new IllegalArgumentException("Voucher not found with code: " + orderRequest.getvoucherCode()));
-
-            // Gán voucher cho order
-            order.setVoucher(voucher);
 
             // Kiểm tra số lượng voucher còn lại
             if (voucher.getQuantity() <= 0) {
@@ -517,6 +381,7 @@ public class OrderService {
             }
             productVariant.setQuantity(newStock);
 
+            // Nếu số lượng còn lại là 0, thay đổi trạng thái thành "Out of Stock"
             if (newStock == 0) {
                 productVariant.setStatus("Out of Stock");
             }
@@ -545,10 +410,7 @@ public class OrderService {
             orderDetailRepository.save(orderDetail);
 
             // Xóa mục khỏi CartDetail
-            cartDetailRepository.deleteByUserIdAndproductVariantId(orderRequest.getUserId(), item.getProductVariantId());
-
-            cartDetailRepository.deleteByUserIdAndBuildId(orderRequest.getUserId(), item.getBuildId());
-
+            cartDetailRepository.deleteByUserIdAndProductId(orderRequest.getUserId(), item.getProductVariantId());
         }
         // Gửi email xác nhận đơn hàng
         String emailContent = buildEmailContent(user, orderRequest);

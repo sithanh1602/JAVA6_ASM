@@ -1,7 +1,12 @@
 package com.be.service;
 
-import com.be.entity.*;
-import com.be.rep.*;
+import com.be.entity.CartDetail;
+import com.be.entity.ProductVariant;
+import com.be.entity.User;
+import com.be.rep.CartDetailRepository;
+import com.be.rep.ProductRepository;
+import com.be.rep.ProductVariantRepository;
+import com.be.rep.UserRepository;
 import com.be.dto.CartDetailResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,101 +29,29 @@ public class CartDetailService {
     private ProductVariantRepository productVariantRepository;
 
     @Autowired
-    private BuildPCRepository buildPCRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
+    public List<CartDetail> findCartItemsByUserId(Long userId) {
+        return cartDetailRepository.findByUserId(userId);
+    }
 
-    public List<CartDetailResponseDTO> getCartDetailsByUserId(Long userId) {
-        List<CartDetail> cartDetails = cartDetailRepository.findByUserIdUserId(userId);
+    public List<CartDetailResponseDTO> getCartDetailsWithProductInfo(Long userId) {
+        List<Object[]> results = cartDetailRepository.findCartDetailsWithProductInfo(userId);
 
-        return cartDetails.stream().map(cartDetail -> {
+        return results.stream().map(result -> {
             CartDetailResponseDTO dto = new CartDetailResponseDTO();
-            dto.setId(cartDetail.getId());
-            dto.setUserId(cartDetail.getUserId().getUserId());
-            dto.setQuantity(cartDetail.getQuantity());
 
-            // Xử lý ProductVariant
-            if (cartDetail.getProduct_variant_id() != null) {
-                dto.setProduct_variant_id(cartDetail.getProduct_variant_id().getId());
-                ProductVariant productVariant = productVariantRepository.findById(cartDetail.getProduct_variant_id().getId())
-                        .orElse(null);
-                if (productVariant != null) {
-                    dto.setProductName(productVariant.getNameVariants());
-                    dto.setProductDescription(productVariant.getDescription());
-                    dto.setProductQuantity(productVariant.getQuantity());
-                    dto.setProductPrice(productVariant.getPrice().intValue());
-                    dto.setProductDiscountPrice(productVariant.getDiscountPrice() != null ? productVariant.getDiscountPrice().doubleValue() : null); // Thêm discountPrice
-                    dto.setProductStatus(productVariant.getStatus());
-
-                    // Get image URL from first image in the list if available
-                    if (productVariant.getImages() != null && !productVariant.getImages().isEmpty()) {
-                        dto.setProductImageUrl(productVariant.getImages().get(0).getImage());
-                    }
-                }
-            }
-
-            // Xử lý BuildPC (giữ nguyên, không thêm discountPrice)
-            if (cartDetail.getBuildId() != null) {
-                com.be.entity.BuildPC buildPC = buildPCRepository.findById(cartDetail.getBuildId().getBuildId()).orElse(null);
-                if (buildPC != null) {
-                    com.be.dto.BuildPCResponseDTO buildDTO = new com.be.dto.BuildPCResponseDTO();
-                    buildDTO.setBuildId(buildPC.getBuildId());
-                    buildDTO.setBuildName(buildPC.getBuildName());
-                    buildDTO.setTotalPrice(buildPC.getTotalPrice());
-                    buildDTO.setUsagePurpose(buildPC.getUsagePurpose());
-                    buildDTO.setDescription(buildPC.getDescription());
-                    buildDTO.setStatus(buildPC.getStatus());
-                    buildDTO.setCreatedDate(buildPC.getCreatedDate());
-
-                    // Get image from BuildPCImages if available
-                    if (buildPC.getBuildPCImages() != null && !buildPC.getBuildPCImages().isEmpty()) {
-                        buildDTO.setImage(buildPC.getBuildPCImages().get(0).getImageUrl());
-
-                        List<String> imageUrls = buildPC.getBuildPCImages().stream()
-                                .map(BuildPCImages::getImageUrl)
-                                .collect(Collectors.toList());
-                        buildDTO.setImageUrls(imageUrls);
-                    }
-
-                    // Lấy danh sách sản phẩm trong build
-                    List<com.be.dto.BuildPCProductVariantDTO> variantDTOs = buildPC.getBuildPCProductVariants().stream()
-                            .map(variant -> {
-                                com.be.dto.BuildPCProductVariantDTO variantDTO = new com.be.dto.BuildPCProductVariantDTO();
-                                ProductVariant pv = variant.getProductVariant();
-
-                                variantDTO.setProductVariantId(pv.getId());
-                                variantDTO.setVariantQuantity(variant.getVariantQuantity());
-                                variantDTO.setQuantity(pv.getQuantity());
-                                variantDTO.setNameVariants(pv.getNameVariants());
-                                variantDTO.setPrice(pv.getPrice());
-                                variantDTO.setStatus(pv.getStatus());
-
-                                // Get image URL from first image in the list if available
-                                if (pv.getImages() != null && !pv.getImages().isEmpty()) {
-                                    variantDTO.setImage(pv.getImages().get(0).getImage());
-                                }
-
-                                // Lấy thông tin về danh mục
-                                if (pv.getProduct() != null && pv.getProduct().getCategory() != null) {
-                                    variantDTO.setCategoryId((long) pv.getProduct().getCategory().getId());
-                                    variantDTO.setCategoryName(pv.getProduct().getCategory().getName());
-                                }
-
-                                return variantDTO;
-                            }).collect(Collectors.toList());
-                    buildDTO.setBuildPCProductVariants(variantDTOs);
-
-                    // Tính tổng số sản phẩm
-                    int totalProducts = variantDTOs.stream()
-                            .mapToInt(com.be.dto.BuildPCProductVariantDTO::getVariantQuantity)
-                            .sum();
-                    buildDTO.setTotalProducts(totalProducts);
-
-                    dto.setBuildPC(buildDTO);
-                }
-            }
+            dto.setId(((Number) result[0]).longValue());
+            dto.setUserId(((Number) result[1]).longValue());
+            dto.setProduct_variant_id(((Number) result[2]).longValue());
+            dto.setQuantity(((Number) result[3]).intValue());
+            dto.setProductName((String) result[4]);
+            dto.setProductDescription((String) result[5]);
+            dto.setProductQuantity(((Number) result[6]).intValue());
+            dto.setProductImageUrl((String) result[7]);
+            dto.setProductCreatedAt((Date) result[8]);
+            dto.setProductPrice(((Number) result[9]).intValue());
+            dto.setProductStatus((String) result[10]);
 
             return dto;
         }).collect(Collectors.toList());
@@ -155,49 +88,10 @@ public class CartDetailService {
         return cartDetailRepository.save(cartDetail);
     }
 
-    public CartDetail addPcToCart(Long userId, Long buildId, Integer quantity) {
-        // Kiểm tra sự tồn tại của User
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new RuntimeException("User không tồn tại với ID: " + userId));
 
-        // Kiểm tra sự tồn tại của BuildPC
-        BuildPC buildPC = buildPCRepository.findById(buildId).orElseThrow(() ->
-                new RuntimeException("BuildPC không tồn tại với ID: " + buildId));
-
-        // Kiểm tra số lượng tồn kho của các sản phẩm trong BuildPC
-        for (BuildPCProductVariant variant : buildPC.getBuildPCProductVariants()) {
-            ProductVariant pv = variant.getProductVariant();
-            int requiredQuantity = variant.getVariantQuantity() * quantity;
-            if (pv.getQuantity() < requiredQuantity) {
-                throw new RuntimeException(String.format(
-                        "Sản phẩm %s trong BuildPC chỉ còn %d sản phẩm trong kho. Vui lòng giảm số lượng.",
-                        pv.getNameVariants(), pv.getQuantity()));
-            }
-        }
-
-        // Tìm CartDetail hiện có (sử dụng query mới)
-        Optional<CartDetail> existingCartDetailOpt = cartDetailRepository.findByUserIdAndBuildId(userId, buildId);
-        CartDetail cartDetail = existingCartDetailOpt.orElseGet(CartDetail::new);
-
-        // Cập nhật thông tin CartDetail
-        cartDetail.setUserId(user);
-        cartDetail.setBuildId(buildPC);
-        int currentQuantity = existingCartDetailOpt.map(CartDetail::getQuantity).orElse(0);
-        cartDetail.setQuantity(currentQuantity + quantity);
-
-        // Lưu CartDetail vào cơ sở dữ liệu
-        return cartDetailRepository.save(cartDetail);
-    }
-
-
-    public void removeProduct(Long userId, Long productVariantId, Long buildId) {
-        if (productVariantId != null) {
-            cartDetailRepository.deleteByUserIdAndproductVariantId(userId, productVariantId);
-        } else if (buildId != null) {
-            cartDetailRepository.deleteByUserIdAndBuildId(userId, buildId);
-        } else {
-            throw new RuntimeException("Phải cung cấp productVariantId hoặc buildId để xóa mục khỏi giỏ hàng.");
-        }
+    public void removeProduct(Long userId, Long productVariantId) {
+        // Xóa sản phẩm khỏi giỏ hàng của người dùng
+        cartDetailRepository.deleteByUserIdAndproductVariantId(userId, productVariantId);
     }
 
 }

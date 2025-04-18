@@ -1,6 +1,7 @@
 package com.be.rep;
 
 import com.be.entity.Product;
+import com.be.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,26 +22,26 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findTop3BestSellingProducts();
 
     @Query(value = """
-SELECT
-    p.name AS product_name,
-    pv.description AS product_description,
-    pv.price AS product_price,
-    pv.discount_price AS discount_price,  -- Thêm cột này
-    (
-        SELECT TOP 1 c.image
-        FROM images c
-        WHERE c.product_variant_id = pv.id
-        ORDER BY c.id ASC
-    ) AS product_image,
-    STRING_AGG(a.name + ' ' + a.value, ', ') AS attributes,
-    pv.id AS variant_id,
-    pv.quantity AS variant_quantity
-FROM Products p
-JOIN Product_Variants pv ON p.id = pv.product_id
-JOIN Attributes_Product_Variants apv ON apv.product_variant_id = pv.id
-JOIN Attributes a ON apv.attribute_id = a.id
-WHERE pv.product_id = :productId
-GROUP BY p.name, pv.description, pv.price, pv.discount_price, pv.id, pv.quantity
+ SELECT
+     p.name AS product_name,
+     pv.description AS product_description,
+     pv.price AS product_price,
+     (
+         SELECT TOP 1 c.image
+         FROM images c
+         WHERE c.product_variant_id = pv.id
+         ORDER BY c.id ASC
+     ) AS product_image,
+     STRING_AGG(a.name + ' ' + a.value, ', ') AS attributes,
+     pv.id AS variant_id,
+     pv.quantity AS variant_quantity
+ FROM Products p
+ JOIN Product_Variants pv ON p.id = pv.product_id
+ JOIN Attributes_Product_Variants apv ON apv.product_variant_id = pv.id
+ JOIN Attributes a ON apv.attribute_id = a.id
+ WHERE pv.product_id = :productId
+ GROUP BY p.name, pv.description, pv.price, pv.id, pv.quantity
+
 """, nativeQuery = true)
     List<Object[]> findProductById(@Param("productId") Long productId);
 
@@ -55,13 +56,29 @@ GROUP BY p.name, pv.description, pv.price, pv.discount_price, pv.id, pv.quantity
             "    a.price, \n" +
             "    a.quantity, \n" +
             "    a.description, \n" +
-            "    a.id AS id_Variants,\n" +
-            "    a.status,\n" +
-            "    a.discount_price,\n" +
-            "    a.discount_percentage\n" +
+            "    a.id AS id_Variants\n" +
             "FROM Product_Variants a\n" +
             "JOIN Products b ON a.product_id = b.id\n" +
             "WHERE a.product_id = :productId AND a.status = 1",
             nativeQuery = true)
     List<Object[]> getProductVariants(@Param("productId") Long productId);
+
+    // Lấy products với category và brand
+    @Query("SELECT p FROM Product p " +
+            "LEFT JOIN FETCH p.category " +
+            "LEFT JOIN FETCH p.brand")
+    List<Product> findAllWithBasicDetails();
+
+    // Lấy variants với images
+    @Query("SELECT pv FROM ProductVariant pv " +
+            "LEFT JOIN FETCH pv.images " +
+            "WHERE pv.product.id IN :productIds")
+    List<ProductVariant> findVariantsWithImagesByProductIds(@Param("productIds") List<Integer> productIds);
+
+    // Lấy variants với attributes
+    @Query("SELECT pv FROM ProductVariant pv " +
+            "LEFT JOIN FETCH pv.attributes " +
+            "WHERE pv.product.id IN :productIds")
+    List<ProductVariant> findVariantsWithAttributesByProductIds(@Param("productIds") List<Integer> productIds);
+
 }

@@ -4,12 +4,10 @@ import com.be.entity.Category;
 import com.be.rep.CategoryRepository;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -88,18 +86,5 @@ public class CategoryService {
             return true; // Trả về true nếu xóa thành công
         }
         return false; // Trả về false nếu danh mục không tồn tại
-    }
-
-    public List<Category> getTopCategories(int limit) {
-        List<Object[]> results = categoryRepository.findTopCategories(PageRequest.of(0, limit));
-        return results.stream().map(obj -> {
-            Category category = new Category();
-            category.setId((Integer) obj[0]);
-            category.setName((String) obj[1]);
-            category.setDescription((String) obj[2]);
-            category.setImage((String) obj[3]);
-            category.setId_build((Integer) obj[4]);
-            return category;
-        }).collect(Collectors.toList());
     }
 }

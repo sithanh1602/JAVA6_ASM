@@ -24,10 +24,6 @@ public class ProductVariantController {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
-    @GetMapping("/all")
-    public List<ProductVariant> getAllVariants() {
-        return productVariantRepository.findAll();
-    }
 
     @GetMapping
     public ResponseEntity<List<ProductVariantHomeDTO>> getAllProductVariantsWithFirstImage() {
@@ -71,11 +67,10 @@ public class ProductVariantController {
             dto.setImage(row[1] != null ? (String) row[1] : "default.jpg");    // image (tránh lỗi null)
             dto.setNameVariants(row[2] != null ? (String) row[2] : "");        // nameVariants
             dto.setPrice(row[3] != null ? ((Number) row[3]).doubleValue() : 0.0); // price
-            dto.setDiscountPrice(row[4] != null ? ((Number) row[4]).doubleValue() : null); // discountPrice
-            dto.setProductId(row[5] != null ? ((Number) row[5]).longValue() : null); // productId
-            dto.setQuantity(row[6] != null ? ((Number) row[6]).intValue() : 0); // quantity
-            dto.setStatus(row[7] != null ? (String) row[7] : "unknown");      // status
-            dto.setCategoryName(row[8] != null ? (String) row[8] : "Unknown"); // category_name
+            dto.setProductId(row[4] != null ? ((Number) row[4]).longValue() : null); // productId
+            dto.setQuantity(row[5] != null ? ((Number) row[5]).intValue() : 0); // quantity
+            dto.setStatus(row[6] != null ? (String) row[6] : "unknown");      // status
+            dto.setCategoryName(row[7] != null ? (String) row[7] : "Unknown"); // category_name
             return dto;
         }).collect(Collectors.toList());
 
@@ -93,26 +88,6 @@ public class ProductVariantController {
     @GetMapping("/by-product/{productId}")
     public ResponseEntity<List<ProductVariantDTO>> getProductVariantsByProductId(@PathVariable Long productId) {
         List<ProductVariantDTO> variants = productVariantService.getProductVariantsByProductId(productId);
-        return ResponseEntity.ok(variants);
-    }
-
-    @GetMapping("/best-sellers")
-    public ResponseEntity<List<ProductVariant>> getTopBestSellingVariants() {
-        List<ProductVariant> variants = productVariantService.getBestSellingProductVariants();
-        return ResponseEntity.ok(variants);
-    }
-
-
-    @GetMapping("/newest")
-    public ResponseEntity<List<ProductVariant>> getTopNewestVariants() {
-        List<ProductVariant> variants = productVariantService.getNewProductVariants();
-        return ResponseEntity.ok(variants);
-    }
-
-
-    @GetMapping("/outstanding")
-    public ResponseEntity<List<ProductVariant>> getTopRatedProductsVariants() {
-        List<ProductVariant> variants = productVariantService.getTopRatedProductsVariants();
         return ResponseEntity.ok(variants);
     }
 

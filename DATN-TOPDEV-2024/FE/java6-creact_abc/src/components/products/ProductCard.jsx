@@ -11,6 +11,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import FavoriteService from "../../services/FavoriteService";
 import RatingService from "../../services/RatingService";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
@@ -24,11 +26,36 @@ const ProductCard = ({ variant, index }) => {
 
   // Kiểm tra và tính toán giảm giá
   const hasDiscount = variant.discountPrice > 0 && variant.discountPrice < variant.price;
-  const discountPercentage = hasDiscount ? Math.round(((variant.price - variant.discountPrice) / variant.price) * 100) : 0;
+  const discountPercentage = hasDiscount
+    ? Math.round(((variant.price - variant.discountPrice) / variant.price) * 100)
+    : 0;
+
+  // Hàm lấy userId và role từ cookie
+  const getUserInfoFromToken = () => {
+    const token = Cookies.get("token");
+    if (!token) {
+      console.log("No token found in cookies");
+      return { userId: null, role: null };
+    }
+    try {
+      const decodedToken = jwtDecode(token);
+      console.log("Decoded token:", decodedToken.userId);
+      // Kiểm tra userId hoặc UserId, tùy backend
+      const userId = decodedToken.userId || decodedToken.UserId || null;
+      const role = decodedToken.roles && decodedToken.roles.length > 0 ? decodedToken.roles[0] : null;
+      console.log("Extracted userId:", userId, "role:", role);
+      return {
+        userId,
+        role,
+      };
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return { userId: null, role: null };
+    }
+  };
 
   const handleAddToCart = async () => {
-    const userId = localStorage.getItem("UserId");
-    const role = localStorage.getItem("role");
+    const { userId, role } = getUserInfoFromToken();
 
     if (!userId) {
       Swal.fire({
@@ -67,12 +94,14 @@ const ProductCard = ({ variant, index }) => {
         }
       });
     } catch (error) {
-      Swal.fire("Lỗi", "Số lượng sản phẩm không đủ", "error");
+      console.error("Add to cart error:", error);
+      Swal.fire("Lỗi", "Số lượng sản phẩm không đủ hoặc lỗi hệ thống", "error");
     }
   };
 
   const handleFavorite = async () => {
-    const userId = localStorage.getItem("UserId");
+    const { userId } = getUserInfoFromToken();
+
     if (!userId) {
       Swal.fire({
         title: "Thông báo",
@@ -97,6 +126,7 @@ const ProductCard = ({ variant, index }) => {
         Swal.fire("Thành công", "Đã thêm vào danh sách yêu thích", "success");
       }
     } catch (error) {
+      console.error("Favorite error:", error);
       Swal.fire("Lỗi", "Không thể thực hiện thao tác", "error");
     }
   };
@@ -107,7 +137,7 @@ const ProductCard = ({ variant, index }) => {
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
-      const userId = localStorage.getItem("UserId");
+      const { userId } = getUserInfoFromToken();
       if (userId) {
         try {
           const status = await FavoriteService.checkIsFavorited(userId, variant.id);

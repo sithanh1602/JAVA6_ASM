@@ -16,13 +16,8 @@ public class ProductVariantDTO {
     private String status;
     private List<AttributeDTO> attributes;
     private Long productId;
-    private Double discountPrice;
-    private Double discountPercentage; // Thêm discountPercentage
 
-    // Constructor đầy đủ (bao gồm attributes)
-    public ProductVariantDTO(String name, String imageUrl, double price, int stock, String description,
-                             Long idVariants, String status, List<AttributeDTO> attributes,
-                             Long productId, Double discountPrice, Double discountPercentage) {
+    public ProductVariantDTO(String name, String imageUrl, double price, int stock, String description, Long idVariants,String status, List<AttributeDTO> attributes, Long productId) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.price = price;
@@ -32,14 +27,10 @@ public class ProductVariantDTO {
         this.status = status;
         this.attributes = attributes;
         this.productId = productId;
-        this.discountPrice = discountPrice;
-        this.discountPercentage = discountPercentage; // Thêm discountPercentage
     }
 
-    // Constructor không có attributes (dùng trong ProductService)
-    public ProductVariantDTO(String name, String imageUrl, double price, int stock, String description,
-                             Long idVariants, String status, Long productId,
-                             Double discountPrice, Double discountPercentage) {
+    // Constructor dùng trong `ProductService` (không có attributes)
+    public ProductVariantDTO(String name, String imageUrl, double price, int stock, String description, Long idVariants, String status, Long productId) {
         this.name = name;
         this.imageUrl = imageUrl;
         this.price = price;
@@ -49,7 +40,5 @@ public class ProductVariantDTO {
         this.status = status;
         this.attributes = new ArrayList<>();
         this.productId = productId;
-        this.discountPrice = discountPrice;
-        this.discountPercentage = discountPercentage; // Thêm discountPercentage
     }
 }

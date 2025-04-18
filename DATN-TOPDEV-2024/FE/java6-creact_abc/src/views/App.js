@@ -7,6 +7,7 @@ import WebSocketNotification from "../components/account/WebSocketNotification";
 import {NextUIProvider} from "@nextui-org/react";
 import SmoothScroll from "../services/SmoothScroll";
 import {  ThemeProvider } from './ThemeContext';
+import Callback from "../views/Callback";
 const App = () => {
     return (
         <ThemeProvider>
@@ -19,6 +20,7 @@ const App = () => {
                             <Route path="/*" element={<HomePage />} />
                             <Route path="/admin/*" element={<AdminLayout />} />
                             <Route path="/login" element={<AuthForm />} />
+                            <Route path="/callback" element={<Callback />} />
                         </Routes>
                     </div>
                 </Router>

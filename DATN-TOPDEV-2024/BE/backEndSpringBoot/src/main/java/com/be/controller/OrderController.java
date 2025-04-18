@@ -80,7 +80,7 @@ public class OrderController {
             Orders savedOrder = orderService.saveOrder(orderRequest);
 
             // Gửi thông báo đến admin về đơn hàng mới
-            messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getOrderNum());
+            messagingTemplate.convertAndSend("/topic/orders", "Bạn có đơn hàng mới! Mã đơn hàng là: " + savedOrder.getId());
 
             // Tạo URL thanh toán VNPay
             String urlPayment = vnPayService.createOrder(
@@ -119,25 +119,24 @@ public class OrderController {
     @PostMapping("/placeno")
     public ResponseEntity<?> placeOrderPreview(@RequestBody OrderRequest orderRequest) {
         try {
-            System.out.println("Nhận request thanh toán: " + orderRequest); // Debug log
+            System.out.println("📥 Nhận request thanh toán: " + orderRequest); // Debug log
             Orders orderPreview = orderService.createOrderPreview(orderRequest);
 
-            String urlPayment = vnPayService.createOrderNoSave(
+            String urlPayment = vnPayService.createOrder(
                     orderPreview.getTotalPrice(),
                     "Thanh toán cho đơn hàng",
                     "http://localhost:3000/payment",
                     String.valueOf(orderPreview.getId())
             );
 
-            System.out.println("URL Thanh toán: " + urlPayment);
+            System.out.println("✅ URL Thanh toán: " + urlPayment);
             return ResponseEntity.status(HttpStatus.OK).body(urlPayment);
         } catch (Exception e) {
             e.printStackTrace(); // In lỗi BE
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(" BE Error: " + e.getMessage());
+                    .body("🔥 BE Error: " + e.getMessage());
         }
     }
-
 
 
 
@@ -180,37 +179,20 @@ public class OrderController {
 
     // Endpoint cập nhật trạng thái đơn hàng
     @PutMapping("/{orderId}/status")
-    public ResponseEntity<?> updateOrderStatus(
-            @PathVariable Long orderId,
-            @RequestParam int status) {
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long orderId, @RequestParam int status) {
         try {
-            Orders updatedOrder = orderService.updateOrderStatus(orderId, status);
-            String statusDescription = orderService.getStatusDescription(status);
-            Map<String, Object> response = Map.of(
-                    "message", "Cập nhật trạng thái đơn hàng thành công",
-                    "order", Map.of(
-                            "orderId", updatedOrder.getId(),
-                            "status", updatedOrder.getStatus(),
-                            "statusDescription", statusDescription,
-                            "userId", updatedOrder.getUser().getUserId()
-                    )
-            );
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", e.getMessage()));
+            orderService.updateOrderStatus(orderId, status);
+            return ResponseEntity.ok(Map.of("message", "Order status updated successfully"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
-
     @PutMapping("/{orderId}/statushuy")
     public ResponseEntity<Orders> updateOrderStatushuy(@PathVariable Long orderId, @RequestBody int status) {
-        System.out.println("Received request to update order " + orderId + " to status " + status); // Debug
         Orders updatedOrder = orderService.updateOrderStatushuy(orderId, status);
-        return ResponseEntity.ok(updatedOrder);
+        return ResponseEntity.ok(updatedOrder); // Trả về trạng thái mã 200 và đơn hàng đã cập nhật
     }
 
     @PostMapping("/place-zalopay")

@@ -58,9 +58,7 @@ public class FavoritesService {
                 variant.getId(),
                 variant.getStatus(),
                 attributes,
-                Long.valueOf(variant.getProduct().getId()),
-                variant.getDiscountPrice(),
-                variant.getDiscountPercentage()
+                Long.valueOf(variant.getProduct().getId())
         );
     }
 
