@@ -344,7 +344,7 @@ const AdminOrderManagement = () => {
         try {
             const res = await axios.post(`http://localhost:8080/api/momo/refund-momo`, null, {
                 params: {
-                    orderNum: order.orderNum,
+                    orderNum: order.id,
                     transId: order.transId,
                     amount: order.totalPrice,
                     description: "Huỷ đơn hàng"
