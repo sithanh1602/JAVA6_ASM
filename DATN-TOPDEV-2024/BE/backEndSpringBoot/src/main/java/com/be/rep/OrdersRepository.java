@@ -10,8 +10,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
+
+
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findByUser_UserId(Long userId);  // Sử dụng 'user.userId' thay vì 'userId'
+
 
     @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.orderDate BETWEEN :startDate AND :endDate AND o.status = 3")
     Integer calculateTotalRevenue(Date startDate, Date endDate);
@@ -61,6 +67,13 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findTodayOrders();
 
     List<Orders> findByOrderDateBetween(LocalDateTime start, LocalDateTime end);
+
+
+    @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.orderDate >= :start AND o.orderDate <= :end")
+    BigDecimal sumTotalPriceBetweenDates(@Param("start") LocalDateTime from, @Param("end") LocalDateTime to);
+
+    @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.status = 8")
+    BigDecimal getTotalRevenueOfCompletedOrders();
 
 }
 

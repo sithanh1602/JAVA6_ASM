@@ -20,6 +20,26 @@ class DashService {
             throw new Error('Error fetching top selling products: ' + error.message);  // Handle errors
         }
     }
+
+    static async getTodayOrderCount() {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/dash/count-today`);
+            return response.data;
+        } catch (error) {
+            throw new Error('Error fetching today\'s order count: ' + error.message);
+        }
+    }
+
+    static async getOrdersByDate(date) {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/dash/orders-by-date`, {
+                params: { date }
+            });
+            return response.data;
+        } catch (error) {
+            throw new Error(`Error fetching orders for date ${date}: ${error.message}`);
+        }
+    }
 }
 
 export default DashService;

@@ -108,6 +108,10 @@ public class OrderService {
         return revenue != null ? revenue : 0; // Ensure null safety
     }
 
+    public List<Orders> getOrdersByStatus(int status) {
+        return ordersRepository.findByStatus(status);
+    }
+
 
     public List<Orders> getCompletedOrders(Date startDate, Date endDate) {
         return ordersRepository.findCompletedOrdersWithinPeriod(startDate, endDate);
@@ -290,6 +294,7 @@ public class OrderService {
             sb.append("<div class='container'>");
             sb.append("<div class='header'>");
             sb.append("<h2>Đơn hàng đã được hủy</h2>");
+            sb.append("<h2>TECHMART THÔNG BÁO!!!</h2>");
             sb.append("</div>");
             sb.append("<p>Kính gửi ").append(user.getFullName()).append(",</p>");
             sb.append("<p>Đơn hàng <strong>").append(order.getOrderNum()).append("</strong> của bạn đã được hủy thành công.</p>");
@@ -310,6 +315,9 @@ public class OrderService {
                 sb.append("<li>Tên ngân hàng</li>");
                 sb.append("</ol>");
                 sb.append("<p>Bạn có thể phản hồi trực tiếp email này với các thông tin trên.</p>");
+                sb.append("<p>.</p>");
+                sb.append("<p>Lưu ý:</p>");
+                sb.append("<p>Nếu bạn thanh toán bằng phương thức Momo thì vui lòng kiểm tra lại thông báo trên ứng dụng Momo cá nhân!</p>");
             }
 
             sb.append("<p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email hoặc hotline.</p>");
@@ -667,6 +675,7 @@ public class OrderService {
         sb.append("<p><strong>Email:</strong> ").append(user.getEmail()).append("</p>");
         sb.append("<p><strong>Phone:</strong> ").append(user.getPhone()).append("</p>");
         sb.append("<p><strong>Address:</strong> ").append(orderRequest.getFullAddress()).append("</p>");
+        sb.append("<p><strong>Phi vận chuyển:</strong> ").append(orderRequest.getShippingFee()).append("</p>");
         sb.append("<table>");
         sb.append("<thead>");
         sb.append("<tr>");
