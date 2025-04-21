@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import DashService from "../../services/DashService";
 
 function TodayOrderCount() {
     const [count, setCount] = useState(0);
@@ -23,14 +23,14 @@ function TodayOrderCount() {
 
         setIsLoading(true);
         // Tải lại số lượng đơn hàng hôm nay
-        axios.get("http://localhost:8080/api/dash/count-today")
-            .then(res => {
-                setCount(res.data);
+        DashService.getTodayOrderCount()
+            .then(count => {
+                setCount(count);
                 // Tải lại danh sách đơn hàng hôm nay
-                return axios.get(`http://localhost:8080/api/dash/orders-by-date?date=${today}`);
+                return DashService.getOrdersByDate(today);
             })
-            .then(res => {
-                setOrders(res.data);
+            .then(orderData => {
+                setOrders(orderData);
                 setIsLoading(false);
             })
             .catch(err => {
@@ -47,20 +47,20 @@ function TodayOrderCount() {
     // Hàm lấy đơn hàng theo ngày
     const fetchOrdersByDate = (date) => {
         setIsLoading(true);
-        axios.get(`http://localhost:8080/api/dash/orders-by-date?date=${date}`)
-            .then(res => {
-                setOrders(res.data);
+        DashService.getOrdersByDate(date)
+            .then(orderData => {
+                setOrders(orderData);
 
                 // Nếu ngày được chọn không phải hôm nay, cập nhật count từ dữ liệu Frontend
                 const isDateToday = checkIfToday(date);
                 setIsToday(isDateToday);
 
                 if (!isDateToday) {
-                    setCount(res.data.length); // Đếm số đơn từ dữ liệu Frontend
+                    setCount(orderData.length); // Đếm số đơn từ dữ liệu Frontend
                 } else {
                     // Nếu là hôm nay, cập nhật lại count từ API
-                    axios.get("http://localhost:8080/api/dash/count-today")
-                        .then(res => setCount(res.data))
+                    DashService.getTodayOrderCount()
+                        .then(todayCount => setCount(todayCount))
                         .catch(err => console.error("Lỗi khi lấy số lượng đơn hôm nay:", err));
                 }
 

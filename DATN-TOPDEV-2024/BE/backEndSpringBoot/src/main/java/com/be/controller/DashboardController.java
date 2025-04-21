@@ -5,9 +5,11 @@ import com.be.entity.Product;
 import com.be.entity.User;
 import com.be.rep.OrdersRepository;
 import com.be.service.DashService;
+import com.be.service.OrderService;
 import com.be.service.ProductService;
 import com.be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -67,6 +70,52 @@ public class DashboardController {
 
         List<Orders> orders = ordersRepository.findByOrderDateBetween(startOfDay, endOfDay);
         return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<BigDecimal> getTotalRevenueByDateRange(
+            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+
+        // chuyển LocalDate thành LocalDateTime
+        LocalDateTime fromDateTime = fromDate.atStartOfDay();
+        LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+
+        BigDecimal totalRevenue = ordersRepository.sumTotalPriceBetweenDates(fromDateTime, toDateTime);
+        return ResponseEntity.ok(totalRevenue);
+    }
+
+    @GetMapping("/monthly-revenue")
+    public ResponseEntity<List<Map<String, Object>>> getMonthlyRevenue(
+            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+
+        LocalDateTime fromDateTime = fromDate.atStartOfDay();
+        LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+
+        List<Map<String, Object>> monthlyRevenue = dashService.getRevenueByMonth(fromDateTime, toDateTime);
+        return ResponseEntity.ok(monthlyRevenue);
+    }
+
+    @GetMapping("/revenue/completed")
+    public ResponseEntity<BigDecimal> getTotalRevenueOfCompletedOrders() {
+        BigDecimal totalRevenue = ordersRepository.getTotalRevenueOfCompletedOrders();
+        return ResponseEntity.ok(totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
+    }
+
+
+    @Autowired
+    private OrderService orderService;
+
+    @GetMapping("/orders/status8")
+    public ResponseEntity<List<Orders>> getOrdersByStatus(@RequestParam(required = false) Integer status) {
+        if (status != null) {
+            List<Orders> orders = orderService.getOrdersByStatus(status);
+            return ResponseEntity.ok(orders);
+        } else {
+            // Trả về tất cả nếu không truyền status
+            return ResponseEntity.ok(orderService.getOrdersByStatus(8)); // hoặc getAllOrders() nếu muốn
+        }
     }
 
 }
