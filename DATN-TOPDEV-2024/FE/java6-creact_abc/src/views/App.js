@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLayout from '../components/admin/AdminLayout';
 import AuthForm from "../components/account/AuthForm";
 import HomePage from "../pages/home";
+import ResetPassword from "../components/account/ResetPassword";
 import WebSocketNotification from "../components/account/WebSocketNotification";
 import {NextUIProvider} from "@nextui-org/react";
 import SmoothScroll from "../services/SmoothScroll";
@@ -19,6 +20,7 @@ const App = () => {
                             <Route path="/*" element={<HomePage />} />
                             <Route path="/admin/*" element={<AdminLayout />} />
                             <Route path="/login" element={<AuthForm />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
                         </Routes>
                     </div>
                 </Router>

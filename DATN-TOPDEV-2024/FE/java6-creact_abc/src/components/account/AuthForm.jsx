@@ -9,7 +9,6 @@ import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
 import { FaLock, FaFacebook} from 'react-icons/fa';
 import {Input, Checkbox} from "@nextui-org/react";
-import Modal from 'react-modal'; // Import react-modal
 import { useAuth0 } from "@auth0/auth0-react";
 
 
@@ -28,14 +27,6 @@ const AuthForm = () => {
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const navigate = useNavigate(); // Sử dụng useNavigate thay vì useHistory
-    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
-    const [isResetPasswordModal, setIsResetPasswordModal] = useState(false);
-    const [resetEmail, setResetEmail] = useState('');
-    const [resetOtp, setResetOtp] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmNewPassword, setConfirmNewPassword] = useState('');
-    const [resetStage, setResetStage] = useState('email');
-
     const { loginWithRedirect } = useAuth0();
 
 
@@ -56,9 +47,6 @@ const AuthForm = () => {
         });
     };
 
-
-    const handleModalOpen = () => setIsModalOpen(true); // Open modal
-    const handleModalClose = () => setIsModalOpen(false); // Close modal
 
     const handleToggle = () => setIsLogin(!isLogin);
     const handleLogin = async (e) => {
@@ -203,75 +191,6 @@ const AuthForm = () => {
         return re.test(String(email).toLowerCase());
     };
 
-    const handleForgotPassword = async () => {
-        // Validate email before sending
-        if (!resetEmail) {
-            toast.error('Vui lòng nhập email');
-            return;
-        }
-
-        if (!validateEmail(resetEmail)) {
-            toast.error('Địa chỉ email không hợp lệ');
-            return;
-        }
-
-        try {
-            const response = await axios.post('http://localhost:8080/api/auth/forgot-password', { email: resetEmail });
-            toast.success(response.data);
-            setResetStage('otp'); // Move to OTP verification stage
-        } catch (error) {
-            toast.error(error.response?.data || 'Đã xảy ra lỗi khi gửi yêu cầu');
-        }
-    };
-
-    const handleVerifyOtpForgotPassWord = async () => {
-        // Validate OTP
-        if (!resetOtp || resetOtp.length !== 6) {
-            toast.error('Mã OTP phải có 6 chữ số');
-            return;
-        }
-
-        try {
-            const response = await axios.post('http://localhost:8080/api/auth/verify-otp-for-password', null, {
-                params: {
-                    email: resetEmail,
-                    otpCode: resetOtp
-                }
-            });
-            toast.success(response.data);
-            setResetStage('newPassword'); // Move to new password stage
-        } catch (error) {
-            toast.error(error.response?.data || 'Mã OTP không chính xác');
-        }
-    };
-
-    const handleResetPassword = async () => {
-        // Validate new password
-        if (!newPassword || newPassword.length < 6) {
-            toast.error('Mật khẩu phải có ít nhất 6 ký tự');
-            return;
-        }
-
-        if (newPassword !== confirmNewPassword) {
-            toast.error('Mật khẩu mới và xác nhận mật khẩu không khớp');
-            return;
-        }
-
-        try {
-            const response = await axios.post('http://localhost:8080/api/auth/reset-password', null, {
-                params: {
-                    email: resetEmail,
-                    newPassword: newPassword
-                }
-            });
-            toast.success(response.data);
-            setIsResetPasswordModal(false);
-            setResetStage('email');
-        } catch (error) {
-            toast.error(error.response?.data || 'Đã xảy ra lỗi khi đặt lại mật khẩu');
-        }
-    };
-
 
     return (
         <>
@@ -319,13 +238,12 @@ const AuthForm = () => {
                                                 Ghi nhớ tài khoản và mật khẩu
                                             </Checkbox>
                                         </label>
-                                        <button
-                                            type="button"
+                                        <a
+                                            href="/reset-password"
                                             className="text-orange-400 hover:underline"
-                                            onClick={handleModalOpen} // Open the modal
                                         >
                                             Quên mật khẩu?
-                                        </button>
+                                        </a>
                                     </div>
                                     <button
                                         type="submit"
@@ -495,82 +413,6 @@ const AuthForm = () => {
                 </div>
                 <ToastContainer/>
             </div>
-
-            {/* Modal for Forgot Password */}
-            <Modal
-                isOpen={isModalOpen}
-                onRequestClose={handleModalClose}
-                contentLabel="Forgot Password Modal"
-                className="bg-gray-800 text-white p-6 rounded-lg w-full max-w-md mx-auto mt-14"
-                overlayClassName="fixed inset-0 bg-black bg-opacity-70"
-            >
-                <div className="bg-gray-800 p-6 rounded-lg max-w-md mx-auto">
-                    {resetStage === 'email' && (
-                        <div>
-                            <h2 className="text-2xl text-white mb-4">Quên Mật Khẩu</h2>
-                            <input
-                                type="email"
-                                placeholder="Nhập email của bạn"
-                                value={resetEmail}
-                                onChange={(e) => setResetEmail(e.target.value)}
-                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
-                            />
-                            <button
-                                onClick={handleForgotPassword}
-                                className="w-full bg-blue-600 text-white py-2 rounded"
-                            >
-                                Gửi Mã OTP
-                            </button>
-                        </div>
-                    )}
-
-                    {resetStage === 'otp' && (
-                        <div>
-                            <h2 className="text-2xl text-white mb-4">Xác Minh OTP</h2>
-                            <input
-                                type="text"
-                                placeholder="Nhập mã OTP"
-                                value={resetOtp}
-                                onChange={(e) => setResetOtp(e.target.value)}
-                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
-                                maxLength="6"
-                            />
-                            <button
-                                onClick={handleVerifyOtpForgotPassWord}
-                                className="w-full bg-green-600 text-white py-2 rounded"
-                            >
-                                Xác Minh
-                            </button>
-                        </div>
-                    )}
-
-                    {resetStage === 'newPassword' && (
-                        <div>
-                            <h2 className="text-2xl text-white mb-4">Đặt Lại Mật Khẩu</h2>
-                            <input
-                                type="password"
-                                placeholder="Nhập mật khẩu mới"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
-                            />
-                            <input
-                                type="password"
-                                placeholder="Xác nhận mật khẩu mới"
-                                value={confirmNewPassword}
-                                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                                className="w-full p-2 mb-4 bg-transparent border-b border-gray-300 text-white"
-                            />
-                            <button
-                                onClick={handleResetPassword}
-                                className="w-full bg-blue-600 text-white py-2 rounded"
-                            >
-                                Đặt Lại Mật Khẩu
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </Modal>
         </>
     );
 };

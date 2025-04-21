@@ -129,7 +129,7 @@ const PCBuildCard = ({ build, index }) => {
         />
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-red-800 font-bold text-lg">
-            KHÔNG KHẢ DỤNG
+            KHÔNG HOẠT ĐỘNG
           </div>
         )}
         <span
