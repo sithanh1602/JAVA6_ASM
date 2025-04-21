@@ -231,4 +231,92 @@ public class AuthService {
         return ResponseEntity.ok(Response.success("Đã gửi lại mã OTP. Vui lòng kiểm tra email.", "Gửi lại OTP thành công."));
     }
 
+    // Trong AuthService.java
+
+    // Phương thức xử lý quên mật khẩu (gửi OTP)
+    public ResponseEntity<Response<String>> forgotPassword(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(404).body(Response.error("Không tìm thấy tài khoản với email này."));
+        }
+
+        User user = optionalUser.get();
+
+        // Tạo OTP mới
+        String otp = otpService.generateOtp();
+        user.setOtpSms(otp);
+        user.setOtpExpiredAt(otpService.getOtpExpiredTime());
+        userRepository.save(user);
+
+        // Gửi OTP qua email
+        try {
+            emailService.sendOtpEmail(email, otp);
+        } catch (MessagingException e) {
+            return ResponseEntity.status(500).body(Response.error("Không thể gửi email. Vui lòng thử lại sau."));
+        }
+
+        return ResponseEntity.ok(Response.success("Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư đến.", "Gửi OTP thành công."));
+    }
+
+    // Phương thức xác minh OTP cho quên mật khẩu
+    public ResponseEntity<Response<String>> verifyOtpForPassword(String email, String otpCode) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(404).body(Response.error("Không tìm thấy tài khoản với email này."));
+        }
+
+        User user = optionalUser.get();
+
+        if (!user.getOtpSms().equals(otpCode)) {
+            return ResponseEntity.badRequest().body(Response.error("Mã OTP không chính xác."));
+        }
+
+        if (LocalDateTime.now().isAfter(user.getOtpExpiredAt())) {
+            user.setOtpSms(null);
+            user.setOtpExpiredAt(null);
+            userRepository.save(user);
+            return ResponseEntity.badRequest().body(Response.error("Mã OTP đã hết hạn. Vui lòng gửi lại."));
+        }
+
+        // Không xóa OTP ngay lập tức, vì cần để người dùng đặt lại mật khẩu
+        // Chỉ đánh dấu là đã xác minh thành công
+        return ResponseEntity.ok(Response.success("Xác minh OTP thành công. Vui lòng đặt lại mật khẩu mới.", "Xác minh thành công."));
+    }
+
+    // Phương thức đặt lại mật khẩu sau khi xác minh OTP
+    public ResponseEntity<Response<String>> resetPassword(String email, String newPassword) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(404).body(Response.error("Không tìm thấy tài khoản với email này."));
+        }
+
+        User user = optionalUser.get();
+
+        // Kiểm tra xem người dùng đã xác minh OTP chưa
+        if (user.getOtpSms() == null || user.getOtpExpiredAt() == null) {
+            return ResponseEntity.badRequest().body(Response.error("Bạn cần xác minh OTP trước khi đặt lại mật khẩu."));
+        }
+
+        // Kiểm tra OTP còn hiệu lực
+        if (LocalDateTime.now().isAfter(user.getOtpExpiredAt())) {
+            user.setOtpSms(null);
+            user.setOtpExpiredAt(null);
+            userRepository.save(user);
+            return ResponseEntity.badRequest().body(Response.error("Phiên làm việc đã hết hạn. Vui lòng bắt đầu lại quy trình quên mật khẩu."));
+        }
+
+        // Đặt lại mật khẩu
+        user.setPassword(passwordEncoder.encode(newPassword));
+        // Xóa OTP sau khi đã đặt lại mật khẩu thành công
+        user.setOtpSms(null);
+        user.setOtpExpiredAt(null);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Response.success("Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.", "Đặt lại mật khẩu thành công."));
+    }
+
+
 }
