@@ -12,6 +12,7 @@ public class ProductDto {
     private String attributes; // Đây là nơi chứa giá trị từ GROUP_CONCAT
     private Long variantId;
     private Integer quantity;
+    private String status;
 
     // Getters và setters (đã được tạo tự động bởi @Data của Lombok)
 }

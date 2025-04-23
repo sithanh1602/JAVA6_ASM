@@ -42,7 +42,7 @@ SELECT
     p.name AS product_name,
     pv.description AS product_description,
     pv.price AS product_price,
-    pv.discount_price AS discount_price,  -- Thêm cột này
+    pv.discount_price AS discount_price,
     (
         SELECT TOP 1 c.image
         FROM images c
@@ -51,13 +51,14 @@ SELECT
     ) AS product_image,
     STRING_AGG(a.name + ' ' + a.value, ', ') AS attributes,
     pv.id AS variant_id,
-    pv.quantity AS variant_quantity
+    pv.quantity AS variant_quantity,
+    pv.status AS variant_status
 FROM Products p
 JOIN Product_Variants pv ON p.id = pv.product_id
 JOIN Attributes_Product_Variants apv ON apv.product_variant_id = pv.id
 JOIN Attributes a ON apv.attribute_id = a.id
 WHERE pv.product_id = :productId
-GROUP BY p.name, pv.description, pv.price, pv.discount_price, pv.id, pv.quantity
+GROUP BY p.name, pv.description, pv.price, pv.discount_price, pv.id, pv.quantity, pv.status
 """, nativeQuery = true)
     List<Object[]> findProductById(@Param("productId") Long productId);
 

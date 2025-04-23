@@ -116,8 +116,8 @@ const ProductList = ({ currentPage, productsPerPage, view, sortOption }) => {
 
         const timer = setTimeout(() => {
             let filtered = variants.filter((variant) => {
-                console.log(variant)
                 const variantName = variant.nameVariants || "";
+                // Chỉ lọc theo tên sản phẩm, không lọc trạng thái
                 return variantName.toLowerCase().includes(searchQuery.toLowerCase());
             });
 

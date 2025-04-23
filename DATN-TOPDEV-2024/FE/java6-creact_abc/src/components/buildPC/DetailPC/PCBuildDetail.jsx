@@ -90,7 +90,7 @@ const PCBuildDetail = () => {
         icon: "warning",
         confirmButtonText: "Đăng nhập",
       }).then(() => {
-        navigate("/login");
+        navigate("/loginn");
       });
       return;
     }

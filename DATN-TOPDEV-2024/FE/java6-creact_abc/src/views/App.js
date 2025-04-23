@@ -20,7 +20,6 @@ const App = () => {
                         <Routes>
                             <Route path="/*" element={<HomePage />} />
                             <Route path="/admin/*" element={<AdminLayout />} />
-                            <Route path="/login" element={<AuthForm />} />
                             <Route path="/reset-password" element={<ResetPassword />} />
                         </Routes>
                     </div>

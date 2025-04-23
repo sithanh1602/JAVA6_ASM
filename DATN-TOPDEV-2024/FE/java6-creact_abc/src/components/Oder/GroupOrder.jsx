@@ -62,7 +62,7 @@ const GroupOrder = () => {
           text: "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.",
           icon: "error",
         }).then(() => {
-          navigate("/login");
+          navigate("/loginn");
         });
         return;
       }

@@ -162,7 +162,7 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
           position: "top-right",
           autoClose: 3000,
         });
-        navigate("/login");
+        navigate("/loginn");
       }
     });
   };

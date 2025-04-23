@@ -31,7 +31,7 @@ const CartPage = () => {
                 confirmButtonText: 'Đăng nhập ngay',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    navigate('/login');
+                    navigate('/loginn');
                 }
             });
             setLoading(false);

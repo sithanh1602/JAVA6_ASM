@@ -25,11 +25,13 @@ const schema = yup.object().shape({
   quantity: yup
     .number()
     .required("Số lượng là bắt buộc")
-    .min(1, "Số lượng phải lớn hơn 0"),
+    .min(1, "Số lượng phải lớn hơn 0")
+    .typeError("Số lượng phải là số hợp lệ và lớn hơn 0"),
   price: yup
     .number()
     .required("Giá là bắt buộc")
-    .min(0, "Giá phải lớn hơn hoặc bằng 0"),
+    .min(0, "Giá phải lớn hơn hoặc bằng 0")
+    .typeError("Giá phải là số hợp lệ và không âm"),
   status: yup.string().required("Trạng thái là bắt buộc"),
   images: yup.array().min(1, "Phải thêm ít nhất một hình ảnh"),
   attributes: yup.array().min(1, "Phải thêm ít nhất một thuộc tính"),
@@ -399,33 +401,61 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
                 name="quantity"
                 control={control}
                 render={({field}) => (
-                    <Input
-                        {...field}
-                        label="Số Lượng"
-                        type="number"
-                        variant="bordered"
-                        error={errors.quantity?.message}
-                    />
+                    <div>
+                        <Input
+                            {...field}
+                            label="Số Lượng"
+                            type="number"
+                            variant="bordered"
+                            min="1"
+                            className={errors.quantity ? "border-red-500" : ""}
+                            color={errors.quantity ? "danger" : "default"}
+                            description={errors.quantity ? "" : "Số lượng phải lớn hơn 0"}
+                            errorMessage={errors.quantity?.message}
+                        />
+                        {errors.quantity && (
+                            <div className="flex items-center mt-1 text-red-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                <span>{errors.quantity?.message}</span>
+                            </div>
+                        )}
+                    </div>
                 )}
             />
             <Controller
                 name="price"
                 control={control}
                 render={({field}) => (
-                    <Input
-                        {...field}
-                        label="Giá"
-                        type="number"
-                        variant="bordered"
-                        error={errors.price?.message}
-                        onChange={(e) => {
-                          const inputValue = e.target.value;
-                          const value =
-                              inputValue === "" ? "" : parseFloat(inputValue) || 0;
-                          field.onChange(value);
-                          setFormData((prev) => ({...prev, price: value}));
-                        }}
-                    />
+                    <div>
+                        <Input
+                            {...field}
+                            label="Giá"
+                            type="number"
+                            variant="bordered"
+                            min="0"
+                            className={errors.price ? "border-red-500" : ""}
+                            color={errors.price ? "danger" : "default"}
+                            description={errors.price ? "" : "Giá không được nhỏ hơn 0"}
+                            errorMessage={errors.price?.message}
+                            onChange={(e) => {
+                              const inputValue = e.target.value;
+                              const value =
+                                  inputValue === "" ? "" : parseFloat(inputValue) || 0;
+                              field.onChange(value);
+                              setFormData((prev) => ({...prev, price: value}));
+                            }}
+                        />
+                        {errors.price && (
+                            <div className="flex items-center mt-1 text-red-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                <span>{errors.price?.message}</span>
+                            </div>
+                        )}
+                    </div>
                 )}
             />
 
