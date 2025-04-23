@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Tabs, Tab, Checkbox, Input } from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Tabs, Tab, Checkbox, Input, RadioGroup, Radio } from "@nextui-org/react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import OrderService from "../../services/OrderSevice";
 import { faClipboardCheck, faTruck, faBoxOpen, faCheckCircle, faHandshake, faExclamationCircle, faDollarSign, faCheckDouble, faTimesCircle, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
@@ -31,6 +31,9 @@ const OrderList = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderProducts, setOrderProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('VNPay');
+  const [paymentOrderId, setPaymentOrderId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     newest: true,
@@ -122,6 +125,17 @@ const OrderList = () => {
     setOrderProducts([]);
   };
 
+  const openPaymentModal = (orderId) => {
+    setPaymentOrderId(orderId);
+    setIsPaymentModalOpen(true);
+  };
+
+  const closePaymentModal = () => {
+    setIsPaymentModalOpen(false);
+    setPaymentOrderId(null);
+    setSelectedPaymentMethod('VNPay');
+  };
+
   const getUserIdFromToken = () => {
     const token = Cookies.get("token");
     if (token) {
@@ -136,27 +150,37 @@ const OrderList = () => {
     return null;
   };
 
-  const handlePayment = async (orderId) => {
+  const handlePayment = async () => {
     const userId = getUserIdFromToken();
-    const selectedOrder = orders.find(order => order.id === orderId);
+    const selectedOrder = orders.find(order => order.id === paymentOrderId);
     if (!selectedOrder) {
-      alert("Không tìm thấy thông tin đơn hàng!");
+      Swal.fire('Lỗi!', 'Không tìm thấy thông tin đơn hàng!', 'error');
       return;
     }
     if (!userId) {
-      alert("Không thể xác định người dùng. Vui lòng đăng nhập lại!");
+      Swal.fire('Lỗi!', 'Không thể xác định người dùng. Vui lòng đăng nhập lại!', 'error');
       return;
     }
     try {
-      const response = await OrderService.placeOrderNosave(selectedOrder, userId, orderId);
+      Swal.fire({ title: "Đang xử lý...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      let response;
+      if (selectedPaymentMethod === 'MoMo') {
+        response = await OrderService.placeOrderWithMomoPreview(selectedOrder, userId, paymentOrderId);
+      } else if (selectedPaymentMethod === 'VNPay') {
+        response = await OrderService.placeOrderNosave(selectedOrder, userId, paymentOrderId, selectedPaymentMethod);
+      } else {
+        throw new Error('Phương thức thanh toán không được hỗ trợ.');
+      }
       if (response) {
         window.location.href = response;
       } else {
-        alert("Không nhận được URL thanh toán. Vui lòng thử lại.");
+        Swal.fire('Lỗi!', 'Không nhận được URL thanh toán. Vui lòng thử lại.', 'error');
       }
     } catch (error) {
-      alert("Thanh toán thất bại, vui lòng thử lại.");
+      Swal.fire('Lỗi!', 'Thanh toán thất bại, vui lòng thử lại.', 'error');
       console.error("Lỗi khi thanh toán:", error.response?.data || error.message);
+    } finally {
+      closePaymentModal();
     }
   };
 
@@ -202,7 +226,7 @@ const OrderList = () => {
     if (result.isConfirmed) {
       try {
         Swal.fire({ title: "Đang xử lý...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        await OrderService.updateOrderStatus(orderId, 8); // Cập nhật thành "Đã nhận hàng"
+        await OrderService.updateOrderStatus(orderId, 8);
         const userId = localStorage.getItem("UserId");
         const ordersData = await OrderService.getOrdersByUserId(userId);
         setOrders(ordersData);
@@ -278,7 +302,7 @@ const OrderList = () => {
       cell: row => (
           <div className="flex gap-2">
             {row.paymentStatus && (row.status === 1 || row.status === 2) && (
-                <Button size="sm" color="success" className="rounded-none" onClick={() => handlePayment(row.id)}>
+                <Button size="sm" color="success" className="rounded-none" onClick={() => openPaymentModal(row.id)}>
                   Thanh toán
                 </Button>
             )}
@@ -320,16 +344,16 @@ const OrderList = () => {
       cell: row => {
         const priceToDisplay = row.discountPrice && row.discountPrice > 0 ? row.discountPrice : row.price;
         return (
-          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
             <span className="text-blue-500 font-medium">
               {priceToDisplay.toLocaleString()} ₫
             </span>
-            {row.discountPrice && row.discountPrice > 0 && row.price > row.discountPrice && (
-              <span className="text-gray-500 line-through text-sm">
+              {row.discountPrice && row.discountPrice > 0 && row.price > row.discountPrice && (
+                  <span className="text-gray-500 line-through text-sm">
                 {row.price.toLocaleString()} ₫
               </span>
-            )}
-          </div>
+              )}
+            </div>
         );
       },
       width: '150px',
@@ -584,6 +608,29 @@ const OrderList = () => {
             </ModalBody>
             <ModalFooter>
               <Button color="danger" size="sm" className="rounded-none" onClick={closeModal}>Đóng</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+        <Modal isOpen={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen} size="sm">
+          <ModalContent className="rounded-none">
+            <ModalHeader className="text-lg font-bold">Chọn Phương Thức Thanh Toán</ModalHeader>
+            <ModalBody>
+              <RadioGroup
+                  label="Chọn phương thức"
+                  value={selectedPaymentMethod}
+                  onValueChange={setSelectedPaymentMethod}
+              >
+                <Radio value="VNPay">VNPay</Radio>
+                <Radio value="MoMo">MoMo</Radio>
+              </RadioGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" size="sm" className="rounded-none" onClick={closePaymentModal}>
+                Hủy
+              </Button>
+              <Button color="success" size="sm" className="rounded-none" onClick={handlePayment}>
+                Xác nhận
+              </Button>
             </ModalFooter>
           </ModalContent>
         </Modal>

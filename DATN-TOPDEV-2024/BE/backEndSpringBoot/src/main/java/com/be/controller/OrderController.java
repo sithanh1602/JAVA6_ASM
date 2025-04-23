@@ -5,6 +5,7 @@ import com.be.entity.*;
 import com.be.service.OrderService;
 import com.be.service.VNPayService;
 import com.be.service.ZaloPayService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -185,6 +186,7 @@ public class OrderController {
             @RequestParam(required = false) String transactionId // Thêm tham số cho transactionId
             ) {
         try {
+            System.out.println(orderId);
             // Cập nhật trạng thái đơn hàng và lưu transactionId, paymentMethod
             Orders updatedOrder = orderService.updateOrderStatus(orderId, status);
 
@@ -296,6 +298,14 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Có lỗi xảy ra khi xóa đơn hàng chưa thanh toán: " + e.getMessage()));
         }
+    }
+
+    @PutMapping("/status/{orderNum}")
+    public ResponseEntity<Orders> updateStatusByOrderNum(
+            @PathVariable String orderNum,
+            @RequestParam int status) {
+        Orders updated = orderService.updateOrderStatusByOrderNum(orderNum, status);
+        return ResponseEntity.ok(updated);
     }
 
 }

@@ -18,6 +18,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findByUser_UserId(Long userId);  // Sử dụng 'user.userId' thay vì 'userId'
 
+    @Query("SELECT o FROM Orders o WHERE o.id = :orderId")
+    Optional<Orders> findByOrderId(@Param("orderId") String orderId);
 
     @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.orderDate BETWEEN :startDate AND :endDate AND o.status = 3")
     Integer calculateTotalRevenue(Date startDate, Date endDate);
