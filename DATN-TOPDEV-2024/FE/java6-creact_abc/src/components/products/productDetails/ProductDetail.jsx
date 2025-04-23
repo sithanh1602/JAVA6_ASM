@@ -10,8 +10,12 @@ import {
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { Toaster, toast } from "sonner";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { FaExclamationTriangle } from "react-icons/fa";
 
 const ProductDetail = () => {
+  const navigate = useNavigate();
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [variants, setVariants] = useState([]);
@@ -26,6 +30,10 @@ const ProductDetail = () => {
   const [description, setDescription] = useState(
     selectedVariant?.description || ""
   );
+
+  // Kiểm tra sản phẩm có đang hoạt động không
+  const isProductUnavailable = selectedVariant?.status === "Unavailable";
+  const isOutOfStock = (selectedVariant?.quantity === 0 || selectedVariant?.stock === 0);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -166,10 +174,16 @@ const ProductDetail = () => {
   const handleAddToCart = async () => {
     const userId = getUserIdFromToken();
     if (!userId) {
-      alert("Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng.");
+      Swal.fire({
+        title: "Thông báo",
+        text: "Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng",
+        icon: "warning",
+        confirmButtonText: "Đăng nhập",
+      }).then(() => {
+        navigate("/loginn");
+      });
       return;
     }
-
     try {
       // Kiểm tra số lượng tồn thực tế
       const variantId = selectedVariant.variantId || selectedVariant.idVariants;
@@ -311,6 +325,22 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
+                 {/* Thông báo sản phẩm không hoạt động */}
+                 {isProductUnavailable && (
+                  <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-lg flex items-center gap-2">
+                    <FaExclamationTriangle className="text-red-600" />
+                    <span>Sản phẩm này hiện không hoạt động</span>
+                  </div>
+                )}
+
+                {/* Thông báo sản phẩm hết hàng */}
+                {isOutOfStock && !isProductUnavailable && (
+                  <div className="mt-4 p-3 bg-yellow-100 text-yellow-700 rounded-lg flex items-center gap-2">
+                    <FaExclamationTriangle className="text-yellow-600" />
+                    <span>Sản phẩm này hiện đang hết hàng</span>
+                  </div>
+                )}
+
                 <div className="space-y-2 py-4">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">Thương hiệu:</span>
@@ -366,6 +396,7 @@ const ProductDetail = () => {
                     </div>
                   )}
 
+
                 <div className="border-t pt-4 space-y-4">
                   <div className="flex items-center gap-4">
                     <label className="font-medium">Số lượng:</label>
@@ -401,14 +432,22 @@ const ProductDetail = () => {
                   </div>
 
                   <div className="space-y-3 pt-4">
-                    <button className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg shadow hover:bg-blue-700 transition">
-                      Mua ngay
-                    </button>
                     <button
                       onClick={handleAddToCart}
-                      className="w-full text-blue-600 border border-blue-600 py-3 px-6 rounded-lg shadow hover:bg-blue-50 transition"
+                      disabled={isProductUnavailable || isOutOfStock}
+                      className={`w-full py-3 px-6 rounded-lg shadow transition ${
+                        isProductUnavailable
+                          ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                          : isOutOfStock
+                          ? "bg-yellow-400 text-white cursor-not-allowed"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }`}
                     >
-                      Thêm vào giỏ hàng
+                      {isProductUnavailable
+                        ? "Sản phẩm không hoạt động"
+                        : isOutOfStock
+                        ? "Hết hàng"
+                        : "Thêm vào giỏ hàng"}
                     </button>
                   </div>
                 </div>

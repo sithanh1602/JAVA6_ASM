@@ -19,6 +19,7 @@ const formatPrice = (price) => {
 const ProductCard = ({ variant, index }) => {
   const navigate = useNavigate();
   const isOutOfStock = variant.quantity === 0;
+  const isUnavailable = variant.status === "Unavailable";
   const [isFavorited, setIsFavorited] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
 
@@ -32,6 +33,17 @@ const ProductCard = ({ variant, index }) => {
     : 0;
 
   const handleAddToCart = async () => {
+    // Kiểm tra sản phẩm không hoạt động
+    if (isUnavailable) {
+      Swal.fire({
+        title: "Thông báo",
+        text: "Sản phẩm này hiện không hoạt động và không thể thêm vào giỏ hàng",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
     const userId = localStorage.getItem("UserId");
     const role = localStorage.getItem("role");
 
@@ -42,7 +54,7 @@ const ProductCard = ({ variant, index }) => {
         icon: "warning",
         confirmButtonText: "Đăng nhập",
       }).then(() => {
-        navigate("/login");
+        navigate("/loginn");
       });
       return;
     }
@@ -77,6 +89,17 @@ const ProductCard = ({ variant, index }) => {
   };
 
   const handleFavorite = async () => {
+    // Kiểm tra sản phẩm không hoạt động
+    if (isUnavailable) {
+      Swal.fire({
+        title: "Thông báo",
+        text: "Không thể thêm sản phẩm không hoạt động vào danh sách yêu thích",
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
     const userId = localStorage.getItem("UserId");
     if (!userId) {
       Swal.fire({
@@ -85,7 +108,7 @@ const ProductCard = ({ variant, index }) => {
         icon: "warning",
         confirmButtonText: "Đăng nhập",
       }).then(() => {
-        navigate("/login");
+        navigate("/loginn");
       });
       return;
     }
@@ -147,11 +170,13 @@ const ProductCard = ({ variant, index }) => {
   return (
     <div
       className={`relative bg-white p-4 border shadow-md overflow-hidden h-[497px] flex flex-col justify-between group ${
-        isOutOfStock ? "opacity-50" : ""
-      }`}>
+        isOutOfStock || isUnavailable ? "opacity-70" : ""
+      }`}
+    >
       <div
         className="relative cursor-pointer"
-        onClick={!isOutOfStock ? handleShowProductDetails : undefined}>
+        onClick={!isOutOfStock && !isUnavailable ? handleShowProductDetails : undefined}
+      >
         <img
           src={
             variant.image
@@ -162,12 +187,19 @@ const ProductCard = ({ variant, index }) => {
           className="h-64 w-full object-cover rounded-lg"
         />
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-red-800 font-bold text-lg">
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-bold text-lg">
             HẾT HÀNG
           </div>
         )}
+        {isUnavailable && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <span className="bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-lg">
+              KHÔNG HOẠT ĐỘNG
+            </span>
+          </div>
+        )}
       </div>
-      {hasDiscount && (
+      {hasDiscount && !isUnavailable && (
         <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
           -{variant.discountPercentage}%
         </span>
@@ -191,15 +223,15 @@ const ProductCard = ({ variant, index }) => {
       )}
       <div className="flex mt-2">
         <button
-          className={`text-gray-500 hover:text-red-500 ${
-            isFavorited ? "text-red-500" : ""
-          }`}
-          onClick={handleFavorite}>
+          className={`text-gray-500 hover:text-red-500 ${isFavorited ? "text-red-500" : ""} ${isUnavailable ? "opacity-50 cursor-not-allowed" : ""}`}
+          onClick={!isUnavailable ? handleFavorite : undefined}
+        >
           <FontAwesomeIcon icon={faHeart} />
         </button>
         <button
-          className="text-gray-500 p-2 hover:text-orange-500"
-          onClick={handleShowProductDetails}>
+          className={`text-gray-500 p-2 hover:text-orange-500 ${isUnavailable ? "opacity-50 cursor-not-allowed" : ""}`}
+          onClick={!isUnavailable ? handleShowProductDetails : undefined}
+        >
           <FontAwesomeIcon icon={faExclamationCircle} />
         </button>
       </div>
@@ -224,9 +256,15 @@ const ProductCard = ({ variant, index }) => {
         </span>
       </div>
       <button
-        className="w-full mt-3 px-4 py-2 text-xs font-bold bg-blue-700 text-white shadow opacity-100 hover:bg-gray-200 hover:text-black transition"
-        onClick={handleAddToCart}>
-        <FontAwesomeIcon icon={faCartPlus} /> THÊM VÀO GIỎ HÀNG
+        className={`w-full mt-3 px-4 py-2 text-xs font-bold ${
+          isUnavailable 
+            ? "bg-gray-400 text-gray-700 cursor-not-allowed" 
+            : "bg-blue-700 text-white shadow opacity-100 hover:bg-gray-200 hover:text-black transition"
+        }`}
+        onClick={!isUnavailable ? handleAddToCart : undefined}
+        disabled={isUnavailable}
+      >
+        <FontAwesomeIcon icon={faCartPlus} /> {isUnavailable ? "KHÔNG HOẠT ĐỘNG" : "THÊM VÀO GIỎ HÀNG"}
       </button>
     </div>
   );

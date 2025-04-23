@@ -48,7 +48,9 @@ const App = () => {
 
     const filteredVariants = selectedBrand
         ? productVariants.filter((variant) => {
-            return variant.product && variant.product.brand === selectedBrand;
+            return variant.product && 
+                   variant.product.brand === selectedBrand && 
+                   variant.status !== "Unavailable";
           })
         : productVariants;
 

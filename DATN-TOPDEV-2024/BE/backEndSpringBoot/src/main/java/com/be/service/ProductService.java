@@ -181,6 +181,7 @@ public class ProductService {
             dto.setAttributes((String) result[5]);  // attributes
             dto.setVariantId((Long) result[6]);  // variant_id
             dto.setQuantity((Integer) result[7]);  // variant_quantity
+            dto.setStatus((String) result[8]);
 
             return dto;
         }).collect(Collectors.toList());

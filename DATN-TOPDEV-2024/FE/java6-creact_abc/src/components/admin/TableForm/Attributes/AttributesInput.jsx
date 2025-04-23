@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Input, Button } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import { FaPlus, FaEdit } from "react-icons/fa";
 import { addAttribute, updateAttribute } from "../../../../services/AttributeService";
 import Swal from "sweetalert2";
@@ -110,32 +110,32 @@ const AttributesInput = ({ selectedAttribute, onAddAttribute }) => {
 
   return (
     <div className="flex justify-center items-center">
-      <div className="p-6 bg-white rounded-lg  w-80">
+      <div className="p-6 bg-white rounded-lg w-80">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-3">
-
-            <Input
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tên Thuộc Tính</label>
+            <input
               {...register("name")}
               type="text"
-              className="w-full"
-              label="Tên Thuộc Tính"
-              variant="bordered"
-              isInvalid={!!errors.name}
-              errorMessage={errors.name?.message}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Nhập tên thuộc tính"
             />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+            )}
           </div>
 
           <div className="mb-4">
-  
-            <Input
+            <label className="block text-sm font-medium text-gray-700 mb-1">Giá Trị Thuộc Tính</label>
+            <input
               {...register("value")}
               type="text"
-              className="w-full"
-              label="Giá Trị Thuộc Tính"
-              variant="bordered"
-              isInvalid={!!errors.value}
-              errorMessage={errors.value?.message}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Nhập giá trị thuộc tính"
             />
+            {errors.value && (
+              <p className="mt-1 text-sm text-red-600">{errors.value.message}</p>
+            )}
           </div>
 
           <Button

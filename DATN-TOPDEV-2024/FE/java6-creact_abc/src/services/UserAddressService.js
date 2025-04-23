@@ -93,7 +93,7 @@ class UserAddressService {
     handleLogout() {
         localStorage.removeItem('token');  // Xóa token khỏi localStorage
         localStorage.removeItem('UserId'); // Xóa thông tin người dùng nếu cần
-        window.location.href = '/login';  // Chuyển hướng về trang đăng nhập
+        window.location.href = '/loginn';  // Chuyển hướng về trang đăng nhập
     }
 }
 
