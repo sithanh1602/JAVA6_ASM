@@ -19,51 +19,53 @@ const FeatureSection = () => {
     return(
         <>
                 {/* Start section sale  */}
-                <div className="w-full mx-auto mt-8 mb-14 bg-gray-100 py-1 px-6 rounded-lg shadow">
-                    <div className="flex justify-between items-center">
-                        {features.map((item, index) => (
-                            <div key={index} className="flex items-center gap-4">
-                                <div className="text-3xl text-blue-500">{item.icon}</div>
-                                <div>
-                                    <h3 className="text-lg font-medium text-black">{item.title}</h3>
-                                    <p className="text-sm text-gray-600">{item.desc}</p>
-                                </div>
-                                {index !== features.length - 1 && <div className="h-10 w-px bg-gray-300" />}
-                            </div>
-                        ))}
+                <div className="w-full mx-auto mt-8 mb-14 bg-gray-100 py-4 px-6 rounded-lg shadow">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                {features.map((item, index) => (
+                    <div key={index} className="flex items-center gap-4 w-full md:w-auto">
+                        <div className="text-3xl text-blue-500">{item.icon}</div>
+                        <div>
+                            <h3 className="text-lg font-medium text-black">{item.title}</h3>
+                            <p className="text-sm text-gray-600">{item.desc}</p>
+                        </div>
+                        {index !== features.length - 1 && (
+                            <div className="hidden md:block h-10 w-px bg-gray-300" />
+                        )}
                     </div>
-                </div>
+                ))}
+            </div>
+        </div>
                 {/* End section sale */}
 
 
                 {/* Start section product  */}
-                <div className="flex space-x-6 mb-10">
-                    {products.map((product, index) => (
-                        <div
-                            key={index}
-                            className="w-[390px] h-[190px] border border-black/20 relative flex items-center px-6"
-                        >
-                            <div className="flex flex-col">
-                                <div className="text-black text-base font-normal leading-normal">
-                                    {product.name} <br /> {product.specs}
-                                </div>
-                                <div className="text-[#666666] text-xs font-normal mt-3">
-                                    {product.desc}
-                                </div>
-                            </div>
-                            <div className="w-[40px] h-[40px] bg-[#f14705] rounded-full flex items-center justify-center absolute left-[10px] top-[10px]">
-                                <div className="text-white text-sm font-semibold text-center">
-                                    {product.discount}
-                                </div>
-                            </div>
-                            <img
-                                src={product.image}
-                                alt={product.name}
-                                className="absolute right-0.5 w-[100px] h-[160px] object-cover"
-                            />
+                <div className="hidden lg:flex flex-col lg:flex-row gap-4 mb-10 justify-center">
+            {products.map((product, index) => (
+                <div
+                    key={index}
+                    className="w-full sm:w-[390px] h-[190px] border border-black/20 relative flex items-center px-6 rounded-lg shadow-sm"
+                >
+                    <div className="flex flex-col w-2/3">
+                        <div className="text-black text-base font-normal leading-normal">
+                            {product.name} <br /> {product.specs}
                         </div>
-                    ))}
+                        <div className="text-[#666666] text-xs font-normal mt-3">
+                            {product.desc}
+                        </div>
+                    </div>
+                    <div className="w-[40px] h-[40px] bg-[#f14705] rounded-full flex items-center justify-center absolute left-[10px] top-[10px]">
+                        <div className="text-white text-sm font-semibold text-center">
+                            {product.discount}
+                        </div>
+                    </div>
+                    <img
+                        src={product.image}
+                        alt={product.name}
+                        className="absolute right-0.5 w-[100px] h-[160px] object-contain"
+                    />
                 </div>
+            ))}
+        </div>
                 {/* End section product  */}
 
 

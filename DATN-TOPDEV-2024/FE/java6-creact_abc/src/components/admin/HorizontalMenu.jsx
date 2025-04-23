@@ -55,10 +55,39 @@ const HorizontalMenu = ({ toggleMenu }) => {
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">
                     <Link to="/admin/product">Product</Link>
                 </motion.li>
-                <motion.li className="hover:text-gray-500 cursor-pointer transition">
-                    <Link to="/admin/post">Posts</Link>
-                </motion.li>
+           
+                {/* Menu Dropdown cho Bài viết */}
+                <motion.li className="relative group cursor-pointer">
+                    <div 
+                        className="flex items-center hover:text-gray-500 transition"
+                        onClick={() => setIsPostMenuOpen(!isPostMenuOpen)}
+                    >
+                        Posts
+                        <FaChevronDown className="ml-2 text-sm"/>
+                    </div>
 
+                    {isPostMenuOpen && (
+                        <motion.ul 
+                            className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg"
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <li className="hover:bg-gray-100 px-4 py-2">
+                                <Link to="/admin/post">Danh sách bài viết</Link>
+                            </li>
+                            <li className="hover:bg-gray-100 px-4 py-2">
+                                <Link to="/admin/post/add">Thêm bài viết</Link>
+                            </li>
+                            <li className="hover:bg-gray-100 px-4 py-2">
+                                <Link to="/admin/category/add">Thêm danh mục</Link>
+                            </li>
+                            <li className="hover:bg-gray-100 px-4 py-2">
+                                <Link to="/admin/tag/add">Thêm tag</Link>
+                            </li>
+                        </motion.ul>
+                    )}
+                </motion.li>
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">
                     <Link to="/admin/category">Category</Link>
                 </motion.li>

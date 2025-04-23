@@ -23,8 +23,13 @@ const ProductCard = ({ variant, index }) => {
   const [averageRating, setAverageRating] = useState(0);
 
   // Kiểm tra và tính toán giảm giá
-  const hasDiscount = variant.discountPrice > 0 && variant.discountPrice < variant.price;
-  const discountPercentage = hasDiscount ? Math.round(((variant.price - variant.discountPrice) / variant.price) * 100) : 0;
+  const hasDiscount =
+    variant.discountPrice > 0 && variant.discountPrice < variant.price;
+  const discountPercentage = hasDiscount
+    ? Math.round(
+        ((variant.price - variant.discountPrice) / variant.price) * 100
+      )
+    : 0;
 
   const handleAddToCart = async () => {
     const userId = localStorage.getItem("UserId");
@@ -86,7 +91,10 @@ const ProductCard = ({ variant, index }) => {
     }
 
     try {
-      const isFavorited = await FavoriteService.checkIsFavorited(userId, variant.id);
+      const isFavorited = await FavoriteService.checkIsFavorited(
+        userId,
+        variant.id
+      );
       if (isFavorited) {
         await FavoriteService.removeFromFavorites(userId, variant.id);
         setIsFavorited(false);
@@ -110,7 +118,10 @@ const ProductCard = ({ variant, index }) => {
       const userId = localStorage.getItem("UserId");
       if (userId) {
         try {
-          const status = await FavoriteService.checkIsFavorited(userId, variant.id);
+          const status = await FavoriteService.checkIsFavorited(
+            userId,
+            variant.id
+          );
           setIsFavorited(status);
         } catch (error) {
           console.error("Error checking favorite status:", error);
@@ -123,7 +134,7 @@ const ProductCard = ({ variant, index }) => {
   useEffect(() => {
     const fetchAverageRating = async () => {
       try {
-        const response = await RatingService.getAverageRating(variant.id);
+        const response = await RatingService.getAverageRating(variant.productId);
         setAverageRating(response);
       } catch (error) {
         console.error("Lỗi khi lấy đánh giá trung bình:", error);
@@ -131,18 +142,16 @@ const ProductCard = ({ variant, index }) => {
       }
     };
     fetchAverageRating();
-  }, [variant.id]);
+  }, [variant.productId]);
 
   return (
     <div
       className={`relative bg-white p-4 border shadow-md overflow-hidden h-[497px] flex flex-col justify-between group ${
         isOutOfStock ? "opacity-50" : ""
-      }`}
-    >
+      }`}>
       <div
         className="relative cursor-pointer"
-        onClick={!isOutOfStock ? handleShowProductDetails : undefined}
-      >
+        onClick={!isOutOfStock ? handleShowProductDetails : undefined}>
         <img
           src={
             variant.image
@@ -160,7 +169,7 @@ const ProductCard = ({ variant, index }) => {
       </div>
       {hasDiscount && (
         <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-          -{discountPercentage}%
+          -{variant.discountPercentage}%
         </span>
       )}
       <h3 className="text-sm font-bold mt-3 text-gray-800 line-clamp-2 overflow-hidden text-ellipsis">
@@ -182,26 +191,25 @@ const ProductCard = ({ variant, index }) => {
       )}
       <div className="flex mt-2">
         <button
-          className={`text-gray-500 hover:text-red-500 ${isFavorited ? "text-red-500" : ""}`}
-          onClick={handleFavorite}
-        >
+          className={`text-gray-500 hover:text-red-500 ${
+            isFavorited ? "text-red-500" : ""
+          }`}
+          onClick={handleFavorite}>
           <FontAwesomeIcon icon={faHeart} />
         </button>
         <button
           className="text-gray-500 p-2 hover:text-orange-500"
-          onClick={handleShowProductDetails}
-        >
+          onClick={handleShowProductDetails}>
           <FontAwesomeIcon icon={faExclamationCircle} />
         </button>
       </div>
-      <div className="flex items-center mt-2">
+      <div className="flex items-center">
         {[...Array(5)].map((_, index) => {
           const ratingValue = index + 1;
           return (
             <button
               key={index}
-              className="bg-transparent border-none outline-none cursor-pointer transition-transform duration-200 hover:scale-125"
-            >
+              className="bg-transparent border-none outline-none cursor-pointer transition-transform duration-200 hover:scale-125">
               <FaStar
                 className="text-lg text-gray-400"
                 style={{
@@ -217,8 +225,7 @@ const ProductCard = ({ variant, index }) => {
       </div>
       <button
         className="w-full mt-3 px-4 py-2 text-xs font-bold bg-blue-700 text-white shadow opacity-100 hover:bg-gray-200 hover:text-black transition"
-        onClick={handleAddToCart}
-      >
+        onClick={handleAddToCart}>
         <FontAwesomeIcon icon={faCartPlus} /> THÊM VÀO GIỎ HÀNG
       </button>
     </div>

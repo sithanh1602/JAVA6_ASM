@@ -8,7 +8,6 @@ import {
   faCartPlus,
   faHeart,
   faExclamationCircle,
-  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import FavoriteService from "../../services/FavoriteService";
 import RatingService from "../../services/RatingService";
