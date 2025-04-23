@@ -4,7 +4,10 @@ import com.be.dto.OrderItem;
 import com.be.dto.OrderRequest;
 import com.be.entity.*;
 import com.be.rep.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     @Autowired
     private OrdersRepository ordersRepository;
@@ -45,6 +50,31 @@ public class OrderService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Transactional
+    public Orders updateOrderStatusByOrderNum(String orderNum, int status) {
+        logger.info("Cập nhật trạng thái cho đơn hàng: orderNum={}, status={}", orderNum, status);
+
+        // Bỏ phần từ chữ 'Z' trở về
+        int indexOfZ = orderNum.indexOf('Z');
+        if (indexOfZ != -1) {
+            orderNum = orderNum.substring(0, indexOfZ);  // Cắt chuỗi từ đầu đến trước chữ 'Z'
+        }
+        System.out.println("đât ne"+ orderNum);
+        Orders order = ordersRepository.findByOrderNum(orderNum)
+                .orElseThrow(() -> {
+                    logger.error("Không tìm thấy đơn hàng với orderNum: {}", indexOfZ);
+                    return new EntityNotFoundException("Không tìm thấy đơn hàng với orderNum: " + indexOfZ);
+                });
+
+        order.setStatus(status);
+        Orders updatedOrder = ordersRepository.save(order);
+        logger.info("Đã cập nhật trạng thái đơn hàng: orderNum={}, status={}", orderNum, status);
+
+        return updatedOrder;
+    }
+
+
 
     // Scheduler chạy mỗi giờ để kiểm tra và xóa đơn hàng trạng thái 2
     @Scheduled(fixedRate = 60 * 60 * 1000) // Chạy mỗi giờ (60 phút * 60 giây * 1000 ms)
@@ -93,6 +123,7 @@ public class OrderService {
             orderInfo.put("fullAddress", order.getFullAddress());
             orderInfo.put("phone", order.getPhone());
             orderInfo.put("transId",order.getTrans_id());
+            orderInfo.put("return_order",order.isReturn_order());
             response.add(orderInfo);
         }
 
@@ -407,6 +438,8 @@ public class OrderService {
         order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
+        order.setReturn_order(false);
+
 
         // Kiểm tra xem có sử dụng voucher không
         if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {
@@ -459,18 +492,18 @@ public class OrderService {
             }
             productVariantRepository.save(productVariant);
 
-            // Lấy sản phẩm chính (Product)
-            Product product = productVariant.getProduct();
-
-            // Cập nhật số lượng tồn kho và số lượng mua
-            product.setStock(product.getStock() - item.getQuantity());
-            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
-
-            // Kiểm tra tồn kho của sản phẩm chính
-            if (product.getStock() <= 0) {
-                product.setStatus("Out of Stock");
-            }
-            productRepository.save(product);
+//            // Lấy sản phẩm chính (Product)
+//            Product product = productVariant.getProduct();
+//
+//            // Cập nhật số lượng tồn kho và số lượng mua
+//            product.setStock(product.getStock() - item.getQuantity());
+//            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
+//
+//            // Kiểm tra tồn kho của sản phẩm chính
+//            if (product.getStock() <= 0) {
+//                product.setStatus("Out of Stock");
+//            }
+//            productRepository.save(product);
 
             // Lưu chi tiết đơn hàng
             OrderDetail orderDetail = new OrderDetail();
@@ -525,6 +558,7 @@ public class OrderService {
         order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
+        order.setReturn_order(false);
 
         // Kiểm tra xem có sử dụng voucher không
         if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {
@@ -580,15 +614,15 @@ public class OrderService {
             // Lấy sản phẩm chính (Product)
             Product product = productVariant.getProduct();
 
-            // Cập nhật số lượng tồn kho và số lượng mua
-            product.setStock(product.getStock() - item.getQuantity());
-            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
-
-            // Kiểm tra tồn kho của sản phẩm chính
-            if (product.getStock() <= 0) {
-                product.setStatus("Out of Stock");
-            }
-            productRepository.save(product);
+//            // Cập nhật số lượng tồn kho và số lượng mua
+//            product.setStock(product.getStock() - item.getQuantity());
+//            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
+//
+//            // Kiểm tra tồn kho của sản phẩm chính
+//            if (product.getStock() <= 0) {
+//                product.setStatus("Out of Stock");
+//            }
+//            productRepository.save(product);
 
             // Lưu chi tiết đơn hàng
             OrderDetail orderDetail = new OrderDetail();
@@ -613,25 +647,22 @@ public class OrderService {
     }
 
     public Orders createOrderPreview(OrderRequest orderRequest) throws Exception {
-        System.out.println("🔍 Debug OrderRequest: " + orderRequest);
-        System.out.println("🔹 userId: " + orderRequest.getUserId());
-        System.out.println("🔹 orderId: " + orderRequest.getOrderId());
 
         if (orderRequest.getOrderId() == null) {
-            throw new Exception("❌ Lỗi: Order ID không được để trống!");
+            throw new Exception("Lỗi: Order ID không được để trống!");
         }
         if (orderRequest.getUserId() == null) {
-            throw new Exception("❌ Lỗi: User ID không được để trống!");
+            throw new Exception("Lỗi: User ID không được để trống!");
         }
 
         Optional<User> userOptional = userRepository.findById(orderRequest.getUserId());
         if (!userOptional.isPresent()) {
-            throw new Exception("❌ Không tìm thấy User với ID: " + orderRequest.getUserId());
+            throw new Exception("Không tìm thấy User với ID: " + orderRequest.getUserId());
         }
 
         Optional<Orders> existingOrder = ordersRepository.findById(orderRequest.getOrderId());
         if (!existingOrder.isPresent()) {
-            throw new Exception("❌ Không tìm thấy Order với ID: " + orderRequest.getOrderId());
+            throw new Exception("Không tìm thấy Order với ID: " + orderRequest.getOrderId());
         }
 
         Orders order = existingOrder.get();
@@ -643,6 +674,8 @@ public class OrderService {
 
         return order;
     }
+
+
 
     private String buildEmailContent(User user, OrderRequest orderRequest) {
         StringBuilder sb = new StringBuilder();

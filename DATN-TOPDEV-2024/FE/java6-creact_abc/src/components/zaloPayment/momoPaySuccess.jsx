@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { FaCheckCircle, FaTimesCircle, FaSpinner } from "react-icons/fa";
+import { FaCheckCircle, FaSpinner } from "react-icons/fa";
 
 const PaymentResult = () => {
     const [searchParams] = useSearchParams();
@@ -10,18 +10,9 @@ const PaymentResult = () => {
     const [errorMsg, setErrorMsg] = useState("");
 
     useEffect(() => {
-        const resultCode = searchParams.get("resultCode");
-        const vnpStatus = searchParams.get("vnp_TransactionStatus");
-        const message = searchParams.get("message");
-        const orderId = searchParams.get("orderId") || searchParams.get("vnp_TxnRef");
-        const amount = searchParams.get("amount") || searchParams.get("vnp_Amount");
-        const transactionId = searchParams.get("transId");
-        const paymentMethod = searchParams.get("payType");
+        const orderId = searchParams.get("orderId");
 
-        const isSuccess = resultCode === "0" || vnpStatus === "00";
-        const newStatus = isSuccess ? 3 : 2; // 3 = success, 2 = failed
-
-        setOrderInfo({ orderId, message, amount });
+        setOrderInfo({ orderId });
 
         if (!orderId) {
             setStatus("failed");
@@ -29,31 +20,28 @@ const PaymentResult = () => {
             return;
         }
 
-        // Gửi yêu cầu cập nhật trạng thái đơn hàng (không cần gửi body nếu query param đã đủ)
+        // Gửi yêu cầu cập nhật trạng thái đơn hàng với trạng thái luôn là 3
         axios
-            .put(`http://localhost:8080/api/orders/momo/${orderId}/status`, null, {
+            .put(`http://localhost:8080/api/orders/status/${orderId}`, null, {
                 params: {
-                    status: newStatus,
-                    transactionId: transactionId || "",
+                    status: 3, // Trạng thái luôn là 3 (thành công)
                 },
             })
             .then(() => {
-                setStatus(isSuccess ? "success" : "failed");
+                setStatus("success");
             })
             .catch((err) => {
                 const msg =
                     err.response?.data?.error ||
                     `Thanh toán thành công nhưng không thể cập nhật trạng thái đơn hàng ${orderId}. Vui lòng liên hệ hỗ trợ.`;
                 setErrorMsg(msg);
-                setStatus(isSuccess ? "success" : "failed");
+                setStatus("success");
             });
     }, [searchParams]);
 
     const OrderInfoBox = () => (
         <div className="mt-4 bg-gray-100 rounded-xl px-6 py-4 shadow-md w-full max-w-md mx-auto">
             <p className="text-lg text-gray-700">Đơn hàng: <strong>{orderInfo.orderId}</strong></p>
-            <p>Số tiền: <strong>{Number(orderInfo.amount).toLocaleString()}đ</strong></p>
-            <p className="text-gray-600 mt-2">Thông điệp: {orderInfo.message}</p>
             {errorMsg && <p className="mt-2 text-sm text-red-600">{errorMsg}</p>}
         </div>
     );
@@ -67,31 +55,15 @@ const PaymentResult = () => {
         );
     }
 
-    if (status === "success") {
-        return (
-            <div className="flex flex-col items-center justify-center h-[80vh] text-center px-4">
-                <FaCheckCircle className="text-6xl text-green-500 mb-4" />
-                <h1 className="text-3xl font-bold text-green-600">Thanh toán thành công!</h1>
-                <OrderInfoBox />
-                <div className="mt-6 flex flex-col sm:flex-row gap-4">
-                    <a href="/" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">Tiếp tục mua sắm</a>
-                    <a href="/OrderUser" className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition">Xem đơn hàng</a>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="flex flex-col items-center justify-center h-[80vh] text-center px-4">
-            <FaTimesCircle className="text-6xl text-red-500 mb-4" />
-            <h1 className="text-3xl font-bold text-red-600">Thanh toán thất bại!</h1>
+            <FaCheckCircle className="text-6xl text-green-500 mb-4" />
+            <h1 className="text-3xl font-bold text-green-600">Thanh toán thành công!</h1>
             <OrderInfoBox />
-            <a
-                href="/cart"
-                className="mt-6 px-6 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition"
-            >
-                Quay lại giỏ hàng
-            </a>
+            <div className="mt-6 flex flex-col sm:flex-row gap-4">
+                <a href="/" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">Tiếp tục mua sắm</a>
+                <a href="/OrderUser" className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition">Xem đơn hàng</a>
+            </div>
         </div>
     );
 };

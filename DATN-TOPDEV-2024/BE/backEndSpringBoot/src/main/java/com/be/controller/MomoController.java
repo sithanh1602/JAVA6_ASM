@@ -59,10 +59,7 @@ public class MomoController {
             Orders orderPreview = orderService.createOrderPreview(orderRequest);
 
             // Tạo URL thanh toán MoMo
-            String momoPayUrl = momoService.createOrderNoSave(
-                    orderPreview.getTotalPrice(),
-                    String.valueOf(orderPreview.getOrderNum())
-            );
+            String momoPayUrl = momoService.createPaymentRequest2(orderPreview.getTotalPrice(), String.valueOf(orderPreview.getOrderNum()));
 
             if (momoPayUrl == null || momoPayUrl.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

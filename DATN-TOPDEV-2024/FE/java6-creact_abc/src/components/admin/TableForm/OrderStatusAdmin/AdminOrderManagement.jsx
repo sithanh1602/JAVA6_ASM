@@ -452,7 +452,7 @@ const AdminOrderManagement = () => {
                             Đã nhận hàng
                         </button>
                     )}
-                    {row.status === 9 && row.paymentStatus && (
+                    {row.status === 9 && row.paymentStatus && !row.return_order && (
                         <button
                             className="btn btn-success px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                             onClick={() => handleRefund(row)}
