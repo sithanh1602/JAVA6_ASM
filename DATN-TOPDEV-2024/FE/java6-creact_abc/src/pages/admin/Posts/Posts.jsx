@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import PostTable from '../../components/admin/TableForm/Posts/PostTable';
+import PostTable from '../../../components/admin/TableForm/Posts/PostTable';
 
 const AdminPostPage = () => {
     const postTableRef = useRef();

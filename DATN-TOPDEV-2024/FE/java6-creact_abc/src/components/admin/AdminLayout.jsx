@@ -4,12 +4,14 @@ import VerticalMenu from './VerticalMenu';
 import { motion } from 'framer-motion';
 import Users from "../../pages/admin/Users";
 import Products from "../../pages/admin/Products";
-import Posts from "../../pages/admin/Posts";
+import Posts from "../../pages/admin/Posts/Posts";
 import Categorys from "../../pages/admin/Categorys";
 import BrandTableWithBoundary from "./TableForm/Brands/BrandTable";
 import Top3User from "../dashBoard/Dashboard";
 import Contact from "../../pages/admin/Contact";
 import Reviews from "../../pages/admin/Reviews";
+import Tag from "../../pages/admin/Posts/PostTag";
+import PostCategory from "../../pages/admin/Posts/PostCategory";
 import PCBuildsAdmin from "../../pages/admin/PCBuildsAdmin";
 import Vouchers from "../../pages/admin/Vouchers";
 import { Client } from '@stomp/stompjs';
@@ -90,6 +92,8 @@ const AdminLayout = () => {
                             <Route path="/brand" element={<BrandTableWithBoundary />} />
                             <Route path="/product" element={<Products />} />
                             <Route path="/post" element={<Posts />} />
+                            <Route path="/post/tag" element={<Tag />} />
+                            <Route path="/post/category" element={<PostCategory />} />
                             <Route path="/contact" element={<Contact />} />
                             <Route path="/reviews" element={<Reviews />} />
                             <Route path="/tk" element={<MonthlyProductionChart />} />

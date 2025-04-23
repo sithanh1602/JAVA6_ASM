@@ -67,7 +67,7 @@ const ProductRating = ({ productDetailsId }) => {
       <section className="py-24 relative">
         <div className="w-full max-w-7xl px-4 md:px-5 lg-6 mx-auto">
           <div className="w-full">
-            <h2 className="font-manrope font-bold text-4xl text-black mb-8 text-center">
+            <h2 className="font-manrope font-bold text-3xl text-black mb-8 text-center">
               Đánh giá của khách hàng
             </h2>
             <section className="py-10 relative">
@@ -75,7 +75,7 @@ const ProductRating = ({ productDetailsId }) => {
                 <div>
                   <div className="grid grid-cols-12 mb-11">
                     {/* Phần thống kê: Rating breakdown */}
-                    <div className="col-span-12 xl:col-span-4 flex flex-col gap-y-4">
+                    <div className="col-span-12 xl:col-span-4 flex flex-col gap-y-2">
                       {[5, 4, 3, 2, 1].map((star) => {
                         const count = ratingCounts[star];
                         const percentage = totalReviews
@@ -86,7 +86,7 @@ const ProductRating = ({ productDetailsId }) => {
                             <p className="font-medium text-lg py-[1px] text-black mr-[2px]">
                               {star}
                             </p>
-                            <FaStar className="text-2xl" color={"#ffc107"} />
+                            <FaStar className="text-xl" color={"#ffc107"} />
                             <p className="h-2 w-full sm:min-w-[278px] rounded-[30px] bg-gray-200 ml-5 mr-3">
                               <span
                                 className="h-full rounded-[30px] bg-indigo-500 flex"
@@ -101,26 +101,26 @@ const ProductRating = ({ productDetailsId }) => {
                       })}
                     </div>
 
-                    <div className="col-span-12 max-xl:mt-8 xl:col-span-8 xl:pl-8 w-full min-h-[230px]">
+                    <div className="col-span-12 max-xl:mt-8 xl:col-span-8 xl:pl-8 w-full min-h-[180px]">
                       <div className="grid grid-cols-12 h-full px-8 max-lg:py-8 rounded-3xl bg-gray-100 w-full max-xl:max-w-3xl max-xl:mx-auto">
                         <div className="col-span-12 md:col-span-12 flex items-center">
                           <div className="flex flex-col sm:flex-row items-center max-lg:justify-center w-full h-full">
                             <div className="sm:pr-10 sm:border-r border-gray-200 flex items-center justify-center flex-col">
-                              <h2 className="font-manrope font-bold text-3xl mt-3 text-black text-center mb-4">
+                              <h2 className="font-manrope font-bold text-xl mt-3 text-black text-center mb-4">
                                 Tổng đánh giá
                               </h2>
                               <div className="flex items-center gap-3 mb-4">
-                                <h2 className="font-manrope font-bold text-2xl pt-4 text-black text-center mb-4">
+                                <h2 className="font-manrope font-bold text-lg pt-4 text-black text-center mb-4">
                                   {formatTotalReviews} Đánh giá
                                 </h2>
                               </div>
                             </div>
                             <div className="sm:pl-10 sm:border-l border-gray-200 flex items-center justify-center flex-col">
-                              <h2 className="font-manrope font-bold text-3xl mt-3 text-black text-center mb-4">
+                              <h2 className="font-manrope font-bold text-xl mt-3 text-black text-center mb-4">
                                 Đánh giá trung bình
                               </h2>
                               <div className="flex items-center gap-3 mb-4">
-                                <h2 className="font-manrope font-bold text-2xl pt-4 text-black text-center mb-4">
+                                <h2 className="font-manrope font-bold text-lg pt-4 text-black text-center mb-4">
                                 {averageRating ? averageRating.toFixed(1) : "0.0"}
                                 </h2>
                                 <div className="flex items-center">
@@ -131,7 +131,7 @@ const ProductRating = ({ productDetailsId }) => {
                                         key={index}
                                         className="bg-transparent border-none outline-none cursor-pointer">
                                         <FaStar
-                                          className="text-2xl"
+                                          className="text-xl"
                                           color={
                                             ratingValue <= averageRating
                                               ? "#ffc107"
