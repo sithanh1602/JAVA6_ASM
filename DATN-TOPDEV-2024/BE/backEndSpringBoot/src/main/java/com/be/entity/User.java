@@ -18,6 +18,9 @@ public class User {
     @Column(name = "id")
     private Long userId;
 
+    @Column(name = "google_id")
+    private String googleId;
+
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     @Column(name = "email", nullable = false)

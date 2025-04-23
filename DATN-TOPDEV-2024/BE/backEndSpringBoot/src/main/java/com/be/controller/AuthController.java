@@ -1,5 +1,6 @@
 package com.be.controller;
 
+import com.be.dto.login.GoogleLoginRequest;
 import com.be.dto.login.LoginRequest;
 import com.be.dto.login.AuthResponse;
 import com.be.dto.Response;
@@ -10,13 +11,11 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
 
-@RestController
-@RequestMapping("/api/auth")
-public class AuthController {
-
+    @RestController
+    @RequestMapping("/api/auth")
+    public class AuthController {
 
     private final AuthService authService;
 
@@ -30,7 +29,10 @@ public class AuthController {
         return Response.success(authResponse,"login success");
     }
 
-
+    @PostMapping("/google")
+    public Response<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
+        return authService.googleLogin(request);
+    }
     // Endpoint để đăng ký tài khoản
     @PostMapping("/register")
     public Response<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) throws MessagingException {

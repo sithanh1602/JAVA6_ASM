@@ -1,37 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import { ToastContainer, toast } from 'react-toastify';
-import { motion, AnimatePresence } from 'framer-motion';
 import 'react-toastify/dist/ReactToastify.css';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import Swal from 'sweetalert2';
-import { FaLock, FaFacebook} from 'react-icons/fa';
-import {Input, Checkbox} from "@nextui-org/react";
-import { useAuth0 } from "@auth0/auth0-react";
-
-
+import { Input, Checkbox, Button } from '@nextui-org/react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 const AuthForm = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [userId, setUserId] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [fullName, setFullName] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState(''); // Thêm state cho mật khẩu nhập lại
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [otp, setOtp] = useState('');
     const [isOtpSent, setIsOtpSent] = useState(false);
-    const [isRegistered, setIsRegistered] = useState(false);
-    const navigate = useNavigate(); // Sử dụng useNavigate thay vì useHistory
-    const { loginWithRedirect } = useAuth0();
+    const [secondsLeft, setSecondsLeft] = useState(60);
+    const [isResendDisabled, setIsResendDisabled] = useState(true);
+    const navigate = useNavigate();
 
+    // Sử dụng Client ID từ Google Cloud Console (đã cung cấp trước đó)
+    const GOOGLE_CLIENT_ID = '310245911476-bb6s06ookc8aftr8b9lka1n30sl41ou7.apps.googleusercontent.com';
 
     useEffect(() => {
-        // Tải tên đăng nhập và mật khẩu từ localStorage khi component được tải
         const savedUsername = localStorage.getItem('savedUsername');
         const savedPassword = localStorage.getItem('savedPassword');
         if (savedUsername && savedPassword) {
@@ -41,63 +36,64 @@ const AuthForm = () => {
         }
     }, []);
 
-    const handleAuth0Login = () => {
-        loginWithRedirect({
-            redirectUri: window.location.origin,
-        });
-    };
+    useEffect(() => {
+        if (isOtpSent) {
+            const timer = setInterval(() => {
+                setSecondsLeft((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(timer);
+                        setIsResendDisabled(false);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
 
+            return () => clearInterval(timer);
+        }
+    }, [isOtpSent]);
 
     const handleToggle = () => setIsLogin(!isLogin);
+
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        // Show loading notification with SweetAlert2
         Swal.fire({
             title: 'Đang đăng nhập...',
             text: 'Vui lòng chờ trong giây lát',
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
-            }
+            },
         });
 
         try {
-            // Send login request with raw password
             const response = await axios.post('http://localhost:8080/api/auth/login', {
-                username: username,
-                password: password
+                username,
+                password,
             });
 
             const { data, message } = response.data;
             const { token, userId, userName, fullName, phone, roles } = data;
 
-            // Check for locked account
-            if (message === "Account is locked") {
+            if (message === 'Account is locked') {
                 Swal.close();
                 Swal.fire({
                     icon: 'error',
                     title: 'Tài khoản bị khóa',
-                    text: 'Tài khoản của bạn đang bị khóa. Vui lòng liên hệ quản trị viên.'
+                    text: 'Tài khoản của bạn đang bị khóa. Vui lòng liên hệ quản trị viên.',
                 });
                 return;
             }
 
-            // Store token in localStorage, sessionStorage, and Cookies
             localStorage.setItem('token', token);
-            sessionStorage.setItem('token', token);
-            Cookies.set('token', token, { expires: 7, sameSite: 'Strict' });
-
-            // Store user information
             localStorage.setItem('roles', JSON.stringify(roles));
-            const userRole = roles[0]; // Assuming the first role is the primary role
-            localStorage.setItem('role', userRole);
+            localStorage.setItem('role', roles[0]);
             localStorage.setItem('UserId', userId);
             localStorage.setItem('userName', userName);
             localStorage.setItem('fullName', fullName);
             localStorage.setItem('phone', phone);
 
-            // Save login info if rememberMe is checked
             if (rememberMe) {
                 localStorage.setItem('savedUsername', username);
                 localStorage.setItem('savedPassword', password);
@@ -106,314 +102,474 @@ const AuthForm = () => {
                 localStorage.removeItem('savedPassword');
             }
 
-            // Close loading notification and show success message
             Swal.close();
             Swal.fire({
                 icon: 'success',
                 title: 'Đăng nhập thành công!',
                 showConfirmButton: false,
-                timer: 1500
+                timer: 1500,
             });
 
-            // Navigate based on user role
-            if (userRole === 'ADMIN') {
+            if (roles.includes('ADMIN')) {
                 navigate('/admin');
-            } else if (userRole === 'USER') {
+            } else if (roles.includes('USER')) {
                 navigate('/');
-                window.location.reload(); // Reload page after redirect
+                window.location.reload();
             } else {
+                toast.dismiss();
                 toast.error('Không có quyền truy cập');
             }
         } catch (err) {
             Swal.close();
-
-            // Handle login errors and display error message
-            let errorMessage = 'Tài khoản hoặc mật khẩu không đúng';
-            if (err.response && err.response.data) {
-                errorMessage = err.response.data.message || errorMessage;
-            }
-
+            const errorMessage = err.response?.data?.message || 'Tài khoản hoặc mật khẩu không đúng';
             Swal.fire({
                 icon: 'error',
                 title: 'Đăng nhập không thành công',
-                text: errorMessage
+                text: errorMessage,
             });
         }
+    };
+
+    const handleGoogleLoginSuccess = async (credentialResponse) => {
+        Swal.fire({
+            title: 'Đang xác thực Google...',
+            text: 'Vui lòng chờ trong giây lát',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
+        try {
+            // Gửi JWT token (credential) và clientId đến backend
+            const response = await axios.post('http://localhost:8080/api/auth/google', {
+                credential: credentialResponse.credential,
+                clientId: GOOGLE_CLIENT_ID,
+            });
+
+            // Kiểm tra trạng thái phản hồi từ backend
+            if (response.data.status === 'success') {
+                const { data, message } = response.data;
+                const { token, userId, userName, fullName, phone, roles } = data;
+
+                // Lưu thông tin vào localStorage
+                localStorage.setItem('token', token);
+                localStorage.setItem('roles', JSON.stringify(roles));
+                localStorage.setItem('role', roles[0]);
+                localStorage.setItem('UserId', userId);
+                localStorage.setItem('userName', userName);
+                localStorage.setItem('fullName', fullName);
+                localStorage.setItem('phone', phone || ''); // Xử lý trường hợp phone là null
+
+                Swal.close();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng nhập Google thành công!',
+                    text: message || 'Chào mừng bạn đã đăng nhập!',
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+
+                // Điều hướng dựa trên vai trò
+                if (roles.includes('ADMIN')) {
+                    navigate('/admin');
+                } else if (roles.includes('USER')) {
+                    navigate('/');
+                    window.location.reload();
+                } else {
+                    toast.dismiss();
+                    toast.error('Không có quyền truy cập');
+                }
+            } else {
+                // Xử lý lỗi từ backend
+                Swal.close();
+                const errorMessage = response.data.message || 'Đăng nhập Google thất bại';
+                if (response.data.message === 'Account is locked') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Tài khoản bị khóa',
+                        text: 'Tài khoản của bạn đang bị khóa. Vui lòng liên hệ quản trị viên.',
+                    });
+                } else if (response.data.message === 'Client ID không hợp lệ') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi Client ID',
+                        text: 'Client ID không hợp lệ. Vui lòng kiểm tra cấu hình.',
+                    });
+                } else if (response.data.message === 'Token Google không hợp lệ') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi xác minh token',
+                        text: 'Token Google không hợp lệ. Vui lòng thử lại.',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Đăng nhập không thành công',
+                        text: errorMessage,
+                    });
+                }
+            }
+        } catch (err) {
+            Swal.close();
+            const errorMessage = err.response?.data?.message || 'Đăng nhập Google thất bại. Vui lòng thử lại.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi hệ thống',
+                text: errorMessage,
+            });
+        }
+    };
+
+    const handleGoogleLoginFailure = () => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Đăng nhập Google thất bại',
+            text: 'Không thể đăng nhập bằng Google. Vui lòng thử lại.',
+        });
     };
 
     const handleRegister = async (e) => {
         e.preventDefault();
+
         if (password !== confirmPassword) {
-            toast.error('Mật khẩu và mật khẩu nhập lại không khớp.');
+            toast.dismiss();
+            toast.error('Mật khẩu và xác nhận mật khẩu không khớp.');
             return;
         }
+
+        Swal.fire({
+            title: 'Đang đăng ký...',
+            text: 'Vui lòng chờ trong giây lát',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
         try {
-            await axios.post('http://localhost:8080/api/auth/register', {
+            const response = await axios.post('http://localhost:8080/api/auth/register', {
                 userName: username,
                 email,
-                phone,
                 fullName,
-                password
+                password,
+                confirmPassword,
+                phone,
             });
+
+            Swal.close();
             setIsOtpSent(true);
-            toast.success('Đăng ký thành công! Vui lòng kiểm tra điện thoại để xác nhận mã OTP.');
+            setSecondsLeft(60);
+            setIsResendDisabled(true);
+            toast.dismiss();
+            toast.success(response.data.message || 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực OTP.');
         } catch (error) {
-            if (error.response) {
-                toast.error(error.response.data);
-            } else {
-                toast.error('Đã xảy ra lỗi. Vui lòng thử lại.');
-            }
+            Swal.close();
+            const errorMessage = error.response?.data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.';
+            toast.dismiss();
+            toast.error(errorMessage);
         }
     };
 
     const handleVerifyOtp = async () => {
+        if (!otp) {
+            toast.dismiss();
+            toast.error('Vui lòng nhập mã OTP.');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Đang xác minh OTP...',
+            text: 'Vui lòng chờ trong giây lát',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/verify-otp', null, {
-                params: {
-                    userName: username,
-                    otpCode: otp
-                }
+            const response = await axios.post('http://localhost:8080/api/auth/verifyOtp', null, {
+                params: { email, otp },
             });
-            setIsRegistered(true);
-            toast.success(response.data);
+
+            Swal.close();
+            toast.dismiss();
+            toast.success(response.data.message || 'Xác thực thành công! Tài khoản đã được kích hoạt.');
+            setIsOtpSent(false);
+            setIsLogin(true);
         } catch (error) {
-            if (error.response) {
-                toast.error(error.response.data);
-            } else {
-                toast.error('Đã xảy ra lỗi khi xác minh OTP. Vui lòng thử lại.');
-            }
+            Swal.close();
+            const errorMessage = error.response?.data?.message || 'Xác minh OTP thất bại. Vui lòng thử lại.';
+            toast.dismiss();
+            toast.error(errorMessage);
         }
     };
 
-    // Email validation regex
-    const validateEmail = (email) => {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(String(email).toLowerCase());
+    const handleResendOtp = async () => {
+        Swal.fire({
+            title: 'Đang gửi lại OTP...',
+            text: 'Vui lòng chờ trong giây lát',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/resendOtp', null, {
+                params: { email },
+            });
+
+            Swal.close();
+            toast.dismiss();
+            toast.success(response.data.message || 'Đã gửi lại OTP. Vui lòng kiểm tra email.');
+            setSecondsLeft(60);
+            setIsResendDisabled(true);
+            setOtp('');
+        } catch (error) {
+            Swal.close();
+            const errorMessage = error.response?.data?.message || 'Gửi lại OTP thất bại. Vui lòng thử lại.';
+            toast.dismiss();
+            toast.error(errorMessage);
+        }
     };
 
-
     return (
-        <>
-            <div className="min-h-screen flex items-center justify-center bg-gray-100 bg-galaxy">
-                <div className="p-8 border-3 w-full max-w-md ">
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="p-8 bg-white shadow-lg rounded-lg w-full max-w-md">
                     <AnimatePresence mode="wait">
                         {isLogin ? (
                             <motion.div
                                 key="login"
-                                initial={{opacity: 0, x: 50}}
-                                animate={{opacity: 1, x: 0}}
-                                exit={{opacity: 0, x: -50}}
-                                transition={{duration: 0.5}}
+                                regular={{ opacity: 0, x: 50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -50 }}
+                                transition={{ duration: 0.5 }}
                             >
                                 <h2 className="text-2xl font-semibold text-center mb-6">Đăng Nhập</h2>
                                 <form onSubmit={handleLogin}>
-                                    <div className="mb-4 flex items-center">
+                                    <div className="mb-4">
                                         <Input
                                             label="Tên đăng nhập"
                                             radius="none"
-                                            className="border-gray-500"
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
                                             required
                                         />
                                     </div>
-
-                                    <div className="mb-4 flex items-center">
+                                    <div className="mb-4">
                                         <Input
                                             type="password"
-                                            radius="none"
-                                            className="border-gray-500"
                                             label="Mật khẩu"
+                                            radius="none"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
                                         />
                                     </div>
                                     <div className="flex items-center justify-between mb-4">
-                                        <label className="flex items-center">
-                                            <Checkbox
-                                                isSelected={rememberMe}
-                                                onValueChange={setRememberMe}
-                                            >
-                                                Ghi nhớ tài khoản và mật khẩu
-                                            </Checkbox>
-                                        </label>
-                                        <a
-                                            href="/reset-password"
-                                            className="text-orange-400 hover:underline"
+                                        <Checkbox
+                                            isSelected={rememberMe}
+                                            onValueChange={setRememberMe}
                                         >
+                                            Ghi nhớ tài khoản
+                                        </Checkbox>
+                                        <a href="/reset-password" className="text-blue-600 hover:underline">
                                             Quên mật khẩu?
                                         </a>
                                     </div>
-                                    <button
+                                    <Button
                                         type="submit"
-                                        className="w-full bg-blue-600 text-white py-2 hover:bg-blue-700 transition duration-200"
+                                        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200 mb-2"
                                     >
                                         Đăng Nhập
-                                    </button>
+                                    </Button>
+                                    <div className="flex justify-center w-full ">
+                                        <GoogleLogin
+                                            onSuccess={handleGoogleLoginSuccess}
+                                            onError={handleGoogleLoginFailure}
+                                            text="signin_with"
+                                            shape="rectangular"
+                                            theme="outline"
+                                            width="385"
+                                        />
+                                    </div>
                                 </form>
-                                <div className="flex items-center justify-center mt-6">
-                                    <span className="border-t w-1/5 inline-block"></span>
-                                    <span className="text-white-500 mx-2">Hoặc</span>
-                                    <span className="border-t w-1/5 inline-block"></span>
-                                </div>
-                                <div className="mt-6">
-                                    <button
-                                        onClick={handleAuth0Login} // Gọi hàm đăng nhập Auth0
-                                        className="w-full bg-red-600 text-white py-2 flex items-center justify-center hover:bg-red-700 transition duration-200 mb-4"
-                                    >
-                                        <FaLock className="w-4 h-4 mr-2"/> {/* Thay FaGoogle bằng FaLock */}
-                                        Đăng Nhập với Auth0
-                                    </button>
-                                    <button
-                                        className="w-full bg-blue-800 text-white py-2 flex items-center justify-center hover:bg-blue-900 transition duration-200"
-                                    >
-                                        <FaFacebook className="w-4 h-4 mr-2"/>
-                                        Đăng Nhập với Facebook
-                                    </button>
-                                </div>
-                                <p className="mt-4 text-center text-white-600">
+                                <p className="mt-4 text-center text-gray-600">
                                     Chưa có tài khoản?{' '}
-                                    <button onClick={handleToggle}
-                                            className=" text-orange-400 hover:underline">
+                                    <button onClick={handleToggle} className="text-blue-600 hover:underline">
                                         Đăng ký
                                     </button>
                                 </p>
                             </motion.div>
                         ) : (
                             <motion.div
-                                key="register"
-                                initial={{opacity: 0, x: -50}}
-                                animate={{opacity: 1, x: 0}}
-                                exit={{opacity: 0, x: 50}}
-                                transition={{duration: 0.5}}
+                                key={isOtpSent ? 'otp' : 'register'}
+                                regular={{ opacity: 0, x: -50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 50 }}
+                                transition={{ duration: 0.5 }}
                             >
-                                <h2 className="text-2xl font-semibold text-center mb-6">Đăng Ký</h2>
-                                <form onSubmit={handleRegister}>
-                                    <div className="mb-4 flex items-center">
-                                        <Input
-                                            label="Họ và Tên"
-                                            radius="none"
-                                            type="text"
-                                            className="border-gray-300"
-                                            value={fullName}
-                                            onChange={(e) => setFullName(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-4 flex items-center">
-                                        <Input
-                                            label="Email"
-                                            radius="none"
-                                            type="email"
-                                            className="border-gray-300"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-4 flex items-center">
-                                        <Input
-                                            label="Số điện thoại"
-                                            type="text"
-                                            radius="none"
-                                            className="border-gray-300"
-                                            value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-4 flex items-center">
-                                        <Input
-                                            type="text"
-                                            label="Tên tài khoản"
-                                            radius="none"
-                                            className="border-gray-300"
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-4 flex items-center">
-                                        <Input
-                                            type="password"
-                                            label="Mật khẩu"
-                                            radius="none"
-                                            className="border-gray-300"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-4 flex items-center">
-                                        <Input
-                                            type="password"
-                                            label="Mật khẩu"
-                                            radius="none"
-                                            className="border-gray-300"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="flex items-center justify-center mt-6">
-                                        <span className="border-t w-1/5 inline-block"></span>
-                                        <span className="text-white-500 mx-2">Chú ý</span>
-                                        <span className="border-t w-1/5 inline-block"></span>
-                                    </div>
-                                    <div className="flex items-center justify-center mt-6 mb-3">
-                    <span className="text-white-500 text-sm mx-2">
-                        Dữ liệu cá nhân của bạn sẽ được sử dụng để hỗ trợ trải nghiệm của bạn trên toàn bộ trang web này, để quản lý quyền truy cập vào tài khoản của bạn và cho các mục đích khác được mô tả trong
-                        <a href="/privacy-policy" className="text-orange-500 hover:text-orange-700 transition duration-200"> chính sách riêng tư</a>.
-                    </span>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200"
-                                    >
-                                        Đăng Ký
-                                    </button>
-                                </form>
-
-                                {/* Hiển thị ô nhập mã xác nhận nếu mã OTP đã được gửi */}
-                                {isOtpSent && (
-                                    <div className="mt-4">
-                                        <h4 className="text-lg">Nhập mã xác nhận đã gửi đến điện thoại của bạn:</h4>
-                                        <input
-                                            type="text"
-                                            className="mt-1 p-2 w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-500 ease-in-out"
-                                            placeholder="Nhập mã xác nhận"
-                                            value={otp}
-                                            onChange={(e) => setOtp(e.target.value)}
-                                            required
-                                        />
-                                        <button
+                                {isOtpSent ? (
+                                    <>
+                                        <h2 className="text-2xl font-semibold text-center mb-6">Xác Minh OTP</h2>
+                                        <p className="text-center text-gray-600 mb-4">
+                                            Nhập mã OTP đã được gửi đến email{' '}
+                                            <span className="font-semibold">{email}</span>
+                                        </p>
+                                        <div className="mb-4">
+                                            <Input
+                                                type="text"
+                                                label="Mã OTP"
+                                                radius="none"
+                                                value={otp}
+                                                onChange={(e) => setOtp(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="text-center mb-4">
+                                            <p className="text-gray-600">
+                                                Mã OTP hết hạn trong:{' '}
+                                                <span className="font-semibold text-red-600">
+                                                    {secondsLeft} giây
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <Button
                                             onClick={handleVerifyOtp}
-                                            className="mt-2 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition duration-200"
+                                            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition duration-200 mb-2"
                                         >
-                                            Xác minh mã xác nhận
-                                        </button>
-                                    </div>
-                                )}
-
-                                <p className="mt-4 text-center">
-                                    Đã có tài khoản?{' '}
-                                    <button onClick={handleToggle} className="font-semibold text-orange-400 hover:underline">
-                                        Đăng nhập
-                                    </button>
-                                </p>
-
-                                {/* Hiển thị thông báo đăng ký thành công nếu đã xác minh mã */}
-                                {isRegistered && (
-                                    <p className="mt-4 text-center text-green-500 font-semibold">Đăng ký thành công!</p>
+                                            Xác Minh OTP
+                                        </Button>
+                                        <Button
+                                            onClick={handleResendOtp}
+                                            disabled={isResendDisabled}
+                                            className={`w-full py-2 rounded transition duration-200 ${
+                                                isResendDisabled
+                                                    ? 'bg-gray-400 text-white cursor-not-allowed'
+                                                    : 'bg-gray-600 text-white hover:bg-gray-700'
+                                            }`}
+                                        >
+                                            Gửi Lại OTP
+                                        </Button>
+                                        <p className="mt-4 text-center text-gray-600">
+                                            Đã có tài khoản?{' '}
+                                            <button
+                                                onClick={() => setIsLogin(true)}
+                                                className="text-blue-600 hover:underline"
+                                            >
+                                                Đăng nhập
+                                            </button>
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h2 className="text-2xl font-semibold text-center mb-6">Đăng Ký</h2>
+                                        <form onSubmit={handleRegister}>
+                                            <div className="mb-4">
+                                                <Input
+                                                    label="Họ và Tên"
+                                                    radius="none"
+                                                    value={fullName}
+                                                    onChange={(e) => setFullName(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="mb-4">
+                                                <Input
+                                                    label="Email"
+                                                    type="email"
+                                                    radius="none"
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="mb-4">
+                                                <Input
+                                                    label="Số điện thoại"
+                                                    type="text"
+                                                    radius="none"
+                                                    value={phone}
+                                                    onChange={(e) => setPhone(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="mb-4">
+                                                <Input
+                                                    label="Tên đăng nhập"
+                                                    radius="none"
+                                                    value={username}
+                                                    onChange={(e) => setUsername(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="mb-4">
+                                                <Input
+                                                    type="password"
+                                                    label="Mật khẩu"
+                                                    radius="none"
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="mb-4">
+                                                <Input
+                                                    type="password"
+                                                    label="Xác nhận mật khẩu"
+                                                    radius="none"
+                                                    value={confirmPassword}
+                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="text-center text-sm text-gray-500 mb-4">
+                                                Dữ liệu cá nhân của bạn sẽ được sử dụng để hỗ trợ trải nghiệm của bạn trên
+                                                toàn bộ trang web này, để quản lý quyền truy cập vào tài khoản của bạn và cho
+                                                các mục đích khác được mô tả trong{' '}
+                                                <a
+                                                    href="/privacy-policy"
+                                                    className="text-blue-600 hover:underline"
+                                                >
+                                                    chính sách riêng tư
+                                                </a>.
+                                            </div>
+                                            <Button
+                                                type="submit"
+                                                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200"
+                                            >
+                                                Đăng Ký
+                                            </Button>
+                                        </form>
+                                        <p className="mt-4 text-center text-gray-600">
+                                            Đã có tài khoản?{' '}
+                                            <button
+                                                onClick={handleToggle}
+                                                className="text-blue-600 hover:underline"
+                                            >
+                                                Đăng nhập
+                                            </button>
+                                        </p>
+                                        <p className="mt-2 text-center text-gray-600">
+                                            Hoặc{' '}
+                                            <button
+                                                onClick={() => setIsLogin(true)}
+                                                className="text-blue-600 hover:underline"
+                                            >
+                                                Đăng nhập bằng Google
+                                            </button>
+                                        </p>
+                                    </>
                                 )}
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
-                <ToastContainer/>
+                <ToastContainer />
             </div>
-        </>
+        </GoogleOAuthProvider>
     );
 };
 
