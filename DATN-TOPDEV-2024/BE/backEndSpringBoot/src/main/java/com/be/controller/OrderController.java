@@ -2,6 +2,7 @@ package com.be.controller;
 
 import com.be.dto.OrderRequest;
 import com.be.entity.*;
+import com.be.rep.OrderDetailRepository;
 import com.be.service.OrderService;
 import com.be.service.VNPayService;
 import com.be.service.ZaloPayService;
@@ -27,6 +28,9 @@ public class OrderController {
     @Autowired
     private ZaloPayService zaloPayService;
 
+    @Autowired
+    protected OrderDetailRepository orderDetailRepository;
+
 
     @GetMapping("/all")
     public List<Map<String, Object>> getAllOrders() throws Exception {
@@ -44,11 +48,18 @@ public class OrderController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
         return orderService.getOrderDetails(startDate, endDate);
     }
+
     @GetMapping("/revenue")
     public Integer getRevenue(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
             @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
         return orderService.calculateRevenue(startDate, endDate);
+    }
+
+    // Lấy tất cả order detail
+    @GetMapping("/all/ordersDetails")
+    public List<OrderDetail> getAllOrderDetails() {
+        return orderDetailRepository.findAll();
     }
 
 
