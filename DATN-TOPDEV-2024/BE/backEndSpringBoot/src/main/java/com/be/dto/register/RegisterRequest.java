@@ -25,6 +25,10 @@ public class RegisterRequest {
     @Size(min = 6, message = "Mật khẩu phải ít nhất 6 ký tự")
     private String password;
 
+    @NotBlank(message = "Xác nhận mật khẩu là bắt buộc")
+    @Size(min = 6, message = "Xác nhận mật khẩu phải ít nhất 6 ký tự")
+    private String confirmPassword;
+
     @Pattern(regexp = "^[0-9]{10}$", message = "Số điện thoại phải có 10 chữ số")
     private String phone;
 }

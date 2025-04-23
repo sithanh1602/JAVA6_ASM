@@ -7,6 +7,7 @@ import ResetPassword from "../components/account/ResetPassword";
 import WebSocketNotification from "../components/account/WebSocketNotification";
 import {NextUIProvider} from "@nextui-org/react";
 import SmoothScroll from "../services/SmoothScroll";
+import 'react-toastify/dist/ReactToastify.css';
 import {  ThemeProvider } from './ThemeContext';
 const App = () => {
     return (
