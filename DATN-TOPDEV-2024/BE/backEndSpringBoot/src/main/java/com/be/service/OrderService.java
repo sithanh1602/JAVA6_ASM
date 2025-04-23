@@ -439,6 +439,7 @@ public class OrderService {
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
         order.setReturn_order(false);
+        order.setTrans_id(orderRequest.getTransId());
 
 
         // Kiểm tra xem có sử dụng voucher không
@@ -647,22 +648,25 @@ public class OrderService {
     }
 
     public Orders createOrderPreview(OrderRequest orderRequest) throws Exception {
+        System.out.println("🔍 Debug OrderRequest: " + orderRequest);
+        System.out.println("🔹 userId: " + orderRequest.getUserId());
+        System.out.println("🔹 orderId: " + orderRequest.getOrderId());
 
         if (orderRequest.getOrderId() == null) {
-            throw new Exception("Lỗi: Order ID không được để trống!");
+            throw new Exception("❌ Lỗi: Order ID không được để trống!");
         }
         if (orderRequest.getUserId() == null) {
-            throw new Exception("Lỗi: User ID không được để trống!");
+            throw new Exception("❌ Lỗi: User ID không được để trống!");
         }
 
         Optional<User> userOptional = userRepository.findById(orderRequest.getUserId());
         if (!userOptional.isPresent()) {
-            throw new Exception("Không tìm thấy User với ID: " + orderRequest.getUserId());
+            throw new Exception("❌ Không tìm thấy User với ID: " + orderRequest.getUserId());
         }
 
         Optional<Orders> existingOrder = ordersRepository.findById(orderRequest.getOrderId());
         if (!existingOrder.isPresent()) {
-            throw new Exception("Không tìm thấy Order với ID: " + orderRequest.getOrderId());
+            throw new Exception("❌ Không tìm thấy Order với ID: " + orderRequest.getOrderId());
         }
 
         Orders order = existingOrder.get();

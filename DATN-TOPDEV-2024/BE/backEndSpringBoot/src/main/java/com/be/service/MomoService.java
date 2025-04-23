@@ -237,7 +237,7 @@ public class MomoService {
             // Tạo raw signature
             String rawSignature = String.format(
                     "accessKey=%s&amount=%d&description=%s&orderId=%s&partnerCode=%s&requestId=%s&transId=%s",
-                    ACCESS_KEY, amount, description, orderId, PARTNER_CODE, requestId, transId
+                    ACCESS_KEY, amount, description, orderId , PARTNER_CODE, requestId, transId
             );
 
             // Tìm đơn hàng theo orderId

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { Input, Checkbox, Button } from '@nextui-org/react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import Cookies from 'js-cookie';
 
 const AuthForm = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -86,6 +87,7 @@ const AuthForm = () => {
                 return;
             }
 
+            Cookies.set('token', token, { expires: 7, sameSite: 'Strict' });
             localStorage.setItem('token', token);
             localStorage.setItem('roles', JSON.stringify(roles));
             localStorage.setItem('role', roles[0]);
