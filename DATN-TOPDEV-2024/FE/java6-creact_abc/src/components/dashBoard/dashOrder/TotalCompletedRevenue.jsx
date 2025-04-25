@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FaSyncAlt, FaFileInvoice, FaTimes } from 'react-icons/fa';
 import DataTable from 'react-data-table-component';
 import DetailOrderComponent from "./DetailOrderComponent";
+import moment from 'moment';
 
 const TotalCompletedRevenueCard = () => {
     const [revenue, setRevenue] = useState(null);
@@ -10,26 +11,48 @@ const TotalCompletedRevenueCard = () => {
     const [showModal, setShowModal] = useState(false);
     const [isLoadingOrders, setIsLoadingOrders] = useState(false);
 
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
+
     const fetchRevenue = () => {
         axios.get('http://localhost:8080/api/dash/revenue/completed')
             .then(res => setRevenue(res.data))
             .catch(err => console.error("Lỗi lấy doanh thu:", err));
     };
 
+    const fetchFilteredData = () => {
+        if (!fromDate || !toDate) return alert("Vui lòng chọn cả hai ngày");
+
+        const from = moment(fromDate).startOf('day').toISOString();
+        const to = moment(toDate).endOf('day').toISOString();
+
+        setIsLoadingOrders(true);
+        axios.get('http://localhost:8080/api/dash/orders/status8-range', {
+            params: { fromDate: from, toDate: to }
+        })
+            .then(res => {
+                const sorted = res.data.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+                setOrders(sorted);
+                const total = sorted.reduce((sum, order) => sum + order.totalPrice, 0);
+                setRevenue(total);
+            })
+            .catch(err => console.error("Lỗi lọc đơn hàng theo khoảng thời gian:", err))
+            .finally(() => setIsLoadingOrders(false));
+    };
+
     const openOrdersModal = () => {
         setIsLoadingOrders(true);
         axios.get('http://localhost:8080/api/dash/orders/status8')
             .then(res => {
-                setOrders(res.data);
+                const sorted = res.data.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+                setOrders(sorted);
                 setShowModal(true);
             })
             .catch(err => console.error("Lỗi lấy đơn hàng hoàn tất:", err))
             .finally(() => setIsLoadingOrders(false));
     };
 
-    const closeModal = () => {
-        setShowModal(false);
-    };
+    const closeModal = () => setShowModal(false);
 
     useEffect(() => {
         fetchRevenue();
@@ -42,9 +65,17 @@ const TotalCompletedRevenueCard = () => {
             sortable: true,
         },
         {
-            name: 'Số điện thoại',
+            name: 'SĐT',
             selector: row => row.phone,
             sortable: true,
+        },
+        {
+            name: 'Ngày đặt',
+            selector: row => row.orderDate,
+            sortable: true,
+            cell: row => (
+                <span>{moment(row.orderDate).format('DD/MM/YYYY HH:mm')}</span>
+            ),
         },
         {
             name: 'Tổng tiền',
@@ -58,7 +89,6 @@ const TotalCompletedRevenueCard = () => {
         },
     ];
 
-    // Modal component
     const OrdersModal = () => {
         if (!showModal) return null;
 
@@ -66,7 +96,9 @@ const TotalCompletedRevenueCard = () => {
             <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-6xl max-h-[90vh] flex flex-col">
                     <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                        <h2 className="text-xl font-semibold text-gray-800">Chi tiết 30 đơn hàng</h2>
+                        <h2 className="text-xl font-semibold text-gray-800">
+                            Chi tiết {orders.length} đơn hàng hoàn tất
+                        </h2>
                         <button
                             onClick={closeModal}
                             className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
@@ -128,6 +160,27 @@ const TotalCompletedRevenueCard = () => {
                     </div>
                 </div>
 
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+                    <input
+                        type="date"
+                        value={fromDate}
+                        onChange={e => setFromDate(e.target.value)}
+                        className="border px-2 py-1 rounded text-sm w-full sm:w-auto"
+                    />
+                    <input
+                        type="date"
+                        value={toDate}
+                        onChange={e => setToDate(e.target.value)}
+                        className="border px-2 py-1 rounded text-sm w-full sm:w-auto"
+                    />
+                    <button
+                        onClick={fetchFilteredData}
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                    >
+                        Cập nhật
+                    </button>
+                </div>
+
                 <div className="flex items-center justify-center mb-2">
                     <p className="text-2xl font-bold text-red-600">
                         {revenue !== null ? `${revenue.toLocaleString()} VNĐ` : '...'}
@@ -147,7 +200,7 @@ const TotalCompletedRevenueCard = () => {
                 </div>
             </div>
 
-            {/* Render modal */}
+            {/* Modal */}
             <OrdersModal />
         </div>
     );

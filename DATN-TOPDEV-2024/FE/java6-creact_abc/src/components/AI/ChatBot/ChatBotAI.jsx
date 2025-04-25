@@ -84,20 +84,10 @@ const ChatBot = () => {
     };
 
     const typeWriterEffect = (text) => {
-        let index = 0;
+        setChatHistory((prev) => [...prev, { sender: "bot", message: text }]);
+        setIsTyping(false);
         setBotTypingMessage("");
-        const interval = setInterval(() => {
-            if (index < text.length) {
-                setBotTypingMessage((prev) => prev + text.charAt(index));
-                index++;
-            } else {
-                clearInterval(interval);
-                setChatHistory((prev) => [...prev, { sender: "bot", message: text }]);
-                setIsTyping(false);
-                setBotTypingMessage("");
-                setLoading(false);
-            }
-        }, 30);
+        setLoading(false);
     };
 
     const handleKeyDown = (e) => {
@@ -108,7 +98,18 @@ const ChatBot = () => {
     };
 
     const formatMessage = (message) => {
-        // Simple formatting to detect URLs and make them clickable
+        // Kiểm tra xem nội dung có phải là HTML hay không
+        const isHTML = /<\/?[a-z][\s\S]*>/i.test(message);
+        if (isHTML) {
+            return (
+                <div
+                    dangerouslySetInnerHTML={{ __html: message }}
+                    className="text-gray-800"
+                />
+            );
+        }
+
+        // Nếu không phải HTML, xử lý nội dung như bình thường
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         return message.split(urlRegex).map((part, index) => {
             if (part.match(urlRegex)) {
@@ -226,7 +227,7 @@ const ChatBot = () => {
                             )}
 
                             <motion.div
-                                className={`max-w-[75%] p-3 rounded-2xl shadow-sm break-words whitespace-pre-wrap ${
+                                className={`max-w-[75%] p-3 rounded-2xl shadow-sm break-words whitespace-pre-wrap text-sm ${
                                     chat.sender === "user"
                                         ? "bg-blue-600 text-white rounded-tr-none"
                                         : "bg-white text-gray-800 border border-gray-100 rounded-tl-none"

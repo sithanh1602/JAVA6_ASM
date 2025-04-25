@@ -77,5 +77,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.status = 8")
     BigDecimal getTotalRevenueOfCompletedOrders();
 
+    List<Orders> findByStatusAndOrderDateBetween(Integer status, Date fromDate, Date toDate);
 }
 

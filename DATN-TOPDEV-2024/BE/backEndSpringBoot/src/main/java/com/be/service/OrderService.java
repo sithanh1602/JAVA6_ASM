@@ -743,4 +743,10 @@ public class OrderService {
 
         return sb.toString();
     }
+
+    public List<Orders> getCompletedOrdersInRange(Date fromDate, Date toDate) {
+        return ordersRepository.findByStatusAndOrderDateBetween(8, fromDate, toDate);
+    }
+
+
 }

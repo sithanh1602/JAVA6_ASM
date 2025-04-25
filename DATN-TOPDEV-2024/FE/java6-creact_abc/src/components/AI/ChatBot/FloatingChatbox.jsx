@@ -18,7 +18,7 @@ const FloatingChatbox = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="w-96 sm:w-[450px] h-[700px] mb-4 bg-white shadow-2xl overflow-hidden border border-gray-100"
+                        className="w-[500px] sm:w-[650px] h-[700px] mb-4 bg-white shadow-2xl overflow-hidden border border-gray-100"
                     >
                         <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white">
                             <div className="flex items-center space-x-2">

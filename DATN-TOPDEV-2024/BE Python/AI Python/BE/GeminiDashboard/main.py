@@ -11,7 +11,7 @@ CORS(app)  # Cho phép CORS để frontend React gọi API
 # ===================== CẤU HÌNH GEMINI =====================
 try:
     genai.configure(api_key="AIzaSyDhAbhPJg47Q4bwkU3NcbNuoQLwKdN7YvY")  # GẮN KEY Ở ĐÂY
-    model = genai.GenerativeModel(model_name="gemini-1.5-pro-001")  # hoặc "gemini-1.5-pro" nếu có quyền
+    model = genai.GenerativeModel(model_name="gemini-2.5-pro-preview-03-25")  # hoặc "gemini-1.5-pro" nếu có quyền
 except Exception as e:
     print(f"Lỗi khi cấu hình Gemini AI: {str(e)}")
     model = None
@@ -34,6 +34,7 @@ def analyze_revenue():
         - Doanh thu trung bình.
         - Độ biến động (thấp, trung bình, cao).
         - Khuyến nghị chiến lược kinh doanh dựa trên xu hướng và dữ liệu.
+        - Khuyến nghị chiến lược kinh doanh dựa trên xu hướng và dữ liệu cho website TMĐT bán linh kiện điện tử build PC.
 
         Dữ liệu doanh thu (theo tháng):
         {data}
