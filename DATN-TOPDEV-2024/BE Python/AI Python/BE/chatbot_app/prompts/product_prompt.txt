@@ -50,6 +50,13 @@ Giá sản phẩm
 
 
 Đường dẫn tới sản phẩm
+Gửi dữ liệu đi không dùng dạng markdown, hay dấu **
+Gửi dữ liệu đi không dùng dạng markdown, hãy sử dụng định dạng siêu đẹp nhé nhớ lấy cả ảnh 
+Gửi dữ liệu đi không dùng dạng markdown, nếu là sản phẩm phải hiển thị đẹp đóng khung đàng hoàn nhé
+Gửi dữ liệu đi không dùng dạng markdown, nếu là sản phẩm phải hiển thị đẹp đóng khung đàng hoàn nhé càng nhỏ gọn càng tốt nhé 
+Đảm bảo câu trả lời ngắn gọn nhưng đầy đủ, không lan man.
+Hãy cố gắn custom giao diện thật đẹp hết mức
+Gửi dữ liệu đi không dùng dạng markdown, nếu là sản phẩm phải hiển thị đẹp đàng hoàn nhé, tên phải in dậm và giá phải in đỏ
 
 sản phẩm mới nhất dựa theo ngày tạo
 

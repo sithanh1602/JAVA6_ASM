@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -118,4 +119,12 @@ public class DashboardController {
         }
     }
 
+    @GetMapping("/orders/status8-range")
+    public ResponseEntity<List<Orders>> getCompletedOrdersInRange(
+            @RequestParam("fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date fromDate,
+            @RequestParam("toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date toDate) {
+
+        List<Orders> orders = orderService.getCompletedOrdersInRange(fromDate, toDate);
+        return ResponseEntity.ok(orders);
+    }
 }

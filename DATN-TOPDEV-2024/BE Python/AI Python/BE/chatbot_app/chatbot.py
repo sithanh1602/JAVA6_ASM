@@ -52,14 +52,14 @@ def chat_with_gemini():
                     pc_builds = [pc_builds]  # Chuyển dict thành list chứa 1 item
                     
                 for build in pc_builds:  
-                    481
                     components = []
                     for component in build.get("buildPCProductVariants", []):
                         components.append({
                             "name": component.get("nameVariants", "Không có tên"),
                             "category": component.get("categoryName", "Không xác định"),
                             "price": component.get("price", 0),
-                            "quantity": component.get("variantQuantity", 1)
+                            "quantity": component.get("variantQuantity", 1),
+                            "image": component.get("image", "Không có ảnh")  # Thêm trường image cho linh kiện
                         })
                     
                     pc_info = {
@@ -67,30 +67,12 @@ def chat_with_gemini():
                         "purpose": build.get("usagePurpose", "Đa dụng"),
                         "price": build.get("totalPrice", 0),
                         "description": build.get("description", ""),
-                        "image": build.get("image", ""),
+                        "image": build.get("image", ""),  # Ảnh chính của PC
+                        "imageUrls": build.get("imageUrls", []),  # Danh sách ảnh bổ sung của PC
                         "components": components
                     }
                     
                     pc_data.append(pc_info)
-                
-                # Chuyển đổi dữ liệu thành bảng markdown
-                pc_table = "| Tên Build PC | Mục đích sử dụng | Giá | Linh kiện chính |\n"
-                pc_table += "|-------------|-----------------|-----|----------------|\n"
-                
-                for pc in pc_data:
-                    # Lấy các linh kiện chính (CPU, GPU, RAM)
-                    main_components = []
-                    for component in pc["components"]:
-                        if component["category"] in ["CPU", "GPU", "RAM"]:
-                            if component["quantity"] > 1:
-                                main_components.append(f"{component['name']} x{component['quantity']}")
-                            else:
-                                main_components.append(component["name"])
-                    
-                    components_text = ", ".join(main_components)
-                    formatted_price = f"{int(pc['price']):,} VNĐ"
-                    
-                    pc_table += f"| {pc['name']} | {pc['purpose']} | {formatted_price} | {components_text} |\n"
                 
                 # Thêm thông tin chi tiết từng build
                 pc_details = "\n## Chi tiết các build PC:\n\n"
@@ -102,15 +84,20 @@ def chat_with_gemini():
                     
                     for component in pc["components"]:
                         quantity = f" x{component['quantity']}" if component["quantity"] > 1 else ""
-                        pc_details += f"- {component['category']}: {component['name']}{quantity}\n"
+                        pc_details += f"- {component['category']}: {component['name']}{quantity} (Hình ảnh: {component['image']})\n"
                     
                     if pc['image']:
-                        pc_details += f"\n**Hình ảnh:** {pc['image']}\n"
+                        pc_details += f"\n**Hình ảnh chính của PC:** {pc['image']}\n"
+                    
+                    if pc['imageUrls']:
+                        pc_details += f"**Hình ảnh bổ sung của PC:**\n"
+                        for img_url in pc['imageUrls']:
+                            pc_details += f"- {img_url}\n"
                     
                     pc_details += "\n"
 
                 # Tạo prompt và gửi tới Gemini
-                prompt = load_prompt("buildpc_prompt.txt", user_question, pc_table + pc_details)
+                prompt = load_prompt("buildpc_prompt.txt", user_question, pc_details)
                 gemini_response = model.generate_content(prompt)
                 answer = gemini_response.text.strip()
 
@@ -147,17 +134,18 @@ def chat_with_gemini():
             for item in order_details:
                 if isinstance(item, dict) and "product_variant_id" in item and "quantity" in item:
                     product_variant = item["product_variant_id"]
-                    if isinstance(product_variant, dict) and "nameVariants" in product_variant:
+                    if isinstance(product_variant, dict) and "nameVariants" in product_variant and "product" in product_variant:
                         order_items.append({
                             "nameVariants": product_variant["nameVariants"],
-                            "quantity": item["quantity"]
+                            "quantity": item["quantity"],
+                            "imageUrl": product_variant.get("product", {}).get("imageUrl", "Không có ảnh")
                         })
 
             df_orders = pd.DataFrame(order_items)
             if df_orders.empty or "nameVariants" not in df_orders.columns or "quantity" not in df_orders.columns:
                 return jsonify({"error": "Dữ liệu đơn hàng không chứa thông tin sản phẩm hoặc số lượng."}), 400
 
-            product_sales = df_orders.groupby("nameVariants")["quantity"].sum().reset_index()
+            product_sales = df_orders.groupby(["nameVariants", "imageUrl"])["quantity"].sum().reset_index()
             top_products = product_sales.sort_values(by="quantity", ascending=False).head(3)
 
             product_response = requests.get("http://localhost:8080/api/product-variants")
@@ -175,7 +163,11 @@ def chat_with_gemini():
             )
             top_products["price"] = top_products["price"].apply(lambda x: f"{x:,.0f} VNĐ" if isinstance(x, (int, float)) else x)
 
-            top_products_output = top_products[["nameVariants", "quantity", "price", "link"]].to_markdown(index=False)
+            # Tạo bảng markdown với thêm cột ảnh
+            top_products_output = "| Tên sản phẩm | Số lượng bán | Giá | Đường dẫn | Hình ảnh |\n"
+            top_products_output += "|--------------|--------------|-----|-----------|----------|\n"
+            for _, row in top_products.iterrows():
+                top_products_output += f"| {row['nameVariants']} | {row['quantity']} | {row['price']} | {row['link']} | {row['imageUrl']} |\n"
 
             prompt = load_prompt("bestsellers_prompt.txt", user_question, top_products_output)
             gemini_response = model.generate_content(prompt)
@@ -197,10 +189,14 @@ def chat_with_gemini():
             df["link"] = df.get("id", pd.Series([None] * len(df))).apply(
                 lambda id: f"{website_domain}/product/{id}" if id else "Không có đường dẫn"
             )
+            df["image"] = df.get("image", pd.Series(["Không có ảnh"] * len(df)))  # Thêm cột image, mặc định là "Không có ảnh" nếu thiếu
 
-            df = df[["nameVariants", "price", "link"]]
+            df = df[["nameVariants", "price", "link", "image"]]
             df["price"] = df["price"].apply(lambda x: f"{x:,.0f} VNĐ")
-            product_table = df.to_markdown(index=False)
+            product_table = "| Tên sản phẩm | Giá | Đường dẫn | Hình ảnh |\n"
+            product_table += "|--------------|-----|-----------|----------|\n"
+            for _, row in df.iterrows():
+                product_table += f"| {row['nameVariants']} | {row['price']} | {row['link']} | {row['image']} |\n"
 
             prompt = load_prompt("product_prompt.txt", user_question, product_table)
             gemini_response = model.generate_content(prompt)
