@@ -7,12 +7,11 @@ import {
   ModalFooter,
   Button,
   Textarea,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Badge,
 } from "@nextui-org/react";
 import { FaStar } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -23,22 +22,35 @@ import { jwtDecode } from "jwt-decode";
 
 const ReviewComponent = ({ orderId, orderProducts, onReviewSubmitted }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [hover, setHover] = useState(0);
-  const [feedback, setFeedback] = useState("");
   const [products, setProducts] = useState([]);
-    const [orders, setOrders] = useState([]);
-  
+  const [productReviews, setProductReviews] = useState({});
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      let fetchedProducts;
       if (typeof orderProducts === "function") {
-        const fetchedProducts = await orderProducts();
-        setProducts(fetchedProducts);
+        fetchedProducts = await orderProducts();
       } else {
-        setProducts(orderProducts);
+        fetchedProducts = orderProducts;
       }
+
+      setProducts(fetchedProducts);
+
+      // Khởi tạo đánh giá cho từng sản phẩm với ID duy nhất
+      const initialReviews = {};
+      fetchedProducts.forEach((product) => {
+        // Sử dụng OrderDetailId làm key duy nhất cho mỗi đánh giá
+        initialReviews[product.OrderDetailId] = {
+          rating: 0,
+          hover: 0,
+          feedback: "",
+          productId: product.id, // Lưu thêm productId để reference
+        };
+      });
+      setProductReviews(initialReviews);
     };
+
     if (isModalOpen) fetchProducts();
   }, [isModalOpen, orderProducts]);
 
@@ -56,31 +68,66 @@ const ReviewComponent = ({ orderId, orderProducts, onReviewSubmitted }) => {
     return null;
   };
 
-  const handleSubmitRating = async () => {
+  const handleRatingChange = (orderDetailId, value) => {
+    setProductReviews((prev) => ({
+      ...prev,
+      [orderDetailId]: {
+        ...prev[orderDetailId],
+        rating: value,
+      },
+    }));
+  };
+
+  const handleHoverChange = (orderDetailId, value) => {
+    setProductReviews((prev) => ({
+      ...prev,
+      [orderDetailId]: {
+        ...prev[orderDetailId],
+        hover: value,
+      },
+    }));
+  };
+
+  const handleFeedbackChange = (orderDetailId, value) => {
+    setProductReviews((prev) => ({
+      ...prev,
+      [orderDetailId]: {
+        ...prev[orderDetailId],
+        feedback: value,
+      },
+    }));
+  };
+
+  const validateAllReviews = () => {
+    const invalidProducts = products.filter((product) => {
+      const review = productReviews[product.OrderDetailId];
+      return !review || review.rating === 0 || !review.feedback.trim();
+    });
+
+    return invalidProducts.length === 0 ? true : invalidProducts;
+  };
+
+  const handleSubmitRatings = async () => {
+    const validationResult = validateAllReviews();
+
+    if (validationResult !== true) {
+      const missingReviews = validationResult.map((p) => p.name).join(", ");
+      Swal.fire({
+        title: "Chưa hoàn thành đánh giá",
+        html: `Vui lòng đánh giá đầy đủ (số sao và phản hồi) cho các sản phẩm: <br><strong>${missingReviews}</strong>`,
+        icon: "warning",
+      });
+      return;
+    }
+
     const result = await Swal.fire({
       title: "Xác nhận gửi đánh giá",
-      text: "Bạn có chắc muốn gửi đánh giá này?",
+      text: "Bạn có chắc muốn gửi đánh giá cho tất cả sản phẩm?",
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Gửi",
       cancelButtonText: "Hủy",
     });
-    if (result.isConfirmed) {
-      try {
-        await OrderService.updateOrderStatus(orderId, 10); 
-        const userId = localStorage.getItem("UserId");
-        const ordersData = await OrderService.getOrdersByUserId(userId);
-        setOrders(ordersData);
-        Swal.fire(
-          "Thành công!",
-          "Đơn hàng đã được xác nhận đánh giá.",
-          "success"
-        );
-      } catch (err) {
-        console.error("Lỗi cập nhật trạng thái đơn hàng:", err);
-        Swal.fire("Lỗi!", "Đã xảy ra lỗi khi xác nhận đánh giá.", "error");
-      }
-    }
 
     if (!result.isConfirmed) return;
 
@@ -90,35 +137,78 @@ const ReviewComponent = ({ orderId, orderProducts, onReviewSubmitted }) => {
       return;
     }
 
-    if (rating === 0 || !feedback.trim()) {
-      Swal.fire("Lỗi!", "Vui lòng chọn số sao và nhập phản hồi.", "error");
-      return;
-    }
-
-    if (!products.length) {
-      Swal.fire("Lỗi!", "Không tìm thấy sản phẩm để đánh giá.", "error");
-      return;
-    }
-
-    const reviewData = {
-      user: { userId: userId },
-      orderDetail: { id: products[0]?.OrderDetailId }, // Giả định có OrderDetailId
-      rating: rating,
-      comment: feedback,
-      createAt: new Date().toISOString(),
-    };
-
     try {
-      await RatingService.createReview(reviewData);
-      Swal.fire("Thành công!", "Đánh giá đã được gửi.", "success");
-      setRating(0);
-      setFeedback("");
+      // Gửi đánh giá cho từng sản phẩm
+      const reviewPromises = products.map((product) => {
+        const review = productReviews[product.OrderDetailId];
+        const reviewData = {
+          user: { userId: userId },
+          orderDetail: { id: product.OrderDetailId },
+          rating: review.rating,
+          comment: review.feedback,
+          createAt: new Date().toISOString(),
+        };
+
+        return RatingService.createReview(reviewData);
+      });
+
+      await Promise.all(reviewPromises);
+
+      // Cập nhật trạng thái đơn hàng
+      await OrderService.updateOrderStatus(orderId, 10);
+      const localUserId = localStorage.getItem("UserId");
+      const ordersData = await OrderService.getOrdersByUserId(localUserId);
+      setOrders(ordersData);
+
+      Swal.fire(
+        "Thành công!",
+        "Đánh giá đã được gửi cho tất cả sản phẩm.",
+        "success"
+      );
       setIsModalOpen(false);
       if (onReviewSubmitted) onReviewSubmitted();
     } catch (error) {
       console.error("Lỗi khi gửi đánh giá:", error);
       Swal.fire("Lỗi!", "Không thể gửi đánh giá. Vui lòng thử lại.", "error");
     }
+  };
+
+  const renderStarRating = (orderDetailId) => {
+    const review = productReviews[orderDetailId] || { rating: 0, hover: 0 };
+
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-1">
+          {[...Array(5)].map((_, index) => {
+            const ratingValue = index + 1;
+            return (
+              <button
+                key={index}
+                className="bg-transparent border-none outline-none cursor-pointer p-1"
+                onClick={() => handleRatingChange(orderDetailId, ratingValue)}
+                onMouseEnter={() =>
+                  handleHoverChange(orderDetailId, ratingValue)
+                }
+                onMouseLeave={() => handleHoverChange(orderDetailId, 0)}>
+                <FaStar
+                  className="text-2xl transition-colors duration-200"
+                  color={
+                    ratingValue <= (review.hover || review.rating)
+                      ? "#ffc107"
+                      : "#e4e5e9"
+                  }
+                />
+              </button>
+            );
+          })}
+        </div>
+        <span className="text-sm text-gray-600">
+          {review.rating > 0
+            ? `Đã chọn: ${review.rating} sao`
+            : "Chưa đánh giá"}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -134,112 +224,101 @@ const ReviewComponent = ({ orderId, orderProducts, onReviewSubmitted }) => {
       <Modal
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
-        size="4xl"
+        size="5xl"
+        scrollBehavior="inside"
         className="rounded-none">
         <ModalContent>
-          <ModalHeader className="text-lg font-bold">
-            Đánh giá đơn hàng
+          <ModalHeader className="text-xl font-bold border-b">
+            Đánh giá sản phẩm trong đơn hàng
           </ModalHeader>
-          <ModalBody className="rounded-none">
-            {/* Danh sách sản phẩm */}
-            <div className="mb-4">
-              <h3 className="font-bold text-sm mb-2">
-                Sản phẩm trong đơn hàng
-              </h3>
-              <Table aria-label="Order products table">
-                <TableHeader>
-                  <TableColumn>Ảnh</TableColumn>
-                  <TableColumn>Tên sản phẩm</TableColumn>
-                  <TableColumn>Số lượng</TableColumn>
-                  <TableColumn>Giá</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {products.length > 0 ? (
-                    products.map((product, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <img
-                            src={product.imageUrl}
-                            alt={product.name}
-                            className="w-12 h-12 object-cover rounded-md"
+          <ModalBody className="p-4">
+            {products.length > 0 ? (
+              <div className="grid grid-cols-1 gap-6">
+                {products.map((product, index) => (
+                  <Card key={product.OrderDetailId} className="shadow-md">
+                    <CardHeader className="flex justify-between items-center bg-gray-50 p-4">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-16 h-16 object-cover rounded-md border border-gray-200"
+                        />
+                        <div>
+                          <h3 className="text-lg font-semibold">
+                            {product.name}
+                          </h3>
+                          <div className="flex gap-4 text-sm text-gray-600">
+                            <p>Số lượng: {product.quantity}</p>
+                            <p>Giá: {product.price.toLocaleString()} VNĐ</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+
+                    <CardBody className="p-4">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Đánh giá sản phẩm {product.name}
+                          </label>
+                          {renderStarRating(product.OrderDetailId)}
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Nhận xét về sản phẩm
+                          </label>
+                          <Textarea
+                            value={
+                              productReviews[product.OrderDetailId]?.feedback ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              handleFeedbackChange(
+                                product.OrderDetailId,
+                                e.target.value
+                              )
+                            }
+                            placeholder={`Chia sẻ trải nghiệm của bạn về ${product.name}...`}
+                            rows={3}
+                            className="w-full"
                           />
-                        </TableCell>
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>{product.quantity}</TableCell>
-                        <TableCell>
-                          {product.price.toLocaleString()} VNĐ
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell>-</TableCell>
-                      <TableCell>Không có sản phẩm nào</TableCell>
-                      <TableCell>-</TableCell>
-                      <TableCell>-</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Đánh giá sao */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Đánh giá của bạn
-              </label>
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, index) => {
-                  const ratingValue = index + 1;
-                  return (
-                    <button
-                      key={index}
-                      className="bg-transparent border-none outline-none cursor-pointer"
-                      onClick={() => setRating(ratingValue)}
-                      onMouseEnter={() => setHover(ratingValue)}
-                      onMouseLeave={() => setHover(0)}>
-                      <FaStar
-                        className="text-xl"
-                        color={
-                          ratingValue <= (hover || rating)
-                            ? "#ffc107"
-                            : "#e4e5e9"
-                        }
-                      />
-                    </button>
-                  );
-                })}
+                          <div className="text-xs text-gray-500 mt-1">
+                            {productReviews[product.OrderDetailId]?.feedback
+                              ? `Số ký tự: ${
+                                  productReviews[product.OrderDetailId].feedback
+                                    .length
+                                }`
+                              : "Hãy chia sẻ ý kiến của bạn"}
+                          </div>
+                        </div>
+                      </div>
+                    </CardBody>
+                  </Card>
+                ))}
               </div>
-            </div>
-
-            {/* Phản hồi */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phản hồi của bạn
-              </label>
-              <Textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Nhập phản hồi của bạn"
-                rows={4}
-                className="w-full"
-              />
-            </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">
+                  Không có sản phẩm nào để đánh giá
+                </p>
+              </div>
+            )}
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter className="border-t">
             <Button
               color="danger"
-              size="sm"
-              className="rounded-none"
+              size="md"
+              className="rounded-md"
               onClick={() => setIsModalOpen(false)}>
               Hủy
             </Button>
             <Button
               color="primary"
-              size="sm"
-              className="rounded-none"
-              onClick={handleSubmitRating}>
-              Gửi đánh giá
+              size="md"
+              className="rounded-md"
+              onClick={handleSubmitRatings}>
+              Gửi tất cả đánh giá
             </Button>
           </ModalFooter>
         </ModalContent>
