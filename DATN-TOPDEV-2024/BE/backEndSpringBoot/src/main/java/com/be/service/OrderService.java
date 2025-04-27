@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,8 +71,6 @@ public class OrderService {
 
         return updatedOrder;
     }
-
-
 
     // Scheduler chạy mỗi giờ để kiểm tra và xóa đơn hàng trạng thái 2
     @Scheduled(fixedRate = 60 * 60 * 1000) // Chạy mỗi giờ (60 phút * 60 giây * 1000 ms)
@@ -718,7 +714,6 @@ public class OrderService {
     }
 
 
-
     private String buildEmailContent(User user, OrderRequest orderRequest) {
         StringBuilder sb = new StringBuilder();
         sb.append("<html>");
@@ -766,7 +761,6 @@ public class OrderService {
                 .collect(Collectors.joining());
 
         sb.append(productList);
-
         sb.append("</tbody>");
         sb.append("</table>");
         sb.append("</div>");
@@ -785,6 +779,5 @@ public class OrderService {
     public List<Orders> getCompletedOrdersInRange(Date fromDate, Date toDate) {
         return ordersRepository.findByStatusAndOrderDateBetween(8, fromDate, toDate);
     }
-
 
 }

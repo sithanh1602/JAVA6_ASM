@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -7,7 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { Input, Checkbox, Button } from '@nextui-org/react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import ReCAPTCHA from 'react-google-recaptcha'; // Import reCAPTCHA
 import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+
+axios.defaults.withCredentials = true;
 
 const AuthForm = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -22,20 +26,67 @@ const AuthForm = () => {
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [secondsLeft, setSecondsLeft] = useState(60);
     const [isResendDisabled, setIsResendDisabled] = useState(true);
+    const [recaptchaToken, setRecaptchaToken] = useState(null); // State để lưu token reCAPTCHA
     const navigate = useNavigate();
+    const recaptchaRef = useRef(); // Ref để reset reCAPTCHA
 
-    // Sử dụng Client ID từ Google Cloud Console (đã cung cấp trước đó)
     const GOOGLE_CLIENT_ID = '310245911476-bb6s06ookc8aftr8b9lka1n30sl41ou7.apps.googleusercontent.com';
+    const RECAPTCHA_SITE_KEY = '6Lc19CQrAAAAAEDjiVHCrgtdJgyGSKbkW6NMR8x-'; // Site Key mới
 
     useEffect(() => {
-        const savedUsername = localStorage.getItem('savedUsername');
-        const savedPassword = localStorage.getItem('savedPassword');
-        if (savedUsername && savedPassword) {
-            setUsername(savedUsername);
-            setPassword(savedPassword);
-            setRememberMe(true);
-        }
-    }, []);
+        const token = Cookies.get('jwtToken');
+        const refreshToken = Cookies.get('refreshToken');
+
+        const redirectIfLoggedIn = async () => {
+            try {
+                let decodedToken;
+                let roles = [];
+
+                if (token) {
+                    decodedToken = jwtDecode(token);
+                    const currentTime = Date.now() / 1000;
+                    if (decodedToken.exp < currentTime) {
+                        if (refreshToken) {
+                            const response = await axios.post('http://localhost:8080/api/auth/refresh-token');
+                            const { data } = response.data;
+                            const { token: newToken } = data;
+                            Cookies.set('jwtToken', newToken, { expires: 1, secure: true, sameSite: 'Strict' });
+                            decodedToken = jwtDecode(newToken);
+                            roles = decodedToken.roles || [];
+                        } else {
+                            Cookies.remove('jwtToken');
+                            Cookies.remove('refreshToken');
+                            return;
+                        }
+                    } else {
+                        roles = decodedToken.roles || [];
+                    }
+                } else if (refreshToken) {
+                    const response = await axios.post('http://localhost:8080/api/auth/refresh-token');
+                    const { data } = response.data;
+                    const { token: newToken } = data;
+                    Cookies.set('jwtToken', newToken, { expires: 1, secure: true, sameSite: 'Strict' });
+                    decodedToken = jwtDecode(newToken);
+                    roles = decodedToken.roles || [];
+                } else {
+                    return;
+                }
+
+                if (roles.includes('ADMIN')) {
+                    navigate('/admin');
+                } else if (roles.includes('USER')) {
+                    navigate('/');
+                    window.location.reload();
+                }
+            } catch (err) {
+                console.error('Failed to refresh token:', err);
+                Cookies.remove('refreshToken');
+                Cookies.remove('jwtToken');
+            }
+        };
+
+        redirectIfLoggedIn();
+    }, [navigate]);
 
     useEffect(() => {
         if (isOtpSent) {
@@ -56,8 +107,23 @@ const AuthForm = () => {
 
     const handleToggle = () => setIsLogin(!isLogin);
 
+    // Hàm xử lý khi reCAPTCHA thay đổi
+    const handleRecaptchaChange = (token) => {
+        setRecaptchaToken(token);
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
+
+        // Kiểm tra nếu reCAPTCHA chưa được hoàn thành
+        if (!recaptchaToken) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Xác minh thất bại',
+                text: 'Vui lòng xác minh rằng bạn không phải là robot.',
+            });
+            return;
+        }
 
         Swal.fire({
             title: 'Đang đăng nhập...',
@@ -69,13 +135,17 @@ const AuthForm = () => {
         });
 
         try {
+            console.log('Sending login request with:', { username, password, rememberMe, recaptchaToken });
             const response = await axios.post('http://localhost:8080/api/auth/login', {
                 username,
                 password,
+                rememberMe,
             });
+            console.log('API Response:', response.data);
 
             const { data, message } = response.data;
-            const { token, userId, userName, fullName, phone, roles } = data;
+            const { token } = data;
+            console.log('Token:', token);
 
             if (message === 'Account is locked') {
                 Swal.close();
@@ -87,22 +157,13 @@ const AuthForm = () => {
                 return;
             }
 
-            Cookies.set('token', token, { expires: 7, sameSite: 'Strict' });
-            localStorage.setItem('token', token);
-            localStorage.setItem('roles', JSON.stringify(roles));
-            localStorage.setItem('role', roles[0]);
-            localStorage.setItem('UserId', userId);
-            localStorage.setItem('userName', userName);
-            localStorage.setItem('fullName', fullName);
-            localStorage.setItem('phone', phone);
+            Cookies.set('jwtToken', token, { expires: 1, secure: true, sameSite: 'Strict' });
+            console.log('Cookie set with token:', token);
 
-            if (rememberMe) {
-                localStorage.setItem('savedUsername', username);
-                localStorage.setItem('savedPassword', password);
-            } else {
-                localStorage.removeItem('savedUsername');
-                localStorage.removeItem('savedPassword');
-            }
+            const decodedToken = jwtDecode(token);
+            const roles = decodedToken.roles || [];
+            console.log('Decoded Token:', decodedToken);
+            console.log('Roles:', roles);
 
             Swal.close();
             Swal.fire({
@@ -115,13 +176,19 @@ const AuthForm = () => {
             if (roles.includes('ADMIN')) {
                 navigate('/admin');
             } else if (roles.includes('USER')) {
+                console.log('Navigating to /');
                 navigate('/');
                 window.location.reload();
             } else {
                 toast.dismiss();
                 toast.error('Không có quyền truy cập');
             }
+
+            // Reset reCAPTCHA sau khi đăng nhập thành công
+            setRecaptchaToken(null);
+            recaptchaRef.current.reset();
         } catch (err) {
+            console.error('Login error:', err);
             Swal.close();
             const errorMessage = err.response?.data?.message || 'Tài khoản hoặc mật khẩu không đúng';
             Swal.fire({
@@ -129,6 +196,10 @@ const AuthForm = () => {
                 title: 'Đăng nhập không thành công',
                 text: errorMessage,
             });
+
+            // Reset reCAPTCHA nếu đăng nhập thất bại
+            setRecaptchaToken(null);
+            recaptchaRef.current.reset();
         }
     };
 
@@ -143,25 +214,19 @@ const AuthForm = () => {
         });
 
         try {
-            // Gửi JWT token (credential) và clientId đến backend
             const response = await axios.post('http://localhost:8080/api/auth/google', {
                 credential: credentialResponse.credential,
                 clientId: GOOGLE_CLIENT_ID,
             });
 
-            // Kiểm tra trạng thái phản hồi từ backend
             if (response.data.status === 'success') {
                 const { data, message } = response.data;
-                const { token, userId, userName, fullName, phone, roles } = data;
+                const { token } = data;
 
-                // Lưu thông tin vào localStorage
-                localStorage.setItem('token', token);
-                localStorage.setItem('roles', JSON.stringify(roles));
-                localStorage.setItem('role', roles[0]);
-                localStorage.setItem('UserId', userId);
-                localStorage.setItem('userName', userName);
-                localStorage.setItem('fullName', fullName);
-                localStorage.setItem('phone', phone || ''); // Xử lý trường hợp phone là null
+                Cookies.set('jwtToken', token, { expires: 1, secure: true, sameSite: 'Strict' });
+
+                const decodedToken = jwtDecode(token);
+                const roles = decodedToken.roles || [];
 
                 Swal.close();
                 Swal.fire({
@@ -172,7 +237,6 @@ const AuthForm = () => {
                     timer: 1500,
                 });
 
-                // Điều hướng dựa trên vai trò
                 if (roles.includes('ADMIN')) {
                     navigate('/admin');
                 } else if (roles.includes('USER')) {
@@ -183,7 +247,6 @@ const AuthForm = () => {
                     toast.error('Không có quyền truy cập');
                 }
             } else {
-                // Xử lý lỗi từ backend
                 Swal.close();
                 const errorMessage = response.data.message || 'Đăng nhập Google thất bại';
                 if (response.data.message === 'Account is locked') {
@@ -338,20 +401,20 @@ const AuthForm = () => {
 
     return (
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <div className="p-8 bg-white shadow-lg rounded-lg w-full max-w-md">
+            <div className="min-h-[700px] flex items-center justify-center bg-gray-100">
+                <div className="p-8 bg-white shadow-lg rounded-lg w-full max-w-md min-h-[500px]">
                     <AnimatePresence mode="wait">
                         {isLogin ? (
                             <motion.div
                                 key="login"
-                                regular={{ opacity: 0, x: 50 }}
+                                initial={{ opacity: 0, x: 50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -50 }}
                                 transition={{ duration: 0.5 }}
                             >
                                 <h2 className="text-2xl font-semibold text-center mb-6">Đăng Nhập</h2>
                                 <form onSubmit={handleLogin}>
-                                    <div className="mb-4">
+                                    <div className="mb-4 mt-4">
                                         <Input
                                             label="Tên đăng nhập"
                                             radius="none"
@@ -360,7 +423,7 @@ const AuthForm = () => {
                                             required
                                         />
                                     </div>
-                                    <div className="mb-4">
+                                    <div className="mb-4 mt-4">
                                         <Input
                                             type="password"
                                             label="Mật khẩu"
@@ -370,24 +433,33 @@ const AuthForm = () => {
                                             required
                                         />
                                     </div>
-                                    <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center justify-between mb-4 mt-4">
                                         <Checkbox
                                             isSelected={rememberMe}
                                             onValueChange={setRememberMe}
                                         >
                                             Ghi nhớ tài khoản
                                         </Checkbox>
-                                        <a href="/reset-password" className="text-blue-600 hover:underline">
+                                        <a href="/reset-password" className="text-blue-600 hover:underline mb-4 mt-4">
                                             Quên mật khẩu?
                                         </a>
                                     </div>
+                                    {/* Thêm reCAPTCHA */}
+                                    <div className="flex justify-center mb-4 w-full mb-4 mt-4 ">
+                                        <ReCAPTCHA
+                                            ref={recaptchaRef}
+                                            sitekey={RECAPTCHA_SITE_KEY}
+                                            onChange={handleRecaptchaChange}
+                                            width="385"
+                                        />
+                                    </div>
                                     <Button
                                         type="submit"
-                                        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200 mb-2"
+                                        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200  mb-4 mt-4"
                                     >
                                         Đăng Nhập
                                     </Button>
-                                    <div className="flex justify-center w-full ">
+                                    <div className="flex justify-center min-h-[90px] w-full mb-4 mt-2">
                                         <GoogleLogin
                                             onSuccess={handleGoogleLoginSuccess}
                                             onError={handleGoogleLoginFailure}
@@ -398,7 +470,7 @@ const AuthForm = () => {
                                         />
                                     </div>
                                 </form>
-                                <p className="mt-4 text-center text-gray-600">
+                                <p className="mt-2 text-center text-gray-600">
                                     Chưa có tài khoản?{' '}
                                     <button onClick={handleToggle} className="text-blue-600 hover:underline">
                                         Đăng ký
@@ -408,7 +480,7 @@ const AuthForm = () => {
                         ) : (
                             <motion.div
                                 key={isOtpSent ? 'otp' : 'register'}
-                                regular={{ opacity: 0, x: -50 }}
+                                initial={{ opacity: 0, x: -50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 50 }}
                                 transition={{ duration: 0.5 }}
@@ -527,17 +599,7 @@ const AuthForm = () => {
                                                     required
                                                 />
                                             </div>
-                                            <div className="text-center text-sm text-gray-500 mb-4">
-                                                Dữ liệu cá nhân của bạn sẽ được sử dụng để hỗ trợ trải nghiệm của bạn trên
-                                                toàn bộ trang web này, để quản lý quyền truy cập vào tài khoản của bạn và cho
-                                                các mục đích khác được mô tả trong{' '}
-                                                <a
-                                                    href="/privacy-policy"
-                                                    className="text-blue-600 hover:underline"
-                                                >
-                                                    chính sách riêng tư
-                                                </a>.
-                                            </div>
+
                                             <Button
                                                 type="submit"
                                                 className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200"

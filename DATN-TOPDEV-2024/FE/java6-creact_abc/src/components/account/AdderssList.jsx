@@ -14,13 +14,13 @@ const AddressList = () => {
     const navigate = useNavigate();
 
     const getUserIdFromToken = () => {
-        const token = Cookies.get("token");
+        const token = Cookies.get("jwtToken");
         if (token) {
             try {
                 const decodedToken = jwtDecode(token);
                 return decodedToken.userId;
             } catch (err) {
-                console.error("Token không hợp lệ:", err);
+                console.error("getUserIdFromToken: Token không hợp lệ:", err);
                 return null;
             }
         }

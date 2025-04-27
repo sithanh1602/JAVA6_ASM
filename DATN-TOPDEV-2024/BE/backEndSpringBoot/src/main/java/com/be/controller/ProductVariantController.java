@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/product-variants")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ProductVariantController {
 
     @Autowired

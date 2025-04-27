@@ -46,7 +46,7 @@ const HomePage = () => {
 
         // Lấy token từ cookie và giải mã để lấy userId
         const getUserIdFromToken = () => {
-            const token = Cookies.get('token');
+            const token = Cookies.get("jwtToken");
             if (token) {
                 try {
                     const decoded = jwtDecode(token);

@@ -29,7 +29,7 @@ const OrderInfo = ({
   const [userOrders, setUserOrders] = useState([]);
 
   const getUserIdFromToken = () => {
-    const token = Cookies.get("token");
+    const token = Cookies.get("jwtToken");
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
@@ -193,7 +193,7 @@ const OrderInfo = ({
   // Prepare data for DataTable
   const prepareTableData = () => {
     const tableData = [];
-    
+
     // Add product rows
     Object.values(groupedItems()).forEach((group) => {
       if (group.buildId) {
@@ -206,7 +206,7 @@ const OrderInfo = ({
           price: '',
         });
       }
-      
+
       // Add product items
       group.items.forEach((item, idx) => {
         tableData.push({
@@ -219,19 +219,19 @@ const OrderInfo = ({
         });
       });
     });
-    
+
     // Add summary rows
     tableData.push(
       { id: 'subtotal', type: 'summary', productName: 'Tạm tính', price: totalAmount },
       { id: 'shipping', type: 'summary', productName: 'Phí vận chuyển', price: shippingFee }
     );
-    
+
     if (discountAmount > 0) {
       tableData.push({ id: 'discount', type: 'summary', productName: 'Giảm giá', price: discountAmount });
     }
-    
+
     tableData.push({ id: 'total', type: 'total', productName: 'Tổng', price: totalAfterDiscount });
-    
+
     return tableData;
   };
 

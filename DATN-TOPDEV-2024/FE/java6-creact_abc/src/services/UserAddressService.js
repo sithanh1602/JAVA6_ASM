@@ -1,27 +1,39 @@
 import axios from 'axios';
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 // Cấu hình base URL cho axios
 const API_BASE_URL = 'http://localhost:8080/api/UserAddress';
 
 class UserAddressService {
+    // Lấy userId từ cookie
+    getUserIdFromToken() {
+        const token = Cookies.get("jwtToken");
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                return decodedToken.userId;
+            } catch (err) {
+                console.error("Token không hợp lệ:", err);
+                return null;
+            }
+        }
+        return null;
+    }
+
     // Lấy thông tin user mặc định
     async getDefaultUserInfo() {
-        const userId = this.getUserIdFromLocalStorage();  // Lấy userId từ localStorage
+        const userId = this.getUserIdFromToken();
 
         // Kiểm tra nếu không có userId
         if (!userId) {
-            console.error('Không có UserId trong localStorage.');
-            return Promise.reject('Không có UserId');
+            console.error('Không tìm thấy userId trong cookie.');
+            return Promise.reject('Không tìm thấy userId');
         }
 
         try {
-            const response = await axios.get(`${API_BASE_URL}/default-user-info`, {
-                headers: {
-                    ...this.getAuthHeader(),
-                    'UserId': userId  // Thêm UserId vào header
-                }
-            });
-            return response.data;  // Trả về dữ liệu từ server
+            const response = await axios.get(`${API_BASE_URL}/${userId}/default-info`);
+            return response.data;
         } catch (error) {
             this.handleError(error, 'Có lỗi khi lấy thông tin người dùng mặc định');
             return null;
@@ -30,44 +42,20 @@ class UserAddressService {
 
     // Lấy danh sách địa chỉ của người dùng
     async getAllAddresses() {
-        const userId = this.getUserIdFromLocalStorage();  // Lấy userId từ localStorage
-
+        const userId = this.getUserIdFromToken();
         // Kiểm tra nếu không có userId
         if (!userId) {
-            console.error('Không có UserId trong localStorage.');
-            return Promise.reject('Không có UserId');
+            console.error('Không tìm thấy userId trong cookie.');
+            return Promise.reject('Không tìm thấy userId');
         }
 
         try {
-            const response = await axios.get(`${API_BASE_URL}/addresses`, {
-                headers: {
-                    ...this.getAuthHeader(),
-                    'UserId': userId  // Thêm UserId vào header
-                }
-            });
-            return response.data;  // Trả về dữ liệu từ server
+            const response = await axios.get(`${API_BASE_URL}/${userId}/addresses`)
+            return response.data;
         } catch (error) {
             this.handleError(error, 'Có lỗi khi lấy danh sách địa chỉ');
-            return [];  // Trả về mảng rỗng nếu có lỗi
+            return [];
         }
-    }
-
-    // Lấy token từ localStorage và thêm vào header Authorization
-    getAuthHeader() {
-        const token = localStorage.getItem('token');  // Token lưu trong localStorage
-        if (token) {
-            return { 'Authorization': `Bearer ${token}` };
-        }
-        return {};
-    }
-
-    // Lấy UserId từ localStorage
-    getUserIdFromLocalStorage() {
-        const userId = localStorage.getItem('UserId');  // Lấy UserId từ localStorage
-        if (userId) {
-            return JSON.parse(userId);  // Parse lại từ chuỗi JSON nếu lưu trữ dưới dạng chuỗi
-        }
-        return null;
     }
 
     // Hàm xử lý lỗi chung
@@ -91,9 +79,8 @@ class UserAddressService {
 
     // Hàm xử lý đăng nhập lại khi token không hợp lệ
     handleLogout() {
-        localStorage.removeItem('token');  // Xóa token khỏi localStorage
-        localStorage.removeItem('UserId'); // Xóa thông tin người dùng nếu cần
-        window.location.href = '/loginn';  // Chuyển hướng về trang đăng nhập
+        Cookies.remove("jwtToken"); // Xóa jwtToken khỏi cookie
+        window.location.href = '/loginn'; // Chuyển hướng về trang đăng nhập
     }
 }
 

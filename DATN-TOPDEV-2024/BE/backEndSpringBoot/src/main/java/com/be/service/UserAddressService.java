@@ -23,30 +23,46 @@ public class UserAddressService {
     // Hàm để lấy thông tin user mặc định (fullName, phone và fullAddress)
     public Optional<UserInfoDTO> getDefaultUserInfo(Long userId) {
         if (userId == null || userId <= 0) {
-            return Optional.empty();
+            return Optional.of(new UserInfoDTO());
         }
 
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new UserInfoDTO());
         }
 
         User user = userOptional.get();
         Optional<Address> addressOptional = addressRepository.findByUserIdAndDefaultsTrue(userId);
         if (addressOptional.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new UserInfoDTO(
+                    user.getFullName(),
+                    null,
+                    null,
+                    null,
+                    user.getEmail(),
+                    null,
+                    null,
+                    null
+            ));
         }
 
         Address address = addressOptional.get();
-        UserInfoDTO userInfoDTO = new UserInfoDTO(user.getFullName(), address.getPhone(), address.getFullAddress(),address.getIdAddress(),user.getEmail(),address.getWard(),address.getDistrict(),address.getProvince());
-
-        return Optional.of(userInfoDTO);
+        return Optional.of(new UserInfoDTO(
+                user.getFullName(),
+                address.getPhone(),
+                address.getFullAddress(),
+                address.getIdAddress(),
+                user.getEmail(),
+                address.getWard(),
+                address.getDistrict(),
+                address.getProvince()
+        ));
     }
 
     // Phương thức để lấy tất cả địa chỉ của người dùng
     public List<Address> getAllAddresses(Long userId) {
         if (userId == null || userId <= 0) {
-            return List.of(); // Trả về danh sách rỗng nếu userId không hợp lệ
+            return List.of();
         }
 
         // Tìm tất cả các địa chỉ của người dùng theo userId

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import UserAddressService from '../../services/UserAddressService';
 import { FaCogs } from 'react-icons/fa';
 import DataTable from 'react-data-table-component';
-import { Link } from 'react-router-dom';
 import ProvinceSelect from "../account/ProvinceSelect";
+import Cookies from "js-cookie";
 
 const BillingInfo = ({ setUserInfo, userInfo, setShippingFee, fetchShippingFee }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,9 +34,9 @@ const BillingInfo = ({ setUserInfo, userInfo, setShippingFee, fetchShippingFee }
     };
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+
+        const token = Cookies.get("jwtToken");
         if (!token) {
-            console.log("Token không tồn tại hoặc đã hết hạn");
             window.location.href = '/loginn';
         } else {
             UserAddressService.getDefaultUserInfo()
@@ -141,7 +141,7 @@ const BillingInfo = ({ setUserInfo, userInfo, setShippingFee, fetchShippingFee }
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-4xl">
+                    <div className="bg-white p-6 rounded-md shadow-lg w-full max-w-5xl">
                         <h3 className="text-xl font-semibold mb-4">Tất cả Địa Chỉ</h3>
                         <ProvinceSelect />
                         <DataTable

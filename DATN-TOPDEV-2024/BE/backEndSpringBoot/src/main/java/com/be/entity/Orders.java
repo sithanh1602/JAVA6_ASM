@@ -47,7 +47,7 @@
         private String phone;
 
         @Column(name = "trans_id")
-        private String trans_id;
+        private String trans_id;    
 
         @Column(name = "return_order")
         private boolean return_order;

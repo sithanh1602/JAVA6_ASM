@@ -382,7 +382,7 @@ const AdminOrderManagement = () => {
             name: 'Tổng tiền',
             selector: row => `${row.totalPrice.toLocaleString()} VND`,
             sortable: true,
-            right: true,
+            textAlign: 'right', // Căn chỉnh sang phải
             center: true,
             width: '220px',
             style: {
@@ -529,24 +529,24 @@ const AdminOrderManagement = () => {
             {/* Replace the ProductList grid with a table */}
             <ProductTable>
                 <thead>
-                <tr>
-                    <TableHeader>Hình ảnh</TableHeader>
-                    <TableHeader>Tên sản phẩm</TableHeader>
-                    <TableHeader>Số lượng</TableHeader>
-                    <TableHeader>Giá</TableHeader>
-                </tr>
+                    <tr>
+                        <TableHeader>Hình ảnh</TableHeader>
+                        <TableHeader>Tên sản phẩm</TableHeader>
+                        <TableHeader>Số lượng</TableHeader>
+                        <TableHeader>Giá</TableHeader>
+                    </tr>
                 </thead>
                 <tbody>
-                {data.products && data.products.map((product, index) => (
-                    <tr key={index}>
-                        <TableCell>
-                            <ProductImage src={product.imageUrl} alt={product.name} />
-                        </TableCell>
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>{product.quantity}</TableCell>
-                        <TableCell>{product.price.toLocaleString()} VNĐ</TableCell>
-                    </tr>
-                ))}
+                    {data.products && data.products.map((product, index) => (
+                        <tr key={index}>
+                            <TableCell>
+                                <ProductImage src={product.imageUrl} alt={product.name} />
+                            </TableCell>
+                            <TableCell>{product.name}</TableCell>
+                            <TableCell>{product.quantity}</TableCell>
+                            <TableCell>{product.price.toLocaleString()} VNĐ</TableCell>
+                        </tr>
+                    ))}
                 </tbody>
             </ProductTable>
             <h3 className="text-lg font-bold mt-4">Quá trình xử lý:</h3>
@@ -554,13 +554,13 @@ const AdminOrderManagement = () => {
                 {tabs.filter(tab => tab.status !== null).map(tab => (
                     <ProgressStep key={tab.status}>
                         <ProgressIcon active={data.status >= tab.status}>
-                            {tab.status === 1 && <FaClipboardList/>}
-                            {tab.status === 2 && <FaDollarSign/>}
-                            {tab.status === 3 && <FaDollarSign/>}
-                            {tab.status === 4 && <FaCheckCircle/>}
-                            {tab.status === 5 && <FaShippingFast/>}
-                            {tab.status === 6 && <FaBoxOpen/>}
-                            {tab.status === 7 && <FaTimesCircle/>}
+                            {tab.status === 1 && <FaClipboardList />}
+                            {tab.status === 2 && <FaDollarSign />}
+                            {tab.status === 3 && <FaDollarSign />}
+                            {tab.status === 4 && <FaCheckCircle />}
+                            {tab.status === 5 && <FaShippingFast />}
+                            {tab.status === 6 && <FaBoxOpen />}
+                            {tab.status === 7 && <FaTimesCircle />}
                         </ProgressIcon>
                         <ProgressLabel active={data.status >= tab.status}>{tab.label}</ProgressLabel>
                     </ProgressStep>

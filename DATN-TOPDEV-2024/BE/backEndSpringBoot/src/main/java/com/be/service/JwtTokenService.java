@@ -22,7 +22,11 @@ public class JwtTokenService {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenService.class);
     @Value("${jwt.secret}")
     private String SIGNER_KEY;
+    @Value("${jwt.refresh}")
+    private String SIGNER_KEY_REFRESH;
+
     private final long expirationTime = 1000 * 60 * 60 * 11; // 11 hours
+    private final long refreshTokenExpirationTime = 1000 * 60 * 60 * 24 * 7; // 7 ngày
 
 
     public String generateToken(User user, List<String> roles) {
@@ -57,6 +61,51 @@ public class JwtTokenService {
         }
     }
 
+
+    public String generateRefreshToken(User user) {
+        try {
+            JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS512)
+                    .type(JOSEObjectType.JWT)
+                    .build();
+
+            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                    .subject(user.getUserName())
+                    .issueTime(new Date())
+                    .expirationTime(new Date(Instant.now().plus(refreshTokenExpirationTime, ChronoUnit.MILLIS).toEpochMilli()))
+                    .build();
+
+            Payload payload = new Payload(claimsSet.toJSONObject());
+            JWSObject jwsObject = new JWSObject(header, payload);
+
+            jwsObject.sign(new MACSigner(SIGNER_KEY_REFRESH.getBytes(StandardCharsets.UTF_8)));
+
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            logger.error("Failed to generate refresh token for user {}: {}", user.getUserName(), e.getMessage());
+            throw new RuntimeException("Failed to generate refresh token", e);
+        }
+    }
+
+    // Validate Refresh Token
+    public String validateRefreshToken(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            if (!signedJWT.verify(new MACVerifier(SIGNER_KEY_REFRESH.getBytes(StandardCharsets.UTF_8)))) {
+                throw new RuntimeException("Invalid refresh token signature");
+            }
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+            Date expiration = claims.getExpirationTime();
+            if (expiration != null && expiration.before(new Date())) {
+                throw new RuntimeException("Refresh token expired");
+            }
+            return claims.getSubject();
+        } catch (Exception e) {
+            logger.warn("Failed to validate refresh token: {}", e.getMessage());
+            throw new RuntimeException("Invalid or expired refresh token", e);
+        }
+    }
+
+    // Các phương thức hiện có
     public JWTClaimsSet extractClaims(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
@@ -100,4 +149,5 @@ public class JwtTokenService {
             return false;
         }
     }
+
 }

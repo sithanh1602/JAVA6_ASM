@@ -59,7 +59,7 @@ const ComponentSelectionModal = ({
   const handleCPUSelect = (id) => {
     const selectedProduct = products.find((product) => product.id === id);
     if (selectedProduct) {
-      console.log("Selected CPU:", selectedProduct);
+      console.log("Selected CPUaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:", selectedProduct);
       onSelectComponent(selectedProduct); // Truyền toàn bộ sản phẩm
     }
   };

@@ -157,7 +157,7 @@ const ProductDetail = () => {
   };
 
   const getUserIdFromToken = () => {
-    const token = Cookies.get("token"); // Lấy token từ cookie
+    const token = Cookies.get("jwtToken");
     if (token) {
       try {
         const decodedToken = jwtDecode(token); // Giải mã token

@@ -25,6 +25,8 @@ import Cookies from "js-cookie";
 import UserService from "../../services/UserService";
 import { useTheme } from "../../views/ThemeContext";
 import "aos/dist/aos.css";
+import {jwtDecode} from "jwt-decode";
+import axios from "axios";
 
 const VerticalMenu = ({ isOpen, toggleMenu }) => {
   const [openSubMenus, setOpenSubMenus] = useState({});
@@ -118,7 +120,18 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
   ];
 
   useEffect(() => {
-    const userId = JSON.parse(localStorage.getItem("UserId"));
+    const token = Cookies.get("jwtToken");
+    let userId = null;
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        userId = decodedToken.userId;
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+
     if (userId) {
       UserService.getUserById(userId)
         .then((data) => {
@@ -141,32 +154,23 @@ const VerticalMenu = ({ isOpen, toggleMenu }) => {
     setOpenSubMenus((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
-  const handleLogout = () => {
-    Swal.fire({
-      title: "Xác nhận đăng xuất",
-      text: "Bạn có chắc chắn muốn đăng xuất không?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Đăng xuất",
-      cancelButtonText: "Hủy",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("UserId");
-        localStorage.removeItem("roles");
-        sessionStorage.removeItem("token");
-        Cookies.remove("token");
-        toast.success("Đăng xuất thành công!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        navigate("/loginn");
-      }
-    });
-  };
+  const handleLogout = async () => {
 
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/logout');
+      console.log('Logout response:', response.data);
+
+      // Xóa cookie jwtToken trên frontend
+      Cookies.remove('jwtToken');
+      Cookies.remove('refreshToken');
+
+      // Chuyển hướng về trang đăng nhập
+      navigate('/loginn');
+      window.location.reload();
+    } catch (err) {
+      console.error('Logout error:', err.message);
+    }
+  };
   const handleMenuClick = (action) => {
     if (action === "logout") handleLogout();
   };

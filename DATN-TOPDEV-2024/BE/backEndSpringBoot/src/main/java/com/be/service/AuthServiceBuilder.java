@@ -69,7 +69,5 @@ public class AuthServiceBuilder {
         return this;
     }
 
-    public AuthService createAuthService() {
-        return new AuthService(authenticationManager, userDetailsService, userRepository, jwtTokenService, emailValidationService, passwordEncoder, otpService, emailService, roleRepository, verifier);
-    }
+
 }

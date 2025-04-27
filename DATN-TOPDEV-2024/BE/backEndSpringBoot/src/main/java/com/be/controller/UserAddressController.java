@@ -6,6 +6,8 @@ import com.be.entity.Address;      // Import đối tượng Address nếu cần
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,51 +20,28 @@ public class UserAddressController {
     @Autowired
     private UserAddressService userAddressService;
 
-    // API để lấy thông tin user mặc định (fullName, phone, fullAddress) theo userId
-    @GetMapping("/default-user-info")
-    public ResponseEntity<?> getDefaultUserInfo(@RequestHeader Long userId) {
+    @GetMapping("/{userId}/default-info")
+    public ResponseEntity<?> getDefaultUserInfo(@PathVariable Long userId) {
         try {
-            // Kiểm tra xem userId có hợp lệ không
-            if (userId == null || userId <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ErrorResponse("UserId không hợp lệ"));
-            }
-
-            // Lấy thông tin người dùng từ service
             Optional<UserInfoDTO> userInfo = userAddressService.getDefaultUserInfo(userId);
-
-            if (userInfo.isPresent()) {
-                return ResponseEntity.ok(userInfo.get());  // Trả về thông tin người dùng nếu có
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ErrorResponse("Không tìm thấy thông tin người dùng hoặc địa chỉ mặc định"));
-            }
+            return ResponseEntity.ok(userInfo.orElse(new UserInfoDTO()));
         } catch (Exception e) {
-            // Xử lý trường hợp lỗi
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Đã xảy ra lỗi khi lấy thông tin người dùng: " + e.getMessage()));
         }
     }
 
     // API để lấy danh sách địa chỉ của người dùng
-    @GetMapping("/addresses")
-    public ResponseEntity<?> getAllAddresses(@RequestHeader Long userId) {
+    @GetMapping("/{userId}/addresses")
+    public ResponseEntity<?> getAllAddresses(@PathVariable Long userId) {
         try {
-            // Kiểm tra xem userId có hợp lệ không
-            if (userId == null || userId <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ErrorResponse("UserId không hợp lệ"));
-            }
-
-            // Lấy danh sách địa chỉ của người dùng từ service
             List<Address> addresses = userAddressService.getAllAddresses(userId);
-
             if (addresses.isEmpty()) {
-                return ResponseEntity.noContent().build();  // Trả về mã 204 nếu không có địa chỉ
+                return ResponseEntity.noContent().build();
             }
-            return ResponseEntity.ok(addresses);  // Trả về danh sách địa chỉ
+            return ResponseEntity.ok(addresses);
         } catch (Exception e) {
-            // Xử lý lỗi khi lấy địa chỉ
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Không thể lấy danh sách địa chỉ người dùng: " + e.getMessage()));
         }
