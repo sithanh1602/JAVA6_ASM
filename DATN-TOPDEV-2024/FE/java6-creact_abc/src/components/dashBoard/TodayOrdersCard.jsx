@@ -105,7 +105,7 @@ function TodayOrderCount() {
     return (
         <div className="relative w-64">
             <div
-                className={`bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg shadow-md border border-blue-200 hover:shadow-lg transition-all duration-300 cursor-pointer ${showOrders ? 'border-blue-400' : ''}`}
+                className={`bg-gradient-to-r from-blue-50 to-blue-100 p-4 border border-blue-200 hover:shadow-lg transition-all duration-300 cursor-pointer ${showOrders ? 'border-blue-400' : ''}`}
                 onClick={handleToggle}
             >
                 <div className="flex items-center justify-between mb-2">
@@ -146,7 +146,7 @@ function TodayOrderCount() {
             </div>
 
             <div
-                className={`absolute top-full left-0 mt-1 bg-white border border-gray-200 shadow-lg rounded-lg z-20 text-left overflow-hidden transition-all duration-300 ${showOrders ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}
+                className={`absolute top-full left-0 mt-1 bg-white border border-gray-200 shadow-lg z-20 text-left overflow-hidden transition-all duration-300 ${showOrders ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}
             >
                 <div className="p-3">
                     <div className="sticky top-0 bg-white pb-2">

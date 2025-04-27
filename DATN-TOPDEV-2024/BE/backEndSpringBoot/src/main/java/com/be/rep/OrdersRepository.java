@@ -62,6 +62,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     Optional<Orders> findByOrderNum(String orderNum);
 
 
+    // query cho dashboard
     @Query("SELECT COUNT(o) FROM Orders o WHERE CAST(o.orderDate AS date) = CURRENT_DATE")
     long countOrdersToday();
 
@@ -78,5 +79,19 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     BigDecimal getTotalRevenueOfCompletedOrders();
 
     List<Orders> findByStatusAndOrderDateBetween(Integer status, Date fromDate, Date toDate);
+
+    @Query(value = """
+    SELECT TOP 5 
+        p.name AS productName, 
+        p.image_url AS imageUrl,
+        SUM(od.quantity) AS totalQuantitySold
+    FROM order_detail od
+    JOIN product_variants pv ON od.product_variant_id = pv.id
+    JOIN products p ON pv.product_id = p.id
+    GROUP BY p.name, p.image_url
+    ORDER BY totalQuantitySold DESC
+    """, nativeQuery = true)
+    List<Object[]> findTop3BestSellingProducts();
+
 }
 

@@ -378,6 +378,8 @@ const AdminPCBuilder = ({
         categories={categories}
         onSelectComponent={handleComponentSelect}
         selectedid={selectedComponents[selectedCategory]?.id}
+        isAdmin={true} // Đặt isAdmin=true để ẩn nút tư vấn AI
+        selectedComponents={selectedComponents}
       />
     </div>
   );

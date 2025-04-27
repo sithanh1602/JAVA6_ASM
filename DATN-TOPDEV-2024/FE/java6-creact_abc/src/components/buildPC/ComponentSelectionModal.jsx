@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Input,
   Button,
@@ -8,16 +7,15 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Select,
-  SelectItem,
   Card,
   CardBody,
   Image,
   Pagination,
-  Chip,
+  Spinner,
 } from "@nextui-org/react";
 import { FaSearch } from "react-icons/fa";
-import ProductVariantService from "../../services/ProductVariantService"; 
+import ProductVariantService from "../../services/ProductVariantService";
+import AIRecommendationService from "../../services/AIRecommendationService";
 
 const ComponentSelectionModal = ({
   isOpen,
@@ -25,19 +23,31 @@ const ComponentSelectionModal = ({
   selectedCategory,
   categories,
   onSelectComponent,
+  selectedComponents,
+  isAdmin, // Nhận prop isAdmin để xác định quyền truy cập
 }) => {
   const [products, setProducts] = useState([]);
-  const [selectedCPU, setSelectedCPU] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState("bestseller");
+  const [sortOption, setSortOption] = useState("priceAsc");
   const selectedCategoryObj = categories?.find(
     (c) => c.id === selectedCategory
   );
 
+  // State cho AI recommendations
+  const [aiRecommendations, setAiRecommendations] = useState(null);
+  const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [showAIRecommendations, setShowAIRecommendations] = useState(false);
+
+  // Số sản phẩm mỗi trang
+  const itemsPerPage = 3;
+
   useEffect(() => {
     if (selectedCategory && isOpen) {
       fetchProductVariants(selectedCategory);
+      // Reset AI recommendations khi mở modal mới
+      setAiRecommendations(null);
+      setShowAIRecommendations(false);
     }
   }, [selectedCategory, isOpen]);
 
@@ -51,6 +61,8 @@ const ComponentSelectionModal = ({
         (product) => product.status !== "Unavailable"
       );
       setProducts(filteredProducts);
+      // Reset về trang 1 khi load sản phẩm mới
+      setCurrentPage(1);
     } catch (error) {
       setProducts([]);
     }
@@ -59,8 +71,8 @@ const ComponentSelectionModal = ({
   const handleCPUSelect = (id) => {
     const selectedProduct = products.find((product) => product.id === id);
     if (selectedProduct) {
-      console.log("Selected CPU:", selectedProduct);
-      onSelectComponent(selectedProduct); // Truyền toàn bộ sản phẩm
+      console.log("Selected product:", selectedProduct);
+      onSelectComponent(selectedProduct);
     }
   };
 
@@ -70,36 +82,142 @@ const ComponentSelectionModal = ({
 
   const handleSearch = (value) => {
     setSearchTerm(value);
+    setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
   };
 
+  // Lọc sản phẩm theo từ khóa tìm kiếm
   const filteredProducts = products.filter((product) =>
     product.nameVariants?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Filter selectors data
-  const filterOptions = {
-    brands: ["Tất cả", "Intel", "AMD", "NVIDIA"],
-    cpuBrands: ["Tất cả", "Intel", "AMD"],
-    needs: ["Tất cả", "Gaming", "Văn phòng", "Đồ họa"],
-    cpuSeries: [
-      "Tất cả",
-      "Core i3",
-      "Core i5",
-      "Core i7",
-      "Core i9",
-      "Ryzen 3",
-      "Ryzen 5",
-      "Ryzen 7",
-      "Ryzen 9",
-    ],
-    generations: ["Tất cả", "Gen 10", "Gen 11", "Gen 12", "Gen 13", "Gen 14"],
-    cores: ["Tất cả", "2", "4", "6", "8", "10", "12", "16"],
+  // Sắp xếp sản phẩm theo giá
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    const priceA =
+      a.discountPrice && a.discountPrice > 0 ? a.discountPrice : a.price;
+    const priceB =
+      b.discountPrice && b.discountPrice > 0 ? b.discountPrice : b.price;
+
+    if (sortOption === "priceAsc") {
+      return priceA - priceB;
+    } else if (sortOption === "priceDesc") {
+      return priceB - priceA;
+    }
+    return 0;
+  });
+
+  // Tính toán số trang
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+
+  // Lấy sản phẩm cho trang hiện tại
+  const currentProducts = sortedProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Xử lý thay đổi trang
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Hàm xử lý tư vấn AI
+  const handleAIConsultation = async () => {
+    setIsLoadingAI(true);
+    setShowAIRecommendations(true);
+
+    try {
+      // Lấy cấu hình hiện tại từ localStorage
+      const savedConfigurations = localStorage.getItem("pcConfigurations");
+      let currentBuild = {};
+
+      if (savedConfigurations) {
+        const configurations = JSON.parse(savedConfigurations);
+        // Tìm cấu hình đang active
+        const currentConfigIndex =
+          localStorage.getItem("currentConfigIndex") || 0;
+        currentBuild = configurations[currentConfigIndex]?.components || {};
+      }
+
+      // Kiểm tra nếu cấu hình hiện tại trống rỗng
+      if (Object.keys(currentBuild).length === 0) {
+        setAiRecommendations({
+          status: "error",
+          recommendations: [],
+          errorMessage:
+            "Bạn chưa chọn bất kỳ linh kiện nào cho cấu hình PC. Vui lòng chọn ít nhất một linh kiện trước khi dùng tư vấn AI.",
+        });
+        setIsLoadingAI(false);
+        return;
+      }
+
+      // Kiểm tra nếu không có sản phẩm nào trong modal
+      if (products.length === 0) {
+        setAiRecommendations({
+          status: "error",
+          recommendations: [],
+          errorMessage: `Không có sản phẩm ${
+            selectedCategoryObj?.name || ""
+          } nào trong danh mục này để gợi ý.`,
+        });
+        setIsLoadingAI(false);
+        return;
+      }
+
+      // Chuẩn bị dữ liệu để gửi đến AI
+      const targetCategoryName = selectedCategoryObj?.name || "Unknown";
+
+      console.log("Current build from localStorage:", currentBuild);
+      console.log("Available products in modal:", products.length);
+
+      // Tạo metadata chứa thông tin category để gửi cho AI
+      const metadata = {
+        targetCategory: {
+          id: selectedCategory,
+          name: targetCategoryName,
+        },
+      };
+
+      // Chọn linh kiện đã có trong cấu hình để làm tham chiếu
+      const referenceComponent = Object.values(currentBuild)[0];
+
+      // Gọi API AI với sản phẩm tham chiếu, cấu hình hiện tại, metadata và danh sách sản phẩm trong modal
+      const response = await AIRecommendationService.getCompatibleComponents(
+        referenceComponent,
+        currentBuild,
+        metadata,
+        products // Truyền toàn bộ danh sách sản phẩm trong modal
+      );
+
+      setAiRecommendations(response);
+    } catch (error) {
+      console.error("Lỗi khi lấy gợi ý từ AI:", error);
+      setAiRecommendations({
+        status: "error",
+        recommendations: [],
+        errorMessage:
+          "Đã xảy ra lỗi khi lấy gợi ý từ AI. Vui lòng thử lại sau.",
+      });
+    } finally {
+      setIsLoadingAI(false);
+    }
+  };
+
+  // Thêm hàm xử lý khi bấm vào sản phẩm gợi ý
+  const handleRecommendationClick = (nameVariants) => {
+    console.log("Selected recommended product:", nameVariants);
+    setSearchTerm(nameVariants);
+    setCurrentPage(1);
+  };
+
+  // Hàm reset searchTerm khi đóng modal
+  const handleCloseModal = () => {
+    setSearchTerm(""); // Xóa text đã nhập vào ô tìm kiếm
+    onClose(); // Gọi hàm đóng modal được truyền từ props
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleCloseModal} // Thay thế onClose bằng handleCloseModal
       size="4xl"
       scrollBehavior="inside"
       classNames={{
@@ -108,103 +226,143 @@ const ComponentSelectionModal = ({
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex justify-between items-center">
+        <ModalHeader className="flex justify-between items-center pr-12">
           <div>Bộ lọc</div>
+          {!isAdmin && (
+            <Button
+              color="secondary"
+              size="sm"
+              className="rounded-none"
+              onClick={handleAIConsultation}
+              isLoading={isLoadingAI}
+              endContent={
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 4V20M20 12H4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              }
+            >
+              Tư vấn AI
+            </Button>
+          )}
         </ModalHeader>
-        <ModalBody>
-          {/* Filter dropdowns */}
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <Select
-              label="Thương hiệu"
-              variant="bordered"
-              className="rounded-none"
-              size="sm"
-            >
-              {filterOptions.brands.map((brand) => (
-                <SelectItem key={brand} value={brand}>
-                  {brand}
-                </SelectItem>
-              ))}
-            </Select>
 
-            <Select
-              label="Thương hiệu CPU"
-              variant="bordered"
-              className="rounded-none"
-              size="sm"
-            >
-              {filterOptions.cpuBrands.map((brand) => (
-                <SelectItem key={brand} value={brand}>
-                  {brand}
-                </SelectItem>
-              ))}
-            </Select>
+        {/* Hiển thị AI Recommendations Panel ở ngoài vùng scroll */}
+        {showAIRecommendations && (
+          <div className="px-6 border-b">
+            <Card className="w-full my-3 rounded-none shadow-none border-none">
+              <CardBody className="p-4">
+                {isLoadingAI ? (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <Spinner color="primary" size="lg" />
+                    <p className="mt-4 text-gray-600">
+                      Đang phân tích các lựa chọn phù hợp...
+                    </p>
+                  </div>
+                ) : aiRecommendations ? (
+                  <>
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-medium">Gợi ý từ AI</h3>
+                      <Button
+                        size="sm"
+                        isIconOnly
+                        variant="light"
+                        onClick={() => setShowAIRecommendations(false)}
+                      >
+                        ×
+                      </Button>
+                    </div>
 
-            <Select
-              label="Nhu cầu"
-              variant="bordered"
-              className="rounded-none"
-              size="sm"
-            >
-              {filterOptions.needs.map((need) => (
-                <SelectItem key={need} value={need}>
-                  {need}
-                </SelectItem>
-              ))}
-            </Select>
-
-            <Select
-              label="Series CPU"
-              variant="bordered"
-              className="rounded-none"
-              size="sm"
-            >
-              {filterOptions.cpuSeries.map((series) => (
-                <SelectItem key={series} value={series}>
-                  {series}
-                </SelectItem>
-              ))}
-            </Select>
-
-            <Select
-              label="Thế hệ"
-              variant="bordered"
-              className="rounded-none"
-              size="sm"
-            >
-              {filterOptions.generations.map((gen) => (
-                <SelectItem key={gen} value={gen}>
-                  {gen}
-                </SelectItem>
-              ))}
-            </Select>
-
-            <Select
-              label="Số nhân thực"
-              variant="bordered"
-              className="rounded-none"
-              size="sm"
-            >
-              {filterOptions.cores.map((core) => (
-                <SelectItem key={core} value={core}>
-                  {core}
-                </SelectItem>
-              ))}
-            </Select>
+                    {aiRecommendations.status === "error" ? (
+                      <div className="text-danger">
+                        {aiRecommendations.errorMessage ||
+                          "Đã xảy ra lỗi khi lấy gợi ý."}
+                      </div>
+                    ) : aiRecommendations.recommendations &&
+                      aiRecommendations.recommendations.length > 0 ? (
+                      <div>
+                        <p className="mb-3 text-sm text-gray-700">
+                          Dựa trên cấu hình hiện tại của bạn, đây là những{" "}
+                          {selectedCategoryObj?.name || "linh kiện"} phù hợp
+                          nhất:
+                        </p>
+                        <p className="mb-3 text-sm text-gray-700">
+                          Lưu ý: Đây chỉ là gợi ý của AI dựa trên các sản phẩm
+                          có sẵn. Để có tư vấn chính xác và phù hợp nhất với nhu
+                          cầu của bạn, vui lòng liên hệ với chúng tôi trực tiếp
+                          tại (+84) 0313-728-397.
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {aiRecommendations.recommendations.map(
+                            (item, index) => (
+                              <div
+                                key={index}
+                                className="cursor-pointer"
+                                onClick={() => {
+                                  console.log(
+                                    "Card wrapper clicked, nameVariants:",
+                                    item.nameVariants
+                                  );
+                                  handleRecommendationClick(item.nameVariants);
+                                }}
+                              >
+                                <Card className="rounded-none">
+                                  <CardBody className="p-3">
+                                    <div className="flex flex-col items-center">
+                                      <div className="w-16 h-16 mb-2">
+                                        <img
+                                          src={
+                                            item.imageUrl ||
+                                            "/api/placeholder/80/80"
+                                          }
+                                          alt={item.nameVariants || "Product"}
+                                          className="object-contain w-full h-full"
+                                        />
+                                      </div>
+                                      <p className="text-sm font-medium text-center">
+                                        {item.nameVariants || "Unknown Product"}
+                                      </p>
+                                      <p className="text-primary text-sm">
+                                        {new Intl.NumberFormat("vi-VN").format(
+                                          item.price || 0
+                                        )}{" "}
+                                        VND
+                                      </p>
+                                    </div>
+                                  </CardBody>
+                                </Card>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <p>Không tìm được gợi ý phù hợp. Vui lòng thử lại sau.</p>
+                    )}
+                  </>
+                ) : (
+                  <p>Không thể tải gợi ý. Vui lòng thử lại.</p>
+                )}
+              </CardBody>
+            </Card>
           </div>
+        )}
 
+        <ModalBody>
           {/* Sort buttons and search */}
           <div className="mb-4 flex items-center flex-wrap gap-2">
             <span className="text-sm">Sắp xếp theo</span>
-            <Button
-              size="sm"
-              className="rounded-none"
-              color={sortOption === "bestseller" ? "primary" : "default"}
-              variant={sortOption === "bestseller" ? "solid" : "bordered"}
-              onClick={() => setSortOption("bestseller")}
-            >
-              Bán chạy
-            </Button>
             <Button
               size="sm"
               className="rounded-none"
@@ -228,7 +386,7 @@ const ComponentSelectionModal = ({
                 size="sm"
                 placeholder="Tìm linh kiện"
                 value={searchTerm}
-                onValueChange={handleSearch}
+                onChange={(e) => handleSearch(e.target.value)}
                 startContent={<FaSearch size={18} />}
                 className="rounded-none w-full min-w-64"
               />
@@ -245,8 +403,8 @@ const ComponentSelectionModal = ({
                 </p>
                 <p>Vui lòng thử lại sau hoặc chọn danh mục khác.</p>
               </div>
-            ) : filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
+            ) : currentProducts.length > 0 ? (
+              currentProducts.map((product) => (
                 <Card
                   key={product.id}
                   className="rounded-none shadow-none border"
@@ -310,17 +468,22 @@ const ComponentSelectionModal = ({
             )}
           </div>
         </ModalBody>
+
         <ModalFooter>
           {/* Pagination */}
-          <div className="flex justify-center mt-4">
-            <Pagination
-              total={1}
-              initialPage={1}
-              showControls
-              classNames={{
-                item: "rounded-none",
-              }}
-            />
+          <div className="flex justify-center w-full mt-4">
+            {totalPages > 1 && (
+              <Pagination
+                total={totalPages}
+                initialPage={1}
+                page={currentPage}
+                onChange={handlePageChange}
+                showControls
+                classNames={{
+                  item: "rounded-none",
+                }}
+              />
+            )}
           </div>
         </ModalFooter>
       </ModalContent>

@@ -35,6 +35,7 @@ const OrderList = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('VNPay');
   const [paymentOrderId, setPaymentOrderId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
   const [filters, setFilters] = useState({
     newest: true,
     paid: false,
@@ -251,6 +252,55 @@ const OrderList = () => {
     return `${hours}h ${minutes}m`;
   };
 
+  const handleSwitchPaymentMethod = async (orderId, currentPaymentStatus) => {
+    const result = await Swal.fire({
+      title: 'Bạn có chắc chắn?',
+      text: `Bạn muốn chuyển sang thanh toán ${currentPaymentStatus ? 'COD' : 'online'}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Hiển thị thông báo đang xử lý
+        Swal.fire({
+          title: "Đang xử lý...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        // Gọi API cập nhật phương thức thanh toán
+        const updatedOrder = await OrderService.updatePaymentStatus(orderId, !currentPaymentStatus);
+
+        // Kiểm tra kết quả trả về từ API
+        console.log("Cập nhật đơn hàng:", updatedOrder); // Log thông tin phản hồi từ API
+
+        // Kiểm tra xem API có trả về message 'Cập nhật phương thức thanh toán thành công' không
+        if (updatedOrder && updatedOrder.message === 'Cập nhật phương thức thanh toán thành công') {
+          // Hiển thị thông báo thành công
+          Swal.fire(
+              'Thành công!',
+              `Phương thức thanh toán đã được chuyển sang ${!currentPaymentStatus ? 'online' : 'COD'}.`,
+              'success'
+          );
+        } else {
+          // Nếu không có message thành công, log và hiển thị thông báo lỗi
+          console.error("API trả về lỗi:", updatedOrder);
+          throw new Error('Không thể cập nhật phương thức thanh toán');
+        }
+      } catch (err) {
+        console.error("Lỗi khi chuyển phương thức thanh toán:", err);
+        Swal.fire('Lỗi!', 'Không thể cập nhật phương thức thanh toán.', 'error');
+      }
+    }
+  };
+
+
+
   const orderColumns = [
     {
       name: 'Mã Đơn Hàng',
@@ -301,21 +351,43 @@ const OrderList = () => {
       name: 'Hành Động',
       cell: row => (
           <div className="flex gap-2">
+            {/* Thanh toán */}
             {row.paymentStatus && (row.status === 1 || row.status === 2) && (
-                <Button size="sm" color="success" className="rounded-none" onClick={() => openPaymentModal(row.id)}>
+                <Button
+                    size="sm"
+                    color="success"
+                    className="rounded-none"
+                    onClick={() => openPaymentModal(row.id)}
+                >
                   Thanh toán
                 </Button>
             )}
+
+            {/* Hủy đơn */}
             {[1, 2, 3].includes(row.status) && (
-                <Button size="sm" color="danger" className="rounded-none" onClick={() => handleCancelOrder(row.id)}>
+                <Button
+                    size="sm"
+                    color="danger"
+                    className="rounded-none"
+                    onClick={() => handleCancelOrder(row.id)}
+                >
                   Hủy
                 </Button>
             )}
+
+            {/* Đã nhận hàng */}
             {row.status === 6 && (
-                <Button size="sm" color="secondary" className="rounded-none" onClick={() => handleConfirmReceived(row.id)}>
+                <Button
+                    size="sm"
+                    color="secondary"
+                    className="rounded-none"
+                    onClick={() => handleConfirmReceived(row.id)}
+                >
                   Đã nhận hàng
                 </Button>
             )}
+
+            {/* Đánh giá */}
             {row.status === 8 && (
                 <ReviewComponent
                     orderId={row.id}
@@ -323,7 +395,34 @@ const OrderList = () => {
                     onReviewSubmitted={fetchOrders}
                 />
             )}
-            <Button size="sm" color="primary" className="rounded-none" onClick={() => openModal(row)}>
+
+            {/* Nút chuyển phương thức thanh toán chỉ hiển thị nếu phương thức thanh toán chưa đúng trạng thái mong muốn */}
+            {[1, 2, 3].includes(row.status) && (
+                <Button
+                    size="sm"
+                    color="warning"
+                    className="rounded-none"
+                    onClick={async () => {
+                      // Chỉ hiển thị nút khi cần thay đổi trạng thái thanh toán
+                      if (row.paymentStatus === true) {
+                        await handleSwitchPaymentMethod(row.id, row.paymentStatus);  // Chuyển sang COD
+                      } else {
+                        await handleSwitchPaymentMethod(row.id, row.paymentStatus);  // Chuyển sang online
+                      }
+                      fetchOrders(); // Load lại danh sách đơn sau khi update
+                    }}
+                >
+                  {row.paymentStatus ? 'Chuyển sang thanh toán COD' : 'Chuyển sang thanh toán online'}
+                </Button>
+            )}
+
+            {/* Chi tiết đơn hàng */}
+            <Button
+                size="sm"
+                color="primary"
+                className="rounded-none"
+                onClick={() => openModal(row)}
+            >
               Chi tiết
             </Button>
           </div>
@@ -332,6 +431,8 @@ const OrderList = () => {
       right: true
     }
   ];
+
+
 
   const productColumns = [
     { name: 'Ảnh', cell: row => <img src={row.imageUrl} alt={row.name} className="w-12 h-12 object-cover rounded-md" />, width: '80px' },

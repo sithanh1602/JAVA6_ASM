@@ -1,18 +1,18 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import requests
 import google.generativeai as genai
 import os
 
-app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})  # Cho phép CORS cho tất cả domain
+chatbot_app = Blueprint("chatbot_app",__name__)
+CORS(chatbot_app, resources={r"/api/*": {"origins": "*"}})  # Cho phép CORS cho tất cả domain
 
 # Cấu hình API key cho Gemini (thay bằng key thật khi deploy)
 genai.configure(api_key="AIzaSyDhAbhPJg47Q4bwkU3NcbNuoQLwKdN7YvY")
 
 # Khởi tạo mô hình Gemini
-model = genai.GenerativeModel("gemini-2.5-flash-preview-04-17")
+model = genai.GenerativeModel("gemini-2.5-pro-exp-03-25")
 
 # Đường dẫn đến thư mục chứa các file prompt
 PROMPT_DIR = os.path.join(os.path.dirname(__file__), "prompts")
@@ -29,7 +29,7 @@ def load_prompt(file_name, user_question, additional_data=""):
     except FileNotFoundError:
         raise Exception(f"Không tìm thấy file prompt: {file_name}")
 
-@app.route("/api/chat", methods=["POST"])
+@chatbot_app.route("/api/chat", methods=["POST"])
 def chat_with_gemini():
     try:
         user_question = request.json.get("question", "").lower()
@@ -77,10 +77,10 @@ def chat_with_gemini():
                 # Thêm thông tin chi tiết từng build
                 pc_details = "\n## Chi tiết các build PC:\n\n"
                 for i, pc in enumerate(pc_data, 1):
-                    pc_details += f"### {i}. {pc['name']} ({pc['purpose']})\n"
-                    pc_details += f"**Giá:** {int(pc['price']):,} VNĐ\n"
-                    pc_details += f"**Mô tả:** {pc['description']}\n"
-                    pc_details += "**Cấu hình:**\n"
+                    pc_details += f"- {i}. {pc['name']} ({pc['purpose']})\n"
+                    pc_details += f"- Giá: {int(pc['price']):,} VNĐ\n"
+                    pc_details += f"- Mô tả: {pc['description']}\n"
+                    pc_details += "- Cấu hình:\n"
                     
                     for component in pc["components"]:
                         quantity = f" x{component['quantity']}" if component["quantity"] > 1 else ""
@@ -180,14 +180,16 @@ def chat_with_gemini():
             response = requests.get("http://localhost:8080/api/product-variants")
             response.raise_for_status()
             data = response.json()
+            print(f"Dữ liệu sản phẩm: {data}")
 
             df = pd.DataFrame(data)
-            if df.empty or "nameVariants" not in df.columns or "price" not in df.columns:
+            if df.empty or "nameVariants" not in df.columns or "price" not in df.columns  or "productId" not in df.columns:
                 return jsonify({"error": "Dữ liệu sản phẩm không hợp lệ."}), 400
 
-            website_domain = "https://yourwebsite.com"  # Thay bằng tên miền thật
-            df["link"] = df.get("id", pd.Series([None] * len(df))).apply(
-                lambda id: f"{website_domain}/product/{id}" if id else "Không có đường dẫn"
+            website_domain = "http://localhost:3000"  # Thay bằng tên miền thật
+            df["link"] = df.apply(
+                lambda row: f"{website_domain}/products/{row['productId']}/productdetail" if pd.notna(row['productId']) else "Không có đường dẫn",
+                axis=1
             )
             df["image"] = df.get("image", pd.Series(["Không có ảnh"] * len(df)))  # Thêm cột image, mặc định là "Không có ảnh" nếu thiếu
 
@@ -217,6 +219,6 @@ def chat_with_gemini():
     except Exception as e:
         return jsonify({"error": f"Lỗi hệ thống: {str(e)}"}), 500
 
-# Khởi chạy server Flask
-if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+# # Khởi chạy server Flask
+# if __name__ == "__main__":
+#     gemini_app.run(debug=True, port=5001)

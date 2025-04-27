@@ -1,23 +1,23 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 import google.generativeai as genai
 import json
 import traceback
 
 # ===================== CẤU HÌNH FLASK =====================
-app = Flask(__name__)
-CORS(app)  # Cho phép CORS để frontend React gọi API
+gemini_app = Blueprint("gemini_app", __name__) 
+CORS(gemini_app)  # Cho phép CORS để frontend React gọi API
 
 # ===================== CẤU HÌNH GEMINI =====================
 try:
     genai.configure(api_key="AIzaSyDhAbhPJg47Q4bwkU3NcbNuoQLwKdN7YvY")  # GẮN KEY Ở ĐÂY
-    model = genai.GenerativeModel(model_name="gemini-2.5-pro-preview-03-25")  # hoặc "gemini-1.5-pro" nếu có quyền
+    model = genai.GenerativeModel(model_name="gemini-1.5-pro-001")  # hoặc "gemini-1.5-pro" nếu có quyền
 except Exception as e:
     print(f"Lỗi khi cấu hình Gemini AI: {str(e)}")
     model = None
 
 # ===================== ENDPOINT PHÂN TÍCH DOANH THU =====================
-@app.route("/api/analyze-revenue", methods=["POST"])
+@gemini_app.route("/api/analyze-revenue", methods=["POST"])
 def analyze_revenue():
     try:
         data = request.json.get("data")
@@ -35,6 +35,7 @@ def analyze_revenue():
         - Độ biến động (thấp, trung bình, cao).
         - Khuyến nghị chiến lược kinh doanh dựa trên xu hướng và dữ liệu.
         - Khuyến nghị chiến lược kinh doanh dựa trên xu hướng và dữ liệu cho website TMĐT bán linh kiện điện tử build PC.
+        - Đưa ra khuyến nghị ngắn gọn thôi tầm 1-2 câu cho từng mục.
 
         Dữ liệu doanh thu (theo tháng):
         {data}
@@ -80,5 +81,5 @@ def analyze_revenue():
         return jsonify({"error": str(e)}), 500
 
 # ===================== KHỞI ĐỘNG SERVER =====================
-if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+# if __name__ == "__main__":
+#     chatbot_app.run(port=5000, debug=True)
