@@ -230,6 +230,18 @@ const placeOrderWithMomoPreview = async (orderData, userId, orderId) => {
     }
 };
 
+// API cập nhật paymentStatus của đơn hàng
+const updatePaymentStatus = async (orderId, paymentStatus) => {
+    try {
+        const response = await axios.put(`${ORDER_API_URL}/${orderId}/payment-status`, { paymentStatus });
+        console.log('Payment status updated:', response.data); // Debug log
+        return response.data; // Trả về dữ liệu phản hồi từ server
+    } catch (error) {
+        console.error("Lỗi khi cập nhật paymentStatus:", error.response?.data || error.message);
+        handleError(error);
+    }
+};
+
 
 
 // Export các hàm API
@@ -249,4 +261,5 @@ export default {
     checkMomoPaymentStatus,
     refundMomoPayment,// ✅ mới thêm
     placeOrderWithMomoPreview,
+    updatePaymentStatus,
 };

@@ -31,6 +31,26 @@ public class OrderController {
     @Autowired
     protected OrderDetailRepository orderDetailRepository;
 
+    @PutMapping("/{orderId}/payment-status")
+    public ResponseEntity<?> updatePaymentStatus(@PathVariable Long orderId, @RequestBody Map<String, Boolean> request) {
+        try {
+            Boolean paymentStatus = request.get("paymentStatus");
+            if (paymentStatus == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "paymentStatus is required"));
+            }
+
+            Orders updatedOrder = orderService.updatePaymentStatus(orderId, paymentStatus);
+            return ResponseEntity.ok(Map.of("message", "Cập nhật phương thức thanh toán thành công"));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Đã xảy ra lỗi khi cập nhật phương thức thanh toán: " + e.getMessage()));
+        }
+    }
 
     @GetMapping("/all")
     public List<Map<String, Object>> getAllOrders() throws Exception {
