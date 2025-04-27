@@ -12,7 +12,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})  # Cho phép CORS cho tất c
 genai.configure(api_key="AIzaSyDhAbhPJg47Q4bwkU3NcbNuoQLwKdN7YvY")
 
 # Khởi tạo mô hình Gemini
-model = genai.GenerativeModel("gemini-2.5-flash-preview-04-17")
+model = genai.GenerativeModel("gemini-2.5-pro-exp-03-25")
 
 # Đường dẫn đến thư mục chứa các file prompt
 PROMPT_DIR = os.path.join(os.path.dirname(__file__), "prompts")
