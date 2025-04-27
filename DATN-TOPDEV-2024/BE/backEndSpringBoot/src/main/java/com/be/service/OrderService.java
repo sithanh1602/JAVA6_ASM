@@ -124,6 +124,7 @@ public class OrderService {
             orderInfo.put("phone", order.getPhone());
             orderInfo.put("transId",order.getTrans_id());
             orderInfo.put("return_order",order.isReturn_order());
+            orderInfo.put("trans_id",order.getTrans_id());
             response.add(orderInfo);
         }
 
@@ -211,7 +212,7 @@ public class OrderService {
 
         // Cập nhật trạng thái đơn hàng
         order.setStatus(status);
-
+        order.setReturn_order(false);
         // Nếu có thông tin giao dịch, cập nhật transactionId và paymentMethod
         if (transactionId != null) {
 
@@ -275,6 +276,8 @@ public class OrderService {
 
         int oldStatus = order.getStatus();
         order.setStatus(status);
+
+        order.setReturn_order(false);
         Orders updatedOrder = ordersRepository.save(order);
 
         String statusDescription = getStatusDescription(status);
@@ -297,6 +300,41 @@ public class OrderService {
         message.put("status", updatedOrder.getStatus());
         message.put("userId", updatedOrder.getUser().getUserId());
         messagingTemplate.convertAndSend("/topic/status", message);
+
+        return updatedOrder;
+    }
+
+    @Transactional
+    public Orders updatePaymentStatus(Long orderId, boolean paymentStatus) {
+        logger.info("Cập nhật paymentStatus cho đơn hàng: orderId={}, paymentStatus={}", orderId, paymentStatus);
+
+        Orders order = ordersRepository.findById(orderId)
+                .orElseThrow(() -> {
+                    logger.error("Không tìm thấy đơn hàng với orderId: {}", orderId);
+                    return new EntityNotFoundException("Không tìm thấy đơn hàng với orderId: " + orderId);
+                });
+
+        boolean oldPaymentStatus = order.isPaymentStatus(); // Sửa từ getPaymentStatus() thành isPaymentStatus()
+        order.setPaymentStatus(paymentStatus);
+        Orders updatedOrder = ordersRepository.save(order);
+        logger.info("Đã cập nhật paymentStatus đơn hàng: orderId={}, paymentStatus={}", orderId, paymentStatus);
+
+        // Tạo thông báo
+        String paymentMethodDescription = paymentStatus ? "Thanh toán Online" : "Thanh toán COD";
+        Notification notification = new Notification();
+        notification.setUser(updatedOrder.getUser());
+        notification.setOrder(updatedOrder);
+        notification.setContent("Đơn hàng " + updatedOrder.getOrderNum() +
+                " của bạn đã được chuyển sang phương thức " + paymentMethodDescription);
+        notificationRepository.save(notification);
+
+        // Gửi thông báo qua WebSocket
+        Map<String, Object> message = new HashMap<>();
+        message.put("orderId", updatedOrder.getId());
+        message.put("orderNum", updatedOrder.getOrderNum());
+        message.put("paymentStatus", updatedOrder.isPaymentStatus()); // Sửa ở đây nếu cần
+        message.put("userId", updatedOrder.getUser().getUserId());
+        messagingTemplate.convertAndSend("/topic/paymentStatus", message);
 
         return updatedOrder;
     }
@@ -438,7 +476,7 @@ public class OrderService {
         order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
-        order.setReturn_order(false);
+        order.setReturn_order(true);
         order.setTrans_id(orderRequest.getTransId());
 
 
@@ -559,7 +597,7 @@ public class OrderService {
         order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
-        order.setReturn_order(false);
+        order.setReturn_order(true);
 
         // Kiểm tra xem có sử dụng voucher không
         if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {
