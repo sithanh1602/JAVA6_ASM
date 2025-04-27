@@ -3,6 +3,7 @@ package com.be.service;
 
 import com.be.entity.Orders;
 import com.be.rep.OrdersRepository;
+import com.be.rep.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class DashService {
 
     @PersistenceContext
     private EntityManager entityManager;
+    @Autowired
+    private UserRepository userRepository;
 
     public long getTodayOrderCount() {
         return ordersRepository.countOrdersToday();
@@ -76,5 +79,35 @@ public class DashService {
 
     private String getMonthName(int month) {
         return Month.of(month).getDisplayName(TextStyle.FULL, new Locale("vi"));
+    }
+
+    public List<Map<String, Object>> getTop3BestSellingProducts() {
+        List<Object[]> results = ordersRepository.findTop3BestSellingProducts();
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("productName", row[0]);
+            map.put("imageUrl", row[1]);
+            map.put("totalQuantitySold", row[2]);
+            response.add(map);
+        }
+        return response;
+    }
+
+
+    public List<Map<String, Object>> getTop3Customers() {
+        List<Object[]> results = userRepository.findTop3Customers();
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("userId", row[0]);      // id
+            map.put("fullName", row[1]);    // full_name
+            map.put("image", row[2]);       // image
+            map.put("totalSpent", row[3]);  // total_spent
+            response.add(map);
+        }
+        return response;
     }
 }

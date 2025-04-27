@@ -127,4 +127,15 @@ public class DashboardController {
         List<Orders> orders = orderService.getCompletedOrdersInRange(fromDate, toDate);
         return ResponseEntity.ok(orders);
     }
+
+    @GetMapping("/top-products")
+    public ResponseEntity<List<Map<String, Object>>> getTopProducts() {
+        return ResponseEntity.ok(dashService.getTop3BestSellingProducts());
+    }
+
+    @GetMapping("/top3-customers")
+    public ResponseEntity<List<Map<String, Object>>> getTop3Customers() {
+        return ResponseEntity.ok(dashService.getTop3Customers());
+    }
+
 }

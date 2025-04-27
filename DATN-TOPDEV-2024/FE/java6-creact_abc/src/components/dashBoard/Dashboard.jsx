@@ -1,13 +1,14 @@
 // Dashboard.js - Main Container Component
 import React, { useState, useEffect } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
-import OverviewTab from './OverviewTab';
+import TopProductsChart from "./dashProductUser/TopProductsChart";
 import RevenueService from "../../services/RevenueService";
 import DashService from "../../services/DashService";
 import TodayOrdersCard from "./TodayOrdersCard";
 import OrderDashDay from "./dashOrder/orderDashDay";
 import RevenueCharts from "./dashOrder/RevenueCharts";
 import TotalCompletedRevenue from "./dashOrder/TotalCompletedRevenue";
+import TopCustomersChart from "./dashProductUser/TopCustomersChart";
 
 const Dashboard = () => {
     const currentDate = new Date();
@@ -105,9 +106,7 @@ const Dashboard = () => {
                 sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
             >
                 <Tab label="Tổng Quan" />
-                <Tab label="Top3" />
-                <Tab label="Doanh Thu" />
-                <Tab label="Doanh Thu theo sản phẩm" />
+                <Tab label="Thống kê sản phẩm" />
             </Tabs>
 
             {/* Tab Content */}
@@ -131,12 +130,14 @@ const Dashboard = () => {
 
             {/* Tab Content */}
             {tabValue === 1 && (
-                <OverviewTab
-                    topCustomers={topCustomers}
-                    topSellingProducts={topSellingProducts}
-                    loadingTopData={loadingTopData}
-                    error={error}
-                />
+                <div className="flex flex-row justify-between items-center gap-4 w-full">
+                    <div className="flex-1">
+                        <TopProductsChart />
+                    </div>
+                    <div className="flex-1">
+                        <TopCustomersChart />
+                    </div>
+                </div>
             )}
         </div>
     );

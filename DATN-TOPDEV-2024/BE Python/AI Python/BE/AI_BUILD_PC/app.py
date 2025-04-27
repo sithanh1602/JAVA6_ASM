@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 import google.generativeai as genai
 import os
@@ -7,9 +7,9 @@ import random
 import re
 from datetime import datetime
 
-app = Flask(__name__)
+build_PC= Blueprint("build_PC",__name__)
 # Enable CORS for all routes
-CORS(app)
+CORS(build_PC)
 
 # Configure Gemini API key - hardcoded for development, use environment variable in production
 API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDhAbhPJg47Q4bwkU3NcbNuoQLwKdN7YvY")
@@ -117,7 +117,7 @@ def analyze_compatibility(selected_component, current_build, metadata=None, avai
         return {"recommendations": recommendations}
 
 
-@app.route('/recommend-components', methods=['POST'])
+@build_PC.route('/recommend-components', methods=['POST'])
 def recommend_components():
     """API endpoint để nhận gợi ý linh kiện từ AI"""
     try:
@@ -143,17 +143,17 @@ def recommend_components():
         return jsonify({ 'error': str(e), 'status': 'error' }), 500
 
 
-@app.route('/api/recommend-components', methods=['POST'])
+@build_PC.route('/api/recommend-components', methods=['POST'])
 def api_recommend_components():
     """API route to match the frontend's expected endpoint"""
     return recommend_components()
 
 
-@app.route('/health', methods=['GET'])
+@build_PC.route('/health', methods=['GET'])
 def health_check():
     """Endpoint kiểm tra trạng thái hoạt động của API"""
     return jsonify({'status': 'online', 'message': 'Service running'})
 
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5002)
+# if __name__ == '__main__':
+#     app.run(debug=True, host='0.0.0.0', port=5002)
