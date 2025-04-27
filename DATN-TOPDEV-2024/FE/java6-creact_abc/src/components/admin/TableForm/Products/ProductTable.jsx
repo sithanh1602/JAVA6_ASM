@@ -206,6 +206,8 @@ const ProductTable = forwardRef((_, ref) => {
       name: "Tồn kho",
       selector: (row) => row.stock,
       sortable: true,
+      width: "100px",
+
     },
     {
       name: "Trạng Thái",
@@ -236,6 +238,7 @@ const ProductTable = forwardRef((_, ref) => {
     {
       name: "Ảnh",
       selector: (row) => row.imageUrl,
+      width: "100px",
       cell: (row) =>
         row.imageUrl ? (
           <img
@@ -251,6 +254,7 @@ const ProductTable = forwardRef((_, ref) => {
       name: "Số biến thể",
       selector: (row) => variantCounts[row.id] || 0,
       sortable: true,
+      width: "120px",
       cell: (row) => (
         <span
           className={`px-2 py-1 rounded ${
@@ -293,6 +297,8 @@ const ProductTable = forwardRef((_, ref) => {
           </button>
         </div>
       ),
+      width: "270px",
+
     },
   ];
 
@@ -417,7 +423,7 @@ const ProductTable = forwardRef((_, ref) => {
           className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
           onClick={handleAddProduct}
         >
-          + Thêm loại sản phẩm
+          + Thêm sản phẩm
         </button>
 
         <button

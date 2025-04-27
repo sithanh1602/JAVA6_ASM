@@ -292,37 +292,37 @@ const Header = () => {
   ];
 
   return (
-      <>
-        <header
-            className="relative top-0 z-50 border-b border-gray-200 bg-white shadow-md"
-            data-aos="fade-down"
-        >
-          <div className="items-center justify-center">
-            <div className="w-[80%] max-w-full mx-auto">
-              <div className="container mx-auto flex justify-between items-center py-4">
-                {/* Left Section (Location/Email on Desktop, Hamburger on Mobile) */}
-                <div className="flex items-center space-x-4">
-                  {/* Location and Email (Visible on Desktop) */}
-                  <div className="hidden lg:flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <i className="fas fa-map-marker-alt text-red-500"></i>
-                      <span className="text-gray-700 hover:text-red-500 cursor-pointer transition duration-300">
+    <>
+      <header
+        className="relative top-0 z-50 border-b border-gray-200 bg-white shadow-md"
+        data-aos="fade-down"
+      >
+        <div className="items-center justify-center">
+          <div className="w-[80%] max-w-full mx-auto">
+            <div className="container mx-auto flex justify-between items-center py-4">
+              {/* Left Section (Location/Email on Desktop, Hamburger on Mobile) */}
+              <div className="flex items-center space-x-4">
+                {/* Location and Email (Visible on Desktop) */}
+                <div className="hidden lg:flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <i className="fas fa-map-marker-alt text-red-500"></i>
+                    <span className="text-gray-700 hover:text-red-500 cursor-pointer transition duration-300">
                       306h/2 KDC Hàng Bàng, An Khánh, Ninh Kiều, Cần Thơ
                     </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <i className="fas fa-envelope text-blue-500"></i>
-                      <span className="text-gray-700 hover:text-blue-500 cursor-pointer transition duration-300">
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <i className="fas fa-envelope text-blue-500"></i>
+                    <span className="text-gray-700 hover:text-blue-500 cursor-pointer transition duration-300">
                       info@fivestar.team
                     </span>
-                    </div>
-                    <Link
-                        to="/OrderUser"
-                        className="flex items-center"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                      <FaTruck size={20} color="green" />
-                      <span className="text-gray-700 hover:text-green-500 pl-2">
+                  </div>
+                  <Link
+                    to="/OrderUser"
+                    className="flex items-center"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <FaTruck size={20} color="green" />
+                    <span className="text-gray-700 hover:text-green-500 pl-2">
                       Theo dõi đơn hàng
                     </span>
                     </Link>

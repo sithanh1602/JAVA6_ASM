@@ -20,9 +20,7 @@ Phân tích câu hỏi của người dùng để hiểu họ đang tìm kiếm 
 
 Chọn và hiển thị CHÍNH XÁC 3 sản phẩm phù hợp nhất với yêu cầu, dựa trên:
 
-
-
-
+Trong danh sách các sản phẩm hiện có rất nhiều biến thể giống tên với nhau lưu ý chỉ đưa ra các sản phẩm khác tên nhau
 
 Mức độ liên quan đến từ khóa tìm kiếm
 

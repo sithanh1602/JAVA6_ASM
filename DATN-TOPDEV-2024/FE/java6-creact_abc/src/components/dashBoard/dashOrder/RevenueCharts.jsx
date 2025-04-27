@@ -26,6 +26,7 @@ const RevenueCharts = () => {
         volatility: "",
         recommendation: ""
     });
+    const [analyzingWithAI, setAnalyzingWithAI] = useState(false);
 
     // Mảng màu sắc cho biểu đồ cột
     const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe', '#00C49F', '#FFBB28', '#FF8042', '#a4de6c', '#d0ed57'];
@@ -52,7 +53,7 @@ const RevenueCharts = () => {
             // Tính % thay đổi
             if (formattedData.length > 0) {
                 calculatePercentChange(formattedData);
-                await generateAnalysis(formattedData);
+                // Đã xóa phần gọi generateAnalysis tự động tại đây
             }
         } catch (error) {
             console.error("Lỗi khi lấy dữ liệu:", error);
@@ -78,12 +79,27 @@ const RevenueCharts = () => {
         });
     };
 
+    // Hàm xử lý khi nhấn nút khuyến nghị AI
+    const handleAIRecommendation = async () => {
+        if (monthlyData.length < 2) {
+            alert("Cần có ít nhất 2 tháng dữ liệu để phân tích");
+            return;
+        }
+        
+        setAnalyzingWithAI(true);
+        try {
+            await generateAnalysis(monthlyData);
+        } finally {
+            setAnalyzingWithAI(false);
+        }
+    };
+
     const generateAnalysis = async (data) => {
         if (data.length < 2) return;
 
         try {
             console.log("Dữ liệu gửi đến backend:", data); // Ghi log dữ liệu gửi
-            const response = await axios.post("http://localhost:5000/api/analyze-revenue", {
+            const response = await axios.post("http://localhost:5000/gemini/api/analyze-revenue", {
                 data
             });
 
@@ -113,8 +129,8 @@ const RevenueCharts = () => {
 
     // Lấy dữ liệu khi component mount hoặc khi fromDate/toDate thay đổi
     useEffect(() => {
-        fetchMonthlyRevenue();
-    }, [fromDate, toDate]);
+        // Không tự động gọi fetchMonthlyRevenue khi component mount
+    }, []); // Đã xóa dependencies để không trigger khi date thay đổi
 
     const formatDate = (date) => {
         return date.toISOString().split('T')[0];
@@ -176,7 +192,7 @@ const RevenueCharts = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '6px',
-                backgroundColor: '#f8fafc',
+                // backgroundColor: '#f8fafc',
                 padding: '8px',
                 borderRadius: '6px',
                 marginTop: '8px',
@@ -242,10 +258,7 @@ const RevenueCharts = () => {
 
         return (
             <div style={{
-                backgroundColor: 'white',
-                borderRadius: '8px',
                 padding: '20px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                 marginTop: '20px'
             }}>
                 <h3 style={{
@@ -275,10 +288,9 @@ const RevenueCharts = () => {
                     <div style={{
                         backgroundColor: '#f8fafc',
                         padding: '15px',
-                        borderRadius: '6px',
                         borderLeft: `4px solid ${getTrendColor(analysis.trend)}`
                     }}>
-                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '14px' }}>
+                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '11px' }}>
                             XU HƯỚNG TỔNG THỂ
                         </div>
                         <div style={{
@@ -287,7 +299,7 @@ const RevenueCharts = () => {
                             gap: '8px',
                             color: getTrendColor(analysis.trend),
                             fontWeight: 'bold',
-                            fontSize: '16px'
+                            fontSize: '11px'
                         }}>
                             <span>{getTrendIcon(analysis.trend)}</span>
                             <span style={{ textTransform: 'uppercase' }}>
@@ -300,13 +312,12 @@ const RevenueCharts = () => {
                     <div style={{
                         backgroundColor: '#f8fafc',
                         padding: '15px',
-                        borderRadius: '6px',
                         borderLeft: '4px solid #3182ce'
                     }}>
-                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '14px' }}>
+                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '11px' }}>
                             DOANH THU CAO NHẤT
                         </div>
-                        <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '11px' }}>
                             {analysis.highestMonth.month}
                         </div>
                         <div style={{ color: '#4CAF50', fontWeight: '500' }}>
@@ -318,13 +329,12 @@ const RevenueCharts = () => {
                     <div style={{
                         backgroundColor: '#f8fafc',
                         padding: '15px',
-                        borderRadius: '6px',
                         borderLeft: '4px solid #3182ce'
                     }}>
-                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '14px' }}>
+                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '11px' }}>
                             DOANH THU THẤP NHẤT
                         </div>
-                        <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '11px' }}>
                             {analysis.lowestMonth.month}
                         </div>
                         <div style={{ color: '#F44336', fontWeight: '500' }}>
@@ -336,13 +346,12 @@ const RevenueCharts = () => {
                     <div style={{
                         backgroundColor: '#f8fafc',
                         padding: '15px',
-                        borderRadius: '6px',
                         borderLeft: '4px solid #3182ce'
                     }}>
-                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '14px' }}>
+                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '11px' }}>
                             DOANH THU TRUNG BÌNH
                         </div>
-                        <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#2d3748' }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '11px', color: '#2d3748' }}>
                             {formatCurrency(analysis.averageRevenue)}
                         </div>
                         <div style={{ fontSize: '13px', color: '#718096' }}>
@@ -354,15 +363,14 @@ const RevenueCharts = () => {
                     <div style={{
                         backgroundColor: '#f8fafc',
                         padding: '15px',
-                        borderRadius: '6px',
                         borderLeft: '4px solid #3182ce'
                     }}>
-                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '14px' }}>
+                        <div style={{ fontWeight: 'bold', color: '#4a5568', marginBottom: '8px', fontSize: '11px' }}>
                             ĐỘ BIẾN ĐỘNG
                         </div>
                         <div style={{
                             fontWeight: 'bold',
-                            fontSize: '16px',
+                            fontSize: '11px',
                             color: analysis.volatility === "cao" ? "#F44336" :
                                 analysis.volatility === "trung bình" ? "#FF9800" : "#4CAF50"
                         }}>
@@ -375,7 +383,6 @@ const RevenueCharts = () => {
                 <div style={{
                     backgroundColor: '#ebf8ff',
                     padding: '15px',
-                    borderRadius: '6px',
                     borderLeft: '4px solid #4299e1',
                     marginTop: '10px'
                 }}>
@@ -387,7 +394,7 @@ const RevenueCharts = () => {
                         </svg>
                         KHUYẾN NGHỊ
                     </div>
-                    <div style={{ color: '#2a4365', lineHeight: '1.5' }}>
+                    <div style={{ color: '#2a4365', lineHeight: '1' }}>
                         {analysis.recommendation}
                     </div>
                 </div>
@@ -402,9 +409,8 @@ const RevenueCharts = () => {
                 justifyContent: "space-between",
                 alignItems: "flex-start",
                 marginBottom: "15px",
-                background: "linear-gradient(to right, #f6f9fc, #edf2f7)",
+                // background: "linear-gradient(to right, #f6f9fc, #edf2f7)",
                 padding: "15px",
-                borderRadius: "8px"
             }}>
                 <div>
                     <h3 style={{ margin: "0 0 5px", color: "#2d3748" }}>Doanh thu theo tháng</h3>
@@ -419,7 +425,6 @@ const RevenueCharts = () => {
                             onChange={(e) => setFromDate(e.target.value)}
                             style={{
                                 padding: '6px 8px',
-                                borderRadius: '6px',
                                 border: '1px solid #cbd5e0',
                                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                             }}
@@ -432,7 +437,6 @@ const RevenueCharts = () => {
                             onChange={(e) => setToDate(e.target.value)}
                             style={{
                                 padding: '6px 8px',
-                                borderRadius: '6px',
                                 border: '1px solid #cbd5e0',
                                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                             }}
@@ -457,6 +461,35 @@ const RevenueCharts = () => {
                     >
                         {loading ? "Đang tải..." : "Cập nhật"}
                     </button>
+                    
+                    {/* Thêm nút khuyến nghị AI mới */}
+                    {monthlyData.length > 0 && (
+                        <button
+                            onClick={handleAIRecommendation}
+                            disabled={analyzingWithAI || monthlyData.length < 2}
+                            style={{
+                                backgroundColor: "#9c27b0",
+                                color: "white",
+                                padding: "6px 14px",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: analyzingWithAI ? "not-allowed" : "pointer",
+                                fontSize: "13px",
+                                fontWeight: "500",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                                transition: "all 0.2s ease",
+                                opacity: analyzingWithAI ? "0.7" : "1",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px"
+                            }}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                            {analyzingWithAI ? "Đang phân tích..." : "AI nhận định"}
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -464,10 +497,7 @@ const RevenueCharts = () => {
                 {/* Line Chart */}
                 <div style={{
                     flex: "1",
-                    backgroundColor: "white",
-                    borderRadius: "8px",
                     padding: "15px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
                 }}>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
@@ -517,10 +547,7 @@ const RevenueCharts = () => {
                 {/* Bar Chart */}
                 <div style={{
                     flex: "1",
-                    backgroundColor: "white",
-                    borderRadius: "8px",
                     padding: "15px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
                 }}>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
