@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users")  // Base URL for all user-related endpoints
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;  
@@ -75,7 +75,6 @@ public class UserController {
             String oldPassword = passwordRequest.get("oldPassword");
             String newPassword = passwordRequest.get("newPassword");
             String confirmPassword = passwordRequest.get("confirmPassword");
-
             // Gọi UserService để xử lý logic đổi mật khẩu
             userService.changePassword(userId, oldPassword, newPassword, confirmPassword);
 
