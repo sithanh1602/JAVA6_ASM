@@ -321,7 +321,7 @@ const PCBuilderComponent = () => {
 
     // Kiểm tra quyền USER trước khi chuyển đến trang thanh toán
     try {
-      const token = Cookies.get('token');
+      const token = Cookies.get('jwtToken');
       if (!token) {
         // Nếu chưa đăng nhập, chuyển đến trang đăng nhập
         Swal.fire({

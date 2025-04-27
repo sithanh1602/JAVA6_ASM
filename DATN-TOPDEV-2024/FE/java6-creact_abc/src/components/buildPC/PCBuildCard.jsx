@@ -8,7 +8,9 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { addPcToCart } from "../../services/CartService"; // Thay đổi từ addProductToCart thành addPcToCart
+import { addPcToCart } from "../../services/CartService";
+import { jwtDecode } from "jwt-decode"; // Import jwtDecode
+import Cookies from "js-cookie"; // Import Cookies
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN").format(price) + " VND";
@@ -53,32 +55,45 @@ const PCBuildCard = ({ build, index }) => {
   };
 
   const handleAddAllToCart = async () => {
-    const userId = localStorage.getItem("UserId");
-    const role = localStorage.getItem("role");
-
-    if (!userId) {
-      Swal.fire({
-        title: "Thông báo",
-        text: "Vui lòng đăng nhập trước khi thêm vào giỏ hàng",
-        icon: "warning",
-        confirmButtonText: "Đăng nhập",
-      }).then(() => {
-        navigate("/loginn");
-      });
-      return;
-    }
-
-    if (role === "ADMIN") {
-      Swal.fire({
-        title: "Thông báo",
-        text: "Quản trị viên không được phép thêm sản phẩm vào giỏ hàng",
-        icon: "info",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
     try {
+      // Lấy token từ cookie
+      const token = Cookies.get('jwtToken');
+      
+      if (!token) {
+        Swal.fire({
+          title: "Thông báo",
+          text: "Vui lòng đăng nhập trước khi thêm vào giỏ hàng",
+          icon: "warning",
+          confirmButtonText: "Đăng nhập",
+        }).then(() => {
+          navigate("/loginn");
+        });
+        return;
+      }
+      
+      // Decode token để lấy thông tin
+      const decodedToken = jwtDecode(token);
+      console.log("Decoded token:", decodedToken);
+      
+      // Lấy userId từ token
+      const userId = decodedToken.userId || decodedToken.sub;
+      
+      // Kiểm tra quyền người dùng
+      const userRoles = decodedToken.roles || [];
+      const isAdmin = Array.isArray(userRoles) && userRoles.includes("ADMIN") || 
+                     userRoles === "ADMIN" || 
+                     decodedToken.sub === "admin";
+                     
+      if (isAdmin) {
+        Swal.fire({
+          title: "Thông báo",
+          text: "Quản trị viên không được phép thêm sản phẩm vào giỏ hàng",
+          icon: "info",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
       // Hiển thị loading
       Swal.fire({
         title: "Đang xử lý...",
@@ -105,6 +120,7 @@ const PCBuildCard = ({ build, index }) => {
         }
       });
     } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
       Swal.fire("Lỗi", "Có lỗi xảy ra khi thêm BuildPC vào giỏ hàng", "error");
     }
   };
@@ -120,10 +136,7 @@ const PCBuildCard = ({ build, index }) => {
         onClick={!isOutOfStock ? handleViewDetails : undefined}
       >
         <img
-          src={
-            build.image ||
-            `https://placehold.co/400x300?text=PC+Build+${index + 1}`
-          }
+          src={build.image || `https://placehold.co/400x300?text=PC+Build+${index + 1}`}
           alt={build.buildName || `PC Build ${index + 1}`}
           className="h-64 w-full object-cover rounded-lg"
         />

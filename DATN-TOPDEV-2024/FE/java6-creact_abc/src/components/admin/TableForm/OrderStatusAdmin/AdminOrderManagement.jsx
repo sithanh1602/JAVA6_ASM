@@ -359,34 +359,57 @@ const AdminOrderManagement = () => {
 
   // UPDATED: handleRefund method now uses MomoService
   const handleRefund = async (order) => {
-    const confirm = window.confirm("Xác nhận hoàn tiền cho đơn hàng?");
-    if (!confirm) return;
+    // Use SweetAlert2 for confirmation instead of window.confirm
+    Swal.fire({
+      title: "Xác nhận hoàn tiền",
+      text: `Bạn có chắc muốn hoàn tiền cho đơn hàng ${order.orderNum}?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Show loading indicator
+          Swal.fire({
+            title: "Đang xử lý",
+            text: "Vui lòng đợi trong giây lát...",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
 
-    try {
-      // Use MomoService instead of direct axios call
-      const response = await OrderSevice.refundMomoPayment(
-        order.id,
-        order.transId,
-        order.totalPrice,
-        "Huỷ đơn hàng"
-      );
+          // Use MomoService instead of direct axios call
+          const response = await OrderSevice.refundMomoPayment(
+            order.id,
+            order.transId,
+            order.totalPrice,
+            "Huỷ đơn hàng"
+          );
 
-      // Show success message
-      Swal.fire({
-        icon: "success",
-        title: "Hoàn tiền thành công!",
-        text: `Đơn hàng ${order.orderNum} đã được hoàn tiền.`,
-      });
-    } catch (err) {
-      console.error(err);
+          // Reload orders list to refresh the UI
+          const ordersData = await OrderSevice.getAllOrders();
+          setOrders(ordersData);
 
-      // Show error message
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi hoàn tiền",
-        text: err.message || "Có lỗi xảy ra khi hoàn tiền.",
-      });
-    }
+          // Show success message
+          Swal.fire({
+            icon: "success",
+            title: "Hoàn tiền thành công!",
+            text: `Đơn hàng ${order.orderNum} đã được hoàn tiền.`,
+          });
+        } catch (err) {
+          console.error(err);
+
+          // Show error message
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi hoàn tiền",
+            text: err.message || "Có lỗi xảy ra khi hoàn tiền.",
+          });
+        }
+      }
+    });
   };
 
   if (loading) return <div>Loading...</div>;

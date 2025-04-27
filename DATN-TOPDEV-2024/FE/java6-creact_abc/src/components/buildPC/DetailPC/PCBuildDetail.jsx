@@ -6,6 +6,8 @@ import Swal from "sweetalert2";
 import ReactMarkdown from "react-markdown";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight, faShoppingCart, faInfoCircle, faDesktop, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 // Component chính để hiển thị chi tiết cấu hình PC
 const PCBuildDetail = () => {
@@ -86,34 +88,46 @@ const PCBuildDetail = () => {
 
   // Hàm xử lý khi thêm cấu hình PC vào giỏ hàng
   const handleAddAllToCart = async () => {
-    const userId = localStorage.getItem("UserId");
-    const role = localStorage.getItem("role");
-
-    // Kiểm tra xem người dùng đã đăng nhập chưa
-    if (!userId) {
-      Swal.fire({
-        title: "Thông báo",
-        text: "Vui lòng đăng nhập trước khi thêm vào giỏ hàng",
-        icon: "warning",
-        confirmButtonText: "Đăng nhập",
-      }).then(() => {
-        navigate("/loginn");
-      });
-      return;
-    }
-
-    // Kiểm tra vai trò người dùng (ADMIN không được phép thêm vào giỏ hàng)
-    if (role === "ADMIN") {
-      Swal.fire({
-        title: "Thông báo",
-        text: "Quản trị viên không được phép thêm sản phẩm vào giỏ hàng",
-        icon: "info",
-        confirmButtonText: "OK",
-      });
-      return;
-    }
-
     try {
+      // Lấy token từ cookie
+      const token = Cookies.get('jwtToken');
+      
+      // Kiểm tra xem người dùng đã đăng nhập chưa
+      if (!token) {
+        Swal.fire({
+          title: "Thông báo",
+          text: "Vui lòng đăng nhập trước khi thêm vào giỏ hàng",
+          icon: "warning",
+          confirmButtonText: "Đăng nhập",
+        }).then(() => {
+          navigate("/loginn");
+        });
+        return;
+      }
+      
+      // Decode token để lấy thông tin
+      const decodedToken = jwtDecode(token);
+      console.log("Decoded token:", decodedToken);
+      
+      // Lấy userId từ token
+      const userId = decodedToken.userId || decodedToken.sub;
+      
+      // Kiểm tra vai trò người dùng
+      const userRoles = decodedToken.roles || [];
+      const isAdmin = Array.isArray(userRoles) && userRoles.includes("ADMIN") || 
+                    userRoles === "ADMIN" || 
+                    decodedToken.sub === "admin";
+                    
+      if (isAdmin) {
+        Swal.fire({
+          title: "Thông báo",
+          text: "Quản trị viên không được phép thêm sản phẩm vào giỏ hàng",
+          icon: "info",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
       // Hiển thị thông báo đang xử lý
       Swal.fire({
         title: "Đang xử lý...",
@@ -146,6 +160,7 @@ const PCBuildDetail = () => {
         }
       });
     } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
       // Hiển thị thông báo lỗi
       Swal.fire("Lỗi", "Có lỗi xảy ra khi thêm BuildPC vào giỏ hàng", "error");
     }

@@ -434,7 +434,11 @@ const CartPage = () => {
                                                     <button
                                                         className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-500 text-lg font-medium disabled:opacity-50"
                                                         onClick={() => handleUpdateQuantity(key, item.quantity - 1, itemName)}
-                                                        disabled={item.quantity <= 1 || item.productQuantity === null}
+                                                        disabled={
+                                                            item.type === 'buildPC'
+                                                                ? item.quantity <= 1
+                                                                : item.quantity <= 1 || item.productQuantity === null
+                                                        }
                                                         aria-label={`Giảm số lượng ${itemName}`}
                                                     >
                                                         −

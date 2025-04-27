@@ -98,8 +98,16 @@ const RevenueCharts = () => {
         if (data.length < 2) return;
 
         try {
-            console.log("Dữ liệu gửi đến backend:", data); // Ghi log dữ liệu gửi
-            const response = await axios.post("http://localhost:5000/gemini/api/analyze-revenue", {
+            console.log("Dữ liệu gửi đến backend:", data);
+            
+            // Tạo instance axios mới với withCredentials: false
+            const geminiAxios = axios.create({
+                baseURL: 'http://localhost:5000',
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: false
+            });
+            
+            const response = await geminiAxios.post("/gemini/api/analyze-revenue", {
                 data
             });
 

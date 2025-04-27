@@ -74,12 +74,20 @@ const ChatBot = () => {
         setBotTypingMessage("");
 
         try {
-            const response = await axios.post("http://localhost:5000/chatbot/api/chat", {
+            // Tạo instance axios mới với withCredentials: false
+            const chatbotAxios = axios.create({
+                baseURL: 'http://localhost:5000',
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: false
+            });
+            
+            const response = await chatbotAxios.post("/chatbot/api/chat", {
                 question: questionToSend,
             });
             const botAnswer = response.data.answer;
             typeWriterEffect(botAnswer);
         } catch (error) {
+            console.error("Lỗi khi gọi API chatbot:", error);
             typeWriterEffect("Có lỗi xảy ra, vui lòng thử lại.");
         }
     };
