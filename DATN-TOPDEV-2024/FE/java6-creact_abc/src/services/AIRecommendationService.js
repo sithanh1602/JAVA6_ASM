@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const AI_API_URL = 'http://localhost:5002/api';
+const AI_API_URL = 'http://localhost:5000/buildPC/api';
 
 class AIRecommendationService {
   async getCompatibleComponents(referenceComponent, currentBuild = {}, metadata = {}, availableProducts = []) {

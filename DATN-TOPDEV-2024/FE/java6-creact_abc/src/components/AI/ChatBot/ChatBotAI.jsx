@@ -17,6 +17,7 @@ const ChatBot = () => {
         { text: "Sản phẩm nào bán chạy?", icon: "hot" },
         { text: "Có ship toàn quốc không?", icon: "shipping" },
         { text: "Dịch vụ bảo hành thế nào?", icon: "warranty" },
+        { text: "Cho tôi một số sản phẩm có trong cửa hàng bạn", icon: "warranty" },
     ];
 
     // Icons for the suggested questions
@@ -73,7 +74,7 @@ const ChatBot = () => {
         setBotTypingMessage("");
 
         try {
-            const response = await axios.post("http://localhost:5001/api/chat", {
+            const response = await axios.post("http://localhost:5000/chatbot/api/chat", {
                 question: questionToSend,
             });
             const botAnswer = response.data.answer;

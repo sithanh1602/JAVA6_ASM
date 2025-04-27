@@ -75,8 +75,10 @@ const AdminLayout = () => {
     return (
         <ThemeProvider>
             <div className="w-full flex h-full dark:bg-gray-900">
-                <VerticalMenu isOpen={isOpen} toggleMenu={toggleMenu} />
-                <div className="flex-grow p-4 bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+                <div style={{ position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 1000 }}>
+                    <VerticalMenu isOpen={isOpen} toggleMenu={toggleMenu} />
+                </div>
+                <div className="flex-grow p-4 bg-gray-100 dark:bg-gray-900 transition-colors duration-300" style={{ marginLeft: isOpen ? '250px' : '0' }}>
                     <motion.div
                         className="mt-4"
                         initial={{ opacity: 0, y: -20 }}

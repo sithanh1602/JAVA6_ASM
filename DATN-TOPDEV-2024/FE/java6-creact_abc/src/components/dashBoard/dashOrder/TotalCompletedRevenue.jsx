@@ -139,7 +139,7 @@ const TotalCompletedRevenueCard = () => {
 
     return (
         <div>
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg shadow-md border border-blue-200 hover:shadow-lg transition-all duration-300">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4  border border-blue-200 hover:shadow-lg transition-all duration-300">
                 <div className="flex justify-between items-center mb-2">
                     <h2 className="text-sm font-semibold text-blue-800">Tổng doanh thu</h2>
                     <div className="flex items-center gap-2">

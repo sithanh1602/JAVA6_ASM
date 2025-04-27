@@ -40,6 +40,26 @@ class DashService {
             throw new Error(`Error fetching orders for date ${date}: ${error.message}`);
         }
     }
+
+    static async fetchTopProducts() {
+        try {
+          const response = await axios.get('http://localhost:8080/api/dash/top-products');
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching top products data:', error);
+          throw error;
+        }
+    }
+
+    static async getTop3Customers() {
+        try {
+          const response = await axios.get('http://localhost:8080/api/dash/top3-customers');
+          return response.data;
+        } catch (error) {
+          console.error('Failed to fetch top customers:', error);
+          return [];
+        }
+      }
 }
 
 export default DashService;

@@ -308,6 +308,7 @@ const PCBuilderComponent = () => {
   };
 
   const handleProceedToCheckout = async () => {
+    // Kiểm tra đã chọn sản phẩm chưa
     if (Object.keys(selectedComponents).length === 0) {
       Swal.fire({
         icon: "warning",
@@ -318,26 +319,73 @@ const PCBuilderComponent = () => {
       return;
     }
 
+    // Kiểm tra quyền USER trước khi chuyển đến trang thanh toán
     try {
+      const token = Cookies.get('token');
+      if (!token) {
+        // Nếu chưa đăng nhập, chuyển đến trang đăng nhập
+        Swal.fire({
+          icon: "info",
+          title: "Yêu cầu đăng nhập",
+          text: "Vui lòng đăng nhập để tiến hành thanh toán.",
+          confirmButtonText: "Đăng nhập ngay",
+          showCancelButton: true,
+          cancelButtonText: "Hủy",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Lưu cấu hình hiện tại vào localStorage trước khi chuyển trang
+            saveCurrentConfiguration();
+            navigate("/loginn", { 
+              state: { 
+                returnUrl: "/pcbuilder",
+                message: "Vui lòng đăng nhập để tiếp tục thanh toán" 
+              } 
+            });
+          }
+        });
+        return;
+      }
+
+      // Giải mã token để kiểm tra quyền
+      const decodedToken = jwtDecode(token);
+      console.log("Decoded token:", decodedToken);
+      
+      // Kiểm tra nếu người dùng có role USER
+      const userRoles = decodedToken.roles || [];
+      const isUser = Array.isArray(userRoles) && userRoles.includes("USER") || 
+                    userRoles === "USER" || 
+                    decodedToken.sub === "user";
+                    
+      if (!isUser) {
+        Swal.fire({
+          icon: "error",
+          title: "Không có quyền truy cập",
+          text: "Bạn cần tài khoản người dùng để thực hiện thanh toán.",
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+
+      // Tiếp tục kiểm tra số lượng sản phẩm
       const quantityChecks = await Promise.all(
-          Object.entries(selectedComponents).map(async ([categoryId, component]) => {
-            const currentQty = quantities[categoryId] || 1;
-            const latestQty = await ProductService.checkVariantQuantity(component.id);
-            return { categoryId, component, currentQty, latestQty };
-          })
+        Object.entries(selectedComponents).map(async ([categoryId, component]) => {
+          const currentQty = quantities[categoryId] || 1;
+          const latestQty = await ProductService.checkVariantQuantity(component.id);
+          return { categoryId, component, currentQty, latestQty };
+        })
       );
 
       const invalidItems = quantityChecks.filter(
-          (item) => item.currentQty > item.latestQty
+        (item) => item.currentQty > item.latestQty
       );
 
       if (invalidItems.length > 0) {
         const errorMessage = invalidItems
-            .map(
-                (item) =>
-                    `${item.component.nameVariants}: Yêu cầu (${item.currentQty}) vượt quá kho (${item.latestQty})`
-            )
-            .join("\n");
+          .map(
+            (item) =>
+              `${item.component.nameVariants}: Yêu cầu (${item.currentQty}) vượt quá kho (${item.latestQty})`
+          )
+          .join("\n");
 
         Swal.fire({
           icon: "error",
@@ -356,24 +404,30 @@ const PCBuilderComponent = () => {
         return;
       }
 
+      // Chuẩn bị dữ liệu giỏ hàng
       const buildCartItems = Object.entries(selectedComponents).map(
-          ([categoryId, component]) => ({
-            product_variant_id: component.id,
-            productPrice: component.discountPrice && component.discountPrice > 0 
-              ? component.discountPrice 
-              : component.price,
-            quantity: quantities[categoryId] || 1,
-            nameVariants: component.nameVariants || "Không có tên",
-            image: component.image,
-          })
+        ([categoryId, component]) => ({
+          product_variant_id: component.id,
+          productPrice: component.discountPrice && component.discountPrice > 0 
+            ? component.discountPrice 
+            : component.price,
+          quantity: quantities[categoryId] || 1,
+          nameVariants: component.nameVariants || "Không có tên",
+          image: component.image,
+        })
       );
 
+      // Lưu cấu hình hiện tại trước khi chuyển trang
+      saveCurrentConfiguration();
+      
+      // Chuyển đến trang đặt hàng
       navigate("/orders", { state: { cartItems: buildCartItems } });
     } catch (error) {
+      console.error("Lỗi khi kiểm tra quyền hoặc số lượng sản phẩm:", error);
       Swal.fire({
         icon: "error",
-        title: "Lỗi khi kiểm tra số lượng",
-        text: "Không thể kiểm tra số lượng sản phẩm. Vui lòng thử lại sau.",
+        title: "Lỗi xử lý",
+        text: "Đã xảy ra lỗi khi kiểm tra thông tin. Vui lòng thử lại sau.",
         confirmButtonText: "OK",
       });
     }
@@ -685,23 +739,6 @@ const PCBuilderComponent = () => {
               >
                 Thêm vào trang thanh toán
               </Button>
-              {/* Chỉ hiển thị nút tư vấn AI khi không phải admin */}
-              {!isAdmin && (
-                <Button 
-                  className="rounded-none" 
-                  color="success"
-                  onClick={() => {
-                    Swal.fire({
-                      title: 'Tư vấn AI',
-                      text: 'Vui lòng chọn các linh kiện và sử dụng tính năng "Tư vấn AI" trong modal chọn linh kiện.',
-                      icon: 'info',
-                      confirmButtonText: 'Đã hiểu'
-                    });
-                  }}
-                >
-                  Nhận tư vấn từ AI
-                </Button>
-              )}
             </div>
           </div>
           <div className="relative" ref={printRef}>
