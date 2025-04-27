@@ -44,6 +44,27 @@ const OrderList = () => {
     cancel: false,
   });
 
+  // Centralized function to get userId from JWT token in cookie
+  const getUserIdFromToken = () => {
+    const token = Cookies.get("jwtToken");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        console.log("OrderList - Decoded JWT token:", decodedToken); // Debug: Log the token
+        const userId = decodedToken.userId;
+        if (!userId) {
+          console.error("OrderList - getUserIdFromToken: No userId in token");
+        }
+        return userId;
+      } catch (err) {
+        console.error("OrderList - getUserIdFromToken: Error decoding token:", err);
+        return null;
+      }
+    }
+    console.log("OrderList - getUserIdFromToken: No jwtToken found in cookies");
+    return null;
+  };
+
   const checkAndUpdateOrderStatus = async (order) => {
     if (order.status === 7) {
       const orderDate = new Date(order.orderDate).getTime();
@@ -64,8 +85,10 @@ const OrderList = () => {
 
   const fetchOrders = async () => {
     try {
-      const userId = localStorage.getItem("UserId");
-      if (!userId) throw new Error("Không tìm thấy UserId trong localStorage");
+      const userId = getUserIdFromToken();
+      if (!userId) {
+        throw new Error("Không thể lấy userId từ token. Vui lòng đăng nhập lại.");
+      }
       const ordersData = await OrderService.getOrdersByUserId(userId);
 
       for (const order of ordersData) {
@@ -137,20 +160,6 @@ const OrderList = () => {
     setSelectedPaymentMethod('VNPay');
   };
 
-  const getUserIdFromToken = () => {
-    const token = Cookies.get("token");
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        return decodedToken.userId;
-      } catch (err) {
-        console.error("Token không hợp lệ:", err);
-        return null;
-      }
-    }
-    return null;
-  };
-
   const handlePayment = async () => {
     const userId = getUserIdFromToken();
     const selectedOrder = orders.find(order => order.id === paymentOrderId);
@@ -201,7 +210,10 @@ const OrderList = () => {
       try {
         Swal.fire({ title: "Đang xử lý...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         await OrderService.updateOrderStatushuy(orderId, 9);
-        const userId = localStorage.getItem("UserId");
+        const userId = getUserIdFromToken();
+        if (!userId) {
+          throw new Error("Không thể lấy userId từ token. Vui lòng đăng nhập lại.");
+        }
         const ordersData = await OrderService.getOrdersByUserId(userId);
         setOrders(ordersData);
         Swal.fire("Hủy thành công!", "Đơn hàng của bạn đã được hủy.", "success");
@@ -228,7 +240,10 @@ const OrderList = () => {
       try {
         Swal.fire({ title: "Đang xử lý...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         await OrderService.updateOrderStatus(orderId, 8);
-        const userId = localStorage.getItem("UserId");
+        const userId = getUserIdFromToken();
+        if (!userId) {
+          throw new Error("Không thể lấy userId từ token. Vui lòng đăng nhập lại.");
+        }
         const ordersData = await OrderService.getOrdersByUserId(userId);
         setOrders(ordersData);
         Swal.fire('Thành công!', 'Đơn hàng đã được xác nhận nhận hàng.', 'success');

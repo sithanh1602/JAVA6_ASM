@@ -8,7 +8,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import 'aos/dist/aos.css';
 import axios from 'axios';
 import { FaShoppingCart } from 'react-icons/fa';
-import {blue} from "@mui/material/colors";
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -21,9 +22,19 @@ const CartPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const storedUserId = JSON.parse(localStorage.getItem('UserId'));
-        if (!storedUserId) {
-            // Redirect to login page instead of showing error
+        const token = Cookies.get("jwtToken");
+        let decodedUserId = null;
+
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                decodedUserId = decodedToken.userId;
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
+
+        if (!decodedUserId) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Yêu cầu đăng nhập',
@@ -37,14 +48,14 @@ const CartPage = () => {
             setLoading(false);
             return;
         }
-        setUserId(storedUserId);
+
+        setUserId(decodedUserId);
 
         const fetchCartItems = async () => {
             try {
-                const items = await getAllCartItemsForUser(storedUserId);
+                const items = await getAllCartItemsForUser(decodedUserId);
                 if (items.length > 0) {
                     const initialSelectedState = {};
-                    // Fetch stock for products (not buildPC items)
                     const updatedItems = await Promise.all(
                         items.map(async (item) => {
                             let productQuantity = null;
@@ -70,14 +81,13 @@ const CartPage = () => {
                                 ...item,
                                 quantity: Math.max(1, Math.min(Number(item.quantity) || 1, productQuantity || Infinity)),
                                 type: item.buildPC ? 'buildPC' : 'product',
-                                productQuantity, // null for buildPC
+                                productQuantity,
                             };
                         })
                     );
                     setSelectedItems(initialSelectedState);
                     setCartItems(updatedItems);
                 } else {
-                    // Just set empty cart items without showing toast error
                     setCartItems([]);
                 }
             } catch (err) {

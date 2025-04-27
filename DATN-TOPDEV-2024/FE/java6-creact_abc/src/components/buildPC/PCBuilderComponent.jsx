@@ -29,7 +29,7 @@ const PCBuilderComponent = () => {
   useEffect(() => {
     const checkUserRole = () => {
       try {
-        const token = Cookies.get('token');
+        const token = Cookies.get('jwtToken');
         if (token) {
           const decodedToken = jwtDecode(token);
           console.log("Decoded token:", decodedToken);

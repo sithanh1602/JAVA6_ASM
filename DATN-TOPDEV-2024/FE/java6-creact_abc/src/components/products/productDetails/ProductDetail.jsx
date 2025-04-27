@@ -139,7 +139,7 @@ const ProductDetail = () => {
   };
 
   const getUserIdFromToken = () => {
-    const token = Cookies.get("token");
+    const token = Cookies.get("jwtToken");
     if (token) {
       try {
         const decodedToken = jwtDecode(token);

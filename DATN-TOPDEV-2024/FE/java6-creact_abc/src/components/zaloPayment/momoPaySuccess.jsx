@@ -24,10 +24,11 @@ const PaymentResult = () => {
             setErrorMsg("Không tìm thấy mã đơn hàng hợp lệ.");
             return;
         }
+        const cleanedOrderId = orderId.split('Z')[0];
 
         // Gửi yêu cầu cập nhật trạng thái đơn hàng (không cần gửi body nếu query param đã đủ)
         axios
-            .put(`http://localhost:8080/api/orders/momo/${orderId}/status`, null, {
+            .put(`http://localhost:8080/api/orders/momo/${cleanedOrderId}/status`, null, {
                 params: {
                     status: 3,
                     transactionId: transactionId || "",

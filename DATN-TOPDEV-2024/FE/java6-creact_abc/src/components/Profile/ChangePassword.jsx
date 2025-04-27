@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import UserService from "../../services/UserService";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
     const [formData, setFormData] = useState({
@@ -8,8 +12,27 @@ const ChangePassword = () => {
         newPassword: '',
         confirmPassword: '',
     });
+    const navigate = useNavigate();
 
-    const userId = localStorage.getItem('UserId') ? JSON.parse(localStorage.getItem('UserId')) : null;
+    const getUserIdFromToken = () => {
+        const token = Cookies.get("jwtToken");
+        let decodedUserId = null;
+
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                decodedUserId = decodedToken.userId;
+            } catch (error) {
+                console.error("getUserIdFromToken: Error decoding token", error);
+            }
+        } else {
+            console.log("getUserIdFromToken: No jwtToken found in cookies");
+        }
+
+        return decodedUserId;
+    };
+
+    const userId = getUserIdFromToken();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -20,22 +43,60 @@ const ChangePassword = () => {
         e.preventDefault();
         const { oldPassword, newPassword, confirmPassword } = formData;
 
+        if (!userId) {
+            Swal.fire({
+                icon: "warning",
+                title: "Thông báo",
+                text: "Vui lòng đăng nhập để đổi mật khẩu.",
+                confirmButtonText: "Đăng nhập",
+                customClass: {
+                    confirmButton: "bg-blue-500 text-white px-4 py-2 rounded",
+                },
+            }).then(() => {
+                Cookies.remove("jwtToken");
+                navigate("/loginn");
+            });
+            return;
+        }
+
         if (newPassword !== confirmPassword) {
             toast.error('Mật khẩu xác nhận không khớp.');
             return;
         }
 
         try {
+            const token = Cookies.get("jwtToken");
             const response = await UserService.changePassword(
                 userId,
                 oldPassword,
                 newPassword,
-                confirmPassword
+                confirmPassword,
+                token
             );
             toast.success(response || 'Mật khẩu đã được thay đổi thành công');
             setFormData({ oldPassword: '', newPassword: '', confirmPassword: '' });
         } catch (err) {
-            toast.error(err || 'Đã xảy ra lỗi trong quá trình đổi mật khẩu');
+            console.error("handleSubmit: Error changing password", {
+                message: err.message,
+                status: err.response?.status,
+                data: err.response?.data,
+            });
+            if (err.response?.status === 401) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Phiên đăng nhập hết hạn",
+                    text: "Vui lòng đăng nhập lại để đổi mật khẩu.",
+                    confirmButtonText: "Đăng nhập",
+                    customClass: {
+                        confirmButton: "bg-blue-500 text-white px-4 py-2 rounded",
+                    },
+                }).then(() => {
+                    Cookies.remove("jwtToken");
+                    navigate("/loginn");
+                });
+            } else {
+                toast.error(err.response?.data?.message || 'Đã xảy ra lỗi trong quá trình đổi mật khẩu');
+            }
         }
     };
 

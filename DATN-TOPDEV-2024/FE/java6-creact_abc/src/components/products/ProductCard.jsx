@@ -11,6 +11,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import FavoriteService from "../../services/FavoriteService";
 import RatingService from "../../services/RatingService";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
@@ -25,12 +27,29 @@ const ProductCard = ({ variant, index }) => {
 
   // Kiểm tra và tính toán giảm giá
   const hasDiscount =
-    variant.discountPrice > 0 && variant.discountPrice < variant.price;
+      variant.discountPrice > 0 && variant.discountPrice < variant.price;
   const discountPercentage = hasDiscount
-    ? Math.round(
-        ((variant.price - variant.discountPrice) / variant.price) * 100
+      ? Math.round(
+          ((variant.price - variant.discountPrice) / variant.price) * 100
       )
-    : 0;
+      : 0;
+
+  const getUserInfoFromToken = () => {
+    const token = Cookies.get("jwtToken");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        return {
+          userId: decodedToken.userId,
+          roles: decodedToken.roles || [],
+        };
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        return null;
+      }
+    }
+    return null;
+  };
 
   const handleAddToCart = async () => {
     // Kiểm tra sản phẩm không hoạt động
@@ -44,10 +63,8 @@ const ProductCard = ({ variant, index }) => {
       return;
     }
 
-    const userId = localStorage.getItem("UserId");
-    const role = localStorage.getItem("role");
-
-    if (!userId) {
+    const userInfo = getUserInfoFromToken();
+    if (!userInfo) {
       Swal.fire({
         title: "Thông báo",
         text: "Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng",
@@ -59,7 +76,9 @@ const ProductCard = ({ variant, index }) => {
       return;
     }
 
-    if (role === "ADMIN") {
+    const { userId, roles } = userInfo;
+
+    if (roles.includes("ADMIN")) {
       Swal.fire({
         title: "Thông báo",
         text: "Quản trị viên không được phép thêm sản phẩm vào giỏ hàng",
@@ -100,8 +119,8 @@ const ProductCard = ({ variant, index }) => {
       return;
     }
 
-    const userId = localStorage.getItem("UserId");
-    if (!userId) {
+    const userInfo = getUserInfoFromToken();
+    if (!userInfo) {
       Swal.fire({
         title: "Thông báo",
         text: "Vui lòng đăng nhập trước khi thêm vào yêu thích",
@@ -113,10 +132,12 @@ const ProductCard = ({ variant, index }) => {
       return;
     }
 
+    const { userId } = userInfo;
+
     try {
       const isFavorited = await FavoriteService.checkIsFavorited(
-        userId,
-        variant.id
+          userId,
+          variant.id
       );
       if (isFavorited) {
         await FavoriteService.removeFromFavorites(userId, variant.id);
@@ -138,12 +159,13 @@ const ProductCard = ({ variant, index }) => {
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
-      const userId = localStorage.getItem("UserId");
-      if (userId) {
+      const userInfo = getUserInfoFromToken();
+      if (userInfo) {
+        const { userId } = userInfo;
         try {
           const status = await FavoriteService.checkIsFavorited(
-            userId,
-            variant.id
+              userId,
+              variant.id
           );
           setIsFavorited(status);
         } catch (error) {
@@ -168,105 +190,106 @@ const ProductCard = ({ variant, index }) => {
   }, [variant.productId]);
 
   return (
-    <div
-      className={`relative bg-white p-4 border shadow-md overflow-hidden h-[497px] flex flex-col justify-between group ${
-        isOutOfStock || isUnavailable ? "opacity-70" : ""
-      }`}
-    >
       <div
-        className="relative cursor-pointer"
-        onClick={!isOutOfStock && !isUnavailable ? handleShowProductDetails : undefined}
+          className={`relative bg-white p-4 border shadow-md overflow-hidden h-[497px] flex flex-col justify-between group ${
+              isOutOfStock || isUnavailable ? "opacity-70" : ""
+          }`}
       >
-        <img
-          src={
-            variant.image
-              ? variant.image
-              : `https://placehold.co/200x200?text=Variant+Image+${index + 1}`
-          }
-          alt={variant.name || `Variant Image ${index + 1}`}
-          className="h-64 w-full object-cover rounded-lg"
-        />
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-bold text-lg">
-            HẾT HÀNG
-          </div>
-        )}
-        {isUnavailable && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div
+            className="relative cursor-pointer"
+            onClick={!isOutOfStock && !isUnavailable ? handleShowProductDetails : undefined}
+        >
+          <img
+              src={
+                variant.image
+                    ? variant.image
+                    : `https://placehold.co/200x200?text=Variant+Image+${index + 1}`
+              }
+              alt={variant.name || `Variant Image ${index + 1}`}
+              className="h-64 w-full object-cover rounded-lg"
+          />
+          {isOutOfStock && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-bold text-lg">
+                HẾT HÀNG
+              </div>
+          )}
+          {isUnavailable && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <span className="bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-lg">
               KHÔNG HOẠT ĐỘNG
             </span>
-          </div>
-        )}
-      </div>
-      {hasDiscount && !isUnavailable && (
-        <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-          -{variant.discountPercentage}%
+              </div>
+          )}
+        </div>
+        {hasDiscount && !isUnavailable && (
+            <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+          -{discountPercentage}%
         </span>
-      )}
-      <h3 className="text-sm font-bold mt-3 text-gray-800 line-clamp-2 overflow-hidden text-ellipsis">
-        {variant.nameVariants}
-      </h3>
-      {hasDiscount ? (
-        <div className="flex items-center gap-2">
+        )}
+        <h3 className="text-sm font-bold mt-3 text-gray-800 line-clamp-2 overflow-hidden text-ellipsis">
+          {variant.nameVariants}
+        </h3>
+        {hasDiscount ? (
+            <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-red-500">
             {formatPrice(variant.discountPrice)}
           </span>
-          <span className="text-xs text-gray-500 line-through">
+              <span className="text-xs text-gray-500 line-through">
             {formatPrice(variant.price)}
           </span>
+            </div>
+        ) : (
+            <div className="text-sm font-bold text-red-500">
+              {formatPrice(variant.price || 0)}
+            </div>
+        )}
+        <div className="flex mt-2">
+          <button
+              className={`text-gray-500 hover:text-red-500 ${isFavorited ? "text-red-500" : ""} ${isUnavailable ? "opacity-50 cursor-not-allowed" : ""}`}
+              onClick={!isUnavailable ? handleFavorite : undefined}
+          >
+            <FontAwesomeIcon icon={faHeart} />
+          </button>
+          <button
+              className={`text-gray-500 p-2 hover:text-orange-500 ${isUnavailable ? "opacity-50 cursor-not-allowed" : ""}`}
+              onClick={!isUnavailable ? handleShowProductDetails : undefined}
+          >
+            <FontAwesomeIcon icon={faExclamationCircle} />
+          </button>
         </div>
-      ) : (
-        <div className="text-sm font-bold text-red-500">
-          {formatPrice(variant.price || 0)}
-        </div>
-      )}
-      <div className="flex mt-2">
-        <button
-          className={`text-gray-500 hover:text-red-500 ${isFavorited ? "text-red-500" : ""} ${isUnavailable ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={!isUnavailable ? handleFavorite : undefined}
-        >
-          <FontAwesomeIcon icon={faHeart} />
-        </button>
-        <button
-          className={`text-gray-500 p-2 hover:text-orange-500 ${isUnavailable ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={!isUnavailable ? handleShowProductDetails : undefined}
-        >
-          <FontAwesomeIcon icon={faExclamationCircle} />
-        </button>
-      </div>
-      <div className="flex items-center">
-        {[...Array(5)].map((_, index) => {
-          const ratingValue = index + 1;
-          return (
-            <button
-              key={index}
-              className="bg-transparent border-none outline-none cursor-pointer transition-transform duration-200 hover:scale-125">
-              <FaStar
-                className="text-lg text-gray-400"
-                style={{
-                  color: ratingValue <= averageRating ? "#ffc107" : "#e4e5e9",
-                }}
-              />
-            </button>
-          );
-        })}{" "}
-        <span className="font-semibold text-gray-500">
+        <div className="flex items-center">
+          {[...Array(5)].map((_, index) => {
+            const ratingValue = index + 1;
+            return (
+                <button
+                    key={index}
+                    className="bg-transparent border-none outline-none cursor-pointer transition-transform duration-200 hover:scale-125"
+                >
+                  <FaStar
+                      className="text-lg text-gray-400"
+                      style={{
+                        color: ratingValue <= averageRating ? "#ffc107" : "#e4e5e9",
+                      }}
+                  />
+                </button>
+            );
+          })}{" "}
+          <span className="font-semibold text-gray-500">
           ({averageRating ? averageRating.toFixed(1) : "0.0"})
         </span>
+        </div>
+        <button
+            className={`w-full mt-3 px-4 py-2 text-xs font-bold ${
+                isUnavailable
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    : "bg-blue-700 text-white shadow opacity-100 hover:bg-gray-200 hover:text-black transition"
+            }`}
+            onClick={!isUnavailable ? handleAddToCart : undefined}
+            disabled={isUnavailable}
+        >
+          <FontAwesomeIcon icon={faCartPlus} /> {isUnavailable ? "KHÔNG HOẠT ĐỘNG" : "THÊM VÀO GIỎ HÀNG"}
+        </button>
       </div>
-      <button
-        className={`w-full mt-3 px-4 py-2 text-xs font-bold ${
-          isUnavailable 
-            ? "bg-gray-400 text-gray-700 cursor-not-allowed" 
-            : "bg-blue-700 text-white shadow opacity-100 hover:bg-gray-200 hover:text-black transition"
-        }`}
-        onClick={!isUnavailable ? handleAddToCart : undefined}
-        disabled={isUnavailable}
-      >
-        <FontAwesomeIcon icon={faCartPlus} /> {isUnavailable ? "KHÔNG HOẠT ĐỘNG" : "THÊM VÀO GIỎ HÀNG"}
-      </button>
-    </div>
   );
 };
 

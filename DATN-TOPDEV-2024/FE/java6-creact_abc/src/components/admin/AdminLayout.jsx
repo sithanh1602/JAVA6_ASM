@@ -21,6 +21,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import MonthlyProductionChart from "./TableForm/DashB/RevenueChart";
 import AdminOrderManagement from "./TableForm/OrderStatusAdmin/AdminOrderManagement";
 import { ThemeProvider } from '../../views/ThemeContext';
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
 
 const AdminLayout = () => {
     const [isOpen, setIsOpen] = useState(true);
@@ -29,13 +31,21 @@ const AdminLayout = () => {
     const [lastMessageTime, setLastMessageTime] = useState(0); // Thời gian của thông báo cuối cùng
 
     useEffect(() => {
-        const userRole = JSON.parse(localStorage.getItem('roles'));
+        const token = Cookies.get("jwtToken");
+        let decodedUserId = null;
 
-        if (!userRole || userRole[0] !== 'ADMIN') {
-            toast.error('Bạn không có quyền truy cập trang này.');
-            navigate('/');
-            return;
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                decodedUserId = decodedToken.userId;
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
         }
+
+        const decodedToken = jwtDecode(token);
+        const roles = decodedToken.roles || [];
+
 
         const socket = new SockJS('http://localhost:8080/ws');
         const stompClient = new Client({

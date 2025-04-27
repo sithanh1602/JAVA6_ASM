@@ -6,6 +6,8 @@ import { Spinner } from "@nextui-org/react";
 import ProductCard from '../components/products/ProductCard';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
 
 const Favorite = () => {
     const [favorites, setFavorites] = useState([]);
@@ -17,7 +19,17 @@ const Favorite = () => {
     }, []);
 
     const loadFavorites = async () => {
-        const userId = localStorage.getItem('UserId');
+        const token = Cookies.get("jwtToken");
+        let userId = null;
+
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                userId = decodedToken.userId;
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
         if (!userId) {
             Swal.fire({
                 title: 'Thông báo',
@@ -41,7 +53,17 @@ const Favorite = () => {
     };
 
     const handleRemoveFavorite = async (productVariantId) => {
-        const userId = localStorage.getItem('UserId');
+        const token = Cookies.get("jwtToken");
+        let userId = null;
+
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                userId = decodedToken.userId;
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
         try {
             await FavoriteService.removeFromFavorites(userId, productVariantId);
             // Cập nhật lại danh sách sau khi xóa

@@ -2,38 +2,29 @@ import React from 'react';
 import { FaBars, FaBell, FaEnvelope } from 'react-icons/fa'; // Menu, Bell, and Envelope icons
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify'; // Toast notifications
-import Swal from 'sweetalert2'; // SweetAlert2 for confirmation dialog
+
 import { motion } from 'framer-motion'; // Framer Motion for animations
-import Cookies from 'js-cookie'; // Cookies management
+import Cookies from 'js-cookie';
+import axios from "axios"; // Cookies management
 
 const HorizontalMenu = ({ toggleMenu }) => {
     const navigate = useNavigate();
+    const handleLogout = async () => {
 
-    const handleLogout = () => {
-        Swal.fire({
-            title: 'Xác nhận đăng xuất',
-            text: "Bạn có chắc chắn muốn đăng xuất không?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Đăng xuất',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('roles');
-                sessionStorage.removeItem('token');
-                Cookies.remove('token');
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/logout');
+            console.log('Logout response:', response.data);
 
-                toast.success('Đăng xuất thành công!', {
-                    position: 'top-right',
-                    autoClose: 3000,
-                });
+            // Xóa cookie jwtToken trên frontend
+            Cookies.remove('jwtToken');
+            Cookies.remove('refreshToken');
 
-                navigate('/');
-            }
-        });
+            // Chuyển hướng về trang đăng nhập
+            navigate('/loginn');
+            window.location.reload();
+        } catch (err) {
+            console.error('Logout error:', err.message);
+        }
     };
 
     return (
@@ -54,39 +45,6 @@ const HorizontalMenu = ({ toggleMenu }) => {
                     to="/admin/dash">Dashboard</Link></motion.li>
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">
                     <Link to="/admin/product">Product</Link>
-                </motion.li>
-           
-                {/* Menu Dropdown cho Bài viết */}
-                <motion.li className="relative group cursor-pointer">
-                    <div 
-                        className="flex items-center hover:text-gray-500 transition"
-                        onClick={() => setIsPostMenuOpen(!isPostMenuOpen)}
-                    >
-                        Posts
-                        <FaChevronDown className="ml-2 text-sm"/>
-                    </div>
-
-                    {isPostMenuOpen && (
-                        <motion.ul 
-                            className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <li className="hover:bg-gray-100 px-4 py-2">
-                                <Link to="/admin/post">Danh sách bài viết</Link>
-                            </li>
-                            <li className="hover:bg-gray-100 px-4 py-2">
-                                <Link to="/admin/post/add">Thêm bài viết</Link>
-                            </li>
-                            <li className="hover:bg-gray-100 px-4 py-2">
-                                <Link to="/admin/category/add">Thêm danh mục</Link>
-                            </li>
-                            <li className="hover:bg-gray-100 px-4 py-2">
-                                <Link to="/admin/tag/add">Thêm tag</Link>
-                            </li>
-                        </motion.ul>
-                    )}
                 </motion.li>
                 <motion.li className="hover:text-gray-500 cursor-pointer transition">
                     <Link to="/admin/category">Category</Link>

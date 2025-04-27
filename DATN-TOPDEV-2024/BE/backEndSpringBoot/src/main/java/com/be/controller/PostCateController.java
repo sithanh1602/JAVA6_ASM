@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/post-categories")
-@CrossOrigin("*") // Cho phép gọi API từ các domain khác nhau (CORS)
 public class PostCateController {
 
     @Autowired

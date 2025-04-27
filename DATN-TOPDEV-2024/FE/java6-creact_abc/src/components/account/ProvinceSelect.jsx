@@ -10,7 +10,7 @@ const App = () => {
     const navigate = useNavigate();
 
     const getUserIdFromToken = () => {
-        const token = Cookies.get("token");
+        const token = Cookies.get("jwtToken");
         if (token) {
             try {
                 const decodedToken = jwtDecode(token);
@@ -54,7 +54,7 @@ const App = () => {
 
     useEffect(() => {
         axios
-            .get(`${API_HOST}?depth=1`)
+            .get(`${API_HOST}?depth=1`, { withCredentials: false })
             .then((response) => setProvinces(response.data))
             .catch((error) => console.error("Lỗi khi lấy danh sách Tỉnh/Thành:", error));
     }, []);
@@ -67,7 +67,7 @@ const App = () => {
 
         if (provinceCode) {
             axios
-                .get(`${API_HOST}p/${provinceCode}?depth=2`)
+                .get(`${API_HOST}p/${provinceCode}?depth=2`, { withCredentials: false })
                 .then((response) => setDistricts(response.data.districts))
                 .catch((error) => console.error("Lỗi khi lấy danh sách Quận/Huyện:", error));
         } else {
@@ -83,7 +83,7 @@ const App = () => {
 
         if (districtCode) {
             axios
-                .get(`${API_HOST}d/${districtCode}?depth=2`)
+                .get(`${API_HOST}d/${districtCode}?depth=2`, { withCredentials: false })
                 .then((response) => setWards(response.data.wards))
                 .catch((error) => console.error("Lỗi khi lấy danh sách Xã/Phường:", error));
         } else {

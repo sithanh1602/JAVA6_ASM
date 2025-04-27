@@ -13,7 +13,7 @@ const AddressForm = () => {
     const addressId = location.state?.addressId;
 
     const getUserIdFromToken = () => {
-        const token = Cookies.get("token");
+        const token = Cookies.get("jwtToken");
         if (token) {
             try {
                 const decodedToken = jwtDecode(token);
@@ -53,7 +53,7 @@ const AddressForm = () => {
     useEffect(() => {
         const fetchProvinces = async () => {
             try {
-                const { data } = await axios.get(`${API_HOST}?depth=1`);
+                const { data } = await axios.get(`${API_HOST}?depth=1`, { withCredentials: false });
                 setProvinces(data);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách tỉnh/thành phố:", error);
@@ -75,14 +75,14 @@ const AddressForm = () => {
                     if (provinceMatch) {
                         setSelectedProvince(provinceMatch.code);
 
-                        const provinceResponse = await axios.get(`${API_HOST}p/${provinceMatch.code}?depth=2`);
+                        const provinceResponse = await axios.get(`${API_HOST}p/${provinceMatch.code}?depth=2`, { withCredentials: false });
                         setDistricts(provinceResponse.data.districts);
 
                         const districtMatch = provinceResponse.data.districts.find(district => district.name === data.district);
                         if (districtMatch) {
                             setSelectedDistrict(districtMatch.code);
 
-                            const districtResponse = await axios.get(`${API_HOST}d/${districtMatch.code}?depth=2`);
+                            const districtResponse = await axios.get(`${API_HOST}d/${districtMatch.code}?depth=2`, { withCredentials: false });
                             setWards(districtResponse.data.wards);
 
                             const wardMatch = districtResponse.data.wards.find(ward => ward.name === data.ward);
@@ -104,7 +104,7 @@ const AddressForm = () => {
 
     const fetchDistricts = async (provinceCode) => {
         try {
-            const { data } = await axios.get(`${API_HOST}p/${provinceCode}?depth=2`);
+            const { data } = await axios.get(`${API_HOST}p/${provinceCode}?depth=2`, { withCredentials: false });
             setDistricts(data.districts || []);
         } catch (error) {
             console.error("Lỗi khi lấy danh sách quận/huyện:", error);
@@ -113,7 +113,7 @@ const AddressForm = () => {
 
     const fetchWards = async (districtCode) => {
         try {
-            const { data } = await axios.get(`${API_HOST}d/${districtCode}?depth=2`);
+            const { data } = await axios.get(`${API_HOST}d/${districtCode}?depth=2`, { withCredentials: false });
             setWards(data.wards || []);
         } catch (error) {
             console.error("Lỗi khi lấy danh sách phường/xã:", error);

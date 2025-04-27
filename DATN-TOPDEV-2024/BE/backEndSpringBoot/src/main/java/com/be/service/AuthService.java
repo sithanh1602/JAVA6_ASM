@@ -16,7 +16,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import jakarta.mail.MessagingException;
-import lombok.Builder;
+
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
@@ -43,46 +45,35 @@ import java.util.stream.Collectors;
 @Service
 public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
-    private final UserRepository userRepository;
-    private final JwtTokenService jwtTokenService;
-    private final EmailValidationService emailValidationService;
-    private final PasswordEncoder passwordEncoder;
-    private final OtpService otpService;
-    private final EmailService emailService;
-    private final RoleRepository roleRepository;
-    private final GoogleIdTokenVerifier verifier;
+    @Autowired
+    private  AuthenticationManager authenticationManager;
+    @Autowired
+    private  UserDetailsService userDetailsService;
+    @Autowired
+    private  UserRepository userRepository;
+    @Autowired
+    private  JwtTokenService jwtTokenService;
+    @Autowired
+    private  EmailValidationService emailValidationService;
+    @Autowired
+    private  PasswordEncoder passwordEncoder;
+    @Autowired
+    private  OtpService otpService;
+    @Autowired
+    private  EmailService emailService;
+    @Autowired
+    private  RoleRepository roleRepository;
+    @Autowired
+    private  GoogleIdTokenVerifier verifier;
+    @Autowired
+    private  HttpSession httpSession;
 
     @Value("${google.client-id}")
     private String googleClientId;
 
-    @Autowired
-    public AuthService(AuthenticationManager authenticationManager,
-                       UserDetailsService userDetailsService,
-                       UserRepository userRepository,
-                       JwtTokenService jwtTokenService,
-                       EmailValidationService emailValidationService,
-                       PasswordEncoder passwordEncoder,
-                       OtpService otpService,
-                       EmailService emailService,
-                       RoleRepository roleRepository,
-                       GoogleIdTokenVerifier verifier) { // Spring tự động tiêm bean GoogleIdTokenVerifier
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.userRepository = userRepository;
-        this.jwtTokenService = jwtTokenService;
-        this.emailValidationService = emailValidationService;
-        this.passwordEncoder = passwordEncoder;
-        this.otpService = otpService;
-        this.emailService = emailService;
-        this.roleRepository = roleRepository;
-        this.verifier = verifier;
 
-        logger.info("GoogleIdTokenVerifier được tiêm với clientId: {}", googleClientId);
-    }
+    public AuthResponse login(LoginRequest request ) {
 
-    public AuthResponse login(LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
@@ -98,8 +89,9 @@ public class AuthService {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
             String token = jwtTokenService.generateToken(user, roles);
+            String refreshToken = request.isRememberMe() ? jwtTokenService.generateRefreshToken(user) : null;
             logger.info("User {} logged in successfully", request.getUsername());
-            return new AuthResponse(token, user.getUserId().toString(), user.getUserName(), user.getFullName(), user.getPhone(), roles);
+            return new AuthResponse(token, user.getUserId().toString(), user.getUserName(), user.getFullName(), user.getPhone(), roles, refreshToken);
         } catch (BadCredentialsException e) {
             logger.warn("Invalid login attempt for username: {}", request.getUsername());
             throw e;
@@ -112,6 +104,20 @@ public class AuthService {
         }
     }
 
+    // Xử lý refresh token
+    public AuthResponse refreshToken(String refreshToken) {
+        String username = jwtTokenService.validateRefreshToken(refreshToken);
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new BadCredentialsException("User not found"));
+
+        List<String> roles = user.getRoles().stream()
+                .map(Role::getRoleName)
+                .collect(Collectors.toList());
+
+        String newAccessToken = jwtTokenService.generateToken(user, roles);
+
+        return new AuthResponse(newAccessToken, user.getUserId().toString(), user.getUserName(), user.getFullName(), user.getPhone(), roles, refreshToken);
+    }
     // Xử lý đăng ký
     public Response<RegisterResponse> handleRegister(RegisterRequest request) {
         // Kiểm tra email hợp lệ
@@ -391,6 +397,10 @@ public class AuthService {
                 roles = user.getRoles().stream()
                         .map(Role::getRoleName)
                         .collect(Collectors.toList());
+                if (roles.contains("ADMIN")) {
+                    logger.warn("Tài khoản {} có vai trò ADMIN, không được phép đăng nhập bằng Google", email);
+                    return Response.error("Tài khoản admin không được phép đăng nhập bằng Google");
+                }
             } else {
                 // Tạo người dùng mới
                 user = new User();
@@ -400,7 +410,6 @@ public class AuthService {
                 user.setGoogleId(googleId);
                 user.setStatus("Active"); // Kích hoạt ngay, không cần OTP
                 user.setRegistrationDate(new Date());
-
                 // Gán vai trò USER
                 Role role = roleRepository.findByRoleName("USER");
                 if (role == null) {
@@ -409,7 +418,6 @@ public class AuthService {
                 }
                 user.getRoles().add(role);
                 userRepository.save(user);
-
                 roles = Collections.singletonList("USER");
             }
 
@@ -423,8 +431,7 @@ public class AuthService {
                     user.getUserName(),
                     user.getFullName(),
                     user.getPhone(),
-                    roles
-            );
+                    roles);
 
             logger.info("Đăng nhập Google thành công cho email: {}", email);
 

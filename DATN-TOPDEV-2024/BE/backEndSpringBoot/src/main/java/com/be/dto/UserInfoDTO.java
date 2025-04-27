@@ -26,5 +26,15 @@ public class UserInfoDTO {
     }
 
 
+    public UserInfoDTO() {
+        this.fullName = "";
+        this.phone = "";
+        this.fullAddress = "";
+        this.idaddress = null;
+        this.email = "";
+        this.ward = "";
+        this.district = "";
+        this.province = "";
+    }
 }
 

@@ -8,9 +8,14 @@ import com.be.dto.register.RegisterRequest;
 import com.be.dto.register.RegisterResponse;
 import com.be.service.AuthService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 import java.util.Map;
 
     @RestController
@@ -23,12 +28,51 @@ import java.util.Map;
         this.authService = authService;
     }
 
-    @PostMapping("/login")
-    public Response<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthResponse authResponse = authService.login(request);
-        return Response.success(authResponse,"login success");
-    }
+        @PostMapping("/login")
+        public Response<AuthResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response  ) {
 
+            AuthResponse authResponse = authService.login(request);
+            if (request.isRememberMe() && authResponse.getRefreshToken() != null) {
+                Cookie refreshTokenCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
+                refreshTokenCookie.setHttpOnly(true);
+                refreshTokenCookie.setSecure(true);
+                refreshTokenCookie.setPath("/");
+                refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
+                response.addCookie(refreshTokenCookie);
+            }
+            return Response.success(authResponse, "login success");
+        }
+        @PostMapping("/refresh-token")
+        public Response<AuthResponse> refreshToken(HttpServletRequest request) {
+            String refreshToken = Arrays.stream(request.getCookies())
+                    .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+
+            AuthResponse authResponse = authService.refreshToken(refreshToken);
+            return Response.success(authResponse, "token refreshed");
+        }
+
+        @PostMapping("/logout")
+        public Response<String> logout(HttpServletRequest request, HttpServletResponse response) {
+            String refreshToken = Arrays.stream(request.getCookies())
+                    .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
+
+            if (refreshToken != null) {
+                Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+                refreshTokenCookie.setHttpOnly(true);
+                refreshTokenCookie.setSecure(true);
+                refreshTokenCookie.setPath("/");
+                refreshTokenCookie.setMaxAge(0);
+                response.addCookie(refreshTokenCookie);
+            }
+
+            return Response.success("Logout successful", "logout success");
+        }
     @PostMapping("/google")
     public Response<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
         return authService.googleLogin(request);
