@@ -275,7 +275,7 @@ const HeaderDownNavbar = () => {
   }, []);
 
   return (
-    <Navbar className="bg-white shadow-sm border-b border-gray-200">
+    <Navbar className="bg-white shadow-sm border-b border-gray-200 sticky z-40">
       <div className="flex items-center justify-between w-full">
         {/* Left Section: Hamburger Menu and Category Menu */}
         <div className="flex items-center gap-2">
@@ -291,89 +291,89 @@ const HeaderDownNavbar = () => {
 
           {/* Category Menu Section (Visible on All Screens) */}
           <div className="relative w-40 lg:w-64 hidden md:block">
-            <button
-              className="w-full text-white flex items-center justify-between px-4 py-2 md:px-6 md:py-3 rounded-md bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 transition-all duration-300 shadow-md text-sm md:text-base"
-              onClick={() => setIsOpen(!isOpen)}>
-              <div className="flex items-center">
-                <FiMenu className="mr-2 text-base md:mr-3 md:text-lg" />
-                <span className="font-medium">Danh mục</span>
-              </div>
-              <FiChevronDown
-                className={`transition-transform duration-300 ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+  <button
+    className="w-full text-white flex items-center justify-between px-3 py-1.5 md:px-4 md:py-2 rounded-md bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 transition-all duration-300 shadow-md text-sm md:text-base"
+    onClick={() => setIsOpen(!isOpen)}>
+    <div className="flex items-center">
+      <FiMenu className="mr-1.5 text-base md:mr-2 md:text-lg" />
+      <span className="font-medium">Danh mục</span>
+    </div>
+    <FiChevronDown
+      className={`transition-transform duration-300 ${
+        isOpen ? "rotate-180" : ""
+      }`}
+    />
+  </button>
 
-            {/* Category Dropdown */}
+  {/* Category Dropdown */}
+  <motion.div
+    initial={{ opacity: 0, scaleY: 0 }}
+    animate={{ opacity: isOpen ? 1 : 0, scaleY: isOpen ? 1 : 0 }}
+    exit={{ opacity: 0, scaleY: 0 }}
+    transition={{ duration: 0.3, ease: "easeInOut" }}
+    className="absolute left-0 w-full bg-white rounded-md border border-gray-200 shadow-lg z-40 origin-top mt-1">
+    <ul className="divide-y divide-gray-100">
+      {categories.map((category) => (
+        <li
+          key={category.id}
+          className="relative group"
+          onMouseEnter={() => handleCategoryHover(category.id)}
+          onMouseLeave={() => setHoveredCategory(null)}>
+          <div
+            className="flex items-center justify-between p-1.5 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
+            onClick={() => handleCategoryClick(category.id)}>
+            <span className="flex-grow font-normal text-gray-700">
+              {category.name}
+            </span>
+            <FiChevronRight className="text-gray-400 group-hover:text-blue-600" />
+          </div>
+
+          {hoveredCategory === category.id && (
             <motion.div
-              initial={{ opacity: 0, scaleY: 0 }}
-              animate={{ opacity: isOpen ? 1 : 0, scaleY: isOpen ? 1 : 0 }}
-              exit={{ opacity: 0, scaleY: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="absolute left-0 w-full bg-white rounded-md border border-gray-200 shadow-lg z-40 origin-top mt-1">
-              <ul className="divide-y divide-gray-100">
-                {categories.map((category) => (
-                  <li
-                    key={category.id}
-                    className="relative group"
-                    onMouseEnter={() => handleCategoryHover(category.id)}
-                    onMouseLeave={() => setHoveredCategory(null)}>
-                    <div
-                      className="flex items-center justify-between p-3 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
-                      onClick={() => handleCategoryClick(category.id)}>
-                      <span className="flex-grow font-medium text-gray-700">
-                        {category.name}
-                      </span>
-                      <FiChevronRight className="text-gray-400 group-hover:text-blue-600" />
-                    </div>
-
-                    {hoveredCategory === category.id && (
-                      <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute left-full top-0 w-64 bg-white rounded-md border border-gray-200 shadow-lg z-50"
-                        style={{ minHeight: "100%" }}>
-                        <div className="p-3 bg-blue-50 border-b border-gray-200">
-                          <span className="text-blue-800 font-semibold text-sm uppercase tracking-wide">
-                            Thương hiệu
-                          </span>
-                        </div>
-                        <ul className="py-2 max-h-80 overflow-y-auto">
-                          {loadingBrands[category.id] ? (
-                            <li className="px-4 py-3 flex items-center justify-center">
-                              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-                              <span className="text-gray-500">Đang tải...</span>
-                            </li>
-                          ) : Array.isArray(brands[category.id]) &&
-                            brands[category.id].length > 0 ? (
-                            brands[category.id].map((brand) => (
-                              <li
-                                key={brand.id}
-                                className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
-                                onClick={() =>
-                                  handleBrandClick(brand.brandsId)
-                                }>
-                                <div className="block px-4 py-2 text-gray-700 hover:text-blue-700">
-                                  {brand.name}
-                                </div>
-                              </li>
-                            ))
-                          ) : (
-                            <li className="px-4 py-3 text-gray-500 italic text-center">
-                              Không có thương hiệu
-                            </li>
-                          )}
-                        </ul>
-                      </motion.div>
-                    )}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute left-full top-0 w-64 bg-white rounded-md border border-gray-200 shadow-lg z-50"
+              style={{ minHeight: "100%" }}>
+              <div className="p-2 bg-blue-50 border-b border-gray-200">
+                <span className="text-blue-800 font-semibold text-sm uppercase tracking-wide">
+                  Thương hiệu
+                </span>
+              </div>
+              <ul className="py-1 max-h-80 overflow-y-auto">
+                {loadingBrands[category.id] ? (
+                  <li className="px-3 py-2 flex items-center justify-center">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <span className="text-gray-500">Đang tải...</span>
                   </li>
-                ))}
+                ) : Array.isArray(brands[category.id]) &&
+                  brands[category.id].length > 0 ? (
+                  brands[category.id].map((brand) => (
+                    <li
+                      key={brand.id}
+                      className="hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+                      onClick={() =>
+                        handleBrandClick(brand.brandsId)
+                      }>
+                      <div className="block px-3 py-1.5 text-gray-700 hover:text-blue-700">
+                        {brand.name}
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-3 py-2 text-gray-500 italic text-center">
+                    Không có thương hiệu
+                  </li>
+                )}
               </ul>
             </motion.div>
-          </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  </motion.div>
+</div>
         </div>
 
         {/* Main Navigation (Hidden on Mobile) */}

@@ -35,6 +35,7 @@ const ReviewsTable = ({ Reviews = [], onEditReviews, onDeleteReviews }) => {
   const columns = [
     {
       name: "Ảnh đại diện",
+      width: "120px",
       selector: (row) => row.user?.image,
       cell: (row) => (
         <div className="w-10 h-10">
@@ -54,20 +55,25 @@ const ReviewsTable = ({ Reviews = [], onEditReviews, onDeleteReviews }) => {
       name: "Họ và tên",
       selector: (row) => row.user?.fullName,
       sortable: true,
+      width: "120px",
     },
     {
       name: "Email",
       selector: (row) => row.user?.email,
       sortable: true,
+      width: "180px",
     },
     {
       name: "Sản phẩm",
       selector: (row) => row.orderDetail?.product_variant_id?.nameVariants,
       sortable: true,
+      width: "180px",
     },
     {
       name: "Điểm đánh giá",
       selector: (row) => row.rating,
+      width: "100px",
+
       cell: (row) => (
         <div>
           {[...Array(5)].map((_, i) => (
@@ -85,14 +91,18 @@ const ReviewsTable = ({ Reviews = [], onEditReviews, onDeleteReviews }) => {
       name: "Bình luận",
       selector: (row) => row.comment,
       sortable: true,
+      width: "150px",
     },
     {
       name: "Ngày tạo",
       selector: (row) => new Date(row.createAt).toLocaleDateString(),
       sortable: true,
+      width: "100px",
+
     },
     {
       name: "Hành động",
+      width: "50px",
       cell: (row) => (
         <div className="flex justify-center">
           <button

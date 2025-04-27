@@ -109,9 +109,8 @@ const Navbar = () => {
 
   return (
     <nav
-      className="shadow top-0 z-50 bg-white hidden md:block" // Hide on mobile, show on md and up
-      data-aos="fade-down"
-    >
+      className="shadow top-0 z-[50] relative bg-white hidden md:block" // Increase navbar z-index
+      data-aos="fade-down">
       <div className="container mx-auto w-[80%] flex justify-between items-center py-4 px-4 md:px-0">
         {/* Logo section */}
         <div className="flex items-center space-x-4 p-3">
@@ -123,7 +122,7 @@ const Navbar = () => {
         </div>
 
         {/* Search section */}
-        <div className="relative hidden md:flex justify-center flex-1">
+        <div className=" hidden md:flex justify-center flex-1">
           <div className="relative w-full max-w-lg">
             <div className="flex items-center border-2 border-gray-300 rounded-md overflow-hidden">
               <Input
@@ -142,13 +141,12 @@ const Navbar = () => {
               </button>
             </div>
             {searchResults.length > 0 && (
-              <div className="absolute left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md mt-1 max-h-60 overflow-y-auto">
+              <div className="absolute left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md mt-1 max-h-60 overflow-y-auto z-[101]">
                 {searchResults.map((variant) => (
                   <Link
                     key={variant.idVariants}
                     to={`/products/${variant.productId}/productdetail`}
-                    className="px-4 py-2 hover:bg-gray-100 flex items-center gap-3"
-                  >
+                    className="px-4 py-2 hover:bg-gray-100 flex items-center gap-3">
                     <img
                       src={variant.image || `https://placehold.co/50x50`}
                       className="w-10 h-10 object-cover rounded"
@@ -203,7 +201,10 @@ const Navbar = () => {
                   <DropdownItem key="help_and_feedback">
                     Hỗ trợ và đánh giá
                   </DropdownItem>
-                  <DropdownItem key="logout" color="danger" onClick={handleLogout}>
+                  <DropdownItem
+                    key="logout"
+                    color="danger"
+                    onClick={handleLogout}>
                     Đăng xuất
                   </DropdownItem>
                 </DropdownMenu>

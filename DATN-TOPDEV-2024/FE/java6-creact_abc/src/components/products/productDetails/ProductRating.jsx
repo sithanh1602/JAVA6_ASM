@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { FaRegThumbsUp, FaStar } from "react-icons/fa";
+import {FaStar } from "react-icons/fa";
 import RatingService from "../../../services/RatingService";
 
 const ProductRating = ({ productDetailsId }) => {
   const [reviews, setReviews] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
-
 
   const fetchRating = async () => {
     try {
@@ -52,11 +51,11 @@ const ProductRating = ({ productDetailsId }) => {
       setAverageRating(0);
     }
   };
-  
+
   useEffect(() => {
     fetchAverageRating();
   }, [productDetailsId]);
-  
+
   const formatTotalReviews =
     totalReviews >= 1000
       ? `${(totalReviews / 1000).toFixed(1)}K`
@@ -75,7 +74,12 @@ const ProductRating = ({ productDetailsId }) => {
                 <div>
                   <div className="grid grid-cols-12 mb-11">
                     {/* Phần thống kê: Rating breakdown */}
-                    <div className="col-span-12 xl:col-span-4 flex flex-col gap-y-2">
+                    {/* Phần thống kê: Rating breakdown */}
+                    <div className="col-span-12 xl:col-span-4 flex flex-col gap-y-4 p-6 bg-gray-50 rounded-xl">
+                      <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                        Chi tiết đánh giá
+                      </h3>
+
                       {[5, 4, 3, 2, 1].map((star) => {
                         const count = ratingCounts[star];
                         const percentage = totalReviews
@@ -83,24 +87,36 @@ const ProductRating = ({ productDetailsId }) => {
                           : 0;
                         return (
                           <div key={star} className="flex items-center w-full">
-                            <p className="font-medium text-lg py-[1px] text-black mr-[2px]">
-                              {star}
-                            </p>
-                            <FaStar className="text-xl" color={"#ffc107"} />
-                            <p className="h-2 w-full sm:min-w-[278px] rounded-[30px] bg-gray-200 ml-5 mr-3">
-                              <span
-                                className="h-full rounded-[30px] bg-indigo-500 flex"
+                            <div className="flex items-center w-12 justify-end mr-3">
+                              <span className="font-medium text-gray-700">
+                                {star}
+                              </span>
+                              <FaStar
+                                className="text-base ml-1"
+                                color="#ffc107"
+                              />
+                            </div>
+
+                            <div className="h-3 w-full rounded-full bg-gray-200 flex-1">
+                              <div
+                                className="h-full rounded-full bg-indigo-500 transition-all duration-300"
                                 style={{ width: `${percentage}%` }}
                               />
-                            </p>
-                            <p className="font-medium text-lg py-[1px] text-black mr-[2px]">
-                              {count}
-                            </p>
+                            </div>
+
+                            <div className="w-12 text-right ml-3">
+                              <span className="font-medium text-gray-700 text-sm">
+                                {count}
+                              </span>
+                            </div>
                           </div>
                         );
                       })}
-                    </div>
 
+                      <div className="mt-2 text-xs text-gray-500 text-right italic">
+                        Dựa trên {totalReviews || 0} đánh giá
+                      </div>
+                    </div>
                     <div className="col-span-12 max-xl:mt-8 xl:col-span-8 xl:pl-8 w-full min-h-[180px]">
                       <div className="grid grid-cols-12 h-full px-8 max-lg:py-8 rounded-3xl bg-gray-100 w-full max-xl:max-w-3xl max-xl:mx-auto">
                         <div className="col-span-12 md:col-span-12 flex items-center">
@@ -121,7 +137,9 @@ const ProductRating = ({ productDetailsId }) => {
                               </h2>
                               <div className="flex items-center gap-3 mb-4">
                                 <h2 className="font-manrope font-bold text-lg pt-4 text-black text-center mb-4">
-                                {averageRating ? averageRating.toFixed(1) : "0.0"}
+                                  {averageRating
+                                    ? averageRating.toFixed(1)
+                                    : "0.0"}
                                 </h2>
                                 <div className="flex items-center">
                                   {[...Array(5)].map((_, index) => {
@@ -197,13 +215,6 @@ const ProductRating = ({ productDetailsId }) => {
                               {review.createAt
                                 ? formatDate(review.createAt)
                                 : "không có ngày tạo"}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-1">
-                            <FaRegThumbsUp className="text-gray-700 hover:text-blue-500 cursor-pointer text-lg" />
-                            <p className="font-normal text-base leading-8 text-gray-600">
-                              12
                             </p>
                           </div>
                         </div>
