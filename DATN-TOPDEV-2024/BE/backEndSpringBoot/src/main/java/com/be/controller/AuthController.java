@@ -1,5 +1,6 @@
 package com.be.controller;
 
+import com.be.dto.login.GoogleLoginRequest;
 import com.be.dto.login.LoginRequest;
 import com.be.dto.login.AuthResponse;
 import com.be.dto.Response;
@@ -10,11 +11,11 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
-@RestController
-@RequestMapping("/api/auth")
-public class AuthController {
-
+    @RestController
+    @RequestMapping("/api/auth")
+    public class AuthController {
 
     private final AuthService authService;
 
@@ -28,7 +29,10 @@ public class AuthController {
         return Response.success(authResponse,"login success");
     }
 
-
+    @PostMapping("/google")
+    public Response<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
+        return authService.googleLogin(request);
+    }
     // Endpoint để đăng ký tài khoản
     @PostMapping("/register")
     public Response<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) throws MessagingException {
@@ -47,4 +51,26 @@ public class AuthController {
         return authService.resendOtp(email);
     }
 
+    // Endpoint để xử lý quên mật khẩu (gửi OTP)
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Response<String>> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        return authService.forgotPassword(email);
+    }
+
+    // Endpoint để xác minh OTP khi quên mật khẩu
+    @PostMapping("/verify-otp-for-password")
+    public ResponseEntity<Response<String>> verifyOtpForPassword(
+            @RequestParam String email,
+            @RequestParam String otpCode) {
+        return authService.verifyOtpForPassword(email, otpCode);
+    }
+
+    // Endpoint để đặt lại mật khẩu
+    @PostMapping("/reset-password")
+    public ResponseEntity<Response<String>> resetPassword(
+            @RequestParam String email,
+            @RequestParam String newPassword) {
+        return authService.resetPassword(email, newPassword);
+    }
 }

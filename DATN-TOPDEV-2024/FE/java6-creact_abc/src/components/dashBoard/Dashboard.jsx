@@ -1,11 +1,14 @@
 // Dashboard.js - Main Container Component
 import React, { useState, useEffect } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
-import OverviewTab from './OverviewTab';
-import RevenueTab from './RevenueTab';
+import TopProductsChart from "./dashProductUser/TopProductsChart";
 import RevenueService from "../../services/RevenueService";
 import DashService from "../../services/DashService";
 import TodayOrdersCard from "./TodayOrdersCard";
+import OrderDashDay from "./dashOrder/orderDashDay";
+import RevenueCharts from "./dashOrder/RevenueCharts";
+import TotalCompletedRevenue from "./dashOrder/TotalCompletedRevenue";
+import TopCustomersChart from "./dashProductUser/TopCustomersChart";
 
 const Dashboard = () => {
     const currentDate = new Date();
@@ -35,48 +38,7 @@ const Dashboard = () => {
     useEffect(() => {
         fetchMonthlyRevenue();
         fetchTopData();
-        fetchOrders();
-        fetchOrderDetails();
     }, [startDate, endDate]);
-
-    // Fetch data functions
-    const fetchOrderDetails = async () => {
-        setLoadingOrderDetails(true);
-        setErrorOrderDetails(null);
-        try {
-            const response = await RevenueService.getOrderDetails(startDate, endDate);
-            const transformedOrderDetails = response.data.map(order => ({
-                orderId: order[0],
-                userName: order[1],
-                productName: order[2],
-                productQuantity: order[3],
-                productPrice: order[4],
-                totalPricePerProduct: order[5],
-            }));
-            setOrderDetails(transformedOrderDetails);
-        } catch (error) {
-            console.error("Error fetching order details:", error);
-            setErrorOrderDetails("Unable to fetch order details.");
-        } finally {
-            setLoadingOrderDetails(false);
-        }
-    };
-
-    const fetchOrders = async () => {
-        try {
-            const response = await RevenueService.getDailyRevenue(startDate, endDate);
-            const dailyRevenue = response.data;
-            const groupedOrders = Object.entries(dailyRevenue).reduce((acc, [fullDate, revenue]) => {
-                const date = new Date(fullDate).toISOString().slice(0, 10);
-                acc[date] = (acc[date] || 0) + revenue;
-                return acc;
-            }, {});
-            const orders = Object.entries(groupedOrders).map(([date, revenue]) => ({ date, revenue }));
-            setOrders(orders);
-        } catch (error) {
-            console.error("Error fetching orders:", error);
-        }
-    };
 
     const fetchMonthlyRevenue = async () => {
         setLoadingRevenue(true);
@@ -144,41 +106,38 @@ const Dashboard = () => {
                 sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
             >
                 <Tab label="Tổng Quan" />
-                <Tab label="Top3" />
-                <Tab label="Doanh Thu" />
-                <Tab label="Doanh Thu theo sản phẩm" />
+                <Tab label="Thống kê sản phẩm" />
             </Tabs>
 
             {/* Tab Content */}
             {tabValue === 0 && (
-                <TodayOrdersCard>
-
-                </TodayOrdersCard>
+                <>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        <div className="flex-1 min-w-[300px]">
+                            <TodayOrdersCard />
+                        </div>
+                        <div className="flex-1 min-w-[300px]">
+                            <TotalCompletedRevenue />
+                        </div>
+                    </div>
+                    <div>
+                        <RevenueCharts />
+                    </div>
+                </>
             )}
+
+
 
             {/* Tab Content */}
             {tabValue === 1 && (
-                <OverviewTab
-                    topCustomers={topCustomers}
-                    topSellingProducts={topSellingProducts}
-                    loadingTopData={loadingTopData}
-                    error={error}
-                />
-            )}
-
-            {tabValue === 2 && (
-                <RevenueTab
-                    startDate={startDate}
-                    endDate={endDate}
-                    setStartDate={setStartDate}
-                    setEndDate={setEndDate}
-                    filteredData={filteredData}
-                    loadingRevenue={loadingRevenue}
-                    orders={orders}
-                    orderDetails={orderDetails}
-                    loadingOrderDetails={loadingOrderDetails}
-                    errorOrderDetails={errorOrderDetails}
-                />
+                <div className="flex flex-row justify-between items-center gap-4 w-full">
+                    <div className="flex-1">
+                        <TopProductsChart />
+                    </div>
+                    <div className="flex-1">
+                        <TopCustomersChart />
+                    </div>
+                </div>
             )}
         </div>
     );

@@ -11,15 +11,11 @@ const PaymentResult = () => {
 
     useEffect(() => {
         const resultCode = searchParams.get("resultCode");
-        const vnpStatus = searchParams.get("vnp_TransactionStatus");
         const message = searchParams.get("message");
-        const orderId = searchParams.get("orderId") || searchParams.get("vnp_TxnRef");
+        const orderId = searchParams.get("orderId");
         const amount = searchParams.get("amount") || searchParams.get("vnp_Amount");
         const transactionId = searchParams.get("transId");
         const paymentMethod = searchParams.get("payType");
-
-        const isSuccess = resultCode === "0" || vnpStatus === "00";
-        const newStatus = isSuccess ? 3 : 2; // 3 = success, 2 = failed
 
         setOrderInfo({ orderId, message, amount });
 
@@ -33,19 +29,19 @@ const PaymentResult = () => {
         axios
             .put(`http://localhost:8080/api/orders/momo/${orderId}/status`, null, {
                 params: {
-                    status: newStatus,
+                    status: 3,
                     transactionId: transactionId || "",
                 },
             })
             .then(() => {
-                setStatus(isSuccess ? "success" : "failed");
+                setStatus("success");
             })
             .catch((err) => {
                 const msg =
                     err.response?.data?.error ||
                     `Thanh toán thành công nhưng không thể cập nhật trạng thái đơn hàng ${orderId}. Vui lòng liên hệ hỗ trợ.`;
                 setErrorMsg(msg);
-                setStatus(isSuccess ? "success" : "failed");
+                setStatus("success");
             });
     }, [searchParams]);
 
@@ -62,7 +58,7 @@ const PaymentResult = () => {
         return (
             <div className="flex flex-col items-center justify-center h-[70vh] text-center">
                 <FaSpinner className="text-5xl text-blue-500 animate-spin mb-4" />
-                <p className="text-lg font-medium text-gray-700">Đang xử lý kết quả thanh toán...</p>
+<p className="text-lg font-medium text-gray-700">Đang xử lý kết quả thanh toán...</p>
             </div>
         );
     }

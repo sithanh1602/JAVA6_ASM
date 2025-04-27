@@ -1,11 +1,15 @@
 package com.be.service;
 
+import com.be.entity.Orders;
+import com.be.rep.OrdersRepository;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -14,9 +18,13 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Random;
 
 @Service
 public class MomoService {
+
+    @Autowired
+    private OrdersRepository ordersRepository;
 
     private static final String PARTNER_CODE = "MOMO";
     private static final String ACCESS_KEY = "F8BBA842ECF85";
@@ -74,6 +82,67 @@ public class MomoService {
                 }
                 System.out.println("Response from MoMo: " + result.toString());
                 return result.toString(); // Có thể parse JSON để lấy "payUrl"
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"error\": \"Failed to create payment request: " + e.getMessage() + "\"}";
+        }
+    }
+
+    public String createPaymentRequest2(int total, String orderIdFromSystem) {
+
+        Random random = new Random();
+        int randomNumber = random.nextInt(10000);
+        try {
+            // Dùng orderId của hệ thống bạn làm orderId gửi cho Momo
+            String requestId = PARTNER_CODE + new Date().getTime();
+            String orderId = orderIdFromSystem + "Z" + randomNumber; // Kết hợp orderId từ hệ thống với timestamp + "_" + new Date().getTime()
+            String orderInfo = "Thanh toán ĐH -" + orderIdFromSystem;
+            String extraData = orderIdFromSystem; // Dùng để gửi ngầm orderId thật về cho IPN
+
+            // Raw signature
+            String rawSignature = String.format(
+                    "accessKey=%s&amount=%s&extraData=%s&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s",
+                    ACCESS_KEY, total, extraData, IPN_URL, orderId, orderInfo, PARTNER_CODE, REDIRECT_URL,
+                    requestId, REQUEST_TYPE);
+
+            // Ký HMAC SHA256
+            String signature = signHmacSHA256(rawSignature, SECRET_KEY);
+
+            // Build request body
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("partnerCode", PARTNER_CODE);
+            requestBody.put("accessKey", ACCESS_KEY);
+            requestBody.put("requestId", requestId);
+            requestBody.put("amount", total);
+            requestBody.put("orderId", orderId);
+            requestBody.put("orderInfo", orderInfo);
+            requestBody.put("redirectUrl", REDIRECT_URL);
+            requestBody.put("ipnUrl", IPN_URL);
+            requestBody.put("extraData", extraData);
+            requestBody.put("requestType", REQUEST_TYPE);
+            requestBody.put("signature", signature);
+            requestBody.put("lang", "vi");
+
+            // Gửi HTTP request
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                HttpPost httpPost = new HttpPost("https://test-payment.momo.vn/v2/gateway/api/create");
+                httpPost.setHeader("Content-Type", "application/json");
+                httpPost.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8));
+
+                try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                    System.out.println("Response from MoMo: " + responseBody);
+
+                    // Phân tích cú pháp JSON để lấy payUrl
+                    JSONObject jsonResponse = new JSONObject(responseBody);
+                    if (jsonResponse.has("payUrl") && !jsonResponse.isNull("payUrl")) {
+                        return jsonResponse.getString("payUrl"); // Trả về payUrl
+                    } else {
+                        System.err.println("MoMo response does not contain payUrl: " + responseBody);
+                        return null;
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -168,8 +237,16 @@ public class MomoService {
             // Tạo raw signature
             String rawSignature = String.format(
                     "accessKey=%s&amount=%d&description=%s&orderId=%s&partnerCode=%s&requestId=%s&transId=%s",
-                    ACCESS_KEY, amount, description, orderId, PARTNER_CODE, requestId, transId
+                    ACCESS_KEY, amount, description, orderId , PARTNER_CODE, requestId, transId
             );
+
+            // Tìm đơn hàng theo orderId
+            Orders order = ordersRepository.findByOrderId(orderId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng với orderId: " + orderId));
+
+            // Cập nhật trạng thái return_order
+            order.setReturn_order(true);
+            Orders savedOrder = ordersRepository.save(order);
 
             // Ký HMAC SHA256
             String signature = signHmacSHA256(rawSignature, SECRET_KEY);

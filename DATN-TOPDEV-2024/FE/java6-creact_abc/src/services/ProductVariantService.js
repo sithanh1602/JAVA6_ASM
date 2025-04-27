@@ -1,4 +1,5 @@
 import axios from "axios";
+import apiClient from "./ApiClientService/ApiClient";
 
 const API_URL = "http://localhost:8080/api/product-variants";
 

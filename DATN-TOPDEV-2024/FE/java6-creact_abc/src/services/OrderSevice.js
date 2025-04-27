@@ -2,6 +2,7 @@ import axios from 'axios';
 
 // URL của API Backend
 const ORDER_API_URL = 'http://localhost:8080/api/orders';
+const ORDER_API_URL2 = 'http://localhost:8080/api/momo';
 
 // API lấy danh sách đơn hàng của người dùng
 const getOrdersByUserId = async (userId) => {
@@ -203,6 +204,44 @@ const refundMomoPayment = async (orderNum, transId, amount, description = "Huỷ
     }
 };
 
+// API tạo đơn hàng preview với MoMo
+const placeOrderWithMomoPreview = async (orderData, userId, orderId) => {
+    try {
+        const payload = {
+            userId,
+            orderId,
+            totalPrice: orderData.totalPrice,
+            orderNum: orderData.orderNum,
+            fullAddress: orderData.fullAddress,
+            paymentStatus: orderData.paymentStatus,
+            // Thêm các trường khác nếu cần (dựa trên OrderRequest của backend)
+        };
+
+        console.log("📤 Gửi yêu cầu thanh toán MoMo:", payload); // Debug log
+
+        const response = await axios.post(`${ORDER_API_URL2}/placeno-momo`, payload);
+
+        console.log("✅ Phản hồi từ server (MoMo):", response.data); // Debug log
+
+        return response.data.paymentUrl; // Trả về URL thanh toán MoMo
+    } catch (error) {
+        console.error("Lỗi khi tạo đơn hàng MoMo:", error.response?.data || error.message);
+        throw error; // Ném lỗi để xử lý ở nơi gọi hàm
+    }
+};
+
+// API cập nhật paymentStatus của đơn hàng
+const updatePaymentStatus = async (orderId, paymentStatus) => {
+    try {
+        const response = await axios.put(`${ORDER_API_URL}/${orderId}/payment-status`, { paymentStatus });
+        console.log('Payment status updated:', response.data); // Debug log
+        return response.data; // Trả về dữ liệu phản hồi từ server
+    } catch (error) {
+        console.error("Lỗi khi cập nhật paymentStatus:", error.response?.data || error.message);
+        handleError(error);
+    }
+};
+
 
 
 // Export các hàm API
@@ -220,5 +259,7 @@ export default {
     saveOrder,
     placeOrderMomo,             // ✅ mới thêm
     checkMomoPaymentStatus,
-    refundMomoPayment// ✅ mới thêm
+    refundMomoPayment,// ✅ mới thêm
+    placeOrderWithMomoPreview,
+    updatePaymentStatus,
 };

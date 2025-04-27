@@ -10,8 +10,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
+
+
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findByUser_UserId(Long userId);  // Sử dụng 'user.userId' thay vì 'userId'
+
+    @Query("SELECT o FROM Orders o WHERE o.id = :orderId")
+    Optional<Orders> findByOrderId(@Param("orderId") String orderId);
 
     @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.orderDate BETWEEN :startDate AND :endDate AND o.status = 3")
     Integer calculateTotalRevenue(Date startDate, Date endDate);
@@ -54,6 +62,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     Optional<Orders> findByOrderNum(String orderNum);
 
 
+    // query cho dashboard
     @Query("SELECT COUNT(o) FROM Orders o WHERE CAST(o.orderDate AS date) = CURRENT_DATE")
     long countOrdersToday();
 
@@ -61,6 +70,28 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findTodayOrders();
 
     List<Orders> findByOrderDateBetween(LocalDateTime start, LocalDateTime end);
+
+
+    @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.orderDate >= :start AND o.orderDate <= :end")
+    BigDecimal sumTotalPriceBetweenDates(@Param("start") LocalDateTime from, @Param("end") LocalDateTime to);
+
+    @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.status = 8")
+    BigDecimal getTotalRevenueOfCompletedOrders();
+
+    List<Orders> findByStatusAndOrderDateBetween(Integer status, Date fromDate, Date toDate);
+
+    @Query(value = """
+    SELECT TOP 5 
+        p.name AS productName, 
+        p.image_url AS imageUrl,
+        SUM(od.quantity) AS totalQuantitySold
+    FROM order_detail od
+    JOIN product_variants pv ON od.product_variant_id = pv.id
+    JOIN products p ON pv.product_id = p.id
+    GROUP BY p.name, p.image_url
+    ORDER BY totalQuantitySold DESC
+    """, nativeQuery = true)
+    List<Object[]> findTop3BestSellingProducts();
 
 }
 

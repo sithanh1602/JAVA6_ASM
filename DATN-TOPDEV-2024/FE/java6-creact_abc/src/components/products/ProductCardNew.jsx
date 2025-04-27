@@ -34,7 +34,7 @@ const ProductCardNew = ({ variant, index }) => {
         icon: "warning",
         confirmButtonText: "Đăng nhập",
       }).then(() => {
-        navigate("/login");
+        navigate("/loginn");
       });
       return;
     }
@@ -77,7 +77,7 @@ const ProductCardNew = ({ variant, index }) => {
         icon: "warning",
         confirmButtonText: "Đăng nhập",
       }).then(() => {
-        navigate("/login");
+        navigate("/loginn");
       });
       return;
     }

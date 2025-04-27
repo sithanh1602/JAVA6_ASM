@@ -452,15 +452,22 @@ const AdminOrderManagement = () => {
                             Đã nhận hàng
                         </button>
                     )}
-                    {row.status === 9 && row.paymentStatus && (
-                        <button
-                            className="btn btn-success px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                            onClick={() => handleRefund(row)}
-                        >
-                            Hoàn tiền
-                        </button>
+                    {row.status === 9 && row.paymentStatus && !row.return_order && (
+                        <>
+                            {row.paymentStatus === true && row.trans_id === null && row.return_order !== false ? (
+                                <span className="ml-2 text-blue-600 border border-blue-600 px-2 py-1 rounded-md">
+                                    VNPay
+                                </span>
+                            ) : row.trans_id !== null ? (
+                                <button
+                                    className="btn btn-success px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                                    onClick={() => handleRefund(row)}
+                                >
+                                    Hoàn tiền MoMo
+                                </button>
+                            ) : null}
+                        </>
                     )}
-
                 </div>
             ),
             center: true,

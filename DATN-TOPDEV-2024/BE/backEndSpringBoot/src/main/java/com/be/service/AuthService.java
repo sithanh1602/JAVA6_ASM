@@ -2,6 +2,7 @@ package com.be.service;
 
 import com.be.dto.Response;
 import com.be.dto.login.AuthResponse;
+import com.be.dto.login.GoogleLoginRequest;
 import com.be.dto.login.LoginRequest;
 import com.be.dto.register.RegisterRequest;
 import com.be.dto.register.RegisterResponse;
@@ -9,9 +10,17 @@ import com.be.entity.Role;
 import com.be.entity.User;
 import com.be.rep.RoleRepository;
 import com.be.rep.UserRepository;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import jakarta.mail.MessagingException;
+import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,13 +34,13 @@ import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-
 public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final AuthenticationManager authenticationManager;
@@ -43,11 +52,22 @@ public class AuthService {
     private final OtpService otpService;
     private final EmailService emailService;
     private final RoleRepository roleRepository;
+    private final GoogleIdTokenVerifier verifier;
 
+    @Value("${google.client-id}")
+    private String googleClientId;
+
+    @Autowired
     public AuthService(AuthenticationManager authenticationManager,
                        UserDetailsService userDetailsService,
                        UserRepository userRepository,
-                       JwtTokenService jwtTokenService, EmailValidationService emailValidationService, PasswordEncoder passwordEncoder, OtpService otpService, EmailService emailService, RoleRepository roleRepository) {
+                       JwtTokenService jwtTokenService,
+                       EmailValidationService emailValidationService,
+                       PasswordEncoder passwordEncoder,
+                       OtpService otpService,
+                       EmailService emailService,
+                       RoleRepository roleRepository,
+                       GoogleIdTokenVerifier verifier) { // Spring tự động tiêm bean GoogleIdTokenVerifier
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userRepository = userRepository;
@@ -57,6 +77,9 @@ public class AuthService {
         this.otpService = otpService;
         this.emailService = emailService;
         this.roleRepository = roleRepository;
+        this.verifier = verifier;
+
+        logger.info("GoogleIdTokenVerifier được tiêm với clientId: {}", googleClientId);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -76,7 +99,7 @@ public class AuthService {
                     .collect(Collectors.toList());
             String token = jwtTokenService.generateToken(user, roles);
             logger.info("User {} logged in successfully", request.getUsername());
-            return new AuthResponse(token, user.getUserId(), user.getUserName(), user.getFullName(), user.getPhone(), roles);
+            return new AuthResponse(token, user.getUserId().toString(), user.getUserName(), user.getFullName(), user.getPhone(), roles);
         } catch (BadCredentialsException e) {
             logger.warn("Invalid login attempt for username: {}", request.getUsername());
             throw e;
@@ -95,13 +118,17 @@ public class AuthService {
         if (!emailValidationService.isEmailValid(request.getEmail())) {
             throw new IllegalArgumentException("Email không hợp lệ hoặc không thể gửi được!");
         }
+        // Validate password and confirmPassword match
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Mật khẩu và xác nhận mật khẩu không khớp.");
+        }
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if (optionalUser.isPresent()) {
             User existingUser = optionalUser.get();
 
             // Nếu tài khoản chưa xác thực (PENDING)
-            if ("PENDING".equalsIgnoreCase(existingUser.getStatus())) {
+            if ("Pending".equalsIgnoreCase(existingUser.getStatus())) {
 
                 // Nếu email và username trùng, cho phép gửi lại OTP
                 if (existingUser.getUserName().equals(request.getUserName())) {
@@ -112,7 +139,7 @@ public class AuthService {
                     throw new IllegalArgumentException("Username đã tồn tại với email khác, vui lòng chọn tên khác.");
                 }
 
-            } else if ("ACTIVE".equalsIgnoreCase(existingUser.getStatus())) {
+            } else if ("Active".equalsIgnoreCase(existingUser.getStatus())) {
                 // Nếu email đã xác thực (ACTIVE), không cho phép đăng ký lại
                 throw new IllegalArgumentException("Email đã được xác thực, không thể đăng ký lại.");
             }
@@ -125,10 +152,10 @@ public class AuthService {
 
     private void updateUnverifiedUser(User user, RegisterRequest req) {
         // Không cho phép cập nhật username và password khi trạng thái là PENDING
-        if ("PENDING".equalsIgnoreCase(user.getStatus())) {
+        if ("Pending".equalsIgnoreCase(user.getStatus())) {
             user.setFullName(req.getFullName());
             user.setPhone(req.getPhone());
-            user.setStatus("PENDING");
+            user.setStatus("Pending");
             user.setRegistrationDate(new Date());
 
             // Tạo OTP mới và thời gian hết hạn
@@ -155,7 +182,7 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setFullName(req.getFullName());
         user.setPhone(req.getPhone());
-        user.setStatus("PENDING");
+        user.setStatus("Pending");
         user.setRegistrationDate(new Date());
 
         String otp = otpService.generateOtp();
@@ -195,7 +222,7 @@ public class AuthService {
             return ResponseEntity.badRequest().body(Response.error("Mã OTP đã hết hạn. Vui lòng gửi lại."));
         }
 
-        user.setStatus("ACTIVE");
+        user.setStatus("Active");
         user.setOtpSms(null); // Xóa OTP sau khi dùng
         user.setOtpExpiredAt(null);
         userRepository.save(user);
@@ -213,7 +240,7 @@ public class AuthService {
 
         User user = optionalUser.get();
 
-        if ("ACTIVE".equalsIgnoreCase(user.getStatus())) {
+        if ("Active".equalsIgnoreCase(user.getStatus())) {
             return ResponseEntity.badRequest().body(Response.error("Tài khoản đã xác thực."));
         }
 
@@ -230,5 +257,184 @@ public class AuthService {
 
         return ResponseEntity.ok(Response.success("Đã gửi lại mã OTP. Vui lòng kiểm tra email.", "Gửi lại OTP thành công."));
     }
+
+    // Trong AuthService.java
+
+    // Phương thức xử lý quên mật khẩu (gửi OTP)
+    public ResponseEntity<Response<String>> forgotPassword(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(404).body(Response.error("Không tìm thấy tài khoản với email này."));
+        }
+
+        User user = optionalUser.get();
+
+        // Tạo OTP mới
+        String otp = otpService.generateOtp();
+        user.setOtpSms(otp);
+        user.setOtpExpiredAt(otpService.getOtpExpiredTime());
+        userRepository.save(user);
+
+        // Gửi OTP qua email
+        try {
+            emailService.sendOtpEmail(email, otp);
+        } catch (MessagingException e) {
+            return ResponseEntity.status(500).body(Response.error("Không thể gửi email. Vui lòng thử lại sau."));
+        }
+
+        return ResponseEntity.ok(Response.success("Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư đến.", "Gửi OTP thành công."));
+    }
+
+    // Phương thức xác minh OTP cho quên mật khẩu
+    public ResponseEntity<Response<String>> verifyOtpForPassword(String email, String otpCode) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(404).body(Response.error("Không tìm thấy tài khoản với email này."));
+        }
+
+        User user = optionalUser.get();
+
+        if (!user.getOtpSms().equals(otpCode)) {
+            return ResponseEntity.badRequest().body(Response.error("Mã OTP không chính xác."));
+        }
+
+        if (LocalDateTime.now().isAfter(user.getOtpExpiredAt())) {
+            user.setOtpSms(null);
+            user.setOtpExpiredAt(null);
+            userRepository.save(user);
+            return ResponseEntity.badRequest().body(Response.error("Mã OTP đã hết hạn. Vui lòng gửi lại."));
+        }
+
+        // Không xóa OTP ngay lập tức, vì cần để người dùng đặt lại mật khẩu
+        // Chỉ đánh dấu là đã xác minh thành công
+        return ResponseEntity.ok(Response.success("Xác minh OTP thành công. Vui lòng đặt lại mật khẩu mới.", "Xác minh thành công."));
+    }
+
+    // Phương thức đặt lại mật khẩu sau khi xác minh OTP
+    public ResponseEntity<Response<String>> resetPassword(String email, String newPassword) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(404).body(Response.error("Không tìm thấy tài khoản với email này."));
+        }
+
+        User user = optionalUser.get();
+
+        // Kiểm tra xem người dùng đã xác minh OTP chưa
+        if (user.getOtpSms() == null || user.getOtpExpiredAt() == null) {
+            return ResponseEntity.badRequest().body(Response.error("Bạn cần xác minh OTP trước khi đặt lại mật khẩu."));
+        }
+
+        // Kiểm tra OTP còn hiệu lực
+        if (LocalDateTime.now().isAfter(user.getOtpExpiredAt())) {
+            user.setOtpSms(null);
+            user.setOtpExpiredAt(null);
+            userRepository.save(user);
+            return ResponseEntity.badRequest().body(Response.error("Phiên làm việc đã hết hạn. Vui lòng bắt đầu lại quy trình quên mật khẩu."));
+        }
+
+        // Đặt lại mật khẩu
+        user.setPassword(passwordEncoder.encode(newPassword));
+        // Xóa OTP sau khi đã đặt lại mật khẩu thành công
+        user.setOtpSms(null);
+        user.setOtpExpiredAt(null);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Response.success("Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.", "Đặt lại mật khẩu thành công."));
+    }
+
+    public Response<AuthResponse> googleLogin(GoogleLoginRequest request) {
+        try {
+            // Kiểm tra clientId từ frontend
+            if (!request.getClientId().equals(googleClientId)) {
+                logger.warn("Client ID không hợp lệ: {}", request.getClientId());
+                return Response.error("Client ID không hợp lệ");
+            }
+
+            // Xác minh token Google, sử dụng googleClientId từ cấu hình
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(request.getCredential());
+            if (idToken == null) {
+                logger.warn("Token Google không hợp lệ");
+                return Response.error("Token Google không hợp lệ");
+            }
+
+            // Lấy thông tin người dùng từ payload
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            String email = payload.getEmail();
+            String fullName = (String) payload.get("name");
+            String googleId = payload.getSubject(); // ID duy nhất của Google
+
+            // Tìm người dùng theo email
+            Optional<User> optionalUser = userRepository.findByEmail(email);
+            User user;
+            List<String> roles;
+
+            if (optionalUser.isPresent()) {
+                user = optionalUser.get();
+                // Kiểm tra tài khoản bị khóa
+                if ("Inactive".equalsIgnoreCase(user.getStatus())) {
+                    logger.warn("Tài khoản {} bị khóa", email);
+                    return Response.error("Account is locked");
+                }
+                // Cập nhật googleId nếu chưa có
+                if (user.getGoogleId() == null) {
+                    user.setGoogleId(googleId);
+                    userRepository.save(user);
+                }
+                // Lấy vai trò
+                roles = user.getRoles().stream()
+                        .map(Role::getRoleName)
+                        .collect(Collectors.toList());
+            } else {
+                // Tạo người dùng mới
+                user = new User();
+                user.setEmail(email);
+                user.setUserName(email); // Hoặc tạo username từ email
+                user.setFullName(fullName);
+                user.setGoogleId(googleId);
+                user.setStatus("Active"); // Kích hoạt ngay, không cần OTP
+                user.setRegistrationDate(new Date());
+
+                // Gán vai trò USER
+                Role role = roleRepository.findByRoleName("USER");
+                if (role == null) {
+                    logger.error("Vai trò USER không tồn tại");
+                    return Response.error("Không thể gán vai trò cho người dùng");
+                }
+                user.getRoles().add(role);
+                userRepository.save(user);
+
+                roles = Collections.singletonList("USER");
+            }
+
+            // Tạo token JWT nội bộ
+            String token = jwtTokenService.generateToken(user, roles);
+            logger.info("token: {}", token);
+            // Tạo phản hồi
+            AuthResponse authResponse = new AuthResponse(
+                    token,
+                    user.getUserId().toString(),
+                    user.getUserName(),
+                    user.getFullName(),
+                    user.getPhone(),
+                    roles
+            );
+
+            logger.info("Đăng nhập Google thành công cho email: {}", email);
+
+            logger.info("authResponse: {}", authResponse);
+            return Response.success(authResponse, "Google login successful");
+        } catch (Exception e) {
+            logger.error("Lỗi khi xử lý đăng nhập Google: {}", e.getMessage(), e);
+            return Response.error("Đăng nhập Google thất bại: " + e.getMessage());
+        }
+    }
+
 
 }

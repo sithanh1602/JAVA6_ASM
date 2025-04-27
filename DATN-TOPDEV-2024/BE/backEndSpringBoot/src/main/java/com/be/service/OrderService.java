@@ -4,7 +4,10 @@ import com.be.dto.OrderItem;
 import com.be.dto.OrderRequest;
 import com.be.entity.*;
 import com.be.rep.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     @Autowired
     private OrdersRepository ordersRepository;
@@ -45,6 +50,31 @@ public class OrderService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Transactional
+    public Orders updateOrderStatusByOrderNum(String orderNum, int status) {
+        logger.info("Cập nhật trạng thái cho đơn hàng: orderNum={}, status={}", orderNum, status);
+
+        // Bỏ phần từ chữ 'Z' trở về
+        int indexOfZ = orderNum.indexOf('Z');
+        if (indexOfZ != -1) {
+            orderNum = orderNum.substring(0, indexOfZ);  // Cắt chuỗi từ đầu đến trước chữ 'Z'
+        }
+        System.out.println("đât ne"+ orderNum);
+        Orders order = ordersRepository.findByOrderNum(orderNum)
+                .orElseThrow(() -> {
+                    logger.error("Không tìm thấy đơn hàng với orderNum: {}", indexOfZ);
+                    return new EntityNotFoundException("Không tìm thấy đơn hàng với orderNum: " + indexOfZ);
+                });
+
+        order.setStatus(status);
+        Orders updatedOrder = ordersRepository.save(order);
+        logger.info("Đã cập nhật trạng thái đơn hàng: orderNum={}, status={}", orderNum, status);
+
+        return updatedOrder;
+    }
+
+
 
     // Scheduler chạy mỗi giờ để kiểm tra và xóa đơn hàng trạng thái 2
     @Scheduled(fixedRate = 60 * 60 * 1000) // Chạy mỗi giờ (60 phút * 60 giây * 1000 ms)
@@ -93,6 +123,8 @@ public class OrderService {
             orderInfo.put("fullAddress", order.getFullAddress());
             orderInfo.put("phone", order.getPhone());
             orderInfo.put("transId",order.getTrans_id());
+            orderInfo.put("return_order",order.isReturn_order());
+            orderInfo.put("trans_id",order.getTrans_id());
             response.add(orderInfo);
         }
 
@@ -106,6 +138,10 @@ public class OrderService {
     public Integer calculateRevenue(Date startDate, Date endDate) {
         Integer revenue = ordersRepository.calculateTotalRevenue(startDate, endDate);
         return revenue != null ? revenue : 0; // Ensure null safety
+    }
+
+    public List<Orders> getOrdersByStatus(int status) {
+        return ordersRepository.findByStatus(status);
     }
 
 
@@ -176,7 +212,7 @@ public class OrderService {
 
         // Cập nhật trạng thái đơn hàng
         order.setStatus(status);
-
+        order.setReturn_order(false);
         // Nếu có thông tin giao dịch, cập nhật transactionId và paymentMethod
         if (transactionId != null) {
 
@@ -240,6 +276,8 @@ public class OrderService {
 
         int oldStatus = order.getStatus();
         order.setStatus(status);
+
+        order.setReturn_order(false);
         Orders updatedOrder = ordersRepository.save(order);
 
         String statusDescription = getStatusDescription(status);
@@ -262,6 +300,41 @@ public class OrderService {
         message.put("status", updatedOrder.getStatus());
         message.put("userId", updatedOrder.getUser().getUserId());
         messagingTemplate.convertAndSend("/topic/status", message);
+
+        return updatedOrder;
+    }
+
+    @Transactional
+    public Orders updatePaymentStatus(Long orderId, boolean paymentStatus) {
+        logger.info("Cập nhật paymentStatus cho đơn hàng: orderId={}, paymentStatus={}", orderId, paymentStatus);
+
+        Orders order = ordersRepository.findById(orderId)
+                .orElseThrow(() -> {
+                    logger.error("Không tìm thấy đơn hàng với orderId: {}", orderId);
+                    return new EntityNotFoundException("Không tìm thấy đơn hàng với orderId: " + orderId);
+                });
+
+        boolean oldPaymentStatus = order.isPaymentStatus(); // Sửa từ getPaymentStatus() thành isPaymentStatus()
+        order.setPaymentStatus(paymentStatus);
+        Orders updatedOrder = ordersRepository.save(order);
+        logger.info("Đã cập nhật paymentStatus đơn hàng: orderId={}, paymentStatus={}", orderId, paymentStatus);
+
+        // Tạo thông báo
+        String paymentMethodDescription = paymentStatus ? "Thanh toán Online" : "Thanh toán COD";
+        Notification notification = new Notification();
+        notification.setUser(updatedOrder.getUser());
+        notification.setOrder(updatedOrder);
+        notification.setContent("Đơn hàng " + updatedOrder.getOrderNum() +
+                " của bạn đã được chuyển sang phương thức " + paymentMethodDescription);
+        notificationRepository.save(notification);
+
+        // Gửi thông báo qua WebSocket
+        Map<String, Object> message = new HashMap<>();
+        message.put("orderId", updatedOrder.getId());
+        message.put("orderNum", updatedOrder.getOrderNum());
+        message.put("paymentStatus", updatedOrder.isPaymentStatus()); // Sửa ở đây nếu cần
+        message.put("userId", updatedOrder.getUser().getUserId());
+        messagingTemplate.convertAndSend("/topic/paymentStatus", message);
 
         return updatedOrder;
     }
@@ -290,6 +363,7 @@ public class OrderService {
             sb.append("<div class='container'>");
             sb.append("<div class='header'>");
             sb.append("<h2>Đơn hàng đã được hủy</h2>");
+            sb.append("<h2>TECHMART THÔNG BÁO!!!</h2>");
             sb.append("</div>");
             sb.append("<p>Kính gửi ").append(user.getFullName()).append(",</p>");
             sb.append("<p>Đơn hàng <strong>").append(order.getOrderNum()).append("</strong> của bạn đã được hủy thành công.</p>");
@@ -310,6 +384,9 @@ public class OrderService {
                 sb.append("<li>Tên ngân hàng</li>");
                 sb.append("</ol>");
                 sb.append("<p>Bạn có thể phản hồi trực tiếp email này với các thông tin trên.</p>");
+                sb.append("<p>.</p>");
+                sb.append("<p>Lưu ý:</p>");
+                sb.append("<p>Nếu bạn thanh toán bằng phương thức Momo thì vui lòng kiểm tra lại thông báo trên ứng dụng Momo cá nhân!</p>");
             }
 
             sb.append("<p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email hoặc hotline.</p>");
@@ -399,6 +476,9 @@ public class OrderService {
         order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
+        order.setReturn_order(true);
+        order.setTrans_id(orderRequest.getTransId());
+
 
         // Kiểm tra xem có sử dụng voucher không
         if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {
@@ -451,18 +531,18 @@ public class OrderService {
             }
             productVariantRepository.save(productVariant);
 
-            // Lấy sản phẩm chính (Product)
-            Product product = productVariant.getProduct();
-
-            // Cập nhật số lượng tồn kho và số lượng mua
-            product.setStock(product.getStock() - item.getQuantity());
-            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
-
-            // Kiểm tra tồn kho của sản phẩm chính
-            if (product.getStock() <= 0) {
-                product.setStatus("Out of Stock");
-            }
-            productRepository.save(product);
+//            // Lấy sản phẩm chính (Product)
+//            Product product = productVariant.getProduct();
+//
+//            // Cập nhật số lượng tồn kho và số lượng mua
+//            product.setStock(product.getStock() - item.getQuantity());
+//            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
+//
+//            // Kiểm tra tồn kho của sản phẩm chính
+//            if (product.getStock() <= 0) {
+//                product.setStatus("Out of Stock");
+//            }
+//            productRepository.save(product);
 
             // Lưu chi tiết đơn hàng
             OrderDetail orderDetail = new OrderDetail();
@@ -517,6 +597,7 @@ public class OrderService {
         order.setOrderDate(new Date());
         order.setPhone(orderRequest.getPhone());
         order.setShipping_fee(orderRequest.getShippingFee());
+        order.setReturn_order(true);
 
         // Kiểm tra xem có sử dụng voucher không
         if (orderRequest.getvoucherCode() != null && !orderRequest.getvoucherCode().isEmpty()) {
@@ -572,15 +653,15 @@ public class OrderService {
             // Lấy sản phẩm chính (Product)
             Product product = productVariant.getProduct();
 
-            // Cập nhật số lượng tồn kho và số lượng mua
-            product.setStock(product.getStock() - item.getQuantity());
-            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
-
-            // Kiểm tra tồn kho của sản phẩm chính
-            if (product.getStock() <= 0) {
-                product.setStatus("Out of Stock");
-            }
-            productRepository.save(product);
+//            // Cập nhật số lượng tồn kho và số lượng mua
+//            product.setStock(product.getStock() - item.getQuantity());
+//            product.setPurchaseCount(product.getPurchaseCount() + item.getQuantity());
+//
+//            // Kiểm tra tồn kho của sản phẩm chính
+//            if (product.getStock() <= 0) {
+//                product.setStatus("Out of Stock");
+//            }
+//            productRepository.save(product);
 
             // Lưu chi tiết đơn hàng
             OrderDetail orderDetail = new OrderDetail();
@@ -636,6 +717,8 @@ public class OrderService {
         return order;
     }
 
+
+
     private String buildEmailContent(User user, OrderRequest orderRequest) {
         StringBuilder sb = new StringBuilder();
         sb.append("<html>");
@@ -667,6 +750,7 @@ public class OrderService {
         sb.append("<p><strong>Email:</strong> ").append(user.getEmail()).append("</p>");
         sb.append("<p><strong>Phone:</strong> ").append(user.getPhone()).append("</p>");
         sb.append("<p><strong>Address:</strong> ").append(orderRequest.getFullAddress()).append("</p>");
+        sb.append("<p><strong>Phi vận chuyển:</strong> ").append(orderRequest.getShippingFee()).append("</p>");
         sb.append("<table>");
         sb.append("<thead>");
         sb.append("<tr>");
@@ -697,4 +781,10 @@ public class OrderService {
 
         return sb.toString();
     }
+
+    public List<Orders> getCompletedOrdersInRange(Date fromDate, Date toDate) {
+        return ordersRepository.findByStatusAndOrderDateBetween(8, fromDate, toDate);
+    }
+
+
 }

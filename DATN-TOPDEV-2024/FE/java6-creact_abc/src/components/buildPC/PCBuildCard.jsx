@@ -63,7 +63,7 @@ const PCBuildCard = ({ build, index }) => {
         icon: "warning",
         confirmButtonText: "Đăng nhập",
       }).then(() => {
-        navigate("/login");
+        navigate("/loginn");
       });
       return;
     }
@@ -128,9 +128,11 @@ const PCBuildCard = ({ build, index }) => {
           className="h-64 w-full object-cover rounded-lg"
         />
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-red-800 font-bold text-lg">
-            KHÔNG KHẢ DỤNG
-          </div>
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <span className="bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-lg">
+            KHÔNG HOẠT ĐỘNG
+          </span>
+        </div>
         )}
         <span
           className={`absolute top-2 left-2 ${getPurposeColor(

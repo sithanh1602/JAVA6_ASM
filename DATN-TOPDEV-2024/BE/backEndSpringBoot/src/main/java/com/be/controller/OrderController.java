@@ -2,9 +2,11 @@ package com.be.controller;
 
 import com.be.dto.OrderRequest;
 import com.be.entity.*;
+import com.be.rep.OrderDetailRepository;
 import com.be.service.OrderService;
 import com.be.service.VNPayService;
 import com.be.service.ZaloPayService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,29 @@ public class OrderController {
     @Autowired
     private ZaloPayService zaloPayService;
 
+    @Autowired
+    protected OrderDetailRepository orderDetailRepository;
+
+    @PutMapping("/{orderId}/payment-status")
+    public ResponseEntity<?> updatePaymentStatus(@PathVariable Long orderId, @RequestBody Map<String, Boolean> request) {
+        try {
+            Boolean paymentStatus = request.get("paymentStatus");
+            if (paymentStatus == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "paymentStatus is required"));
+            }
+
+            Orders updatedOrder = orderService.updatePaymentStatus(orderId, paymentStatus);
+            return ResponseEntity.ok(Map.of("message", "Cập nhật phương thức thanh toán thành công"));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Đã xảy ra lỗi khi cập nhật phương thức thanh toán: " + e.getMessage()));
+        }
+    }
 
     @GetMapping("/all")
     public List<Map<String, Object>> getAllOrders() throws Exception {
@@ -43,11 +68,18 @@ public class OrderController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
         return orderService.getOrderDetails(startDate, endDate);
     }
+
     @GetMapping("/revenue")
     public Integer getRevenue(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
             @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
         return orderService.calculateRevenue(startDate, endDate);
+    }
+
+    // Lấy tất cả order detail
+    @GetMapping("/all/ordersDetails")
+    public List<OrderDetail> getAllOrderDetails() {
+        return orderDetailRepository.findAll();
     }
 
 
@@ -185,6 +217,7 @@ public class OrderController {
             @RequestParam(required = false) String transactionId // Thêm tham số cho transactionId
             ) {
         try {
+            System.out.println(orderId);
             // Cập nhật trạng thái đơn hàng và lưu transactionId, paymentMethod
             Orders updatedOrder = orderService.updateOrderStatus(orderId, status);
 
@@ -296,6 +329,14 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Có lỗi xảy ra khi xóa đơn hàng chưa thanh toán: " + e.getMessage()));
         }
+    }
+
+    @PutMapping("/status/{orderNum}")
+    public ResponseEntity<Orders> updateStatusByOrderNum(
+            @PathVariable String orderNum,
+            @RequestParam int status) {
+        Orders updated = orderService.updateOrderStatusByOrderNum(orderNum, status);
+        return ResponseEntity.ok(updated);
     }
 
 }

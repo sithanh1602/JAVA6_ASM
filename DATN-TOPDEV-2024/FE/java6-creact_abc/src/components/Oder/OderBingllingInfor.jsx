@@ -37,7 +37,7 @@ const BillingInfo = ({ setUserInfo, userInfo, setShippingFee, fetchShippingFee }
         const token = localStorage.getItem('token');
         if (!token) {
             console.log("Token không tồn tại hoặc đã hết hạn");
-            window.location.href = '/login';
+            window.location.href = '/loginn';
         } else {
             UserAddressService.getDefaultUserInfo()
                 .then((data) => {
