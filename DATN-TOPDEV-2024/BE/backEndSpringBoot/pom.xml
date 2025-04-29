@@ -168,7 +168,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20210307</version>
+            <version>20231013</version>
         </dependency>
 
         <!-- Logging -->
@@ -195,7 +195,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>9.37</version>
+            <version>9.37.2</version>
         </dependency>
         <!-- Test -->
         <dependency>
