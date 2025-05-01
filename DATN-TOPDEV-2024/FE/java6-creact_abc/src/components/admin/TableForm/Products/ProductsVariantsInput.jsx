@@ -304,13 +304,6 @@ const ProductVariantsInput = ({ variant, onSave, productId }) => {
         confirmButtonText: "OK",
       });
 
-      try {
-        const newVariants =
-          await ProductVariantService.getProductVariantsByProductId(productId);
-        await ProductVariantService.addVariant(newVariants);
-      } catch (error) {
-        console.error("Lỗi khi cập nhật danh sách biến thể:", error);
-      }
     } catch (error) {
       console.error("Lỗi trong handleSubmit:", error);
       await Swal.fire({
