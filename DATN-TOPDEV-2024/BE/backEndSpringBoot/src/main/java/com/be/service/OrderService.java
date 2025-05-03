@@ -311,8 +311,17 @@ public class OrderService {
                 });
 
         boolean oldPaymentStatus = order.isPaymentStatus(); // Sửa từ getPaymentStatus() thành isPaymentStatus()
+
+        // Cập nhật trạng thái đơn hàng tùy theo trạng thái thanh toán
+        if (paymentStatus) {
+            order.setStatus(2); // Thanh toán Online
+        } else {
+            order.setStatus(1); // Thanh toán COD
+        }
+
         order.setPaymentStatus(paymentStatus);
         Orders updatedOrder = ordersRepository.save(order);
+
         logger.info("Đã cập nhật paymentStatus đơn hàng: orderId={}, paymentStatus={}", orderId, paymentStatus);
 
         // Tạo thông báo
@@ -328,12 +337,13 @@ public class OrderService {
         Map<String, Object> message = new HashMap<>();
         message.put("orderId", updatedOrder.getId());
         message.put("orderNum", updatedOrder.getOrderNum());
-        message.put("paymentStatus", updatedOrder.isPaymentStatus()); // Sửa ở đây nếu cần
+        message.put("paymentStatus", updatedOrder.isPaymentStatus());
         message.put("userId", updatedOrder.getUser().getUserId());
         messagingTemplate.convertAndSend("/topic/paymentStatus", message);
 
         return updatedOrder;
     }
+
 
     private void sendOrderCancellationEmail(Orders order) {
         User user = order.getUser();

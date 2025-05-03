@@ -410,9 +410,8 @@ const OrderList = () => {
                     onReviewSubmitted={fetchOrders}
                 />
             )}
-
             {/* Nút chuyển phương thức thanh toán chỉ hiển thị nếu phương thức thanh toán chưa đúng trạng thái mong muốn */}
-            {[1, 2, 3].includes(row.status) && (
+            {[1, 2].includes(row.status) && (
                 <Button
                     size="sm"
                     color="warning"
