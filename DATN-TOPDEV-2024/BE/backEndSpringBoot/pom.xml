@@ -113,7 +113,7 @@
         <dependency>
             <groupId>com.google.firebase</groupId>
             <artifactId>firebase-admin</artifactId>
-            <version>8.1.0</version>
+            <version>9.5.0</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -154,7 +154,7 @@
         <dependency>
             <groupId>com.google.firebase</groupId>
             <artifactId>firebase-admin</artifactId>
-            <version>8.1.0</version>
+            <version>9.5.0</version>
         </dependency>
 
         <!-- Vonage (Nexmo) for SMS -->
