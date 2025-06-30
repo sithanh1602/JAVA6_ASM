@@ -40,7 +40,7 @@
     "file-saver": "^2.0.5",
     "firebase": "^11.0.1",
     "framer-motion": "^12.7.4",
-    "handsontable": "^14.6.1",
+    "handsontable": "^15.0.0",
     "html2canvas": "^1.4.1",
     "jquery": "^3.7.1",
     "js-cookie": "^3.0.5",
